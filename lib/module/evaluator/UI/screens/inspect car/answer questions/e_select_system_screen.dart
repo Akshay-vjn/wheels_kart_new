@@ -48,7 +48,7 @@ class _EvSelectSystemScreenState extends State<EvSelectSystemScreen> {
         title: Text(
           'Select System',
           style: AppStyle.style(
-            color: AppColors.kWhite,
+            color: AppColors.white,
             context: context,
             fontWeight: FontWeight.bold,
             size: AppDimensions.fontSize18(context),
@@ -118,7 +118,7 @@ class _EvSelectSystemScreenState extends State<EvSelectSystemScreen> {
                                 "9/10",
                                 style: AppStyle.style(
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.kGrey,
+                                  color: AppColors.grey,
                                   size: AppDimensions.fontSize17(context),
                                   context: context,
                                 ),

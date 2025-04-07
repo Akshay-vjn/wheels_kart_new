@@ -261,13 +261,13 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
       children: [
         Row(
           children: [
-            Icon(icon, color: AppColors.kWhite),
+            Icon(icon, color: AppColors.white),
             AppSpacer(widthPortion: .02),
             Text(
               title,
               style: AppStyle.style(
                 size: AppDimensions.fontSize15(context),
-                color: AppColors.kWhite,
+                color: AppColors.white,
                 fontWeight: FontWeight.w400,
                 context: context,
               ),
@@ -277,7 +277,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
         Text(
           details,
           style: AppStyle.style(
-            color: AppColors.kWhite,
+            color: AppColors.white,
             size: AppDimensions.fontSize15(context),
             fontWeight: FontWeight.w400,
             context: context,

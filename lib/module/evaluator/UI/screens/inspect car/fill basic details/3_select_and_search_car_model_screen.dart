@@ -58,7 +58,7 @@ class _EvSelectAndSearchCarModelScreenState
             shadowColor: Colors.transparent,
             backgroundColor: AppColors.DEFAULT_BLUE_DARK,
             foregroundColor: Colors.transparent,
-            leading: customBackButton(context, color: AppColors.kWhite),
+            leading: customBackButton(context, color: AppColors.white),
             floating: true,
             pinned: false,
             snap: true,
@@ -67,7 +67,7 @@ class _EvSelectAndSearchCarModelScreenState
               style: AppStyle.style(
                 context: context,
                 fontWeight: FontWeight.w500,
-                color: AppColors.kWhite,
+                color: AppColors.white,
                 size: AppDimensions.fontSize18(context),
               ),
             ),
@@ -163,7 +163,7 @@ class _EvSelectAndSearchCarModelScreenState
             physics: const NeverScrollableScrollPhysics(),
             itemCount: list.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              childAspectRatio: .89,
+              childAspectRatio: .85,
               crossAxisCount: 3,
               mainAxisSpacing: 15,
               crossAxisSpacing: 12,
@@ -206,7 +206,7 @@ class _EvSelectAndSearchCarModelScreenState
                           color:
                               selectedCarModelIndex == index
                                   ? AppColors.kAppSecondaryColor
-                                  : AppColors.kBlack,
+                                  : AppColors.black,
                         ),
                       ),
                       child: CachedNetworkImage(
@@ -246,7 +246,7 @@ class _EvSelectAndSearchCarModelScreenState
                       child: Text(
                         list[index].modelName,
                         style: AppStyle.style(
-                          color: AppColors.kWhite,
+                          color: AppColors.white,
                           context: context,
                           fontWeight: FontWeight.bold,
                         ),

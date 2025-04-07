@@ -46,7 +46,7 @@ class _EvSelectTotalKmsDrivenScreenState
           style: AppStyle.style(
             context: context,
             fontWeight: FontWeight.w500,
-            color: AppColors.kWhite,
+            color: AppColors.white,
             size: AppDimensions.fontSize18(context),
           ),
         ),
@@ -64,12 +64,12 @@ class _EvSelectTotalKmsDrivenScreenState
           Container(
             width: w(context),
             decoration: BoxDecoration(
-              color: AppColors.kWhite,
+              color: AppColors.white,
               boxShadow: [
                 BoxShadow(
                   blurRadius: 1,
                   spreadRadius: 1,
-                  color: AppColors.kBlack.withOpacity(.1),
+                  color: AppColors.black.withOpacity(.1),
                   offset: Offset(1, 1),
                 ),
               ],

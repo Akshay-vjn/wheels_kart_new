@@ -72,7 +72,7 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
         title: Text(
           'Select Portion',
           style: AppStyle.style(
-            color: AppColors.kWhite,
+            color: AppColors.white,
             context: context,
             fontWeight: FontWeight.bold,
             size: AppDimensions.fontSize18(context),
@@ -170,7 +170,7 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
       shape: ContinuousRectangleBorder(),
       context: context,
       // enableDrag: true,
-      backgroundColor: AppColors.kWhite,
+      backgroundColor: AppColors.white,
       builder:
           (context) => AppMargin(
             child: Column(
@@ -181,7 +181,7 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
                   'Follow the Instruction',
                   style: AppStyle.style(
                     context: context,
-                    color: AppColors.kBlack,
+                    color: AppColors.black,
                     fontWeight: FontWeight.bold,
                     size: AppDimensions.fontSize24(context),
                   ),

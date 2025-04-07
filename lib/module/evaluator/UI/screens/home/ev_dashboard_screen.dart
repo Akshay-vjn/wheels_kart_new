@@ -8,8 +8,8 @@ import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/responsive_helper.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/leads/add_new_lead_scree.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/home/e_profile_screen.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_add_new_lead_scree.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_profile_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/completed/e_completed_evaluation_list.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/pending/ev_pending_leads.dart';
 
@@ -69,7 +69,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
                                   "Hi,",
                                   style: AppStyle.style(
                                     context: context,
-                                    color: AppColors.kWhite,
+                                    color: AppColors.white,
                                     fontWeight: FontWeight.w300,
                                     size: AppDimensions.fontSize15(context),
                                   ),
@@ -121,9 +121,9 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
                 onPressed: () {
                   Navigator.of(
                     context,
-                  ).push(AppRoutes.createRoute(AddNewLeadScree()));
+                  ).push(AppRoutes.createRoute(EvAddNewLeadScreen()));
                 },
-                child: const Icon(CupertinoIcons.add, color: AppColors.kWhite),
+                child: const Icon(CupertinoIcons.add, color: AppColors.white),
               )
               : SizedBox();
         },
@@ -137,7 +137,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
           return (state is AppNavigationInitialState)
               ? NavigationBar(
                 selectedIndex: state.initailIndex,
-                indicatorColor: AppColors.kWhite,
+                indicatorColor: AppColors.white,
                 indicatorShape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(100)),
                 ),
@@ -146,7 +146,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
                 labelTextStyle: WidgetStatePropertyAll(
                   AppStyle.style(
                     context: context,
-                    color: AppColors.kWhite,
+                    color: AppColors.white,
                     fontWeight: FontWeight.w500,
                     size: AppDimensions.fontSize12(context),
                   ),
@@ -175,7 +175,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
   Widget _buildDestinationButton(String label, IconData icon) {
     return NavigationDestination(
       selectedIcon: Icon(icon, color: AppColors.DEFAULT_ORANGE),
-      icon: Icon(icon, color: AppColors.kWhite),
+      icon: Icon(icon, color: AppColors.white),
       label: label,
     );
   }

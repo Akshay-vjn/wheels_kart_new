@@ -13,7 +13,10 @@ import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.
 
 class Functions {
   static void onSelectSubQuestion(
-      BuildContext context, int questionIndex, dynamic value) {
+    BuildContext context,
+    int questionIndex,
+    dynamic value,
+  ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       List<UploadInspectionModel> updatedIndexVariables =
@@ -29,9 +32,9 @@ class Functions {
       //------------------------------------------------------
 
       updatedIndexVariables[questionIndex].subQuestionAnswer = value;
-      context
-          .read<FetchQuestionsBloc>()
-          .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+      context.read<FetchQuestionsBloc>().add(
+        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+      );
 
       // Reset
       _resetButtonStatus(context, questionIndex);
@@ -39,11 +42,14 @@ class Functions {
   }
 
   static void onSelectAnswertion(
-      BuildContext context, int questionIndex, dynamic value) {
+    BuildContext context,
+    int questionIndex,
+    dynamic value,
+  ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
-//-----------------------REST------------------------------
+      //-----------------------REST------------------------------
 
       updatedIndexVariables[questionIndex].invalidOption = null;
       updatedIndexVariables[questionIndex].validOption = null;
@@ -53,16 +59,19 @@ class Functions {
       //------------------------------------------------------
 
       updatedIndexVariables[questionIndex].answer = value;
-      context
-          .read<FetchQuestionsBloc>()
-          .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+      context.read<FetchQuestionsBloc>().add(
+        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+      );
       // Reset
       _resetButtonStatus(context, questionIndex);
     }
   }
 
   static void onSelectValidOption(
-      BuildContext context, int questionIndex, dynamic value) {
+    BuildContext context,
+    int questionIndex,
+    dynamic value,
+  ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
@@ -82,28 +91,28 @@ class Functions {
           if (listOfSelectedvalidOption.isNotEmpty) {
             final result = listOfSelectedvalidOption.join(",");
             updatedIndexVariables[questionIndex].validOption = result;
-            context
-                .read<FetchQuestionsBloc>()
-                .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+            context.read<FetchQuestionsBloc>().add(
+              OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+            );
           } else {
             updatedIndexVariables[questionIndex].validOption = null;
-            context
-                .read<FetchQuestionsBloc>()
-                .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+            context.read<FetchQuestionsBloc>().add(
+              OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+            );
           }
         } else {
           listOfSelectedvalidOption.add(value);
           final result = listOfSelectedvalidOption.join(",");
           updatedIndexVariables[questionIndex].validOption = result;
-          context
-              .read<FetchQuestionsBloc>()
-              .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+          context.read<FetchQuestionsBloc>().add(
+            OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+          );
         }
       } else {
         updatedIndexVariables[questionIndex].validOption = value;
-        context
-            .read<FetchQuestionsBloc>()
-            .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+        context.read<FetchQuestionsBloc>().add(
+          OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+        );
       }
       // Reset
       _resetButtonStatus(context, questionIndex);
@@ -111,7 +120,10 @@ class Functions {
   }
 
   static void onSelectInValidOption(
-      BuildContext context, int questionIndex, dynamic value) {
+    BuildContext context,
+    int questionIndex,
+    dynamic value,
+  ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
@@ -130,28 +142,28 @@ class Functions {
           if (listOfSelectedIvalidOption.isNotEmpty) {
             final result = listOfSelectedIvalidOption.join(",");
             updatedIndexVariables[questionIndex].invalidOption = result;
-            context
-                .read<FetchQuestionsBloc>()
-                .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+            context.read<FetchQuestionsBloc>().add(
+              OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+            );
           } else {
             updatedIndexVariables[questionIndex].invalidOption = null;
-            context
-                .read<FetchQuestionsBloc>()
-                .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+            context.read<FetchQuestionsBloc>().add(
+              OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+            );
           }
         } else {
           listOfSelectedIvalidOption.add(value);
           final result = listOfSelectedIvalidOption.join(",");
           updatedIndexVariables[questionIndex].invalidOption = result;
-          context
-              .read<FetchQuestionsBloc>()
-              .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+          context.read<FetchQuestionsBloc>().add(
+            OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+          );
         }
       } else {
         updatedIndexVariables[questionIndex].invalidOption = value;
-        context
-            .read<FetchQuestionsBloc>()
-            .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+        context.read<FetchQuestionsBloc>().add(
+          OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+        );
       }
       // Reset
       _resetButtonStatus(context, questionIndex);
@@ -159,33 +171,42 @@ class Functions {
   }
 
   static onFillDescriptiveAnswer(
-      BuildContext context, int questionIndex, String answer) {
+    BuildContext context,
+    int questionIndex,
+    String answer,
+  ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
       updatedIndexVariables[questionIndex].answer = answer;
-      context
-          .read<FetchQuestionsBloc>()
-          .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+      context.read<FetchQuestionsBloc>().add(
+        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+      );
     }
   }
 
-//----------------SUBMISSION----------------
+  //----------------SUBMISSION----------------
   static Future<void> onAddComment(
-      BuildContext context, int questionIndex, String comment) async {
+    BuildContext context,
+    int questionIndex,
+    String comment,
+  ) async {
     log(comment);
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
       updatedIndexVariables[questionIndex].comment = comment;
-      context
-          .read<FetchQuestionsBloc>()
-          .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+      context.read<FetchQuestionsBloc>().add(
+        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+      );
     }
   }
 
   static Future<void> onAddImages(
-      BuildContext context, int questionIndex, List<File> images) async {
+    BuildContext context,
+    int questionIndex,
+    List<File> images,
+  ) async {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
@@ -194,17 +215,18 @@ class Functions {
         for (var file in images) {
           final compressedFile = await _compressImageFile(file) ?? File("");
           if (compressedFile.path.isNotEmpty) {
-            final mapData =
-                await _convartImageFileToBase65Formate(compressedFile);
+            final mapData = await _convartImageFileToBase65Formate(
+              compressedFile,
+            );
             attachments.add(Attachment.fromJson(mapData));
           }
         }
       }
       log("Total attachements : ${attachments.length}");
       updatedIndexVariables[questionIndex].attachments = attachments;
-      context
-          .read<FetchQuestionsBloc>()
-          .add(OnAnswerTheQuestion(listOfUploads: updatedIndexVariables));
+      context.read<FetchQuestionsBloc>().add(
+        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+      );
     }
   }
 
@@ -229,7 +251,8 @@ class Functions {
   }
 
   static Future<Map<String, dynamic>> _convartImageFileToBase65Formate(
-      File file) async {
+    File file,
+  ) async {
     final bytes = await file.readAsBytes();
     final converted = base64Encode(bytes);
     final fileName = path.basename(file.path);
@@ -239,7 +262,7 @@ class Functions {
   static _resetButtonStatus(BuildContext context, int questionIndex) {
     final state = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (state is SuccessFetchQuestionsState) {
-      context.read<SubmitAnswerControllerCubit>().resetState(questionIndex);
+      context.read<EvSubmitAnswerControllerCubit>().resetState(questionIndex);
     }
   }
 }

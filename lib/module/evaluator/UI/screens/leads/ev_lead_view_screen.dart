@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:wheels_kart/core/components/app_appbar.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
 
-class LeadViewScreen extends StatelessWidget {
+class EvLeadViewScreen extends StatelessWidget {
   final bool? isHidePrintButton;
-  const LeadViewScreen({super.key, this.isHidePrintButton});
+  const EvLeadViewScreen({super.key, this.isHidePrintButton});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class LeadViewScreen extends StatelessWidget {
               : FloatingActionButton(
                 backgroundColor: AppColors.DEFAULT_ORANGE,
                 onPressed: () {},
-                child: Icon(Icons.picture_as_pdf, color: AppColors.kWhite),
+                child: Icon(Icons.picture_as_pdf, color: AppColors.white),
               ),
     );
   }

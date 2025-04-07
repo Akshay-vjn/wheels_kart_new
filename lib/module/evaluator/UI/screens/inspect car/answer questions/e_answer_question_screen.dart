@@ -27,13 +27,14 @@ class EvAnswerQuestionScreen extends StatefulWidget {
   final String systemName;
   final String inspectionId;
 
-  const EvAnswerQuestionScreen(
-      {super.key,
-      required this.portionId,
-      required this.systemId,
-      required this.portionName,
-      required this.systemName,
-      required this.inspectionId});
+  const EvAnswerQuestionScreen({
+    super.key,
+    required this.portionId,
+    required this.systemId,
+    required this.portionName,
+    required this.systemName,
+    required this.inspectionId,
+  });
 
   @override
   State<EvAnswerQuestionScreen> createState() => _EvAnswerQuestionScreenState();
@@ -45,11 +46,14 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<FetchQuestionsBloc>().add(OnCallQuestinApiRepoEvent(
+    context.read<FetchQuestionsBloc>().add(
+      OnCallQuestinApiRepoEvent(
         inspectionId: widget.inspectionId,
         context: context,
         postionId: widget.portionId,
-        systemId: widget.systemId));
+        systemId: widget.systemId,
+      ),
+    );
   }
 
   bool initializeState = false;
@@ -57,16 +61,15 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: customBackButton(
-          context,
-        ),
+        leading: customBackButton(context),
         title: Text(
           '${widget.portionName}/${widget.systemName}',
           style: AppStyle.style(
-              context: context,
-              color: AppColors.kWhite,
-              fontWeight: FontWeight.bold,
-              size: AppDimensions.fontSize18(context)),
+            context: context,
+            color: AppColors.white,
+            fontWeight: FontWeight.bold,
+            size: AppDimensions.fontSize18(context),
+          ),
         ),
         backgroundColor: AppColors.DEFAULT_BLUE_DARK,
       ),
@@ -75,9 +78,9 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
           if (state is SuccessFetchQuestionsState) {
             if (!initializeState) {
               initializeState = true;
-              context
-                  .read<SubmitAnswerControllerCubit>()
-                  .init(state.listOfQuestions.length);
+              context.read<EvSubmitAnswerControllerCubit>().init(
+                state.listOfQuestions.length,
+              );
             }
           }
         },
@@ -93,22 +96,22 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                   thickness: 8.0, // Adjust thickness
                   radius: Radius.circular(10), // Make it rounded
                   child: ListView.separated(
-                      separatorBuilder: (context, index) => Container(
-                            height: 10,
-                            color: AppColors.kBlack,
-                          ),
-                      itemBuilder: (context, index) {
-                        final currentQuestion = state.listOfQuestions[index];
-                        helperVariables.add({
-                          "commentController": TextEditingController(),
-                          "commentKey": GlobalKey<FormState>(),
-                          "descriptiveController": TextEditingController(),
-                          "descriptiveKey": GlobalKey<FormState>(),
-                          "listOfImages": <File>[]
-                        });
-                        return _buildQuestionTile(currentQuestion, index);
-                      },
-                      itemCount: state.listOfQuestions.length),
+                    separatorBuilder:
+                        (context, index) =>
+                            Container(height: 10, color: AppColors.black),
+                    itemBuilder: (context, index) {
+                      final currentQuestion = state.listOfQuestions[index];
+                      helperVariables.add({
+                        "commentController": TextEditingController(),
+                        "commentKey": GlobalKey<FormState>(),
+                        "descriptiveController": TextEditingController(),
+                        "descriptiveKey": GlobalKey<FormState>(),
+                        "listOfImages": <File>[],
+                      });
+                      return _buildQuestionTile(currentQuestion, index);
+                    },
+                    itemCount: state.listOfQuestions.length,
+                  ),
                 );
               }
             case ErrorFetchQuestionsState():
@@ -126,8 +129,10 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
   }
 
   Widget _buildQuestionTile(QuestionModelData question, int index) {
-    return BlocBuilder<SubmitAnswerControllerCubit,
-        SubmitAnswerControllerState>(
+    return BlocBuilder<
+      EvSubmitAnswerControllerCubit,
+      EvSubmitAnswerControllerState
+    >(
       builder: (context, state) {
         final currentstate = state.questionState[index];
         final errorState = currentstate == SubmissionState.ERROR;
@@ -135,21 +140,23 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
         final loadingState = currentstate == SubmissionState.LOADING;
         final initialState = currentstate == SubmissionState.INITIAL;
 
-        final buttonColor = initialState
-            ? AppColors.DEFAULT_BLUE_DARK
-            : successState
+        final buttonColor =
+            initialState
+                ? AppColors.DEFAULT_BLUE_DARK
+                : successState
                 ? AppColors.kGreen
                 : errorState
-                    ? AppColors.kRed
-                    : AppColors.kGrey;
+                ? AppColors.kRed
+                : AppColors.grey;
 
-        final titleColor = initialState
-            ? null
-            : successState
+        final titleColor =
+            initialState
+                ? null
+                : successState
                 ? AppColors.kGreen.withOpacity(.1)
                 : errorState
-                    ? AppColors.kRed.withOpacity(.1)
-                    : null;
+                ? AppColors.kRed.withOpacity(.1)
+                : null;
 
         return Container(
           color: titleColor,
@@ -160,55 +167,57 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
               Text(
                 question.question,
                 style: AppStyle.style(
-                    size: AppDimensions.fontSize18(context),
-                    context: context,
-                    fontWeight: FontWeight.bold),
-              ),
-              AppSpacer(
-                heightPortion: .02,
-              ),
-              if (question.questionType == "MCQ") ...[
-                _buildSubQuestionViewForMcq(
-                  index,
+                  size: AppDimensions.fontSize18(context),
+                  context: context,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+              AppSpacer(heightPortion: .02),
+              if (question.questionType == "MCQ") ...[
+                _buildSubQuestionViewForMcq(index),
                 _buildAnswerForMcq(index),
                 _buildValidOptionView(index),
-                _buildInValidOptionView(index)
+                _buildInValidOptionView(index),
               ],
               if (question.questionType == "Descriptive") ...[
-                _buildDescriptiveQuestion(index)
+                _buildDescriptiveQuestion(index),
               ],
               if (question.picture != "Not Required") ...[
                 _takePictureView(
-                    question.picture == "Required Optional" ? true : false,
-                    index)
+                  question.picture == "Required Optional" ? true : false,
+                  index,
+                ),
               ],
               _commentBoxView(index),
               Align(
-                  alignment: Alignment.centerRight,
-                  child: successState
-                      ? Icon(
+                alignment: Alignment.centerRight,
+                child:
+                    successState
+                        ? Icon(
                           Icons.cloud_done_outlined,
                           size: 35,
                           color: AppColors.kGreen,
                         )
-                      : loadingState
-                          ? CircularProgressIndicator(
-                              strokeWidth: 2,
-                            )
-                          : ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: buttonColor),
-                              onPressed: () {
-                                if (currentstate != SubmissionState.LOADING) {
-                                  onSubmitQuestion(context, index);
-                                }
-                              },
-                              child: Text(
-                                errorState ? "Failed" : "Save",
-                                style: AppStyle.style(
-                                    context: context, color: AppColors.kWhite),
-                              )))
+                        : loadingState
+                        ? CircularProgressIndicator(strokeWidth: 2)
+                        : ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: buttonColor,
+                          ),
+                          onPressed: () {
+                            if (currentstate != SubmissionState.LOADING) {
+                              onSubmitQuestion(context, index);
+                            }
+                          },
+                          child: Text(
+                            errorState ? "Failed" : "Save",
+                            style: AppStyle.style(
+                              context: context,
+                              color: AppColors.white,
+                            ),
+                          ),
+                        ),
+              ),
             ],
           ),
         );
@@ -216,54 +225,60 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     );
   }
 
-  Widget _buildSubQuestionViewForMcq(
-    int questionIndex,
-  ) {
+  Widget _buildSubQuestionViewForMcq(int questionIndex) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[questionIndex];
       final currentIndexVariables = currentState.listOfUploads[questionIndex];
       final subQuestions = question.subQuestionOptions;
       return Visibility(
-          visible: question.subQuestionOptions.isNotEmpty,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-                vertical: AppDimensions.paddingSize5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  question.subQuestionTitle ?? '',
-                  style: AppStyle.style(
-                      context: context,
-                      fontWeight: FontWeight.w600,
-                      size: AppDimensions.fontSize17(context)),
+        visible: question.subQuestionOptions.isNotEmpty,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppDimensions.paddingSize5,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                question.subQuestionTitle ?? '',
+                style: AppStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.w600,
+                  size: AppDimensions.fontSize17(context),
                 ),
-                AppSpacer(
-                  heightPortion: .01,
-                ),
-                Row(
-                    children: subQuestions
+              ),
+              AppSpacer(heightPortion: .01),
+              Row(
+                children:
+                    subQuestions
                         .asMap()
                         .entries
                         .map(
                           (e) => BuildAnswerSelectionButton(
-                              isOutlined: true,
-                              isSelected: (currentIndexVariables
-                                          .subQuestionAnswer !=
-                                      null) &&
-                                  (currentIndexVariables.subQuestionAnswer ==
-                                      e.value),
-                              title: e.value,
-                              activeColor: AppColors.DEFAULT_BLUE_DARK,
-                              inActiveColor: AppColors.kGrey.withOpacity(.4),
-                              onTap: () => Functions.onSelectSubQuestion(
-                                  context, questionIndex, e.value)),
+                            isOutlined: true,
+                            isSelected:
+                                (currentIndexVariables.subQuestionAnswer !=
+                                    null) &&
+                                (currentIndexVariables.subQuestionAnswer ==
+                                    e.value),
+                            title: e.value,
+                            activeColor: AppColors.DEFAULT_BLUE_DARK,
+                            inActiveColor: AppColors.grey.withOpacity(.4),
+                            onTap:
+                                () => Functions.onSelectSubQuestion(
+                                  context,
+                                  questionIndex,
+                                  e.value,
+                                ),
+                          ),
                         )
-                        .toList()),
-              ],
-            ),
-          ));
+                        .toList(),
+              ),
+            ],
+          ),
+        ),
+      );
     } else {
       return SizedBox();
     }
@@ -276,23 +291,32 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
       final currentIndexVariables = currentState.listOfUploads[questionIndex];
       final answers = question.answers;
       return Padding(
-        padding:
-            const EdgeInsets.symmetric(vertical: AppDimensions.paddingSize5),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppDimensions.paddingSize5,
+        ),
         child: Row(
-            children: answers
-                .asMap()
-                .entries
-                .map(
-                  (e) => BuildAnswerSelectionButton(
-                      isSelected: (currentIndexVariables.answer != null) &&
+          children:
+              answers
+                  .asMap()
+                  .entries
+                  .map(
+                    (e) => BuildAnswerSelectionButton(
+                      isSelected:
+                          (currentIndexVariables.answer != null) &&
                           (currentIndexVariables.answer == e.value),
                       title: e.value,
-                      activeColor: AppColors.kBlack,
-                      inActiveColor: AppColors.kWhite,
-                      onTap: () => Functions.onSelectAnswertion(
-                          context, questionIndex, e.value)),
-                )
-                .toList()),
+                      activeColor: AppColors.black,
+                      inActiveColor: AppColors.white,
+                      onTap:
+                          () => Functions.onSelectAnswertion(
+                            context,
+                            questionIndex,
+                            e.value,
+                          ),
+                    ),
+                  )
+                  .toList(),
+        ),
       );
     } else {
       return SizedBox();
@@ -307,35 +331,36 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
       final validOptions = question.validOptions;
 
       return Visibility(
-          visible: (currentIndexVariables.answer != null) &&
-              (currentIndexVariables.answer == question.answers.first &&
-                  question.validOptions.isNotEmpty),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-                vertical: AppDimensions.paddingSize5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppSpacer(
-                  heightPortion: .01,
+        visible:
+            (currentIndexVariables.answer != null) &&
+            (currentIndexVariables.answer == question.answers.first &&
+                question.validOptions.isNotEmpty),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppDimensions.paddingSize5,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppSpacer(heightPortion: .01),
+              Text(
+                question.validOptionsTitle.isNotEmpty
+                    ? question.validOptionsTitle
+                    : 'Please choose the option',
+                style: AppStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.w600,
+                  size: AppDimensions.fontSize17(context),
                 ),
-                Text(
-                  question.validOptionsTitle.isNotEmpty
-                      ? question.validOptionsTitle
-                      : 'Please choose the option',
-                  style: AppStyle.style(
-                      context: context,
-                      fontWeight: FontWeight.w600,
-                      size: AppDimensions.fontSize17(context)),
-                ),
-                AppSpacer(
-                  heightPortion: .01,
-                ),
-                Column(
-                  children: validOptions
-                      .asMap()
-                      .entries
-                      .map((e) => BuildCheckBox(
+              ),
+              AppSpacer(heightPortion: .01),
+              Column(
+                children:
+                    validOptions
+                        .asMap()
+                        .entries
+                        .map(
+                          (e) => BuildCheckBox(
                             isSelected:
                                 currentIndexVariables.validOption == null
                                     ? false
@@ -344,14 +369,19 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                             title: e.value,
                             onChanged: (p0) {
                               Functions.onSelectValidOption(
-                                  context, questionIndex, e.value);
+                                context,
+                                questionIndex,
+                                e.value,
+                              );
                             },
-                          ))
-                      .toList(),
-                ),
-              ],
-            ),
-          ));
+                          ),
+                        )
+                        .toList(),
+              ),
+            ],
+          ),
+        ),
+      );
     } else {
       return SizedBox();
     }
@@ -364,34 +394,35 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
       final currentIndexVariables = currentState.listOfUploads[questionIndex];
       final inValidOptions = question.invalidOptions;
       return Visibility(
-          visible: (currentIndexVariables.answer != null) &&
-              currentIndexVariables.answer == question.invalidAnswers,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-                vertical: AppDimensions.paddingSize5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppSpacer(
-                  heightPortion: .01,
+        visible:
+            (currentIndexVariables.answer != null) &&
+            currentIndexVariables.answer == question.invalidAnswers,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppDimensions.paddingSize5,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppSpacer(heightPortion: .01),
+              Text(
+                question.validOptionsTitle.isNotEmpty
+                    ? question.invalidOptionsTitle
+                    : 'Please choose the option',
+                style: AppStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.w600,
+                  size: AppDimensions.fontSize17(context),
                 ),
-                Text(
-                  question.validOptionsTitle.isNotEmpty
-                      ? question.invalidOptionsTitle
-                      : 'Please choose the option',
-                  style: AppStyle.style(
-                      context: context,
-                      fontWeight: FontWeight.w600,
-                      size: AppDimensions.fontSize17(context)),
-                ),
-                AppSpacer(
-                  heightPortion: .01,
-                ),
-                Column(
-                  children: inValidOptions
-                      .asMap()
-                      .entries
-                      .map((e) => BuildCheckBox(
+              ),
+              AppSpacer(heightPortion: .01),
+              Column(
+                children:
+                    inValidOptions
+                        .asMap()
+                        .entries
+                        .map(
+                          (e) => BuildCheckBox(
                             isSelected:
                                 currentIndexVariables.invalidOption == null
                                     ? false
@@ -400,14 +431,19 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                             title: e.value,
                             onChanged: (p0) {
                               Functions.onSelectInValidOption(
-                                  context, questionIndex, e.value);
+                                context,
+                                questionIndex,
+                                e.value,
+                              );
                             },
-                          ))
-                      .toList(),
-                ),
-              ],
-            ),
-          ));
+                          ),
+                        )
+                        .toList(),
+              ),
+            ],
+          ),
+        ),
+      );
     } else {
       return SizedBox();
     }
@@ -426,66 +462,70 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
         key: helperVariables[questionIndex]["commentKey"],
         child: Column(
           children: [
-            AppSpacer(
-              heightPortion: .02,
-            ),
+            AppSpacer(heightPortion: .02),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.min,
               children: [
                 RichText(
-                    text: TextSpan(
-                        text: commentTitle.isEmpty ? 'Comment' : commentTitle,
-                        style: AppStyle.style(
-                            context: context,
-                            fontWeight: FontWeight.w600,
-                            size: AppDimensions.fontSize17(context)),
-                        children: [
+                  text: TextSpan(
+                    text: commentTitle.isEmpty ? 'Comment' : commentTitle,
+                    style: AppStyle.style(
+                      context: context,
+                      fontWeight: FontWeight.w600,
+                      size: AppDimensions.fontSize17(context),
+                    ),
+                    children: [
                       TextSpan(
-                          text: commentTitle.isNotEmpty ||
-                                  invalidAnswer == selectedMainOption
-                              ? " * "
-                              : "",
-                          style: AppStyle.style(
-                              context: context, color: AppColors.kRed))
-                    ])),
+                        text:
+                            commentTitle.isNotEmpty ||
+                                    invalidAnswer == selectedMainOption
+                                ? " * "
+                                : "",
+                        style: AppStyle.style(
+                          context: context,
+                          color: AppColors.kRed,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Flexible(
-                    child: Divider(
-                  thickness: .2,
-                  endIndent: 10,
-                  indent: 10,
-                )),
+                  child: Divider(thickness: .2, endIndent: 10, indent: 10),
+                ),
               ],
             ),
             EvAppCustomTextfield(
-                onChanged: (p0) {
-                  final state =
-                      BlocProvider.of<FetchQuestionsBloc>(context).state;
-                  if (state is SuccessFetchQuestionsState) {
-                    context
-                        .read<SubmitAnswerControllerCubit>()
-                        .resetState(questionIndex);
-                  }
-                },
-                focusColor: AppColors.kBlack,
-                fontWeght: FontWeight.normal,
-                maxLine: 3,
-                validator: (value) {
-                  if (invalidAnswer == selectedMainOption) {
-                    if (value!.isEmpty) {
-                      return 'Enter the comment';
-                    } else {
-                      return null;
-                    }
+              onChanged: (p0) {
+                final state =
+                    BlocProvider.of<FetchQuestionsBloc>(context).state;
+                if (state is SuccessFetchQuestionsState) {
+                  context.read<EvSubmitAnswerControllerCubit>().resetState(
+                    questionIndex,
+                  );
+                }
+              },
+              focusColor: AppColors.black,
+              fontWeght: FontWeight.normal,
+              maxLine: 3,
+              validator: (value) {
+                if (invalidAnswer == selectedMainOption) {
+                  if (value!.isEmpty) {
+                    return 'Enter the comment';
                   } else {
                     return null;
                   }
-                },
-                controller: helperVariables[questionIndex]["commentController"],
-                hintText: commentTitle.isEmpty
-                    ? 'Enter the comment in any...'
-                    : commentTitle),
+                } else {
+                  return null;
+                }
+              },
+              controller: helperVariables[questionIndex]["commentController"],
+              hintText:
+                  commentTitle.isEmpty
+                      ? 'Enter the comment in any...'
+                      : commentTitle,
+            ),
           ],
         ),
       );
@@ -508,16 +548,16 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                 final state =
                     BlocProvider.of<FetchQuestionsBloc>(context).state;
                 if (state is SuccessFetchQuestionsState) {
-                  context
-                      .read<SubmitAnswerControllerCubit>()
-                      .resetState(questionIndex);
+                  context.read<EvSubmitAnswerControllerCubit>().resetState(
+                    questionIndex,
+                  );
                 }
               },
-              focusColor: AppColors.kBlack,
+              focusColor: AppColors.black,
               fontWeght: FontWeight.w500,
               keyBoardType: getKeyboardType(question.keyboardType),
-              controller: helperVariables[questionIndex]
-                  ['descriptiveController'],
+              controller:
+                  helperVariables[questionIndex]['descriptiveController'],
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'This filed is required';
@@ -526,7 +566,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                 }
               },
               hintText: 'Enter the value here',
-            )
+            ),
           ],
         ),
       );
@@ -561,42 +601,44 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
           helperVariables[questionIndex]["listOfImages"] as List;
       return Column(
         children: [
-          AppSpacer(
-            heightPortion: .02,
-          ),
+          AppSpacer(heightPortion: .02),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               RichText(
-                  text: TextSpan(
-                      text: 'Upload Pictures',
-                      style: AppStyle.style(
-                          context: context,
-                          fontWeight: FontWeight.w600,
-                          size: AppDimensions.fontSize17(context)),
-                      children: [
+                text: TextSpan(
+                  text: 'Upload Pictures',
+                  style: AppStyle.style(
+                    context: context,
+                    fontWeight: FontWeight.w600,
+                    size: AppDimensions.fontSize17(context),
+                  ),
+                  children: [
                     TextSpan(
-                        text: isOptional ? "" : " * ",
-                        style: AppStyle.style(
-                            context: context, color: AppColors.kRed))
-                  ])),
+                      text: isOptional ? "" : " * ",
+                      style: AppStyle.style(
+                        context: context,
+                        color: AppColors.kRed,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Flexible(
-                  child: Divider(
-                thickness: .2,
-                endIndent: 10,
-                indent: 10,
-              )),
+                child: Divider(thickness: .2, endIndent: 10, indent: 10),
+              ),
             ],
           ),
-          AppSpacer(
-            heightPortion: .02,
-          ),
+          AppSpacer(heightPortion: .02),
           SizedBox(
             width: w(context),
             child: GridView.builder(
               physics: NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, crossAxisSpacing: 20, mainAxisSpacing: 20),
+                crossAxisCount: 2,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+              ),
               shrinkWrap: true,
               itemCount: listOfImages.length + 1,
               itemBuilder: (context, index) {
@@ -610,23 +652,18 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.add,
-                            size: 70,
-                            color: AppColors.kGrey,
-                          ),
-                          AppSpacer(
-                            heightPortion: .01,
-                          ),
+                          Icon(Icons.add, size: 70, color: AppColors.grey),
+                          AppSpacer(heightPortion: .01),
                           Text(
                             listOfImages.isNotEmpty
                                 ? 'Add More'
                                 : 'Add Picture',
                             style: AppStyle.style(
-                                context: context,
-                                color: AppColors.kGrey,
-                                fontWeight: FontWeight.bold,
-                                size: AppDimensions.fontSize12(context)),
+                              context: context,
+                              color: AppColors.grey,
+                              fontWeight: FontWeight.bold,
+                              size: AppDimensions.fontSize12(context),
+                            ),
                           ),
                         ],
                       ),
@@ -637,18 +674,19 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                   width: w(context) * .23,
                   height: h(context) * .1,
                   decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.kGrey),
-                      // borderRadius:
-                      //     BorderRadius.circular(AppDimensions.radiusSize10),
-                      color: AppColors.kWhite,
-                      image: DecorationImage(
-                          fit: BoxFit.fill,
-                          image: FileImage(listOfImages[index]))),
+                    border: Border.all(color: AppColors.grey),
+                    // borderRadius:
+                    //     BorderRadius.circular(AppDimensions.radiusSize10),
+                    color: AppColors.white,
+                    image: DecorationImage(
+                      fit: BoxFit.fill,
+                      image: FileImage(listOfImages[index]),
+                    ),
+                  ),
                 );
               },
             ),
           ),
-          
         ],
       );
     } else {
@@ -662,8 +700,9 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     if (currentState is SuccessFetchQuestionsState) {
       final listOfImages = helperVariables[questionIndex]["listOfImages"];
       final imagepicker = ImagePicker();
-      final pickedXfile =
-          await imagepicker.pickImage(source: ImageSource.camera);
+      final pickedXfile = await imagepicker.pickImage(
+        source: ImageSource.camera,
+      );
       if (pickedXfile != null) {
         setState(() {
           listOfImages.add(File(pickedXfile.path));
@@ -672,17 +711,15 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     }
   }
 
-  void onSubmitQuestion(
-    BuildContext context,
-    int index,
-  ) {
+  void onSubmitQuestion(BuildContext context, int index) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     final descriptiveKey =
         helperVariables[index]['descriptiveKey'] as GlobalKey<FormState>;
 
-    final descriptiveController = helperVariables[index]
-        ['descriptiveController'] as TextEditingController;
+    final descriptiveController =
+        helperVariables[index]['descriptiveController']
+            as TextEditingController;
 
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[index];
@@ -696,7 +733,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
         case true:
           {
             if (uploadData.answer != null) {
-// ---------------------------------SELECTED INVALID  --------------
+              // ---------------------------------SELECTED INVALID  --------------
               if (isSelectedInValid) {
                 if (isInValidHaveOptions) {
                   if (uploadData.invalidOption != null) {
@@ -709,7 +746,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                 } else {
                   checkCommentAndImage(index, question, uploadData, true);
                 }
-//------------------------< SELECTED VALID  >--------------------------------------------------
+                //------------------------< SELECTED VALID  >--------------------------------------------------
               } else {
                 if (isValidHaveOptions) {
                   if (uploadData.validOption != null) {
@@ -733,7 +770,10 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
           {
             if (descriptiveKey.currentState!.validate()) {
               Functions.onFillDescriptiveAnswer(
-                  context, index, descriptiveController.text);
+                context,
+                index,
+                descriptiveController.text,
+              );
               checkCommentAndImage(index, question, uploadData, false);
             }
           }
@@ -741,8 +781,12 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     }
   }
 
-  void checkCommentAndImage(int index, QuestionModelData question,
-      UploadInspectionModel uploadData, bool isCommentMandotory) async {
+  void checkCommentAndImage(
+    int index,
+    QuestionModelData question,
+    UploadInspectionModel uploadData,
+    bool isCommentMandotory,
+  ) async {
     final commentKey =
         helperVariables[index]["commentKey"] as GlobalKey<FormState>;
     final commentController =
@@ -767,7 +811,10 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
             _showMessage("Select atlease one image");
           } else {
             await Functions.onAddComment(
-                context, index, commentController.text);
+              context,
+              index,
+              commentController.text,
+            );
             await Functions.onAddImages(context, index, listOFImages);
             saveAnswer(index);
           }
@@ -799,20 +846,25 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     if (currentState is SuccessFetchQuestionsState) {
       final data = currentState.listOfUploads[questionIndex];
       // log(data.toJson().toString());
-      await context
-          .read<SubmitAnswerControllerCubit>()
-          .onSubmitAnswer(context, data, questionIndex);
+      await context.read<EvSubmitAnswerControllerCubit>().onSubmitAnswer(
+        context,
+        data,
+        questionIndex,
+      );
       _showMessage("Saved !");
     }
   }
 
   _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
         showCloseIcon: true,
         behavior: SnackBarBehavior.floating,
         content: Text(
           message,
-          style: AppStyle.style(context: context, color: AppColors.kWhite),
-        )));
+          style: AppStyle.style(context: context, color: AppColors.white),
+        ),
+      ),
+    );
   }
 }

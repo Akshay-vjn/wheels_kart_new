@@ -8,7 +8,7 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/home/e_dashboard_screen.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_dashboard_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_textfield.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/login%20page%20bloc/login_bloc_bloc.dart';
@@ -95,9 +95,9 @@ class EvLoginScreen extends StatelessWidget {
                       ),
                       const AppSpacer(heightPortion: .1),
                       EvAppCustomTextfield(
-                        fillColor: AppColors.kWhite,
+                        fillColor: AppColors.white,
                         prefixIcon: Icon(Icons.phone_iphone_rounded),
-                        borderRudius: AppDimensions.radiusSize50,
+                        borderRudius: AppDimensions.radiusSize18,
                         fontWeght: FontWeight.w500,
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -112,15 +112,13 @@ class EvLoginScreen extends StatelessWidget {
                         keyBoardType: TextInputType.number,
                         maxLenght: 10,
                       ),
-                      AppSpacer(heightPortion: .01),
                       BlocBuilder<EvLoginBlocBloc, EvLoginBlocState>(
-                        // bloc: LoginBlocBloc(),
                         builder:
                             (context, state) => SizedBox(
                               child: EvAppCustomTextfield(
-                                fillColor: AppColors.kWhite,
+                                fillColor: AppColors.white,
                                 prefixIcon: Icon(Icons.lock_outlined),
-                                borderRudius: AppDimensions.radiusSize50,
+                                borderRudius: AppDimensions.radiusSize18,
                                 fontWeght: FontWeight.w500,
 
                                 validator: (value) {

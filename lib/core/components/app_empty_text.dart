@@ -13,19 +13,12 @@ class AppEmptyText extends StatelessWidget {
   Widget build(BuildContext context) {
     return neddMorhieght == true
         ? SizedBox(
-            height: h(context) * .8,
-            child: Center(
-              child: Text(
-                text,
-                style: AppStyle.style(context: context),
-              ),
-            ))
-        : Center(
-            child: Text(
-              text,
-              style: AppStyle.style(context: context),
-            ),
-          );
+          height: h(context) * .8,
+          child: Center(
+            child: Text(text, style: AppStyle.style(context: context)),
+          ),
+        )
+        : Center(child: Text(text, style: AppStyle.style(context: context)));
   }
 }
 
@@ -38,9 +31,10 @@ class AppImageNotFoundText extends StatelessWidget {
       '(Image Not Found)',
       textAlign: TextAlign.center,
       style: AppStyle.style(
-          color: AppColors.kGrey,
-          size: AppDimensions.fontSize10(context),
-          context: context),
+        color: AppColors.grey,
+        size: AppDimensions.fontSize10(context),
+        context: context,
+      ),
     );
   }
 }

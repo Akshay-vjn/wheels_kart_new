@@ -11,14 +11,15 @@ class BuildAnswerSelectionButton extends StatelessWidget {
   final bool? isOutlined;
   final void Function()? onTap;
 
-  const BuildAnswerSelectionButton(
-      {super.key,
-      required this.isSelected,
-      required this.title,
-      this.isOutlined,
-      required this.activeColor,
-      required this.inActiveColor,
-      this.onTap});
+  const BuildAnswerSelectionButton({
+    super.key,
+    required this.isSelected,
+    required this.title,
+    this.isOutlined,
+    required this.activeColor,
+    required this.inActiveColor,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,33 +29,44 @@ class BuildAnswerSelectionButton extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: AppDimensions.paddingSize10),
         padding: EdgeInsets.symmetric(
-            vertical: AppDimensions.paddingSize10,
-            horizontal: AppDimensions.paddingSize20),
+          vertical: AppDimensions.paddingSize10,
+          horizontal: AppDimensions.paddingSize20,
+        ),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            border: isOutlined == true
-                ? Border.all(
-                    color: isSelected ? activeColor : inActiveColor, width: 3)
-                : Border.all(color: AppColors.kBlack.withOpacity(.8), width: 2),
-            borderRadius: BorderRadius.circular(AppDimensions.radiusSize50),
-            color: isOutlined == true
-                ? AppColors.kWhite
-                : isSelected
-                    ? activeColor
-                    : inActiveColor),
+          border:
+              isOutlined == true
+                  ? Border.all(
+                    color: isSelected ? activeColor : inActiveColor,
+                    width: 3,
+                  )
+                  : Border.all(
+                    color: AppColors.black.withOpacity(.8),
+                    width: 2,
+                  ),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusSize50),
+          color:
+              isOutlined == true
+                  ? AppColors.white
+                  : isSelected
+                  ? activeColor
+                  : inActiveColor,
+        ),
         child: Text(
           title,
           style: AppStyle.style(
-              context: context,
-              fontWeight: FontWeight.w600,
-              size: AppDimensions.fontSize18(context),
-              color: isOutlined == true
-                  ? isSelected
-                      ? activeColor
-                      : inActiveColor
-                  : isSelected
-                      ? AppColors.kWhite
-                      : AppColors.kBlack.withOpacity(.8)),
+            context: context,
+            fontWeight: FontWeight.w600,
+            size: AppDimensions.fontSize18(context),
+            color:
+                isOutlined == true
+                    ? isSelected
+                        ? activeColor
+                        : inActiveColor
+                    : isSelected
+                    ? AppColors.white
+                    : AppColors.black.withOpacity(.8),
+          ),
         ),
       ),
     );

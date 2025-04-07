@@ -17,8 +17,10 @@ import 'package:wheels_kart/module/evaluator/UI/widgets/app_search_field.dart';
 
 class EvSelectAndSeachManufacturingYear extends StatefulWidget {
   EvaluationDataEntryModel evaluationDataEntryModel;
-  EvSelectAndSeachManufacturingYear(
-      {super.key, required this.evaluationDataEntryModel});
+  EvSelectAndSeachManufacturingYear({
+    super.key,
+    required this.evaluationDataEntryModel,
+  });
 
   @override
   State<EvSelectAndSeachManufacturingYear> createState() =>
@@ -54,39 +56,41 @@ class _EvSelectAndSeachManufacturingYearState
     return Scaffold(
       extendBody: true,
       // key: _scaffoldKey,
-      body: Builder(builder: (context) {
-        // log('building');
-        List<String> listOfYear = [];
+      body: Builder(
+        builder: (context) {
+          // log('building');
+          List<String> listOfYear = [];
 
-        if (searchController.text.isEmpty && searchReasult.isEmpty) {
-          // log('controller is empty');
-          listOfYear = years;
-        } else if (searchReasult.isNotEmpty &&
-            searchController.text.isNotEmpty) {
-          // log('controller has data');
-          listOfYear = searchReasult;
-        }
-        return CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              surfaceTintColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              backgroundColor: AppColors.DEFAULT_BLUE_DARK,
-              foregroundColor: Colors.transparent,
-              leading: customBackButton(context, color: AppColors.kWhite),
-              floating: true,
-              pinned: false,
-              snap: true,
-              title: Text(
-                'Select car manufacturing year',
-                style: AppStyle.style(
+          if (searchController.text.isEmpty && searchReasult.isEmpty) {
+            // log('controller is empty');
+            listOfYear = years;
+          } else if (searchReasult.isNotEmpty &&
+              searchController.text.isNotEmpty) {
+            // log('controller has data');
+            listOfYear = searchReasult;
+          }
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                surfaceTintColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                backgroundColor: AppColors.DEFAULT_BLUE_DARK,
+                foregroundColor: Colors.transparent,
+                leading: customBackButton(context, color: AppColors.white),
+                floating: true,
+                pinned: false,
+                snap: true,
+                title: Text(
+                  'Select car manufacturing year',
+                  style: AppStyle.style(
                     context: context,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.kWhite,
-                    size: AppDimensions.fontSize18(context)),
-              ),
-              toolbarHeight: h(context) * .07,
-              bottom: PreferredSize(
+                    color: AppColors.white,
+                    size: AppDimensions.fontSize18(context),
+                  ),
+                ),
+                toolbarHeight: h(context) * .07,
+                bottom: PreferredSize(
                   preferredSize: Size.fromHeight(h(context) * .09),
                   child: Padding(
                     padding: const EdgeInsets.only(
@@ -106,62 +110,83 @@ class _EvSelectAndSeachManufacturingYearState
                           searchReasult.clear();
                         } else {
                           log('searching');
-                          searchReasult = searchList
-                              .where((element) => element.contains(value))
-                              .toList();
+                          searchReasult =
+                              searchList
+                                  .where((element) => element.contains(value))
+                                  .toList();
                         }
                         setState(() {});
                         // log(listOfYear.length.toString());
                       },
                     ),
-                  )),
-              flexibleSpace: const FlexibleSpaceBar(
-                collapseMode: CollapseMode.pin,
+                  ),
+                ),
+                flexibleSpace: const FlexibleSpaceBar(
+                  collapseMode: CollapseMode.pin,
+                ),
               ),
-            ),
-            listOfYear.isEmpty
-                ? SliverFillRemaining(
-                    child: AppEmptyText(text: 'Year not found !'))
-                : TransformableSliverList.builder(
+              listOfYear.isEmpty
+                  ? SliverFillRemaining(
+                    child: AppEmptyText(text: 'Year not found !'),
+                  )
+                  : TransformableSliverList.builder(
                     itemCount: listOfYear.length,
-                    itemBuilder: (context, index) => AppMargin(
-                        child: EvAppCustomeSelctionButton(
-                      // data: listOfYear,
-                      currentIndex: index,
-                      onTap: () {
-                        setState(() {
-                          selectedYearIndex = index;
-                          selectedYear = listOfYear[index];
-                        });
-                        Navigator.of(context).push(AppRoutes.createRoute(
-                            EvSelectAndSearchCarModelScreen(
-                          evaluationDataEntryModel: EvaluationDataEntryModel(
-                            inspectionId:
-                                widget.evaluationDataEntryModel.inspectionId,
-                            makeId: widget.evaluationDataEntryModel.makeId!,
-                            makeYear: selectedYear!,
-                            carMake: widget.evaluationDataEntryModel.carMake!,
+                    itemBuilder:
+                        (context, index) => AppMargin(
+                          child: EvAppCustomeSelctionButton(
+                            // data: listOfYear,
+                            currentIndex: index,
+                            onTap: () {
+                              setState(() {
+                                selectedYearIndex = index;
+                                selectedYear = listOfYear[index];
+                              });
+                              Navigator.of(context).push(
+                                AppRoutes.createRoute(
+                                  EvSelectAndSearchCarModelScreen(
+                                    evaluationDataEntryModel:
+                                        EvaluationDataEntryModel(
+                                          inspectionId:
+                                              widget
+                                                  .evaluationDataEntryModel
+                                                  .inspectionId,
+                                          makeId:
+                                              widget
+                                                  .evaluationDataEntryModel
+                                                  .makeId!,
+                                          makeYear: selectedYear!,
+                                          carMake:
+                                              widget
+                                                  .evaluationDataEntryModel
+                                                  .carMake!,
+                                        ),
+                                  ),
+                                ),
+                              );
+                            },
+                            selectedButtonIndex: selectedYearIndex,
+                            child: Center(
+                              child: Text(
+                                listOfYear[index].toString(),
+                                style: AppStyle.style(
+                                  color:
+                                      selectedYearIndex != null &&
+                                              selectedYearIndex == index
+                                          ? AppColors.white
+                                          : AppColors.black,
+                                  context: context,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
-                        )));
-                      },
-                      selectedButtonIndex: selectedYearIndex,
-                      child: Center(
-                          child: Text(
-                        listOfYear[index].toString(),
-                        style: AppStyle.style(
-                            color: selectedYearIndex != null &&
-                                    selectedYearIndex == index
-                                ? AppColors.kWhite
-                                : AppColors.kBlack,
-                            context: context,
-                            fontWeight: FontWeight.bold),
-                      )),
-                    )),
+                        ),
                     getTransformMatrix: getTransformMatrix,
                   ),
-          ],
-        );
-      }),
+            ],
+          );
+        },
+      ),
     );
   }
 }

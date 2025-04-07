@@ -62,7 +62,7 @@ class EvAppCustomeSelctionButton extends StatelessWidget {
                     ? (selectedButtonIndex != null &&
                             selectedButtonIndex == currentIndex)
                         ? AppColors.DEFAULT_BLUE_GREY
-                        : AppColors.kBlack
+                        : AppColors.black
                     : AppColors.DEFAULT_BLUE_GREY,
           ),
         ),

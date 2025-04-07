@@ -26,81 +26,82 @@ class EvEnterVehicleRegNumSscreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          leading: customBackButton(context),
-          backgroundColor: AppColors.DEFAULT_BLUE_DARK,
-          title: Text(
-            '${evaluationDataModel.carMake} ${evaluationDataModel.carModel}',
-            style: AppStyle.style(
-                context: context,
-                fontWeight: FontWeight.w500,
-                color: AppColors.kWhite,
-                size: AppDimensions.fontSize18(context)),
+        leading: customBackButton(context),
+        backgroundColor: AppColors.DEFAULT_BLUE_DARK,
+        title: Text(
+          '${evaluationDataModel.carMake} ${evaluationDataModel.carModel}',
+          style: AppStyle.style(
+            context: context,
+            fontWeight: FontWeight.w500,
+            color: AppColors.white,
+            size: AppDimensions.fontSize18(context),
           ),
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(
-              h(context) * .08,
-            ),
-            child: EvEvaluationProcessBar(
-                currentPage: 4, evaluationDataModel: evaluationDataModel),
-          )),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(h(context) * .08),
+          child: EvEvaluationProcessBar(
+            currentPage: 4,
+            evaluationDataModel: evaluationDataModel,
+          ),
+        ),
+      ),
       body: AppMargin(
-          child: Form(
-        key: formkey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const AppSpacer(
-              heightPortion: .03,
-            ),
-            Text(
-              'Registration number',
-              style: AppStyle.style(
+        child: Form(
+          key: formkey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AppSpacer(heightPortion: .03),
+              Text(
+                'Registration number',
+                style: AppStyle.style(
                   size: AppDimensions.fontSize17(context),
                   context: context,
-                  fontWeight: FontWeight.bold),
-            ),
-            EvAppCustomTextfield(
-              focusColor: AppColors.DEFAULT_BLUE_DARK,
-              isTextCapital: true,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter the registration number';
-                } else if (!AppString.carRegNumberRegex.hasMatch(value)) {
-                  return 'Registration number is not valid';
-                } else {
-                  return null;
-                }
-              },
-              controller: regNumberController,
-              // labeltext: 'Registration number',
-              maxLenght: 10,
-              hintText: 'Enter the vehicle registration number',
-            ),
-            const AppSpacer(
-              heightPortion: .005,
-            ),
-            EvAppCustomButton(
-              bgColor: AppColors.DEFAULT_BLUE_DARK,
-              isSquare: true,
-              title: 'Continue',
-              onTap: () {
-                if (formkey.currentState!.validate()) {
-                  final _evaluationDataModel = evaluationDataModel;
-                  _evaluationDataModel.vehicleRegNumber =
-                      regNumberController.text;
-                  Navigator.of(context)
-                      .push(AppRoutes.createRoute(EvSelectTotalKmsDrivenScreen(
-                    evaluationDataModel: _evaluationDataModel,
-                  )));
-                }
-              },
-            ),
-            const AppSpacer(
-              heightPortion: .07,
-            ),
-          ],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              EvAppCustomTextfield(
+                focusColor: AppColors.DEFAULT_BLUE_DARK,
+                isTextCapital: true,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter the registration number';
+                  } else if (!AppString.carRegNumberRegex.hasMatch(value)) {
+                    return 'Registration number is not valid';
+                  } else {
+                    return null;
+                  }
+                },
+                controller: regNumberController,
+                // labeltext: 'Registration number',
+                maxLenght: 10,
+                hintText: 'Enter the vehicle registration number',
+              ),
+              const AppSpacer(heightPortion: .005),
+              EvAppCustomButton(
+                bgColor: AppColors.DEFAULT_BLUE_DARK,
+                isSquare: true,
+                title: 'Continue',
+                onTap: () {
+                  if (formkey.currentState!.validate()) {
+                    final _evaluationDataModel = evaluationDataModel;
+                    _evaluationDataModel.vehicleRegNumber =
+                        regNumberController.text;
+                    Navigator.of(context).push(
+                      AppRoutes.createRoute(
+                        EvSelectTotalKmsDrivenScreen(
+                          evaluationDataModel: _evaluationDataModel,
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+              const AppSpacer(heightPortion: .07),
+            ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }

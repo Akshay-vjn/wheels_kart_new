@@ -10,7 +10,7 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/leads/lead_view_screen.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_lead_view_screen.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
 
@@ -98,17 +98,18 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
   ) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(AppRoutes.createRoute(LeadViewScreen()));
+        Navigator.of(context).push(AppRoutes.createRoute(EvLeadViewScreen()));
       },
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppColors.kWhite),
+            decoration: BoxDecoration(color: AppColors.white),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+
               children: [
-                Container(color: AppColors.kBlack2, height: 100, width: 100),
+                Container(color: AppColors.black2, height: 100, width: 100),
                 AppSpacer(widthPortion: .02),
                 Expanded(
                   child: Column(
@@ -120,15 +121,19 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                             children: [
-                              Text(
-                                "Maruti Suzuki Alto 800",
-                                style: AppStyle.style(
-                                  context: context,
-                                  fontWeight: FontWeight.bold,
-                                  size: AppDimensions.fontSize18(context),
+                              Flexible(
+                                child: Text(
+                                  "Maruti Suzuki Alto 800",
+                                  style: AppStyle.style(
+                                    context: context,
+                                    fontWeight: FontWeight.bold,
+                                    size: AppDimensions.fontSize18(context),
+                                  ),
                                 ),
                               ),
                               Container(
@@ -145,7 +150,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
                                   style: AppStyle.style(
                                     context: context,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.kWhite,
+                                    color: AppColors.white,
                                   ),
                                 ),
                               ),
@@ -172,7 +177,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
                                 "Contact Info",
                                 style: AppStyle.style(
                                   context: context,
-                                  color: AppColors.kBlack2,
+                                  color: AppColors.black2,
                                   fontWeight: FontWeight.w300,
                                   size: AppDimensions.fontSize18(context),
                                 ),

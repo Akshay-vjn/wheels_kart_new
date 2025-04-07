@@ -88,7 +88,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
           style: AppStyle.style(
             context: context,
             fontWeight: FontWeight.w500,
-            color: AppColors.kWhite,
+            color: AppColors.white,
             size: AppDimensions.fontSize18(context),
           ),
         ),
@@ -157,7 +157,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                           style: AppStyle.style(
                             size: AppDimensions.fontSize17(context),
                             context: context,
-                            color: AppColors.kWhite,
+                            color: AppColors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -179,7 +179,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                     height: 53,
                     width: 53,
                     decoration: BoxDecoration(
-                      color: AppColors.kWhite,
+                      color: AppColors.white,
                       border: Border.all(color: AppColors.DEFAULT_BLUE_GREY),
                       borderRadius: BorderRadius.circular(
                         AppDimensions.radiusSize5,
@@ -234,7 +234,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                                   selectedFuelTypeIndex != null
                                       ? AppColors.DEFAULT_BLUE_DARK
                                       : selectedFuelTypeIndex == element.key
-                                      ? AppColors.kWhite
+                                      ? AppColors.white
                                       : AppColors.DEFAULT_BLUE_DARK,
                               fontWeight: FontWeight.bold,
                             ),
@@ -277,7 +277,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                           style: AppStyle.style(
                             size: AppDimensions.fontSize17(context),
                             context: context,
-                            color: AppColors.kWhite,
+                            color: AppColors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -298,7 +298,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                     height: 53,
                     width: 53,
                     decoration: BoxDecoration(
-                      color: AppColors.kWhite,
+                      color: AppColors.white,
                       border: Border.all(color: AppColors.DEFAULT_BLUE_GREY),
                       borderRadius: BorderRadius.circular(
                         AppDimensions.radiusSize5,
@@ -380,7 +380,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                                   selectedTransmissionIndex != null
                                       ? AppColors.DEFAULT_BLUE_DARK
                                       : selectedTransmissionIndex == element.key
-                                      ? AppColors.kWhite
+                                      ? AppColors.white
                                       : AppColors.DEFAULT_BLUE_DARK,
                               fontWeight: FontWeight.bold,
                             ),
@@ -427,7 +427,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                               style: AppStyle.style(
                                 size: AppDimensions.fontSize17(context),
                                 context: context,
-                                color: AppColors.kWhite,
+                                color: AppColors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -450,7 +450,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                     height: 53,
                     width: 53,
                     decoration: BoxDecoration(
-                      color: AppColors.kWhite,
+                      color: AppColors.white,
                       border: Border.all(color: AppColors.DEFAULT_BLUE_GREY),
                       borderRadius: BorderRadius.circular(
                         AppDimensions.radiusSize5,
@@ -542,7 +542,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                                         selectedVarientIndex != null
                                             ? AppColors.DEFAULT_BLUE_DARK
                                             : selectedVarientIndex == index
-                                            ? AppColors.kWhite
+                                            ? AppColors.white
                                             : AppColors.DEFAULT_BLUE_DARK,
                                     fontWeight: FontWeight.bold,
                                   ),

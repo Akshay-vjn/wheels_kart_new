@@ -5,7 +5,7 @@ import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
 
-class EvAppCustomTextfield extends StatelessWidget {
+class VAppCustomTextfield extends StatelessWidget {
   final TextEditingController? controller;
   final String? hintText;
   final String? labeltext;
@@ -23,7 +23,7 @@ class EvAppCustomTextfield extends StatelessWidget {
   final double? borderRudius;
   final Color? fillColor;
 
-  EvAppCustomTextfield({
+  VAppCustomTextfield({
     super.key,
     this.onChanged,
     this.prefixIcon,

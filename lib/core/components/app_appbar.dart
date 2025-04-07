@@ -15,7 +15,7 @@ class AppAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       leading: InkWell(
-        child: Icon(color: AppColors.kWhite, SolarIconsOutline.altArrowLeft),
+        child: Icon(color: AppColors.white, SolarIconsOutline.altArrowLeft),
         onTap: () {
           Navigator.pop(context);
         },
@@ -26,7 +26,7 @@ class AppAppbar extends StatelessWidget implements PreferredSizeWidget {
           fontWeight: FontWeight.w600,
           size: AppDimensions.paddingSize15,
           context: context,
-          color: AppColors.kWhite,
+          color: AppColors.white,
         ),
       ),
       backgroundColor: AppColors.DEFAULT_BLUE_DARK,

@@ -14,6 +14,7 @@ class ConstImages {
 
   static const String evaluatorImage = 'assets/evaluator.png';
   static const String vendorImage = 'assets/vendor.png';
+  static const String appLogo = 'assets/app_logo.jpg';
 
   static const List<String> swipesImages = [
     "assets/dynamic/swipe1.jpg",

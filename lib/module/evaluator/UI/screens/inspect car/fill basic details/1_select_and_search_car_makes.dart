@@ -20,8 +20,11 @@ import 'package:wheels_kart/module/evaluator/UI/widgets/app_search_field.dart';
 class EvSelectAndSearchCarMakes extends StatefulWidget {
   List<CarMakeModel> listofCarMake;
   String inspectuionId;
-  EvSelectAndSearchCarMakes(
-      {super.key, required this.listofCarMake, required this.inspectuionId});
+  EvSelectAndSearchCarMakes({
+    super.key,
+    required this.listofCarMake,
+    required this.inspectuionId,
+  });
 
   @override
   State<EvSelectAndSearchCarMakes> createState() =>
@@ -32,8 +35,12 @@ class _EvSelectAndSearchCarMakesState extends State<EvSelectAndSearchCarMakes> {
   @override
   void initState() {
     super.initState();
-    context.read<EvSearchCarMakeBloc>().add(OnSearchCarMakeEvent(
-        query: '', initialListOfCarMake: widget.listofCarMake));
+    context.read<EvSearchCarMakeBloc>().add(
+      OnSearchCarMakeEvent(
+        query: '',
+        initialListOfCarMake: widget.listofCarMake,
+      ),
+    );
   }
 
   @override
@@ -48,77 +55,83 @@ class _EvSelectAndSearchCarMakesState extends State<EvSelectAndSearchCarMakes> {
             shadowColor: Colors.transparent,
             backgroundColor: AppColors.DEFAULT_BLUE_DARK,
             foregroundColor: Colors.transparent,
-            leading: customBackButton(context, color: AppColors.kWhite),
+            leading: customBackButton(context, color: AppColors.white),
             floating: true,
             pinned: false,
             snap: true,
             title: Text(
               'Select car brand',
               style: AppStyle.style(
-                  context: context,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.kWhite,
-                  size: AppDimensions.fontSize18(context)),
+                context: context,
+                fontWeight: FontWeight.w500,
+                color: AppColors.white,
+                size: AppDimensions.fontSize18(context),
+              ),
             ),
             toolbarHeight: h(context) * .07,
             bottom: PreferredSize(
-                preferredSize: Size.fromHeight(h(context) * .09),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: AppDimensions.paddingSize15,
-                    right: AppDimensions.paddingSize15,
-                    bottom: AppDimensions.paddingSize25,
-                  ),
-                  child: EvAppSearchField(
-                    hintText: 'Search car brand',
-                    onChanged: (value) {
-                      context.read<EvSearchCarMakeBloc>().add(
-                          OnSearchCarMakeEvent(
-                              query: value,
-                              initialListOfCarMake: widget.listofCarMake));
-                    },
-                  ),
-                )),
+              preferredSize: Size.fromHeight(h(context) * .09),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: AppDimensions.paddingSize15,
+                  right: AppDimensions.paddingSize15,
+                  bottom: AppDimensions.paddingSize25,
+                ),
+                child: EvAppSearchField(
+                  hintText: 'Search car brand',
+                  onChanged: (value) {
+                    context.read<EvSearchCarMakeBloc>().add(
+                      OnSearchCarMakeEvent(
+                        query: value,
+                        initialListOfCarMake: widget.listofCarMake,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
             flexibleSpace: const FlexibleSpaceBar(
               collapseMode: CollapseMode.pin,
             ),
           ),
           SliverList(
-              delegate: SliverChildBuilderDelegate(
-            childCount: 1,
-            (context, index) => AppMargin(
+            delegate: SliverChildBuilderDelegate(
+              childCount: 1,
+              (context, index) => AppMargin(
                 child: BlocConsumer<EvSearchCarMakeBloc, EvSearchCarMakeState>(
-              listener: (context, state) {},
-              builder: (context, state) {
-                switch (state) {
-                  case SearchCarMakeInitialState():
-                    {
-                      return _buildGrid(widget.listofCarMake);
-                    }
-                  case SearchListHasDataState():
-                    {
-                      return _buildGrid(state.searchResult);
-                    }
+                  listener: (context, state) {},
+                  builder: (context, state) {
+                    switch (state) {
+                      case SearchCarMakeInitialState():
+                        {
+                          return _buildGrid(widget.listofCarMake);
+                        }
+                      case SearchListHasDataState():
+                        {
+                          return _buildGrid(state.searchResult);
+                        }
 
-                  case SearchListIsEmptyState():
-                    {
-                      return AppEmptyText(
-                        text: state.emptyMessage,
-                        neddMorhieght: true,
-                      );
-                    }
+                      case SearchListIsEmptyState():
+                        {
+                          return AppEmptyText(
+                            text: state.emptyMessage,
+                            neddMorhieght: true,
+                          );
+                        }
 
-                  default:
-                    {
-                      return AppEmptyText(
-                        text: 'Please wait...',
-                        neddMorhieght: true,
-                      );
+                      default:
+                        {
+                          return AppEmptyText(
+                            text: 'Please wait...',
+                            neddMorhieght: true,
+                          );
+                        }
                     }
-                }
-              },
-            )),
-          ))
+                  },
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -126,63 +139,68 @@ class _EvSelectAndSearchCarMakesState extends State<EvSelectAndSearchCarMakes> {
 
   Widget _buildGrid(List<CarMakeModel> data) {
     return data.isEmpty
-        ? AppEmptyText(
-            text: 'Cars Not Found !',
-            neddMorhieght: true,
-          )
+        ? AppEmptyText(text: 'Cars Not Found !', neddMorhieght: true)
         : GridView.builder(
-            padding: const EdgeInsets.only(bottom: AppDimensions.paddingSize5),
-            physics: const BouncingScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: data.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3),
-            itemBuilder: (context, index) {
-              return InkWell(
-                overlayColor:
-                    const WidgetStatePropertyAll(AppColors.kAppSecondaryColor),
-                onTap: () {
-                  Navigator.of(context).push(
-                      AppRoutes.createRoute(EvSelectAndSeachManufacturingYear(
-                    evaluationDataEntryModel: EvaluationDataEntryModel(
-                      inspectionId: widget.inspectuionId,
-                      carMake: data[index].makeName,
-                      makeId: data[index].makeId,
-                    ),
-                  )));
-                },
-                child: Card(
-                  color: AppColors.kWhite,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SizedBox(
-                          width: w(context),
-                          height: h(context) * .05,
-                          child: Center(
-                            child: CachedNetworkImage(
-                                errorListener: (value) {
-                                  // log(value.toString());
-                                },
-                                errorWidget: (context, path, error) =>
-                                    const AppImageNotFoundText(),
-                                imageUrl: data[index].logo),
-                          ),
-                        ),
-                        Text(
-                          data[index].makeName,
-                          style: AppStyle.style(
-                              context: context,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: .5),
-                        ),
-                      ],
+          padding: const EdgeInsets.only(bottom: AppDimensions.paddingSize5),
+          physics: const BouncingScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: data.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+          ),
+          itemBuilder: (context, index) {
+            return InkWell(
+              overlayColor: const WidgetStatePropertyAll(
+                AppColors.kAppSecondaryColor,
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  AppRoutes.createRoute(
+                    EvSelectAndSeachManufacturingYear(
+                      evaluationDataEntryModel: EvaluationDataEntryModel(
+                        inspectionId: widget.inspectuionId,
+                        carMake: data[index].makeName,
+                        makeId: data[index].makeId,
+                      ),
                     ),
                   ),
+                );
+              },
+              child: Card(
+                color: AppColors.white,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                        width: w(context),
+                        height: h(context) * .05,
+                        child: Center(
+                          child: CachedNetworkImage(
+                            errorListener: (value) {
+                              // log(value.toString());
+                            },
+                            errorWidget:
+                                (context, path, error) =>
+                                    const AppImageNotFoundText(),
+                            imageUrl: data[index].logo,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        data[index].makeName,
+                        style: AppStyle.style(
+                          context: context,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: .5,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
-          );
+              ),
+            );
+          },
+        );
   }
 }

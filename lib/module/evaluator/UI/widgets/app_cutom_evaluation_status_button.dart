@@ -22,10 +22,11 @@ import 'package:wheels_kart/module/evaluator/data/model/evaluation_data_model.da
 class EvEvaluationProcessBar extends StatefulWidget {
   int currentPage;
   EvaluationDataEntryModel evaluationDataModel;
-  EvEvaluationProcessBar(
-      {super.key,
-      required this.currentPage,
-      required this.evaluationDataModel});
+  EvEvaluationProcessBar({
+    super.key,
+    required this.currentPage,
+    required this.evaluationDataModel,
+  });
 
   @override
   State<EvEvaluationProcessBar> createState() => _EvEvaluationProcessBarState();
@@ -33,7 +34,7 @@ class EvEvaluationProcessBar extends StatefulWidget {
 
 class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
   bool isButtonEnabled = false;
-// done
+  // done
   final doneTextColor = AppColors.kAppSecondaryColor;
 
   final doneBorderColor = AppColors.kAppSecondaryColor;
@@ -44,27 +45,27 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
     CupertinoIcons.check_mark_circled_solid,
     color: AppColors.kAppSecondaryColor,
   );
-// disbale
-  final disableColor = AppColors.kGrey;
+  // disbale
+  final disableColor = AppColors.grey;
 
-  final disabledBorderColor = AppColors.kGrey;
+  final disabledBorderColor = AppColors.grey;
 
-  final diabledButtonColor = AppColors.kWhite;
+  final diabledButtonColor = AppColors.white;
 
   final disablesIcon = Icon(
     CupertinoIcons.multiply_circle_fill,
     color: AppColors.kRed,
   );
-// selcted
-  final selctedBorderColor = AppColors.kWhite;
+  // selcted
+  final selctedBorderColor = AppColors.white;
 
   final selectedButtonColor = AppColors.DEFAULT_BLUE_DARK;
 
-  final selectedTextColor = AppColors.kWhite;
+  final selectedTextColor = AppColors.white;
 
   final selectedIcon = Icon(
     Icons.add_circle_outline_sharp,
-    color: AppColors.kWhite,
+    color: AppColors.white,
   );
 
   late ScrollController _scrollController;
@@ -90,128 +91,153 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: ListView.builder(
-            controller: _scrollController,
-            itemCount: AppString.listOfSteps.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) {
-              if (index >= widget.currentPage) {
-                isButtonEnabled = false;
-              } else {
-                isButtonEnabled = true;
-              }
-              final textColor = isButtonEnabled
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: AppString.listOfSteps.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          if (index >= widget.currentPage) {
+            isButtonEnabled = false;
+          } else {
+            isButtonEnabled = true;
+          }
+          final textColor =
+              isButtonEnabled
                   ? doneTextColor
                   : widget.currentPage == index
-                      ? selectedTextColor
-                      : disableColor;
-              final containerColor = isButtonEnabled
+                  ? selectedTextColor
+                  : disableColor;
+          final containerColor =
+              isButtonEnabled
                   ? doneButtonColor
                   : widget.currentPage == index
-                      ? selectedButtonColor
-                      : diabledButtonColor;
-              final borderColor = isButtonEnabled
+                  ? selectedButtonColor
+                  : diabledButtonColor;
+          final borderColor =
+              isButtonEnabled
                   ? doneBorderColor
                   : widget.currentPage == index
-                      ? selctedBorderColor
-                      : disabledBorderColor;
+                  ? selctedBorderColor
+                  : disabledBorderColor;
 
-              final icon = isButtonEnabled
+          final icon =
+              isButtonEnabled
                   ? doneIcon
                   : widget.currentPage == index
-                      ? selectedIcon
-                      : disablesIcon;
-              final borderWidth = widget.currentPage == index ? 2.0 : 1.0;
-              return Center(
-                child: InkWell(
-                    overlayColor:
-                        const WidgetStatePropertyAll(Colors.transparent),
-                    onTap: () {
-                      if (widget.currentPage > index) {
-                        switch (AppString.listOfSteps[index]) {
-                          case 'Brand':
-                            {
-                              final state =
-                                  BlocProvider.of<EvFetchCarMakeBloc>(context)
-                                      .state;
-                              if (state is FetchCarMakeSuccessState) {
-                                navigatTo(EvSelectAndSearchCarMakes(
-                                    inspectuionId:
-                                        widget.evaluationDataModel.inspectionId,
-                                    listofCarMake: state.carMakeData));
-                              }
-                            }
-                          case 'Year':
-                            {
-                              navigatTo(EvSelectAndSeachManufacturingYear(
-                                  evaluationDataEntryModel:
-                                      widget.evaluationDataModel));
-                            }
-                          case 'Model':
-                            {
-                              navigatTo(EvSelectAndSearchCarModelScreen(
-                                  evaluationDataEntryModel:
-                                      widget.evaluationDataModel));
-                            }
-                          case 'Varient':
-                            {
-                              navigatTo(EvSelectFuealTypeScreen(
-                                  evaluationDataEntryModel:
-                                      widget.evaluationDataModel));
-                            }
-                          case 'Reg. No.':
-                            {
-                              navigatTo(EvEnterVehicleRegNumSscreen(
-                                  evaluationDataModel:
-                                      widget.evaluationDataModel));
-                            }
-                          case 'Kms Driven':
-                            {
-                              navigatTo(EvSelectTotalKmsDrivenScreen(
-                                  evaluationDataModel:
-                                      widget.evaluationDataModel));
-                            }
-                          case 'Car location':
-                            {
-                              navigatTo(EvSelectAndSearchCarLocationScreen(
-                                  evaluationDataModel:
-                                      widget.evaluationDataModel));
-                            }
+                  ? selectedIcon
+                  : disablesIcon;
+          final borderWidth = widget.currentPage == index ? 2.0 : 1.0;
+          return Center(
+            child: InkWell(
+              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+              onTap: () {
+                if (widget.currentPage > index) {
+                  switch (AppString.listOfSteps[index]) {
+                    case 'Brand':
+                      {
+                        final state =
+                            BlocProvider.of<EvFetchCarMakeBloc>(context).state;
+                        if (state is FetchCarMakeSuccessState) {
+                          navigatTo(
+                            EvSelectAndSearchCarMakes(
+                              inspectuionId:
+                                  widget.evaluationDataModel.inspectionId,
+                              listofCarMake: state.carMakeData,
+                            ),
+                          );
                         }
-                      } else {
-                        log('cant go ==>');
                       }
-                    },
-                    child: Container(
-                      width: w(context) * .3,
-                      margin: const EdgeInsets.all(AppDimensions.paddingSize10),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppDimensions.paddingSize10,
-                          vertical: AppDimensions.paddingSize5),
-                      decoration: BoxDecoration(
-                        color: containerColor,
-                        border:
-                            Border.all(color: borderColor, width: borderWidth),
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radiusSize5),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            textAlign: TextAlign.center,
-                            AppString.listOfSteps[index],
-                            style: AppStyle.style(
-                                context: context,
-                                fontWeight: FontWeight.bold,
-                                color: textColor),
+                    case 'Year':
+                      {
+                        navigatTo(
+                          EvSelectAndSeachManufacturingYear(
+                            evaluationDataEntryModel:
+                                widget.evaluationDataModel,
                           ),
-                          icon
-                        ],
+                        );
+                      }
+                    case 'Model':
+                      {
+                        navigatTo(
+                          EvSelectAndSearchCarModelScreen(
+                            evaluationDataEntryModel:
+                                widget.evaluationDataModel,
+                          ),
+                        );
+                      }
+                    case 'Varient':
+                      {
+                        navigatTo(
+                          EvSelectFuealTypeScreen(
+                            evaluationDataEntryModel:
+                                widget.evaluationDataModel,
+                          ),
+                        );
+                      }
+                    case 'Reg. No.':
+                      {
+                        navigatTo(
+                          EvEnterVehicleRegNumSscreen(
+                            evaluationDataModel: widget.evaluationDataModel,
+                          ),
+                        );
+                      }
+                    case 'Kms Driven':
+                      {
+                        navigatTo(
+                          EvSelectTotalKmsDrivenScreen(
+                            evaluationDataModel: widget.evaluationDataModel,
+                          ),
+                        );
+                      }
+                    case 'Car location':
+                      {
+                        navigatTo(
+                          EvSelectAndSearchCarLocationScreen(
+                            evaluationDataModel: widget.evaluationDataModel,
+                          ),
+                        );
+                      }
+                  }
+                } else {
+                  log('cant go ==>');
+                }
+              },
+              child: Container(
+                width: w(context) * .3,
+                margin: const EdgeInsets.all(AppDimensions.paddingSize10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimensions.paddingSize10,
+                  vertical: AppDimensions.paddingSize5,
+                ),
+                decoration: BoxDecoration(
+                  color: containerColor,
+                  border: Border.all(color: borderColor, width: borderWidth),
+                  borderRadius: BorderRadius.circular(
+                    AppDimensions.radiusSize5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      textAlign: TextAlign.center,
+                      AppString.listOfSteps[index],
+                      style: AppStyle.style(
+                        context: context,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
                       ),
-                    )),
-              );
-            }));
+                    ),
+                    icon,
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   navigatTo(page) {

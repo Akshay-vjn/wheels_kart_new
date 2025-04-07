@@ -28,43 +28,47 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<EvLoginBlocBloc>(
-          create: (_) => EvLoginBlocBloc(),
-        ),
+        BlocProvider<EvLoginBlocBloc>(create: (_) => EvLoginBlocBloc()),
         BlocProvider<EvFetchCarMakeBloc>(create: (_) => EvFetchCarMakeBloc()),
         BlocProvider<EvFetchCarModelBloc>(create: (_) => EvFetchCarModelBloc()),
         BlocProvider<EvSearchCarMakeBloc>(create: (_) => EvSearchCarMakeBloc()),
         BlocProvider<EvFetchCityBloc>(create: (_) => EvFetchCityBloc()),
         BlocProvider<EvAuthBlocCubit>(create: (_) => EvAuthBlocCubit()),
         BlocProvider<EvAppNavigationCubit>(
-            create: (_) => EvAppNavigationCubit()),
+          create: (_) => EvAppNavigationCubit(),
+        ),
         // BlocProvider<EvEvaluationDataCubit>(
         //     create: (_) => EvEvaluationDataCubit()),
         BlocProvider<EvFetchDashboardBloc>(
-            create: (_) => EvFetchDashboardBloc()),
+          create: (_) => EvFetchDashboardBloc(),
+        ),
         BlocProvider<FetchInspectionsBloc>(
-            create: (_) => FetchInspectionsBloc()),
+          create: (_) => FetchInspectionsBloc(),
+        ),
         BlocProvider<FetchPortionsBloc>(create: (_) => FetchPortionsBloc()),
         BlocProvider<FetchSystemsBloc>(create: (_) => FetchSystemsBloc()),
         BlocProvider<FetchQuestionsBloc>(create: (_) => FetchQuestionsBloc()),
-        BlocProvider<SubmitAnswerControllerCubit>(
-            create: (_) => SubmitAnswerControllerCubit())
+        BlocProvider<EvSubmitAnswerControllerCubit>(
+          create: (_) => EvSubmitAnswerControllerCubit(),
+        ),
       ],
       child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Weels Kart',
-          theme: ThemeData(
-            appBarTheme: AppBarTheme(
-              toolbarHeight: 70,
-              color: AppColors.DEFAULT_BLUE_DARK,
-            ),
-            scaffoldBackgroundColor: AppColors.kscafoldBgColor,
-            iconTheme: const IconThemeData(color: AppColors.DEFAULT_BLUE_DARK),
-            colorScheme:
-                ColorScheme.fromSeed(seedColor: AppColors.DEFAULT_BLUE_DARK),
-            useMaterial3: true,
+        debugShowCheckedModeBanner: false,
+        title: 'Wheels Kart',
+        theme: ThemeData(
+          appBarTheme: AppBarTheme(
+            toolbarHeight: 70,
+            color: AppColors.DEFAULT_BLUE_DARK,
           ),
-          home: const SplashScreen()),
+          scaffoldBackgroundColor: AppColors.kScafoldBgColor,
+          iconTheme: const IconThemeData(color: AppColors.DEFAULT_BLUE_DARK),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppColors.DEFAULT_BLUE_DARK,
+          ),
+          useMaterial3: true,
+        ),
+        home: const SplashScreen(),
+      ),
     );
   }
 }

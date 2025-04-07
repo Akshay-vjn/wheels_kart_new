@@ -7,7 +7,7 @@ import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/custome_show_messages.dart';
 import 'package:wheels_kart/core/utils/responsive_helper.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/home/e_dashboard_screen.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_dashboard_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/live/ev_live_leads_tab.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_selection_button.dart';
@@ -60,7 +60,7 @@ class _EvSelectAndSearchCarLocationScreenState
           style: AppStyle.style(
             context: context,
             fontWeight: FontWeight.w500,
-            color: AppColors.kWhite,
+            color: AppColors.white,
             size: AppDimensions.fontSize18(context),
           ),
         ),
@@ -118,122 +118,13 @@ class _EvSelectAndSearchCarLocationScreenState
             _evaluationData.carLocation = selectedCityName;
             _evaluationData.locationID = selctedCityId;
 
-            // showDialog(
-            //   context: context,
-            //   builder: (context) => AlertDialog(
-            //     title: Text(
-            //       'Confirm the given details',
-            //       style: AppStyle.poppinsStyle(
-            //           context: context,
-            //           fontWeight: FontWeight.bold,
-            //           size: AppDimensions.fontSize18(context)),
-            //     ),
-            //     content: Column(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       mainAxisSize: MainAxisSize.min,
-            //       children: [
-            //         _buildItemText('Brand', _evaluationData.carMake!),
-            //         _buildItemText(
-            //             'Manufacturing year', _evaluationData.makeYear!),
-            //         _buildItemText('Model', _evaluationData.carModel!),
-            //         _buildItemText('Fuel type', _evaluationData.fuelType!),
-            //         _buildItemText('Transmission type',
-            //             _evaluationData.transmissionType!),
-            //         _buildItemText('Varient', _evaluationData.varient!),
-            //         _buildItemText(
-            //             'Reg. no.', _evaluationData.vehicleRegNumber!),
-            //         _buildItemText(
-            //             'Kms driven', _evaluationData.totalKmsDriven!),
-            //         _buildItemText('City', _evaluationData.carLocation!),
-            //         //
-            //         // Divider(),
-            //         // _buildItemText(
-            //         //     'inspaction id', _evaluationData.inspectionId!),
-            //         // _buildItemText(
-            //         //     'engine type', _evaluationData.engineTypeId!),
-            //         // _buildItemText('make id', _evaluationData.makeId!),
-            //         // _buildItemText('model id', _evaluationData.modelId!),
-            //         // _buildItemText(
-            //         //     'location id', _evaluationData.locationID!),
-            //         // _buildItemText(
-            //         //     'varient id', _evaluationData.varientId!),
-            //       ],
-            //     ),
-            //     actions: [
-            //       EvAppCustomButton(
-            //         title: 'Update Inspection',
-            //         onTap: () async {
-            //           final snapshot =
-            //               await UpdateInspectionRepo.updateInspection(
-            //                   context, _evaluationData);
-
-            //           if (snapshot.isEmpty) {
-            //             showToastMessage(context,
-            //                 'Updating inspection failed !,please try agian',
-            //                 isError: true);
-            //             Navigator.of(context).pushAndRemoveUntil(
-            //               AppRoutes.createRoute(EvDashboardScreen()),
-            //               (route) => false,
-            //             );
-            //           } else if (snapshot['error'] == true) {
-            //             showToastMessage(context, snapshot['message'],
-            //                 isError: true);
-            //             Navigator.pop(context);
-            //           } else if (snapshot['error'] == false) {
-            //             showToastMessage(
-            //               context,
-            //               snapshot['message'],
-            //             );
-            //             Navigator.of(context).pushReplacement(
-            //                 AppRoutes.createRoute(
-            //                     EvProgressingEvaluationListScreen()));
-            //           }
-            //           // Navigator.of(context)
-            //           //     .push(AppRoutes.createRoute(QuestionPage()));
-            //         },
-            //       ),
-            //       const AppSpacer(
-            //         heightPortion: .02,
-            //       ),
-            //       InkWell(
-            //         onTap: () {
-            //           Navigator.of(context).pushAndRemoveUntil(
-            //               AppRoutes.createRoute(EvDashboardScreen()),
-            //               (context) => false);
-            //         },
-            //         overlayColor: WidgetStatePropertyAll(
-            //             AppColors.kAppSecondaryColor.withOpacity(0.1)),
-            //         child: Container(
-            //           alignment: Alignment.center,
-            //           width: w(context),
-            //           padding: const EdgeInsetsDirectional.all(
-            //               AppDimensions.paddingSize20),
-            //           decoration: BoxDecoration(
-            //             border: Border.all(color: AppColors.kRed),
-            //             borderRadius:
-            //                 BorderRadius.circular(AppDimensions.radiusSize50),
-            //           ),
-            //           child: Text(
-            //             'Cancel',
-            //             style: AppStyle.poppinsStyle(
-            //                 fontWeight: FontWeight.bold,
-            //                 context: context,
-            //                 size: AppDimensions.fontSize16(context),
-            //                 color: AppColors.kRed),
-            //           ),
-            //         ),
-            //       )
-            //     ],
-            //   ),
-            // );
-
             showModalBottomSheet(
               enableDrag: true,
               context: context,
               shape: BeveledRectangleBorder(),
               builder: (context) {
                 return Container(
-                  color: AppColors.kWhite,
+                  color: AppColors.white,
                   padding: const EdgeInsets.all(AppDimensions.paddingSize15),
                   width: w(context),
                   child: Column(
@@ -273,7 +164,7 @@ class _EvSelectAndSearchCarLocationScreenState
                       EvAppCustomButton(
                         bgColor: AppColors.DEFAULT_BLUE_DARK,
                         isSquare: true,
-                        title: 'Update Inspection',
+                        title: 'Save Inspection',
                         onTap: () async {
                           final snapshot =
                               await UpdateInspectionRepo.updateInspection(
@@ -300,12 +191,11 @@ class _EvSelectAndSearchCarLocationScreenState
                             Navigator.pop(context);
                           } else if (snapshot['error'] == false) {
                             showToastMessage(context, snapshot['message']);
-                            Navigator.of(context).pushReplacement(
-                              AppRoutes.createRoute(EvLiveLeadsTab()),
+                            Navigator.of(context).pushAndRemoveUntil(
+                              AppRoutes.createRoute(EvDashboardScreen()),
+                              (route) => false,
                             );
                           }
-                          // Navigator.of(context)
-                          //     .push(AppRoutes.createRoute(QuestionPage()));
                         },
                       ),
                       const AppSpacer(heightPortion: .02),
@@ -364,14 +254,14 @@ class _EvSelectAndSearchCarLocationScreenState
             ),
             child: Row(
               children: [
-                Icon(Iconsax.location, color: AppColors.kBlack),
+                Icon(Iconsax.location, color: AppColors.black),
                 AppSpacer(widthPortion: .04),
                 Text(
                   cityList[index].cityName,
                   style: AppStyle.style(
                     size: AppDimensions.fontSize18(context),
                     context: context,
-                    color: selectedCityindex != index ? AppColors.kBlack : null,
+                    color: selectedCityindex != index ? AppColors.black : null,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

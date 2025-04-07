@@ -31,23 +31,24 @@ class _EvSaleCarFunctionScreenState extends State<EvSaleCarFunctionScreen> {
   @override
   void initState() {
     super.initState();
-    context
-        .read<EvFetchCarMakeBloc>()
-        .add(InitalFetchCarMakeEvent(context: context));
+    context.read<EvFetchCarMakeBloc>().add(
+      InitalFetchCarMakeEvent(context: context),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: customBackButton(context, color: AppColors.kWhite),
+        leading: customBackButton(context, color: AppColors.white),
         title: Text(
           'Choose Brand',
           style: AppStyle.style(
-              context: context,
-              color: AppColors.kWhite,
-              fontWeight: FontWeight.bold,
-              size: AppDimensions.fontSize18(context)),
+            context: context,
+            color: AppColors.white,
+            fontWeight: FontWeight.bold,
+            size: AppDimensions.fontSize18(context),
+          ),
         ),
       ),
       body: AppMargin(
@@ -57,21 +58,25 @@ class _EvSaleCarFunctionScreenState extends State<EvSaleCarFunctionScreen> {
             const AppSpacer(heightPortion: .03),
             Container(
               decoration: const BoxDecoration(
-                  image: DecorationImage(
-                      fit: BoxFit.fill,
-                      image: AssetImage(ConstImages.sellcCarImage)),
-                  color: AppColors.DEFAULT_BLUE_DARK,
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(AppDimensions.radiusSize18))),
+                image: DecorationImage(
+                  fit: BoxFit.fill,
+                  image: AssetImage(ConstImages.sellcCarImage),
+                ),
+                color: AppColors.DEFAULT_BLUE_DARK,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(AppDimensions.radiusSize18),
+                ),
+              ),
               height: 170,
             ),
             const AppSpacer(heightPortion: .05),
             Text(
               'Popular brands',
               style: AppStyle.style(
-                  context: context,
-                  fontWeight: FontWeight.w600,
-                  size: AppDimensions.fontSize18(context)),
+                context: context,
+                fontWeight: FontWeight.w600,
+                size: AppDimensions.fontSize18(context),
+              ),
             ),
             const AppSpacer(heightPortion: .01),
             BlocBuilder<EvFetchCarMakeBloc, EvFetchCarMakeState>(
@@ -86,114 +91,123 @@ class _EvSaleCarFunctionScreenState extends State<EvSaleCarFunctionScreen> {
                       final data = state.carMakeData;
 
                       return data.isEmpty
-                          ? const Center(
-                              child: Text('No Cars Found !'),
-                            )
+                          ? const Center(child: Text('No Cars Found !'))
                           : Column(
-                              children: [
-                                GridView.builder(
-                                  padding: const EdgeInsets.only(
-                                      bottom: AppDimensions.paddingSize5),
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: 6,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 3),
-                                  itemBuilder: (context, index) {
-                                    return InkWell(
-                                      overlayColor:
-                                          const WidgetStatePropertyAll(
-                                              AppColors.kAppSecondaryColor),
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                            AppRoutes.createRoute(
-                                                EvSelectAndSeachManufacturingYear(
-                                          evaluationDataEntryModel:
-                                              EvaluationDataEntryModel(
-                                            inspectionId: widget.inspectionId,
-                                            carMake: data[index].makeName,
-                                            makeId: data[index].makeId,
+                            children: [
+                              GridView.builder(
+                                padding: const EdgeInsets.only(
+                                  bottom: AppDimensions.paddingSize5,
+                                ),
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: 6,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                    overlayColor: const WidgetStatePropertyAll(
+                                      AppColors.kAppSecondaryColor,
+                                    ),
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        AppRoutes.createRoute(
+                                          EvSelectAndSeachManufacturingYear(
+                                            evaluationDataEntryModel:
+                                                EvaluationDataEntryModel(
+                                                  inspectionId:
+                                                      widget.inspectionId,
+                                                  carMake: data[index].makeName,
+                                                  makeId: data[index].makeId,
+                                                ),
                                           ),
-                                        )));
-                                      },
-                                      child: Card(
-                                        color: AppColors.kWhite,
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              SizedBox(
-                                                width: w(context),
-                                                height: h(context) * .05,
-                                                child: Center(
-                                                  child: CachedNetworkImage(
-                                                      errorListener: (value) {
-                                                        // log(value.toString());
-                                                      },
-                                                      errorWidget: (context,
-                                                              path, error) =>
-                                                          Text(
-                                                            '(Image Not Found)',
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style: AppStyle.style(
-                                                                color: AppColors
-                                                                    .kGrey,
-                                                                size: AppDimensions
-                                                                    .fontSize10(
-                                                                        context),
-                                                                context:
-                                                                    context),
-                                                          ),
-                                                      imageUrl:
-                                                          data[index].logo),
+                                        ),
+                                      );
+                                    },
+                                    child: Card(
+                                      color: AppColors.white,
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            SizedBox(
+                                              width: w(context),
+                                              height: h(context) * .05,
+                                              child: Center(
+                                                child: CachedNetworkImage(
+                                                  errorListener: (value) {
+                                                    // log(value.toString());
+                                                  },
+                                                  errorWidget:
+                                                      (
+                                                        context,
+                                                        path,
+                                                        error,
+                                                      ) => Text(
+                                                        '(Image Not Found)',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: AppStyle.style(
+                                                          color: AppColors.grey,
+                                                          size:
+                                                              AppDimensions.fontSize10(
+                                                                context,
+                                                              ),
+                                                          context: context,
+                                                        ),
+                                                      ),
+                                                  imageUrl: data[index].logo,
                                                 ),
                                               ),
-                                              Text(
-                                                data[index].makeName,
-                                                style: AppStyle.style(
-                                                    context: context,
-                                                    fontWeight: FontWeight.bold,
-                                                    letterSpacing: .5),
+                                            ),
+                                            Text(
+                                              data[index].makeName,
+                                              style: AppStyle.style(
+                                                context: context,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: .5,
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      AppRoutes.createRoute(
+                                        EvSelectAndSearchCarMakes(
+                                          inspectuionId: widget.inspectionId,
+                                          listofCarMake: state.carMakeData,
                                         ),
                                       ),
                                     );
                                   },
+                                  child: Text(
+                                    'See All',
+                                    style: AppStyle.style(
+                                      fontWeight: FontWeight.w600,
+                                      context: context,
+                                    ),
+                                  ),
                                 ),
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).push(
-                                            AppRoutes.createRoute(
-                                                EvSelectAndSearchCarMakes(
-                                          inspectuionId: widget.inspectionId,
-                                          listofCarMake: state.carMakeData,
-                                        )));
-                                      },
-                                      child: Text(
-                                        'See All',
-                                        style: AppStyle.style(
-                                            fontWeight: FontWeight.w600,
-                                            context: context),
-                                      )),
-                                )
-                              ],
-                            );
+                              ),
+                            ],
+                          );
                     }
 
                   case FetchCarMakeErrorState():
                     {
                       return SizedBox(
                         height: h(context) * .2,
-                        child: Center(
-                          child: Text(state.errorData),
-                        ),
+                        child: Center(child: Text(state.errorData)),
                       );
                     }
 
@@ -201,9 +215,7 @@ class _EvSaleCarFunctionScreenState extends State<EvSaleCarFunctionScreen> {
                     {
                       return SizedBox(
                         height: h(context) * .2,
-                        child: const Center(
-                          child: Text('Please wait...'),
-                        ),
+                        child: const Center(child: Text('Please wait...')),
                       );
                     }
                 }

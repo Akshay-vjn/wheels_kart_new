@@ -13,7 +13,7 @@ Color getColor(MessageCategory messageType) {
   switch (messageType) {
     case MessageCategory.ERROR:
       {
-        return AppColors.kBlack2;
+        return AppColors.black2;
       }
     case MessageCategory.WARNING:
       {
@@ -94,7 +94,7 @@ void showCustomMessageDialog(
                     size: AppDimensions.fontSize18(context),
                     context: context,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.kBlack,
+                    color: AppColors.black,
                   ),
                   content: Text(textAlign: TextAlign.center, message),
                 ),
@@ -119,7 +119,7 @@ showToastMessage(BuildContext context, String message, {bool? isError}) {
         (isError == null || isError == false)
             ? AppColors.DEFAULT_BLUE_DARK
             : AppColors.kRed,
-    textColor: AppColors.kWhite,
+    textColor: AppColors.white,
     fontSize: AppDimensions.fontSize15(context),
   );
 }
@@ -134,21 +134,21 @@ showSnakBar(BuildContext context, String title, {bool? isError}) {
         margin: EdgeInsets.only(bottom: 10, left: 10, right: 10),
         content: Row(
           children: [
-            Icon(SolarIconsOutline.closeCircle, color: AppColors.kWhite),
+            Icon(SolarIconsOutline.closeCircle, color: AppColors.white),
             AppSpacer(widthPortion: .015),
             Text(
               title,
               style: AppStyle.style(
                 context: context,
                 fontWeight: FontWeight.w600,
-                color: AppColors.kWhite,
+                color: AppColors.white,
                 size: AppDimensions.fontSize15(context),
               ),
             ),
           ],
         ),
         duration: const Duration(seconds: 2),
-        backgroundColor: isError == true ? AppColors.kRed : AppColors.kBlack2,
+        backgroundColor: isError == true ? AppColors.kRed : AppColors.black2,
       ),
     );
   });

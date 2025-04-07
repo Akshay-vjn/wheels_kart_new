@@ -10,7 +10,7 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/leads/lead_view_screen.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_lead_view_screen.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
 
@@ -98,17 +98,19 @@ class _EvPendingLeadsTabState extends State<EvPendingLeadsTab> {
   ) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(AppRoutes.createRoute(LeadViewScreen(isHidePrintButton: true,)));
+        Navigator.of(context).push(
+          AppRoutes.createRoute(EvLeadViewScreen(isHidePrintButton: true)),
+        );
       },
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppColors.kWhite),
+            decoration: BoxDecoration(color: AppColors.white),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(color: AppColors.kBlack2, height: 100, width: 100),
+                Container(color: AppColors.black2, height: 100, width: 100),
                 AppSpacer(widthPortion: .02),
                 Expanded(
                   child: Column(
@@ -120,15 +122,18 @@ class _EvPendingLeadsTabState extends State<EvPendingLeadsTab> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                             children: [
-                              Text(
-                                "Maruti Suzuki Alto 800",
-                                style: AppStyle.style(
-                                  context: context,
-                                  fontWeight: FontWeight.bold,
-                                  size: AppDimensions.fontSize18(context),
+                              Flexible(
+                                child: Text(
+                                  "Maruti Suzuki Alto 800",
+                                  style: AppStyle.style(
+                                    context: context,
+                                    fontWeight: FontWeight.bold,
+                                    size: AppDimensions.fontSize18(context),
+                                  ),
                                 ),
                               ),
                               Container(
@@ -145,7 +150,7 @@ class _EvPendingLeadsTabState extends State<EvPendingLeadsTab> {
                                   style: AppStyle.style(
                                     context: context,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.kWhite,
+                                    color: AppColors.white,
                                   ),
                                 ),
                               ),
@@ -172,7 +177,7 @@ class _EvPendingLeadsTabState extends State<EvPendingLeadsTab> {
                                 "Contact Info",
                                 style: AppStyle.style(
                                   context: context,
-                                  color: AppColors.kBlack2,
+                                  color: AppColors.black2,
                                   fontWeight: FontWeight.w300,
                                   size: AppDimensions.fontSize18(context),
                                 ),

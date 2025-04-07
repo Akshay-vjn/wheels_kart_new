@@ -11,51 +11,53 @@ class EvAppSearchField extends StatelessWidget {
   final void Function(String)? onChanged;
   final TextInputType? keyboardType;
 
-  const EvAppSearchField(
-      {super.key,
-      this.controller,
-      required this.hintText,
-      required this.onChanged,
-      this.keyboardType});
+  const EvAppSearchField({
+    super.key,
+    this.controller,
+    required this.hintText,
+    required this.onChanged,
+    this.keyboardType,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(
-          Iconsax.search_normal,
-          color: AppColors.kWhite,
-        ),
-        const AppSpacer(
-          widthPortion: .05,
-        ),
+        const Icon(Iconsax.search_normal, color: AppColors.white),
+        const AppSpacer(widthPortion: .05),
         Expanded(
           child: TextFormField(
             keyboardType: keyboardType,
             controller: controller,
             onChanged: onChanged,
             textCapitalization: TextCapitalization.words,
-            cursorColor: AppColors.kWhite,
+            cursorColor: AppColors.white,
             style: AppStyle.style(
-                context: context,
-                color: AppColors.kWhite,
-                fontWeight: FontWeight.w500,
-                size: AppDimensions.fontSize15(context)),
+              context: context,
+              color: AppColors.white,
+              fontWeight: FontWeight.w500,
+              size: AppDimensions.fontSize15(context),
+            ),
             decoration: InputDecoration(
               hintText: '  $hintText',
               hintStyle: AppStyle.style(
-                  color: AppColors.kWhite,
-                  context: context,
-                  fontWeight: FontWeight.w500,
-                  size: AppDimensions.fontSize15(context)),
+                color: AppColors.white,
+                context: context,
+                fontWeight: FontWeight.w500,
+                size: AppDimensions.fontSize15(context),
+              ),
               enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1, color: AppColors.kWhite),
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(AppDimensions.radiusSize10))),
+                borderSide: BorderSide(width: 1, color: AppColors.white),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(AppDimensions.radiusSize10),
+                ),
+              ),
               focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: AppColors.kWhite),
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(AppDimensions.radiusSize10))),
+                borderSide: BorderSide(width: 1.5, color: AppColors.white),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(AppDimensions.radiusSize10),
+                ),
+              ),
             ),
           ),
         ),
