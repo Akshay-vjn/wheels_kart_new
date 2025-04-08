@@ -34,6 +34,35 @@ class AppStyle {
     );
   }
 
+
+  static TextStyle poppins({
+    double? size,
+    required BuildContext context,
+    bool? enableShadow,
+    Color? shadowColor,
+    FontWeight? fontWeight,
+    double? letterSpacing,
+    Color? color,
+    TextDecoration? decoration,
+  }) {
+    return GoogleFonts.poppins(
+      decoration: decoration,
+      decorationColor: color ?? AppColors.DEFAULT_BLUE_DARK,
+      shadows: [
+        enableShadow != null
+            ? Shadow(
+              offset: const Offset(1, 2),
+              color: shadowColor ?? AppColors.black.withOpacity(.3),
+            )
+            : const Shadow(),
+      ],
+      color: color ?? AppColors.DEFAULT_BLUE_DARK,
+      fontWeight: fontWeight,
+      fontSize: size ?? AppDimensions.fontSize12(context),
+      letterSpacing: letterSpacing,
+    );
+  }
+
   static InputDecoration dropdownDecoration({bool? isBorderWhite}) =>
       InputDecoration(
         enabledBorder: OutlineInputBorder(

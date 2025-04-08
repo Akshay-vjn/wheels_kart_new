@@ -4,6 +4,7 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
+import 'package:wheels_kart/module/vendor/UI/widgets/v_back_button.dart';
 
 class VAppCustomTextfield extends StatelessWidget {
   final TextEditingController? controller;
@@ -48,16 +49,21 @@ class VAppCustomTextfield extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          labeltext ?? '',
-          style: AppStyle.style(
-            context: context,
-            size: AppDimensions.fontSize15(context),
-            color: AppColors.DEFAULT_BLUE_DARK,
-            fontWeight: FontWeight.w600,
+        if (labeltext != null)
+          Column(
+            children: [
+              Text(
+                labeltext!,
+                style: AppStyle.poppins(
+                  context: context,
+                  size: AppDimensions.fontSize15(context),
+                  color: AppColors.DEFAULT_BLUE_DARK,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const AppSpacer(heightPortion: .01),
+            ],
           ),
-        ),
-        const AppSpacer(heightPortion: .01),
         TextFormField(
           onChanged: onChanged,
           maxLines: maxLine ?? 1,
@@ -75,35 +81,38 @@ class VAppCustomTextfield extends StatelessWidget {
           keyboardType: keyBoardType,
           obscureText: isObsecure ?? false,
           controller: controller,
-          style: AppStyle.style(
+          style: AppStyle.poppins(
             context: context,
-            color: AppColors.DEFAULT_BLUE_GREY,
-            fontWeight: fontWeght ?? FontWeight.bold,
+            color: AppColors.DARK_PRIMARY,
+            fontWeight: fontWeght ?? FontWeight.w600,
             size: AppDimensions.fontSize18(context),
           ),
           cursorColor: focusColor ?? AppColors.DEFAULT_BLUE_GREY,
           decoration: InputDecoration(
             filled: fillColor != null,
             fillColor: fillColor,
-            errorStyle: AppStyle.style(context: context, color: AppColors.kRed),
+            errorStyle: AppStyle.poppins(
+              context: context,
+              color: AppColors.kRed,
+            ),
             contentPadding: const EdgeInsets.symmetric(
-              vertical: 15,
-              horizontal: 10,
+              vertical: 20,
+              horizontal: 15,
             ),
             // prefixIconConstraints: BoxConstraints(minWidth: 60),
 
             // suffixIconConstraints: BoxConstraints(minWidth: 60),
             suffixIcon: suffixIcon,
 
-            suffixIconColor: AppColors.grey,
+            suffixIconColor: AppColors.BORDER_COLOR,
             prefixIcon: prefixIcon,
-            prefixIconColor: AppColors.DEFAULT_BLUE_GREY,
+            prefixIconColor: AppColors.BORDER_COLOR,
             enabledBorder: OutlineInputBorder(
               borderRadius:
                   borderRudius != null
                       ? BorderRadius.all(Radius.circular(borderRudius!))
-                      : BorderRadius.all(Radius.circular(4.0)),
-              borderSide: BorderSide(width: 1, color: AppColors.grey),
+                      : BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(width: .5, color: AppColors.BORDER_COLOR),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius:
@@ -129,15 +138,15 @@ class VAppCustomTextfield extends StatelessWidget {
                       : BorderRadius.all(Radius.circular(4.0)),
               borderSide: BorderSide(
                 width: 2,
-                color: focusColor ?? AppColors.DEFAULT_BLUE_GREY,
+                color: focusColor ?? AppColors.DARK_PRIMARY,
               ),
             ),
             hintText: hintText,
-            hintStyle: AppStyle.style(
-              fontWeight: FontWeight.w400,
+            hintStyle: AppStyle.poppins(
+              fontWeight: FontWeight.w500,
               size: AppDimensions.fontSize16(context),
               context: context,
-              color: AppColors.grey,
+              color: AppColors.BORDER_COLOR,
             ),
           ),
         ),

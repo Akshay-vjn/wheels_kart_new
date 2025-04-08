@@ -33,13 +33,12 @@ class AppColors {
   static const Color FILL_COLOR = Color.fromARGB(255, 239, 249, 255);
 
   // VENDOR COLOR
-  static const Color darkThinColor = Color(0xFF181B1F);
-  static const Color darkThinLightColor = Color(0xFF272A2E);
 
   static const Color DARK_PRIMARY_LIGHT = Color(0xFF272A2E);
   static const Color DARK_PRIMARY = Color(0xFF101317);
+  static const Color BORDER_COLOR = Color.fromARGB(255, 157, 162, 171);
 
   static Color vScafoldColor = const Color.fromARGB(255, 227, 227, 227);
 
- 
+  static Color vFillColor = Color(0xFFf7f8f9);
 }

@@ -16,6 +16,9 @@ import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.
 import 'package:wheels_kart/module/evaluator/data/cubit/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 
 import 'package:wheels_kart/module/spash_screen.dart';
+import 'package:wheels_kart/module/vendor/UI/v_navigation_screen.dart';
+import 'package:wheels_kart/module/vendor/data/cubit/auth/v_auth_controller_cubit.dart';
+import 'package:wheels_kart/module/vendor/data/cubit/bottom_nav_controller/v_bottom_nav_controller_cubit.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,8 +40,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<EvAppNavigationCubit>(
           create: (_) => EvAppNavigationCubit(),
         ),
-        // BlocProvider<EvEvaluationDataCubit>(
-        //     create: (_) => EvEvaluationDataCubit()),
+
         BlocProvider<EvFetchDashboardBloc>(
           create: (_) => EvFetchDashboardBloc(),
         ),
@@ -50,6 +52,14 @@ class MyApp extends StatelessWidget {
         BlocProvider<FetchQuestionsBloc>(create: (_) => FetchQuestionsBloc()),
         BlocProvider<EvSubmitAnswerControllerCubit>(
           create: (_) => EvSubmitAnswerControllerCubit(),
+        ),
+
+        // USER CONTROLLERS
+        BlocProvider<VAuthControllerCubit>(
+          create: (_) => VAuthControllerCubit(),
+        ),
+         BlocProvider<VBottomNavControllerCubit>(
+          create: (_) => VBottomNavControllerCubit(),
         ),
       ],
       child: MaterialApp(
@@ -67,7 +77,7 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: const SplashScreen(),
+        home:  VNavigationScreen(),
       ),
     );
   }
