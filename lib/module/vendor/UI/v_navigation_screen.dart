@@ -22,21 +22,23 @@ class VNavigationScreen extends StatelessWidget {
     return BlocBuilder<VBottomNavControllerCubit, VBottomNavControllerState>(
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: AppColors.white,
           body: _pages[state.cuurentIndex],
           extendBody: true, //<------like this
           bottomNavigationBar: CrystalNavigationBar(
             currentIndex: state.cuurentIndex,
             onTap: context.read<VBottomNavControllerCubit>().onChanageNav,
             unselectedItemColor: Colors.white70,
+            selectedItemColor: Colors.white70,
             backgroundColor: AppColors.DARK_PRIMARY,
             // outlineBorderColor: Colors.black.withOpacity(0.1),
-            borderWidth: 2,
-            outlineBorderColor: Colors.white,
+            borderWidth: 0,
+            outlineBorderColor: Colors.transparent,
             items: [
               CrystalNavigationBarItem(
                 icon: SolarIconsBold.feed,
                 unselectedIcon: SolarIconsOutline.feed,
-                selectedColor: Colors.white,
+                // selectedColor: AppColors.white,
                 // badge: Badge(
                 //   label: Text("9+", style: TextStyle(color: Colors.white)),
                 // ),
@@ -53,14 +55,14 @@ class VNavigationScreen extends StatelessWidget {
               CrystalNavigationBarItem(
                 icon: SolarIconsBold.postsCarouselHorizontal,
                 unselectedIcon: SolarIconsOutline.postsCarouselHorizontal,
-                selectedColor: Colors.white,
+                // selectedColor: Colors.white,
               ),
 
               /// Profile
               CrystalNavigationBarItem(
                 icon: SolarIconsBold.user,
                 unselectedIcon: SolarIconsOutline.user,
-                selectedColor: Colors.white,
+                // selectedColor: Colors.white,
               ),
             ],
           ),
