@@ -15,11 +15,12 @@ class ConstImages {
   static const String evaluatorImage = 'assets/evaluator.png';
   static const String vendorImage = 'assets/vendor.png';
   static const String appLogo = 'assets/app_logo.jpg';
+  static const String appLogoHr = 'assets/app_logo_hr.png';
 
   static const List<String> swipesImages = [
     "assets/dynamic/swipe1.jpg",
     "assets/dynamic/swipe2.jpg",
     "assets/dynamic/swipe3.jpg",
-    "assets/dynamic/swipe4.jpg"
+    "assets/dynamic/swipe4.jpg",
   ];
 }

@@ -7,6 +7,8 @@ import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/components/app_margin.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/utils/responsive_helper.dart';
+import 'package:wheels_kart/core/utils/routes.dart';
+import 'package:wheels_kart/module/vendor/UI/v_navigation_screen.dart';
 import 'package:wheels_kart/module/vendor/UI/widgets/v_back_button.dart';
 import 'package:wheels_kart/module/vendor/UI/widgets/v_custom_button.dart';
 import 'package:wheels_kart/module/vendor/UI/widgets/v_custom_text_field.dart';
@@ -154,6 +156,9 @@ class VeLoginScreen extends StatelessWidget {
                             VCustomButton(
                               title: "Login",
                               onPressed: () {
+                                Navigator.of(context).push(
+                                  AppRoutes.createRoute(VNavigationScreen()),
+                                );
                                 // Handle login
                               },
                             ),

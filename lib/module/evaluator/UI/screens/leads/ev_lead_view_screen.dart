@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/core/components/app_appbar.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
+import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 
 class EvLeadViewScreen extends StatelessWidget {
   final bool? isHidePrintButton;
-  const EvLeadViewScreen({super.key, this.isHidePrintButton});
+  final InspectionModel model;
+
+  const EvLeadViewScreen({
+    super.key,
+    this.isHidePrintButton,
+    required this.model,
+  });
 
   @override
   Widget build(BuildContext context) {

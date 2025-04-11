@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:solar_icons/solar_icons.dart';
+import 'package:pdf/pdf.dart';
 import 'package:transformable_list_view/transformable_list_view.dart';
 import 'package:wheels_kart/core/components/app_empty_text.dart';
 import 'package:wheels_kart/core/components/app_loading_indicator.dart';
@@ -10,9 +11,10 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_lead_view_screen.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/pdf/pdf_preview.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
+import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 
 class EvCompletedLeadTab extends StatefulWidget {
   const EvCompletedLeadTab({super.key});
@@ -26,7 +28,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
   void initState() {
     super.initState();
     context.read<FetchInspectionsBloc>().add(
-      OnGetInspectionList(context: context, inspetionListType: 'NEW'),
+      OnGetInspectionList(context: context, inspetionListType: 'ASSIGNED'),
     );
   }
 
@@ -48,32 +50,31 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
               }
             case SuccessFetchInspectionsState():
               {
-                return
-                // state.listOfInspection.isEmpty
-                //     ? AppEmptyText(text: state.message)
-                //     :
-                TransformableListView.separated(
-                  padding: EdgeInsets.all(0),
-                  itemBuilder: (context, index) {
-                    // InspectionModel data = state.listOfInspection[index];
+                return state.listOfInspection.isEmpty
+                    ? AppEmptyText(text: state.message)
+                    : TransformableListView.separated(
+                      padding: EdgeInsets.all(0),
+                      itemBuilder: (context, index) {
+                        InspectionModel data = state.listOfInspection[index];
 
-                    return AppMargin(
-                      child: _buildItems(
-                        context,
-                        datas[index]['id'],
-                        datas[index]['id'],
-                        datas[index]['name'],
-                        datas[index]['mobileNumber'],
-                      ),
+                        return AppMargin(
+                          child: _buildItems(
+                            context,
+                            datas[index]['id'],
+                            datas[index]['id'],
+                            datas[index]['name'],
+                            datas[index]['mobileNumber'],
+                            data,
+                          ),
+                        );
+                      },
+                      getTransformMatrix: (item) {
+                        return getTransformMatrix(item);
+                      },
+                      separatorBuilder:
+                          (context, index) => AppSpacer(heightPortion: .02),
+                      itemCount: state.listOfInspection.length,
                     );
-                  },
-                  getTransformMatrix: (item) {
-                    return getTransformMatrix(item);
-                  },
-                  separatorBuilder:
-                      (context, index) => AppSpacer(heightPortion: .02),
-                  itemCount: datas.length,
-                );
               }
             case ErrorFetchInspectionsState():
               {
@@ -95,10 +96,17 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
     String id,
     String name,
     String mobileNumber,
+    InspectionModel model,
   ) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(AppRoutes.createRoute(EvLeadViewScreen()));
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(builder: (_) => PdfPreviewScreen(model: model)),
+        // );
+
+        Navigator.of(
+          context,
+        ).push(AppRoutes.createRoute(PdfPreviewScreen(model: model)));
       },
       child: Column(
         children: [

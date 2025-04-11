@@ -15,6 +15,7 @@ import 'package:wheels_kart/module/evaluator/data/bloc/search/search%20car%20mak
 import 'package:wheels_kart/module/evaluator/data/cubit/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/cubit/submit%20answer%20controller/submit_answer_controller_cubit.dart';
+import 'package:wheels_kart/module/spash_screen.dart';
 
 import 'package:wheels_kart/module/vendor/UI/v_navigation_screen.dart';
 import 'package:wheels_kart/module/vendor/data/cubit/auth/v_auth_controller_cubit.dart';
@@ -82,7 +83,7 @@ class MyApp extends StatelessWidget {
             ),
             useMaterial3: true,
           ),
-          home: VNavigationScreen(),
+          home: SplashScreen(),
         ),
       ),
     );

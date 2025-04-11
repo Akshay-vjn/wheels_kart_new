@@ -103,7 +103,7 @@ class EvAuthBlocCubit extends Cubit<EvAuthBlocState> {
       return false;
     } else {
       log('error');
-      emit(AuthErrorState(errorMessage: 'Invalid User Credential !'));
+      emit(AuthErrorState(errorMessage: 'No Internet Connection !'));
       return false;
     }
   }

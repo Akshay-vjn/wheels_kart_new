@@ -10,6 +10,7 @@ class VCustomButton extends StatelessWidget {
   final Color? bgColor;
   final TextStyle? titleStyle;
   final void Function()? onPressed;
+  final double? radius;
 
   const VCustomButton({
     super.key,
@@ -18,16 +19,19 @@ class VCustomButton extends StatelessWidget {
     this.bgColor,
     this.titleStyle,
     this.onPressed,
+    this.radius,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: w(context),
-      height: h(context) * .065,
+      height: h(context) * .06,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radius ?? 5),
+          ),
           backgroundColor: bgColor ?? AppColors.DARK_PRIMARY,
         ),
         onPressed: onPressed,

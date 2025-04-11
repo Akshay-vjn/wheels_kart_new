@@ -22,14 +22,15 @@ class VNavigationScreen extends StatelessWidget {
     return BlocBuilder<VBottomNavControllerCubit, VBottomNavControllerState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.white,
+          backgroundColor: AppColors.DARK_PRIMARY,
           body: _pages[state.cuurentIndex],
-          extendBody: true, //<------like this
+
+          // extendBody: true, //<------like this
           bottomNavigationBar: CrystalNavigationBar(
             currentIndex: state.cuurentIndex,
             onTap: context.read<VBottomNavControllerCubit>().onChanageNav,
             unselectedItemColor: Colors.white70,
-            selectedItemColor: Colors.white70,
+            selectedItemColor: AppColors.DARK_SECONDARY,
             backgroundColor: AppColors.DARK_PRIMARY,
             // outlineBorderColor: Colors.black.withOpacity(0.1),
             borderWidth: 0,

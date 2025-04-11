@@ -13,6 +13,7 @@ import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_lead_view_screen.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
+import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 
 class EvPendingLeadsTab extends StatefulWidget {
   const EvPendingLeadsTab({super.key});
@@ -48,32 +49,31 @@ class _EvPendingLeadsTabState extends State<EvPendingLeadsTab> {
               }
             case SuccessFetchInspectionsState():
               {
-                return
-                // state.listOfInspection.isEmpty
-                //     ? AppEmptyText(text: state.message)
-                //     :
-                TransformableListView.separated(
-                  padding: EdgeInsets.all(0),
-                  itemBuilder: (context, index) {
-                    // InspectionModel data = state.listOfInspection[index];
+                return state.listOfInspection.isEmpty
+                    ? AppEmptyText(text: state.message)
+                    : TransformableListView.separated(
+                      padding: EdgeInsets.all(0),
+                      itemBuilder: (context, index) {
+                        InspectionModel data = state.listOfInspection[index];
 
-                    return AppMargin(
-                      child: _buildItems(
-                        context,
-                        datas[index]['id'],
-                        datas[index]['id'],
-                        datas[index]['name'],
-                        datas[index]['mobileNumber'],
-                      ),
+                        return AppMargin(
+                          child: _buildItems(
+                            context,
+                            datas[index]['id'],
+                            datas[index]['id'],
+                            datas[index]['name'],
+                            datas[index]['mobileNumber'],
+                            data,
+                          ),
+                        );
+                      },
+                      getTransformMatrix: (item) {
+                        return getTransformMatrix(item);
+                      },
+                      separatorBuilder:
+                          (context, index) => AppSpacer(heightPortion: .02),
+                      itemCount: state.listOfInspection.length,
                     );
-                  },
-                  getTransformMatrix: (item) {
-                    return getTransformMatrix(item);
-                  },
-                  separatorBuilder:
-                      (context, index) => AppSpacer(heightPortion: .02),
-                  itemCount: datas.length,
-                );
               }
             case ErrorFetchInspectionsState():
               {
@@ -95,11 +95,14 @@ class _EvPendingLeadsTabState extends State<EvPendingLeadsTab> {
     String id,
     String name,
     String mobileNumber,
+    final InspectionModel model,
   ) {
     return InkWell(
       onTap: () {
         Navigator.of(context).push(
-          AppRoutes.createRoute(EvLeadViewScreen(isHidePrintButton: true)),
+          AppRoutes.createRoute(
+            EvLeadViewScreen(isHidePrintButton: true, model: model),
+          ),
         );
       },
       child: Column(
