@@ -98,14 +98,21 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
             ),
           ),
           Expanded(
-            child: BlocBuilder<EvAppNavigationCubit, EvAppNavigationState>(
-              builder: (context, state) {
-                if (state is AppNavigationInitialState) {
-                  return _pages[state.initailIndex];
-                } else {
-                  return const SizedBox();
-                }
+            child: AnimatedSwitcher(
+              duration: Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(opacity: animation, child: child);
               },
+
+              child: BlocBuilder<EvAppNavigationCubit, EvAppNavigationState>(
+                builder: (context, state) {
+                  if (state is AppNavigationInitialState) {
+                    return _pages[state.initailIndex];
+                  } else {
+                    return const SizedBox();
+                  }
+                },
+              ),
             ),
           ),
         ],
@@ -135,24 +142,26 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
       >(
         builder: (context, state) {
           return (state is AppNavigationInitialState)
-              ? NavigationBar(
-                selectedIndex: state.initailIndex,
-                indicatorColor: AppColors.white,
-                indicatorShape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(100)),
-                ),
+              ? BottomNavigationBar(
+                currentIndex: state.initailIndex,
+
                 backgroundColor: AppColors.DEFAULT_BLUE_DARK,
-                // labelBehavior: NavigationDestinationLabelBehavior,
-                labelTextStyle: WidgetStatePropertyAll(
-                  AppStyle.style(
-                    context: context,
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w500,
-                    size: AppDimensions.fontSize12(context),
-                  ),
+                selectedItemColor: AppColors.DEFAULT_ORANGE,
+                unselectedItemColor: AppColors.white,
+                selectedLabelStyle: AppStyle.style(
+                  context: context,
+                  color: AppColors.DEFAULT_ORANGE,
+                  fontWeight: FontWeight.w500,
+                  size: AppDimensions.fontSize12(context),
+                ),
+                unselectedLabelStyle: AppStyle.style(
+                  context: context,
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w500,
+                  size: AppDimensions.fontSize12(context),
                 ),
 
-                destinations: [
+                items: [
                   _buildDestinationButton("Live Leads", CupertinoIcons.bolt),
                   _buildDestinationButton("Pending Leads", CupertinoIcons.time),
                   _buildDestinationButton(
@@ -160,7 +169,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
                     CupertinoIcons.check_mark_circled,
                   ),
                 ],
-                onDestinationSelected: (value) {
+                onTap: (value) {
                   context.read<EvAppNavigationCubit>().handleBottomnavigation(
                     value,
                   );
@@ -172,10 +181,13 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
     );
   }
 
-  Widget _buildDestinationButton(String label, IconData icon) {
-    return NavigationDestination(
-      selectedIcon: Icon(icon, color: AppColors.DEFAULT_ORANGE),
-      icon: Icon(icon, color: AppColors.white),
+  BottomNavigationBarItem _buildDestinationButton(String label, IconData icon) {
+    return BottomNavigationBarItem(
+      // activeIcon: Icon(icon),
+      icon: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Icon(icon),
+      ),
       label: label,
     );
   }

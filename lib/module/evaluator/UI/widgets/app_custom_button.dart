@@ -29,7 +29,7 @@ class EvAppCustomButton extends StatelessWidget {
       child: Container(
         alignment: Alignment.center,
         width: w(context),
-        padding: const EdgeInsetsDirectional.all(AppDimensions.paddingSize20),
+        padding: const EdgeInsetsDirectional.all(AppDimensions.paddingSize15),
         decoration: BoxDecoration(
           color: bgColor,
           border:
@@ -51,7 +51,7 @@ class EvAppCustomButton extends StatelessWidget {
           borderRadius:
               isSquare == true
                   ? BorderRadius.circular(AppDimensions.radiusSize5)
-                  : BorderRadius.circular(AppDimensions.radiusSize50),
+                  : BorderRadius.circular(AppDimensions.radiusSize18),
           gradient: bgColor == null ? AppColors.buttonGradient1 : null,
         ),
         child:

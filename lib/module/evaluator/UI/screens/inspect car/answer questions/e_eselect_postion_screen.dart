@@ -177,13 +177,14 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Follow the Instruction',
-                  style: AppStyle.style(
-                    context: context,
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
-                    size: AppDimensions.fontSize24(context),
+                Align(
+                  child: Text(
+                    'Follow the Instruction',
+                    style: AppStyle.style(
+                      context: context,
+                      size: AppDimensions.fontSize17(context),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Html(
@@ -217,14 +218,35 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
                     ),
                   },
                 ),
-                EvAppCustomButton(
-                  bgColor: AppColors.DEFAULT_BLUE_DARK,
-                  isSquare: true,
-                  title: 'Continue',
-                  onTap: () {
+                ElevatedButton.icon(
+                  onPressed: () {
                     Navigator.pop(context);
+                    // Navigate to inspection screen
                   },
+
+                  label: Text(
+                    'Continue',
+                    style: AppStyle.style(
+                      context: context,
+                      color: AppColors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.DEFAULT_BLUE_DARK,
+                    minimumSize: Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
+                // EvAppCustomButton(
+                //   bgColor: AppColors.DEFAULT_BLUE_DARK,
+                //   isSquare: true,
+                //   title: 'Continue',
+                //   onTap: () {
+
+                //   },
+                // ),
                 AppSpacer(heightPortion: .05),
               ],
             ),

@@ -15,6 +15,8 @@ import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/custome_show_messages.dart';
 import 'package:wheels_kart/core/utils/intl_helper.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/1_select_and_search_car_makes.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20car%20make/fetch_car_make_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/master/fetch_the_instruction_repo.dart';
@@ -33,6 +35,9 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
   @override
   void initState() {
     super.initState();
+    context.read<EvFetchCarMakeBloc>().add(
+      InitalFetchCarMakeEvent(context: context),
+    );
     context.read<FetchInspectionsBloc>().add(
       OnGetInspectionList(context: context, inspetionListType: 'ASSIGNED'),
     );
@@ -145,13 +150,18 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                       side: BorderSide(color: AppColors.DEFAULT_ORANGE),
                     ),
                     onPressed: () {
-                      Navigator.of(context).push(
-                        AppRoutes.createRoute(
-                          EvSaleCarFunctionScreen(
-                            inspectionId: inspectionModel.inspectionId,
+                      final state =
+                          BlocProvider.of<EvFetchCarMakeBloc>(context).state;
+                      if (state is FetchCarMakeSuccessState) {
+                        Navigator.of(context).push(
+                          AppRoutes.createRoute(
+                            EvSelectAndSearchCarMakes(
+                              inspectuionId: inspectionModel.inspectionId,
+                              listofCarMake: state.carMakeData,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
