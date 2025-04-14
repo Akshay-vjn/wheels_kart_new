@@ -17,7 +17,6 @@ import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.
 import 'package:wheels_kart/module/evaluator/data/cubit/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
 
-import 'package:wheels_kart/module/vendor/UI/v_navigation_screen.dart';
 import 'package:wheels_kart/module/vendor/data/cubit/auth/v_auth_controller_cubit.dart';
 import 'package:wheels_kart/module/vendor/data/cubit/bottom_nav_controller/v_bottom_nav_controller_cubit.dart';
 

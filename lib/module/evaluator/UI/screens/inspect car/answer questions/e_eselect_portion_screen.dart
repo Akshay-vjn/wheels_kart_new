@@ -9,19 +9,21 @@ import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
-import 'package:wheels_kart/core/utils/responsive_helper.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_select_system_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_selection_button.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20portions/fetch_portions_bloc.dart';
+import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 
 class EvSelectPostionScreen extends StatefulWidget {
+  final InspectionModel inspectionModel;
   final String inspectionId;
   final String? instructionData;
 
   const EvSelectPostionScreen({
     super.key,
+    required this.inspectionModel,
     required this.inspectionId,
     required this.instructionData,
   });
@@ -35,9 +37,13 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
   void initState() {
     super.initState();
 
-    context.read<FetchPortionsBloc>().add(OngetPostionsEvent(context: context));
+    context.read<FetchPortionsBloc>().add(
+      OngetPostionsEvent(context: context, inspectionId: widget.inspectionId),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.instructionData != null) {
+      if (widget.instructionData != null
+      // &&    widget.inspectionModel.currentStatus.isEmpty
+      ) {
         showInstructions();
       }
     });
@@ -63,10 +69,11 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
   }
 
   int? selectedindx;
-  String? selectedPostionID;
-  @override
+  String? selectedPortionId;
   @override
   Widget build(BuildContext context) {
+    final currentStatus = widget.inspectionModel.currentStatus;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -90,63 +97,131 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
               }
             case SuccessFetchPortionsState():
               {
-                return AppMargin(
-                  child: ListView.separated(
-                    itemBuilder: (context, index) {
-                      return EvAppCustomeSelctionButton(
-                        isButtonBorderView: true,
-                        currentIndex: index,
-                        onTap: () {
-                          setState(() {
-                            selectedindx = index;
-                            selectedPostionID =
-                                state.listOfPortios[index].portionId;
-                          });
-                          if (selectedPostionID != null) {
-                            Navigator.of(context).push(
-                              AppRoutes.createRoute(
-                                EvSelectSystemScreen(
-                                  postionName:
+                final allZero = widget.inspectionModel.currentStatus.every(
+                  (element) => element.balance == 0,
+                );
+                return Column(
+                  children: [
+                    Expanded(
+                      child: AppMargin(
+                        child: ListView.builder(
+                          physics: BouncingScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            CurrentStatus current =
+                                currentStatus
+                                    .where(
+                                      (element) =>
+                                          element.portionId ==
+                                          state.listOfPortios[index].portionId,
+                                    )
+                                    .toList()
+                                    .first;
+
+                            return EvAppCustomeSelctionButton(
+                              fillColor:
+                                  current.balance == 0
+                                      ? AppColors.kGreen.withAlpha(70)
+                                      : null,
+                              isButtonBorderView: true,
+                              currentIndex: index,
+                              onTap: () {
+                                setState(() {
+                                  selectedindx = index;
+                                  selectedPortionId =
+                                      state.listOfPortios[index].portionId;
+                                });
+                                if (selectedPortionId != null) {
+                                  Navigator.of(context).push(
+                                    AppRoutes.createRoute(
+                                      EvSelectSystemScreen(
+                                        current: current,
+                                        portionName:
+                                            state
+                                                .listOfPortios[index]
+                                                .portionName,
+                                        inspectionID: widget.inspectionId,
+                                        portionId: selectedPortionId!,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              selectedButtonIndex: selectedindx,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: AppDimensions.paddingSize10,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    if (current.balance == 0)
+                                      Icon(
+                                        Icons.check_circle_outline_outlined,
+                                        color: AppColors.kGreen,
+                                      ),
+
+                                    Text(
                                       state.listOfPortios[index].portionName,
-                                  inspectionID: widget.inspectionId,
-                                  postionId: selectedPostionID!,
+                                      style: AppStyle.style(
+                                        color:
+                                            current.balance == 0
+                                                ? AppColors.kGreen
+                                                : null,
+                                        fontWeight: FontWeight.w600,
+                                        context: context,
+                                      ),
+                                    ),
+                                    Text(
+                                      style: AppStyle.style(
+                                        fontWeight: FontWeight.w600,
+                                        color:
+                                            current.balance == 0
+                                                ? AppColors.kGreen
+                                                : AppColors.grey,
+                                        context: context,
+                                      ),
+                                      '${current.completed.toString()}/${current.totalQuestions.toString()}',
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
-                          }
-                        },
-                        selectedButtonIndex: selectedindx,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: AppDimensions.paddingSize10,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              (index == 0 || index == 1)
-                                  ? Icon(
-                                    Icons.check_circle_outline_outlined,
-                                    color: AppColors.DEFAULT_BLUE_GREY,
-                                  )
-                                  : SizedBox(),
+                          },
 
-                              Text(
-                                state.listOfPortios[index].portionName,
-                                style: AppStyle.style(
-                                  fontWeight: FontWeight.w600,
-                                  context: context,
-                                ),
-                              ),
-                              SizedBox(),
-                            ],
-                          ),
+                          itemCount: state.listOfPortios.length,
                         ),
-                      );
-                    },
-                    separatorBuilder:
-                        (context, index) => AppSpacer(heightPortion: .005),
-                    itemCount: state.listOfPortios.length,
-                  ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 1,
+                            spreadRadius: 1,
+                            color: AppColors.DARK_PRIMARY.withAlpha(50),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          AppSpacer(heightPortion: .02),
+                          AppMargin(
+                            child: EvAppCustomButton(
+                              isSquare: false,
+                              bgColor: allZero ? null : Color(0xFFC2C3C5),
+                              onTap: () {
+                                if (allZero) {}
+                              },
+                              title: "SUBMIT",
+                            ),
+                          ),
+                          AppSpacer(heightPortion: .02),
+                        ],
+                      ),
+                    ),
+                  ],
                 );
               }
             case ErrorFetchPortionsState():
@@ -167,6 +242,7 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
     showModalBottomSheet(
       isScrollControlled: true,
       showDragHandle: true,
+
       shape: ContinuousRectangleBorder(),
       context: context,
       // enableDrag: true,
@@ -175,7 +251,7 @@ class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
           (context) => AppMargin(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+              // mainAxisSize: MainAxisSize.min,
               children: [
                 Align(
                   child: Text(

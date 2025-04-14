@@ -6,6 +6,8 @@ class EvAppCustomeSelctionButton extends StatelessWidget {
   final void Function()? onTap;
   final int? selectedButtonIndex;
   final int currentIndex;
+  // final bool? isFilled;
+  final Color? fillColor;
   // final List data;
 
   final Widget child;
@@ -19,6 +21,8 @@ class EvAppCustomeSelctionButton extends StatelessWidget {
     required this.selectedButtonIndex,
     this.isButtonBorderView,
     required this.child,
+    // this.isFilled,
+    this.fillColor,
   });
 
   @override
@@ -34,6 +38,8 @@ class EvAppCustomeSelctionButton extends StatelessWidget {
           vertical: AppDimensions.paddingSize15,
         ),
         decoration: BoxDecoration(
+          color: fillColor,
+
           gradient:
               isButtonBorderView == true
                   ? null

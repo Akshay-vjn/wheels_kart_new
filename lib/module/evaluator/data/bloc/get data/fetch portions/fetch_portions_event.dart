@@ -5,5 +5,6 @@ sealed class FetchPortionsEvent {}
 
 class OngetPostionsEvent extends FetchPortionsEvent {
   BuildContext context;
-  OngetPostionsEvent({required this.context});
+  final String inspectionId;
+  OngetPostionsEvent({required this.context,required this. inspectionId});
 }

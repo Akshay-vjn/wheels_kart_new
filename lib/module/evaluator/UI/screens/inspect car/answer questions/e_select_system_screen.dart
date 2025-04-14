@@ -12,17 +12,20 @@ import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_answer_question_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_selection_button.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20systems/fetch_systems_bloc.dart';
+import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 
 class EvSelectSystemScreen extends StatefulWidget {
-  final String postionId;
+  final String portionId;
   final String inspectionID;
-  final String postionName;
+  final String portionName;
+  final CurrentStatus current;
 
   const EvSelectSystemScreen({
     super.key,
-    required this.postionId,
+    required this.current,
+    required this.portionId,
     required this.inspectionID,
-    required this.postionName,
+    required this.portionName,
   });
 
   @override
@@ -37,7 +40,7 @@ class _EvSelectSystemScreenState extends State<EvSelectSystemScreen> {
   void initState() {
     super.initState();
     context.read<FetchSystemsBloc>().add(
-      OnFetchSystemsOfPortions(context: context, portionId: widget.postionId),
+      OnFetchSystemsOfPortions(context: context, portionId: widget.portionId),
     );
   }
 
@@ -67,9 +70,26 @@ class _EvSelectSystemScreenState extends State<EvSelectSystemScreen> {
             case SuccessFetchSystemsState():
               {
                 return AppMargin(
-                  child: ListView.separated(
+                  child: ListView.builder(
+                    physics: BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
+                      System? currentSystem;
+                      final data =
+                          widget.current.systems
+                              .where(
+                                (element) =>
+                                    element.systemId ==
+                                    state.listOfSystemes[index].systemId,
+                              )
+                              .toList();
+                      if (data.isNotEmpty) {
+                        currentSystem = data.first;
+                      }
                       return EvAppCustomeSelctionButton(
+                        fillColor:
+                            currentSystem != null && currentSystem.balance == 0
+                                ? AppColors.kGreen.withAlpha(70)
+                                : null,
                         isButtonBorderView: true,
                         currentIndex: index,
                         onTap: () {
@@ -82,10 +102,10 @@ class _EvSelectSystemScreenState extends State<EvSelectSystemScreen> {
                             Navigator.of(context).push(
                               AppRoutes.createRoute(
                                 EvAnswerQuestionScreen(
-                                  portionName: widget.postionName,
+                                  portionName: widget.portionName,
                                   systemName:
                                       state.listOfSystemes[index].systemName,
-                                  portionId: widget.postionId,
+                                  portionId: widget.portionId,
                                   systemId: selectedSystemId!,
                                   inspectionId: widget.inspectionID,
                                 ),
@@ -101,11 +121,12 @@ class _EvSelectSystemScreenState extends State<EvSelectSystemScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Icon(
-                              //   Icons.check_circle_outline_outlined,
-                              //   color: AppColors.DEFAULT_BLUE_GREY,
-                              // ),
-                              SizedBox(),
+                              if (currentSystem != null &&
+                                  currentSystem.balance == 0)
+                                Icon(
+                                  Icons.check_circle_outline_outlined,
+                                  color: AppColors.kGreen,
+                                ),
 
                               Text(
                                 state.listOfSystemes[index].systemName,
@@ -114,22 +135,26 @@ class _EvSelectSystemScreenState extends State<EvSelectSystemScreen> {
                                   context: context,
                                 ),
                               ),
-                              Text(
-                                "9/10",
-                                style: AppStyle.style(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.grey,
-                                  size: AppDimensions.fontSize17(context),
-                                  context: context,
-                                ),
-                              ),
+
+                              currentSystem != null
+                                  ? Text(
+                                    '${currentSystem.completed.toString()}/${currentSystem.totalQuestions.toString()}',
+                                    style: AppStyle.style(
+                                      fontWeight: FontWeight.w600,
+                                      color:
+                                          currentSystem.balance == 0
+                                              ? AppColors.kGreen
+                                              : AppColors.grey,
+                                      context: context,
+                                    ),
+                                  )
+                                  : SizedBox(),
                             ],
                           ),
                         ),
                       );
                     },
-                    separatorBuilder:
-                        (context, index) => AppSpacer(heightPortion: .005),
+
                     itemCount: state.listOfSystemes.length,
                   ),
                 );

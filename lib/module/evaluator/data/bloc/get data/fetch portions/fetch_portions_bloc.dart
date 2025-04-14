@@ -13,22 +13,29 @@ class FetchPortionsBloc extends Bloc<FetchPortionsEvent, FetchPortionsState> {
   }
 
   Future<void> _onFetchPostionsList(
-      OngetPostionsEvent event, Emitter<FetchPortionsState> emit) async {
+    OngetPostionsEvent event,
+    Emitter<FetchPortionsState> emit,
+  ) async {
     emit(LoadingFetchPortionsState());
 
     final snapshot = await FetchPortionsRepo.getThePrtionsForQuestion(
       event.context,
+      event.inspectionId,
     );
 
     if (snapshot['error'] == false) {
       List data = snapshot['data'];
-      emit(SuccessFetchPortionsState(
-          listOfPortios: data.map((e) => PortionModel.fromJson(e)).toList()));
+      emit(
+        SuccessFetchPortionsState(
+          listOfPortios: data.map((e) => PortionModel.fromJson(e)).toList(),
+        ),
+      );
     } else if (snapshot['error'] == true) {
       emit(ErrorFetchPortionsState(errorMessage: snapshot['message']));
     } else {
-      emit(ErrorFetchPortionsState(
-          errorMessage: 'Error while Fetching Portion'));
+      emit(
+        ErrorFetchPortionsState(errorMessage: 'Error while Fetching Portion'),
+      );
     }
   }
 }

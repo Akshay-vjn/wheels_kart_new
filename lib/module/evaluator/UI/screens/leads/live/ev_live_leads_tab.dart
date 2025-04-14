@@ -20,7 +20,7 @@ import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20car%20
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/master/fetch_the_instruction_repo.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_eselect_postion_screen.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_eselect_portion_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/function_sale_car_screen.dart';
 
@@ -212,10 +212,11 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                               messageType: MessageCategory.ERROR,
                             );
                           } else if (snapshot['error'] == false) {
-                            log(snapshot['data'][0]['instructions'].toString());
+                            // log(snapshot['data'][0]['instructions'].toString());
                             Navigator.of(context).push(
                               AppRoutes.createRoute(
                                 EvSelectPostionScreen(
+                                  inspectionModel: inspectionModel,
                                   inspectionId: inspectionModel.inspectionId,
                                   instructionData:
                                       snapshot['data'][0]['instructions'],
@@ -229,6 +230,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                           Navigator.of(context).push(
                             AppRoutes.createRoute(
                               EvSelectPostionScreen(
+                                inspectionModel: inspectionModel,
                                 instructionData: null,
                                 inspectionId: inspectionModel.inspectionId,
                               ),

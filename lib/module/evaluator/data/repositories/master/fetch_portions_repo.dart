@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
@@ -10,18 +9,24 @@ import 'package:wheels_kart/core/constant/string.dart';
 import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.dart';
 
 class FetchPortionsRepo {
-
-   static Future<Map<String, dynamic>> getThePrtionsForQuestion(
-      BuildContext context) async {
+  static Future<Map<String, dynamic>> getThePrtionsForQuestion(
+    BuildContext context,
+    String inspectionId,
+  ) async {
     final state = context.read<EvAuthBlocCubit>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
         final url = Uri.parse('${AppString.baseUrl}masters/portions');
 
-        Response response = await http.post(url, headers: {
-          'Content-Type': 'application/json',
-          'Authorization': state.userModel.token
-        });
+        Response response = await http.post(
+          url,
+
+          body: jsonEncode({"inspectionId": inspectionId}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': state.userModel.token,
+          },
+        );
 
         final decodedata = jsonDecode(response.body);
 
@@ -29,12 +34,12 @@ class FetchPortionsRepo {
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
-            'data': decodedata['data']
+            'data': decodedata['data'],
           };
         } else {
           return {
             'error': decodedata['error'],
-            'message': decodedata['message']
+            'message': decodedata['message'],
           };
         }
       } catch (e) {
@@ -45,5 +50,4 @@ class FetchPortionsRepo {
       return {};
     }
   }
-
 }

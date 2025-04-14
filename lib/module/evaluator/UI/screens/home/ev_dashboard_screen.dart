@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/core/components/app_loading_indicator.dart';
 
 import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
@@ -55,37 +56,52 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
                     builder: (context, state) {
                       if (state is AuthCubitAuthenticateState) {
                         return Padding(
-                          padding: EdgeInsets.only(left: 20),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                AppRoutes.createRoute(const EvProfileScreen()),
-                              );
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Hi,",
+                          padding: EdgeInsets.only(left: 20, right: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Hi,",
+                                    style: AppStyle.style(
+                                      context: context,
+                                      color: AppColors.white,
+                                      fontWeight: FontWeight.w300,
+                                      size: AppDimensions.fontSize15(context),
+                                    ),
+                                  ),
+                                  Text(
+                                    state.userModel.userName,
+                                    style: AppStyle.style(
+                                      color: AppColors.kSelectionColor,
+                                      context: context,
+                                      fontWeight: FontWeight.bold,
+                                      size: AppDimensions.fontSize18(context),
+                                    ),
+                                  ),
+                                  AppSpacer(heightPortion: .02),
+                                ],
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  showLogoutDialog(context, () async {
+                                    context
+                                        .read<EvAuthBlocCubit>()
+                                        .clearPreferenceData(context);
+                                  });
+                                },
+                                child: Text(
+                                  "Logout",
                                   style: AppStyle.style(
                                     context: context,
-                                    color: AppColors.white,
-                                    fontWeight: FontWeight.w300,
-                                    size: AppDimensions.fontSize15(context),
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.kRed,
                                   ),
                                 ),
-                                Text(
-                                  state.userModel.userName,
-                                  style: AppStyle.style(
-                                    color: AppColors.kSelectionColor,
-                                    context: context,
-                                    fontWeight: FontWeight.bold,
-                                    size: AppDimensions.fontSize18(context),
-                                  ),
-                                ),
-                                AppSpacer(heightPortion: .02),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         );
                       } else {
@@ -189,6 +205,115 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
         child: Icon(icon),
       ),
       label: label,
+    );
+  }
+
+  void showLogoutDialog(
+    BuildContext context,
+    Future<void> Function() onConfirmLogout,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => _LogoutDialog(onConfirmLogout: onConfirmLogout),
+    );
+  }
+}
+
+class _LogoutDialog extends StatefulWidget {
+  final Future<void> Function() onConfirmLogout;
+
+  const _LogoutDialog({super.key, required this.onConfirmLogout});
+
+  @override
+  State<_LogoutDialog> createState() => _LogoutDialogState();
+}
+
+class _LogoutDialogState extends State<_LogoutDialog> {
+  bool isLoading = false;
+
+  void _handleLogout() async {
+    setState(() => isLoading = true);
+    await widget.onConfirmLogout();
+    if (mounted) Navigator.of(context).pop(); // Close dialog after logout
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child:
+            isLoading
+                ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppLoadingIndicator(),
+                    SizedBox(height: 16),
+                    Text(
+                      "Logging out...",
+                      style: AppStyle.style(context: context, size: 16),
+                    ),
+                  ],
+                )
+                : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.logout, size: 50, color: Colors.redAccent),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Logout",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Are you sure you want to log out?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(
+                              "Cancel",
+                              style: AppStyle.style(
+                                context: context,
+                                fontWeight: FontWeight.bold,
+                               ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: _handleLogout,
+                            child: Text(
+                              "Logout",
+                              style: AppStyle.style(
+                                context: context,
+                                color: AppColors.FILL_COLOR,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+      ),
     );
   }
 }
