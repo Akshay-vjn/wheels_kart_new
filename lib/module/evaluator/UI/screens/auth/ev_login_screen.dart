@@ -31,7 +31,7 @@ class EvLoginScreen extends StatelessWidget {
           switch (state) {
             case AuthErrorState():
               {
-                showSnakBar(context, state.errorMessage, isError: true);
+                showSnakBar(context, state.errorMessage, isError: true,enablePop: true);
               }
             case AuthCubitAuthenticateState():
               {

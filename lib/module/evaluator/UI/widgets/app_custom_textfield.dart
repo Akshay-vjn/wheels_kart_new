@@ -63,7 +63,7 @@ class EvAppCustomTextfield extends StatelessWidget {
           maxLines: maxLine ?? 1,
           textCapitalization:
               isTextCapital == null
-                  ? TextCapitalization.words
+                  ? TextCapitalization.none
                   : isTextCapital == true
                   ? TextCapitalization.characters
                   : TextCapitalization.sentences,
@@ -77,8 +77,8 @@ class EvAppCustomTextfield extends StatelessWidget {
           controller: controller,
           style: AppStyle.style(
             context: context,
-            color: AppColors.DEFAULT_BLUE_GREY,
-            fontWeight: fontWeght ?? FontWeight.bold,
+            color: AppColors.black,
+            fontWeight: fontWeght ?? FontWeight.w500,
             size: AppDimensions.fontSize18(context),
           ),
           cursorColor: focusColor ?? AppColors.DEFAULT_BLUE_GREY,

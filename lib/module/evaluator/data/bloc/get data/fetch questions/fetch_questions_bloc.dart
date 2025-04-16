@@ -21,13 +21,18 @@ class FetchQuestionsBloc
     // on<OnPressTheDropDownItem>(onPressDropDownButtonItem);
   }
 
-  Future<void> _callTheQuestionApi(OnCallQuestinApiRepoEvent event,
-      Emitter<FetchQuestionsState> emit) async {
+  Future<void> _callTheQuestionApi(
+    OnCallQuestinApiRepoEvent event,
+    Emitter<FetchQuestionsState> emit,
+  ) async {
     try {
       emit(LoadingFetchQuestionsState());
 
       final snapshot = await FetchQuestionsRepo.getQuestions(
-          event.context, event.postionId, event.systemId);
+        event.context,
+        event.portionId,
+        event.systemId,
+      );
 
       if (snapshot['error'] == false) {
         final datas = snapshot['data'];
@@ -38,17 +43,19 @@ class FetchQuestionsBloc
               data.map((e) => QuestionModelData.fromJson(e)).toList();
           emit(
             SuccessFetchQuestionsState(
-                listOfQuestions: questionsList,
-                listOfUploads: List.generate(
-                  questionsList.length,
-                  (index) => UploadInspectionModel(
-                      inspectionId: event.inspectionId,
-                      questionId: questionsList[index].questionId,
-                      subQuestionAnswer:
-                          questionsList[index].subQuestionOptions.isNotEmpty
-                              ? questionsList[index].subQuestionOptions.first
-                              : null),
-                )),
+              listOfQuestions: questionsList,
+              listOfUploads: List.generate(
+                questionsList.length,
+                (index) => UploadInspectionModel(
+                  inspectionId: event.inspectionId,
+                  questionId: questionsList[index].questionId,
+                  subQuestionAnswer:
+                      questionsList[index].subQuestionOptions.isNotEmpty
+                          ? questionsList[index].subQuestionOptions.first
+                          : null,
+                ),
+              ),
+            ),
           );
         } else {
           emit(ErrorFetchQuestionsState(errorMessage: "Data not found"));
@@ -56,8 +63,11 @@ class FetchQuestionsBloc
       } else if (snapshot['error'] == true) {
         emit(ErrorFetchQuestionsState(errorMessage: snapshot['message']));
       } else {
-        emit(ErrorFetchQuestionsState(
-            errorMessage: 'Error while fetching questions'));
+        emit(
+          ErrorFetchQuestionsState(
+            errorMessage: 'Error while fetching questions',
+          ),
+        );
       }
     } catch (e) {
       emit(ErrorFetchQuestionsState(errorMessage: e.toString()));
@@ -65,7 +75,9 @@ class FetchQuestionsBloc
   }
 
   Future<void> _onAnswerTheQuestion(
-      OnAnswerTheQuestion event, Emitter<FetchQuestionsState> emit) async {
+    OnAnswerTheQuestion event,
+    Emitter<FetchQuestionsState> emit,
+  ) async {
     final currentState = state;
     if (currentState is SuccessFetchQuestionsState) {
       for (var i in event.listOfUploads) {

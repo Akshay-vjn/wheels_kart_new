@@ -5,6 +5,7 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20car%20make/fetch_car_make_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20car%20models/fetch_car_model_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20city/fetch_city_bloc.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspection%20prefilled/fetch_prefill_data_of_inspection_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20portions/fetch_portions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
@@ -56,6 +57,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<FetchQuestionsBloc>(create: (_) => FetchQuestionsBloc()),
         BlocProvider<EvSubmitAnswerControllerCubit>(
           create: (_) => EvSubmitAnswerControllerCubit(),
+        ),
+        BlocProvider<EvFetchPrefillDataOfInspectionBloc>(
+          create: (_) => EvFetchPrefillDataOfInspectionBloc(),
         ),
 
         // USER CONTROLLERS

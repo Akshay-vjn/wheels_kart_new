@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,10 +16,13 @@ import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20q
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/helper/functions.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/helper/widget_build_check_box.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_textfield.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspection%20prefilled/fetch_prefill_data_of_inspection_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/cubit/submit%20answer%20controller/submit_answer_controller_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/model/inspection_prefill_model.dart';
 import 'package:wheels_kart/module/evaluator/data/model/question_model_data.dart';
 import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
+import 'package:wheels_kart/module/evaluator/data/repositories/fetch_inspection_prefilled_datas_repo.dart';
 
 class EvAnswerQuestionScreen extends StatefulWidget {
   final String portionId;
@@ -50,10 +54,22 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
       OnCallQuestinApiRepoEvent(
         inspectionId: widget.inspectionId,
         context: context,
-        postionId: widget.portionId,
+        portionId: widget.portionId,
         systemId: widget.systemId,
       ),
     );
+    context.read<EvFetchPrefillDataOfInspectionBloc>().add(
+      OnFetchTheDataForPreFill(
+        inspectionId: widget.inspectionId,
+        context: context,
+        portionId: widget.portionId,
+        systemId: widget.systemId,
+      ),
+    );
+
+    log(widget.portionId);
+    log(widget.inspectionId);
+    log(widget.systemId);
   }
 
   bool initializeState = false;
@@ -92,26 +108,70 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
               }
             case SuccessFetchQuestionsState():
               {
-                return Scrollbar(
-                  thickness: 8.0, // Adjust thickness
-                  radius: Radius.circular(10), // Make it rounded
-                  child: ListView.separated(
-                    separatorBuilder:
-                        (context, index) =>
-                            Container(height: 10, color: AppColors.black),
-                    itemBuilder: (context, index) {
-                      final currentQuestion = state.listOfQuestions[index];
-                      helperVariables.add({
-                        "commentController": TextEditingController(),
-                        "commentKey": GlobalKey<FormState>(),
-                        "descriptiveController": TextEditingController(),
-                        "descriptiveKey": GlobalKey<FormState>(),
-                        "listOfImages": <File>[],
-                      });
-                      return _buildQuestionTile(currentQuestion, index);
-                    },
-                    itemCount: state.listOfQuestions.length,
-                  ),
+                return BlocBuilder<
+                  EvFetchPrefillDataOfInspectionBloc,
+                  EvFetchPrefillDataOfInspectionState
+                >(
+                  builder: (context, prefillState) {
+                    switch (prefillState) {
+                      case EvFetchPrefillDataOfInspectionLoadingState():
+                        {
+                          return AppLoadingIndicator();
+                        }
+                      case EvFetchPrefillDataOfInspectionErrorState():
+                        {
+                          return AppEmptyText(
+                            text: "Error while fetching prefill data",
+                          );
+                        }
+                      case EvFetchPrefillDataOfInspectionSuccessState():
+                        {
+                          return Scrollbar(
+                            thickness: 8.0, // Adjust thickness
+                            radius: Radius.circular(10), // Make it rounded
+                            child: ListView.separated(
+                              separatorBuilder: (context, index) {
+                                return Container(
+                                  height: 10,
+                                  color: AppColors.black,
+                                );
+                              },
+                              itemBuilder: (context, index) {
+                                final currentQuestion =
+                                    state.listOfQuestions[index];
+
+                                final prefills =
+                                    prefillState.prefillInspectionDatas
+                                        .where(
+                                          (element) =>
+                                              element.questionId ==
+                                              currentQuestion.questionId,
+                                        )
+                                        .toList();
+                                helperVariables.add({
+                                  "commentController": TextEditingController(),
+                                  "commentKey": GlobalKey<FormState>(),
+                                  "descriptiveController":
+                                      TextEditingController(),
+                                  "descriptiveKey": GlobalKey<FormState>(),
+                                  "listOfImages": <File>[],
+                                });
+                                return _buildQuestionTile(
+                                  currentQuestion,
+                                  prefills.isNotEmpty ? prefills.first : null,
+                                  index,
+                                );
+                              },
+                              itemCount: state.listOfQuestions.length,
+                            ),
+                          );
+                        }
+                      default:
+                        {
+                          return SizedBox();
+                        }
+                    }
+                  },
                 );
               }
             case ErrorFetchQuestionsState():
@@ -128,12 +188,34 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     );
   }
 
-  Widget _buildQuestionTile(QuestionModelData question, int index) {
+  Widget _buildQuestionTile(
+    QuestionModelData question,
+    InspectionPrefillModel? prefillModel,
+    int index,
+  ) {
     return BlocBuilder<
       EvSubmitAnswerControllerCubit,
       EvSubmitAnswerControllerState
     >(
       builder: (context, state) {
+        String? subQuestionAnswer;
+        String? answer;
+        String? validAnswer;
+        String? inValidAnswer;
+        String? comment;
+
+        if (prefillModel != null) {
+          subQuestionAnswer = prefillModel.subQuestionAnswer;
+          answer = prefillModel.answer;
+          validAnswer = prefillModel.validOption;
+          inValidAnswer = prefillModel.invalidOption;
+          comment = prefillModel.comment;
+          log("Questionion id Form Prefill ${prefillModel.questionId}");
+          // log("have the prefill");
+          // log(prefillModel.questionId);
+          // log(question.questionId);
+          // log("------------------------");
+        }
         final currentstate = state.questionState[index];
         final errorState = currentstate == SubmissionState.ERROR;
         final successState = currentstate == SubmissionState.SUCCESS;
@@ -174,10 +256,10 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
               ),
               AppSpacer(heightPortion: .02),
               if (question.questionType == "MCQ") ...[
-                _buildSubQuestionViewForMcq(index),
-                _buildAnswerForMcq(index),
-                _buildValidOptionView(index),
-                _buildInValidOptionView(index),
+                _buildSubQuestionViewForMcq(index, subQuestionAnswer),
+                _buildAnswerForMcq(index, answer),
+                _buildValidOptionView(index, validAnswer),
+                _buildInValidOptionView(index, inValidAnswer),
               ],
               if (question.questionType == "Descriptive") ...[
                 _buildDescriptiveQuestion(index),
@@ -188,7 +270,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                   index,
                 ),
               ],
-              _commentBoxView(index),
+              _commentBoxView(index, comment),
               Align(
                 alignment: Alignment.centerRight,
                 child:
@@ -225,7 +307,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     );
   }
 
-  Widget _buildSubQuestionViewForMcq(int questionIndex) {
+  Widget _buildSubQuestionViewForMcq(int questionIndex, String? answer) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[questionIndex];
@@ -284,7 +366,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     }
   }
 
-  Widget _buildAnswerForMcq(int questionIndex) {
+  Widget _buildAnswerForMcq(int questionIndex, String? answer) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[questionIndex];
@@ -323,7 +405,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     }
   }
 
-  Widget _buildValidOptionView(int questionIndex) {
+  Widget _buildValidOptionView(int questionIndex, String? answer) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[questionIndex];
@@ -387,7 +469,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     }
   }
 
-  Widget _buildInValidOptionView(int questionIndex) {
+  Widget _buildInValidOptionView(int questionIndex, String? answer) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[questionIndex];
@@ -450,12 +532,15 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
   }
 
   //-----------------------------TEXTFIELD-------------------------------------------
-  Widget _commentBoxView(int questionIndex) {
+  Widget _commentBoxView(int questionIndex, String? answer) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[questionIndex];
       final commentTitle = question.commentsTitle;
       final invalidAnswer = question.invalidAnswers;
+      if (answer != null) {
+        helperVariables[questionIndex]["commentController"].text = answer;
+      }
       final selectedMainOption =
           currentState.listOfUploads[questionIndex].answer;
       return Form(
@@ -463,6 +548,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
         child: Column(
           children: [
             AppSpacer(heightPortion: .02),
+            Text(answer ?? ''),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -43,44 +43,56 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
     );
   }
 
+  Future<void> load() async {
+    context.read<FetchInspectionsBloc>().add(
+      OnGetInspectionList(context: context, inspetionListType: 'ASSIGNED'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FetchInspectionsBloc, FetchInspectionsState>(
-      builder: (context, state) {
-        switch (state) {
-          case LoadingFetchInspectionsState():
-            {
-              return AppLoadingIndicator();
-            }
-          case SuccessFetchInspectionsState():
-            {
-              return state.listOfInspection.isEmpty
-                  ? AppEmptyText(text: state.message)
-                  : TransformableListView.separated(
-                    padding: EdgeInsets.all(0),
-                    itemBuilder: (context, index) {
-                      InspectionModel data = state.listOfInspection[index];
-
-                      return _buildItems(context, data);
-                    },
-                    getTransformMatrix: (item) {
-                      return getTransformMatrix(item);
-                    },
-                    separatorBuilder:
-                        (context, index) => const AppSpacer(heightPortion: .02),
-                    itemCount: state.listOfInspection.length,
-                  );
-            }
-          case ErrorFetchInspectionsState():
-            {
-              return AppEmptyText(text: state.errormessage);
-            }
-          default:
-            {
-              return const SizedBox();
-            }
-        }
+    return RefreshIndicator(
+      onRefresh: () async {
+        await load();
       },
+      child: BlocBuilder<FetchInspectionsBloc, FetchInspectionsState>(
+        builder: (context, state) {
+          switch (state) {
+            case LoadingFetchInspectionsState():
+              {
+                return AppLoadingIndicator();
+              }
+            case SuccessFetchInspectionsState():
+              {
+                return state.listOfInspection.isEmpty
+                    ? AppEmptyText(text: state.message)
+                    : TransformableListView.separated(
+                      padding: EdgeInsets.all(0),
+                      itemBuilder: (context, index) {
+                        InspectionModel data = state.listOfInspection[index];
+
+                        return _buildItems(context, data);
+                      },
+                      getTransformMatrix: (item) {
+                        return getTransformMatrix(item);
+                      },
+                      separatorBuilder:
+                          (context, index) =>
+                              const AppSpacer(heightPortion: .02),
+                      itemCount: state.listOfInspection.length,
+                    );
+              }
+            case ErrorFetchInspectionsState():
+              {
+                return AppEmptyText(text: state.errormessage);
+              }
+            default:
+              {
+                return const SizedBox();
+              }
+          }
+        },
+      ),
     );
   }
 

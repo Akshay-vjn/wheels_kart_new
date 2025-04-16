@@ -9,7 +9,7 @@ import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/responsive_helper.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_add_new_lead_scree.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_create_new_inspection_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_profile_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/completed/e_completed_evaluation_list.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/pending/ev_pending_leads.dart';
@@ -144,7 +144,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
                 onPressed: () {
                   Navigator.of(
                     context,
-                  ).push(AppRoutes.createRoute(EvAddNewLeadScreen()));
+                  ).push(AppRoutes.createRoute(EvCreateInspectionScreen()));
                 },
                 child: const Icon(CupertinoIcons.add, color: AppColors.white),
               )
@@ -286,7 +286,7 @@ class _LogoutDialogState extends State<_LogoutDialog> {
                               style: AppStyle.style(
                                 context: context,
                                 fontWeight: FontWeight.bold,
-                               ),
+                              ),
                             ),
                           ),
                         ),

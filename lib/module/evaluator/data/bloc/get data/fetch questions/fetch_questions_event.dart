@@ -5,14 +5,15 @@ sealed class FetchQuestionsEvent {}
 
 class OnCallQuestinApiRepoEvent extends FetchQuestionsEvent {
   BuildContext context;
-  String postionId;
+  String portionId;
   String systemId;
   String inspectionId;
-  OnCallQuestinApiRepoEvent(
-      {required this.context,
-      required this.postionId,
-      required this.systemId,
-      required this.inspectionId});
+  OnCallQuestinApiRepoEvent({
+    required this.context,
+    required this.portionId,
+    required this.systemId,
+    required this.inspectionId,
+  });
 }
 
 class OnAnswerTheQuestion extends FetchQuestionsEvent {

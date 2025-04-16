@@ -48,8 +48,11 @@ void showCustomMessageDialog(
   String message, {
   String? title,
   required MessageCategory messageType,
+  bool? enablePop,
 }) {
-  Navigator.of(context, rootNavigator: true).pop();
+  if (enablePop == true) {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
   Future.delayed(Duration(milliseconds: 100), () {
     showDialog(
       context: context,
@@ -124,8 +127,15 @@ showToastMessage(BuildContext context, String message, {bool? isError}) {
   );
 }
 
-showSnakBar(BuildContext context, String title, {bool? isError}) {
-  Navigator.of(context, rootNavigator: true).pop();
+showSnakBar(
+  BuildContext context,
+  String title, {
+  bool? isError,
+  bool? enablePop,
+}) {
+  if (enablePop == true) {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
   Future.delayed(Duration(milliseconds: 100), () {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -136,13 +146,15 @@ showSnakBar(BuildContext context, String title, {bool? isError}) {
           children: [
             Icon(SolarIconsOutline.closeCircle, color: AppColors.white),
             AppSpacer(widthPortion: .015),
-            Text(
-              title,
-              style: AppStyle.style(
-                context: context,
-                fontWeight: FontWeight.w600,
-                color: AppColors.white,
-                size: AppDimensions.fontSize15(context),
+            Flexible(
+              child: Text(
+                title,
+                style: AppStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
+                  size: AppDimensions.fontSize15(context),
+                ),
               ),
             ),
           ],
