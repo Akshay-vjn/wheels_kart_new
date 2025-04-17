@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,9 +11,57 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/cubit/submit%20answer%20controller/submit_answer_controller_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/model/inspection_prefill_model.dart';
 import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
 
 class Functions {
+  // Prefill Function
+  static Future<void> onPrefillTheQuestion(
+    BuildContext context,
+    int questionIndex,
+    InspectionPrefillModel prefillData,
+  ) async {
+    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
+    if (currentState is SuccessFetchQuestionsState) {
+      String? subQuestionAnswer = prefillData.subQuestionAnswer;
+      String? answer = prefillData.answer;
+      String? validAnswer = prefillData.validOption;
+      String? inValidAnswer = prefillData.invalidOption;
+      String? comment = prefillData.comment;
+      // final images = prefillData.images;
+      // List<Uint8List?> prefillImages = [];
+      // for (var image in images) {
+      //   prefillImages.add(
+      //     await _convartNetworkImageToUni8ListFormate(image.image),
+      //   );
+      // }
+      List<UploadInspectionModel> updatedIndexVariables =
+          currentState.listOfUploads;
+      //-----------------------REST------------------------------
+      updatedIndexVariables[questionIndex].subQuestionAnswer =
+          subQuestionAnswer;
+      updatedIndexVariables[questionIndex].answer = answer;
+      updatedIndexVariables[questionIndex].invalidOption = inValidAnswer;
+      updatedIndexVariables[questionIndex].validOption = validAnswer;
+      updatedIndexVariables[questionIndex].attachments = null;
+      updatedIndexVariables[questionIndex].comment = comment;
+      // updatedIndexVariables[questionIndex].prefillImages = prefillImages.cast<Uint8List>();
+
+      //------------------------------------------------------
+
+      context.read<FetchQuestionsBloc>().add(
+        OnAnswerTheQuestion(
+          listOfUploads: updatedIndexVariables,
+          index: questionIndex,
+        ),
+      );
+
+      // Reset
+      _resetButtonStatus(context, questionIndex);
+    }
+  }
+
+  //--------------------------------
   static void onSelectSubQuestion(
     BuildContext context,
     int questionIndex,
@@ -33,7 +83,10 @@ class Functions {
 
       updatedIndexVariables[questionIndex].subQuestionAnswer = value;
       context.read<FetchQuestionsBloc>().add(
-        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+        OnAnswerTheQuestion(
+          listOfUploads: updatedIndexVariables,
+          index: questionIndex,
+        ),
       );
 
       // Reset
@@ -60,7 +113,10 @@ class Functions {
 
       updatedIndexVariables[questionIndex].answer = value;
       context.read<FetchQuestionsBloc>().add(
-        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+        OnAnswerTheQuestion(
+          listOfUploads: updatedIndexVariables,
+          index: questionIndex,
+        ),
       );
       // Reset
       _resetButtonStatus(context, questionIndex);
@@ -92,12 +148,18 @@ class Functions {
             final result = listOfSelectedvalidOption.join(",");
             updatedIndexVariables[questionIndex].validOption = result;
             context.read<FetchQuestionsBloc>().add(
-              OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+              OnAnswerTheQuestion(
+                listOfUploads: updatedIndexVariables,
+                index: questionIndex,
+              ),
             );
           } else {
             updatedIndexVariables[questionIndex].validOption = null;
             context.read<FetchQuestionsBloc>().add(
-              OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+              OnAnswerTheQuestion(
+                listOfUploads: updatedIndexVariables,
+                index: questionIndex,
+              ),
             );
           }
         } else {
@@ -105,13 +167,19 @@ class Functions {
           final result = listOfSelectedvalidOption.join(",");
           updatedIndexVariables[questionIndex].validOption = result;
           context.read<FetchQuestionsBloc>().add(
-            OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+            OnAnswerTheQuestion(
+              listOfUploads: updatedIndexVariables,
+              index: questionIndex,
+            ),
           );
         }
       } else {
         updatedIndexVariables[questionIndex].validOption = value;
         context.read<FetchQuestionsBloc>().add(
-          OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+          OnAnswerTheQuestion(
+            listOfUploads: updatedIndexVariables,
+            index: questionIndex,
+          ),
         );
       }
       // Reset
@@ -143,12 +211,18 @@ class Functions {
             final result = listOfSelectedIvalidOption.join(",");
             updatedIndexVariables[questionIndex].invalidOption = result;
             context.read<FetchQuestionsBloc>().add(
-              OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+              OnAnswerTheQuestion(
+                listOfUploads: updatedIndexVariables,
+                index: questionIndex,
+              ),
             );
           } else {
             updatedIndexVariables[questionIndex].invalidOption = null;
             context.read<FetchQuestionsBloc>().add(
-              OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+              OnAnswerTheQuestion(
+                listOfUploads: updatedIndexVariables,
+                index: questionIndex,
+              ),
             );
           }
         } else {
@@ -156,13 +230,19 @@ class Functions {
           final result = listOfSelectedIvalidOption.join(",");
           updatedIndexVariables[questionIndex].invalidOption = result;
           context.read<FetchQuestionsBloc>().add(
-            OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+            OnAnswerTheQuestion(
+              listOfUploads: updatedIndexVariables,
+              index: questionIndex,
+            ),
           );
         }
       } else {
         updatedIndexVariables[questionIndex].invalidOption = value;
         context.read<FetchQuestionsBloc>().add(
-          OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+          OnAnswerTheQuestion(
+            listOfUploads: updatedIndexVariables,
+            index: questionIndex,
+          ),
         );
       }
       // Reset
@@ -180,7 +260,10 @@ class Functions {
       final updatedIndexVariables = currentState.listOfUploads;
       updatedIndexVariables[questionIndex].answer = answer;
       context.read<FetchQuestionsBloc>().add(
-        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+        OnAnswerTheQuestion(
+          listOfUploads: updatedIndexVariables,
+          index: questionIndex,
+        ),
       );
     }
   }
@@ -197,7 +280,10 @@ class Functions {
       final updatedIndexVariables = currentState.listOfUploads;
       updatedIndexVariables[questionIndex].comment = comment;
       context.read<FetchQuestionsBloc>().add(
-        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+        OnAnswerTheQuestion(
+          listOfUploads: updatedIndexVariables,
+          index: questionIndex,
+        ),
       );
     }
   }
@@ -205,7 +291,7 @@ class Functions {
   static Future<void> onAddImages(
     BuildContext context,
     int questionIndex,
-    List<File> images,
+    List<Uint8List?> images,
   ) async {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
@@ -213,50 +299,99 @@ class Functions {
       List<Attachment> attachments = [];
       if (images.isNotEmpty) {
         for (var file in images) {
-          final compressedFile = await _compressImageFile(file) ?? File("");
-          if (compressedFile.path.isNotEmpty) {
-            final mapData = await _convartImageFileToBase65Formate(
-              compressedFile,
-            );
-            attachments.add(Attachment.fromJson(mapData));
+          if (file != null) {
+            final compressedFile = await _compressImageFromUint8List(file);
+            if (compressedFile != null) {
+              final mapData = await _convertImageUint8ToBase64(compressedFile);
+              attachments.add(Attachment.fromJson(mapData));
+            }
           }
         }
       }
       log("Total attachements : ${attachments.length}");
       updatedIndexVariables[questionIndex].attachments = attachments;
       context.read<FetchQuestionsBloc>().add(
-        OnAnswerTheQuestion(listOfUploads: updatedIndexVariables),
+        OnAnswerTheQuestion(
+          listOfUploads: updatedIndexVariables,
+          index: questionIndex,
+        ),
       );
     }
   }
 
   // ---------------------------HELPERS-----
-  static Future<File?> _compressImageFile(File imageFile) async {
+  // static Future<File?> _compressImageFile(Uint8List imageFile) async {
+  //   try {
+  //     final dir = await getTemporaryDirectory();
+  //     final targetPath = "${dir.absolute.path}/${DateTime.now()}.jpg";
+  //     var result = await FlutterImageCompress.compressAndGetFile(
+  //       imageFile.absolute.path,
+  //       targetPath,
+  //       quality: 100, // Adjust the quality parameter
+  //       minWidth: 800, // Optionally resize the image width
+  //       minHeight: 600,
+  //     );
+
+  //     return File(result!.path);
+  //   } catch (e) {
+  //     log("Image compression Error - ${e.toString()}");
+  //     return null;
+  //   }
+  // }
+  static Future<Uint8List?> _compressImageFromUint8List(
+    Uint8List imageData,
+  ) async {
     try {
-      final dir = await getTemporaryDirectory();
-      final targetPath = "${dir.absolute.path}/${DateTime.now()}.jpg";
-      var result = await FlutterImageCompress.compressAndGetFile(
-        imageFile.absolute.path,
-        targetPath,
-        quality: 100, // Adjust the quality parameter
-        minWidth: 800, // Optionally resize the image width
+      var result = await FlutterImageCompress.compressWithList(
+        imageData,
+        quality: 80, // Adjust quality here
+        minWidth: 800,
         minHeight: 600,
       );
-
-      return File(result!.path);
+      return result;
     } catch (e) {
-      log("Image compression Error - ${e.toString()}");
+      log("Compression Error: ${e.toString()}");
       return null;
     }
   }
 
-  static Future<Map<String, dynamic>> _convartImageFileToBase65Formate(
-    File file,
-  ) async {
-    final bytes = await file.readAsBytes();
-    final converted = base64Encode(bytes);
-    final fileName = path.basename(file.path);
+  // static Future<Map<String, dynamic>> _convartImageFileToBase65Formate(
+  //   Uint8List file,
+  // ) async {
+  //   final bytes = await file.readAsBytes();
+  //   final converted = base64Encode(bytes);
+  //   final fileName = path.basename(file.path);
+
+  //   return {'fileName': fileName, 'file': converted};
+  // }
+  static Future<Map<String, dynamic>> _convertImageUint8ToBase64(
+    Uint8List fileBytes, {
+    String? filePath,
+  }) async {
+    final converted = base64Encode(fileBytes);
+    final fileName =
+        filePath != null
+            ? path.basename(filePath)
+            : '${DateTime.now().toIso8601String()}.jpg';
+
     return {'fileName': fileName, 'file': converted};
+  }
+
+  static Future<Uint8List?> convartNetworkImageToUni8ListFormate(
+    String imageUrl,
+  ) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        return response.bodyBytes; // This is your Uint8List
+      } else {
+        print("Failed to load image. Status: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching image: $e");
+      return null;
+    }
   }
 
   static _resetButtonStatus(BuildContext context, int questionIndex) {

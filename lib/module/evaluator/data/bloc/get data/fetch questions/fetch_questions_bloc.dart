@@ -80,9 +80,10 @@ class FetchQuestionsBloc
   ) async {
     final currentState = state;
     if (currentState is SuccessFetchQuestionsState) {
-      for (var i in event.listOfUploads) {
-        log(i.toJson().toString());
-      }
+      log(event.listOfUploads[event.index].toJson().toString());
+      // for (var i in event.listOfUploads) {
+      //   log(i.toJson().toString());
+      // }
       emit(currentState.copyWith(listOfUploads: event.listOfUploads));
     }
   }

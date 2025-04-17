@@ -17,9 +17,10 @@ class OnCallQuestinApiRepoEvent extends FetchQuestionsEvent {
 }
 
 class OnAnswerTheQuestion extends FetchQuestionsEvent {
+  final int index;
   final List<UploadInspectionModel> listOfUploads;
 
-  OnAnswerTheQuestion({required this.listOfUploads});
+  OnAnswerTheQuestion({required this.listOfUploads,required this.index});
 }
 
 // class OnSubmitAnswer extends FetchQuestionsEvent {

@@ -20,20 +20,18 @@ class EvFetchPrefillDataOfInspectionBloc
     on<OnFetchTheDataForPreFill>((event, emit) async {
       try {
         emit(EvFetchPrefillDataOfInspectionLoadingState());
-        log("Loading the pefill");
+
         final response =
             await FetchInspectionPrefilledDataRepo.fetchInspectionPrefilledData(
               event.context,
               event.inspectionId,
-              event.systemId,
               event.portionId,
+              event.systemId,
             );
         if (response.isNotEmpty) {
-          
           if (response['error'] == false) {
-            
             final data = response['data'] as List;
-          
+            log("total prefill data ${data.length}");
             emit(
               EvFetchPrefillDataOfInspectionSuccessState(
                 prefillInspectionDatas:

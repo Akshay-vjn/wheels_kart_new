@@ -11,7 +11,13 @@ part 'submit_answer_controller_state.dart';
 class EvSubmitAnswerControllerCubit
     extends Cubit<EvSubmitAnswerControllerState> {
   EvSubmitAnswerControllerCubit()
-    : super(EvSubmitAnswerControllerState(questionState: []));
+    : super(EvSubmitAnswerControllerState(questionState: [], canUpdate: []));
+
+  changeToUpdateView(int questionIndex) {
+    List<bool> updatedView = state.canUpdate;
+    updatedView[questionIndex] = true;
+    emit(state.copyWith(isUpdateView: updatedView));
+  }
 
   Future<void> onSubmitAnswer(
     BuildContext context,
@@ -49,6 +55,7 @@ class EvSubmitAnswerControllerCubit
   Future<void> init(int questionLength) async {
     emit(
       EvSubmitAnswerControllerState(
+        canUpdate: List.generate(questionLength, (index) => false),
         questionState: List.generate(
           questionLength,
           (index) => SubmissionState.INITIAL,

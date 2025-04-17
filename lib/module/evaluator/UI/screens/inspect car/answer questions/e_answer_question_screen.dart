@@ -1,28 +1,22 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:wheels_kart/core/components/app_custom_widgets.dart';
 import 'package:wheels_kart/core/components/app_empty_text.dart';
 import 'package:wheels_kart/core/components/app_loading_indicator.dart';
-import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
-import 'package:wheels_kart/core/paint/dash_border.dart';
-import 'package:wheels_kart/core/utils/responsive_helper.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/helper/widget_answer_selection_button.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/helper/functions.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/helper/widget_build_check_box.dart';
-import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_textfield.dart';
+
+import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/helper/build_question_tile.dart';
+
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspection%20prefilled/fetch_prefill_data_of_inspection_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/cubit/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_prefill_model.dart';
-import 'package:wheels_kart/module/evaluator/data/model/question_model_data.dart';
-import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/fetch_inspection_prefilled_datas_repo.dart';
 
 class EvAnswerQuestionScreen extends StatefulWidget {
   final String portionId;
@@ -67,9 +61,9 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
       ),
     );
 
-    log(widget.portionId);
-    log(widget.inspectionId);
-    log(widget.systemId);
+    log("portion id ${widget.portionId}");
+    log("inspection Id ${widget.inspectionId}");
+    log("system id ${widget.systemId}");
   }
 
   bool initializeState = false;
@@ -129,41 +123,124 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                           return Scrollbar(
                             thickness: 8.0, // Adjust thickness
                             radius: Radius.circular(10), // Make it rounded
-                            child: ListView.separated(
-                              separatorBuilder: (context, index) {
-                                return Container(
-                                  height: 10,
-                                  color: AppColors.black,
-                                );
-                              },
-                              itemBuilder: (context, index) {
-                                final currentQuestion =
-                                    state.listOfQuestions[index];
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children:
+                                    state.listOfQuestions.asMap().entries.map((
+                                      e,
+                                    ) {
+                                      final index = e.key;
+                                      final currentQuestion =
+                                          state.listOfQuestions[index];
 
-                                final prefills =
-                                    prefillState.prefillInspectionDatas
-                                        .where(
-                                          (element) =>
-                                              element.questionId ==
-                                              currentQuestion.questionId,
-                                        )
-                                        .toList();
-                                helperVariables.add({
-                                  "commentController": TextEditingController(),
-                                  "commentKey": GlobalKey<FormState>(),
-                                  "descriptiveController":
-                                      TextEditingController(),
-                                  "descriptiveKey": GlobalKey<FormState>(),
-                                  "listOfImages": <File>[],
-                                });
-                                return _buildQuestionTile(
-                                  currentQuestion,
-                                  prefills.isNotEmpty ? prefills.first : null,
-                                  index,
-                                );
-                              },
-                              itemCount: state.listOfQuestions.length,
+                                      helperVariables.add({
+                                        "commentController":
+                                            TextEditingController(),
+                                        "commentKey": GlobalKey<FormState>(),
+                                        "descriptiveController":
+                                            TextEditingController(),
+                                        "descriptiveKey":
+                                            GlobalKey<FormState>(),
+                                        "listOfImages": <Uint8List>[],
+                                      });
+                                      final prefills =
+                                          prefillState.prefillInspectionDatas
+                                              .where(
+                                                (element) =>
+                                                    element.questionId ==
+                                                    currentQuestion.questionId,
+                                              )
+                                              .toList();
+                                      // if (prefills.isNotEmpty) {
+                                      //   Functions.onPrefillTheQuestion(
+                                      //     context,
+                                      //     index,
+                                      //     prefills.first,
+                                      //   );
+                                      // }
+                                      return BuildQuestionTile(
+                                        helperVariables: helperVariables,
+                                        question: currentQuestion,
+                                        prefillModel:
+                                            prefills.isNotEmpty
+                                                ? prefills.first
+                                                : null,
+                                        index: index,
+                                      );
+                                    }).toList(),
+                              ),
                             ),
+                            // child: ListView.separated(
+                            //   separatorBuilder: (context, index) {
+                            //     return Container(
+                            //       height: 10,
+                            //       color: AppColors.black,
+                            //     );
+                            //   },
+                            //   itemBuilder: (context, index) {
+                            //     final currentQuestion =
+                            //         state.listOfQuestions[index];
+
+                            //     helperVariables.add({
+                            //       "commentController": TextEditingController(),
+                            //       "commentKey": GlobalKey<FormState>(),
+                            //       "descriptiveController":
+                            //           TextEditingController(),
+                            //       "descriptiveKey": GlobalKey<FormState>(),
+                            //       "listOfImages": <Uint8List>[],
+                            //     });
+                            //     InspectionPrefillModel? prefill;
+                            //     final prefills =
+                            //         prefillState.prefillInspectionDatas
+                            //             .where(
+                            //               (element) =>
+                            //                   element.questionId ==
+                            //                   currentQuestion.questionId,
+                            //             )
+                            //             .toList();
+                            //     // if (prefills.isNotEmpty) {
+                            //     //   Functions.onPrefillTheQuestion(
+                            //     //     context,
+                            //     //     index,
+                            //     //     prefills.first,
+                            //     //   );
+                            //     // }
+                            //     return BuildQuestionTile(
+                            //       helperVariables: helperVariables,
+                            //       question: currentQuestion,
+                            //       prefillModel:
+                            //           prefills.isNotEmpty
+                            //               ? prefills.first
+                            //               : null,
+                            //       index: index,
+                            //     );
+                            //     // return prefills.isNotEmpty
+                            //     //     ? BlocBuilder<
+                            //     //       EvSubmitAnswerControllerCubit,
+                            //     //       EvSubmitAnswerControllerState
+                            //     //     >(
+                            //     //       builder: (context, state) {
+                            //     //         return state.isUpdateView[index]
+                            //     //             ? _buildQuestionTile(
+                            //     //               currentQuestion,
+
+                            //     //               index,
+                            //     //             )
+                            //     //             : _buildAnswerdUi(
+                            //     //               prefills.first,
+                            //     //               currentQuestion,
+                            //     //               index,
+                            //     //             );
+                            //     //       },
+                            //     //     )
+                            //     //     : _buildQuestionTile(
+                            //     //       currentQuestion,
+
+                            //     //       index,
+                            //     //     );
+                            //   },
+                            //   itemCount: state.listOfQuestions.length,
+                            // ),
                           );
                         }
                       default:
@@ -188,769 +265,432 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
     );
   }
 
-  Widget _buildQuestionTile(
-    QuestionModelData question,
-    InspectionPrefillModel? prefillModel,
-    int index,
-  ) {
-    return BlocBuilder<
-      EvSubmitAnswerControllerCubit,
-      EvSubmitAnswerControllerState
-    >(
-      builder: (context, state) {
-        String? subQuestionAnswer;
-        String? answer;
-        String? validAnswer;
-        String? inValidAnswer;
-        String? comment;
+  // Widget _buildQuestionTile(
+  //   QuestionModelData question,
+  //   InspectionPrefillModel? prefillModel,
+  //   int index,
+  // ) {
+  //   return BlocBuilder<
+  //     EvSubmitAnswerControllerCubit,
+  //     EvSubmitAnswerControllerState
+  //   >(
+  //     builder: (context, state) {
+  //       String? subQuestionAnswer = prefillModel?.subQuestionAnswer;
+  //       String? answer = prefillModel?.answer;
+  //       String? validAnswer = prefillModel?.validOption;
+  //       String? inValidAnswer = prefillModel?.invalidOption;
+  //       String? comment = prefillModel?.comment;
+  //       final images = prefillModel?.images;
 
-        if (prefillModel != null) {
-          subQuestionAnswer = prefillModel.subQuestionAnswer;
-          answer = prefillModel.answer;
-          validAnswer = prefillModel.validOption;
-          inValidAnswer = prefillModel.invalidOption;
-          comment = prefillModel.comment;
-          log("Questionion id Form Prefill ${prefillModel.questionId}");
-          // log("have the prefill");
-          // log(prefillModel.questionId);
-          // log(question.questionId);
-          // log("------------------------");
-        }
-        final currentstate = state.questionState[index];
-        final errorState = currentstate == SubmissionState.ERROR;
-        final successState = currentstate == SubmissionState.SUCCESS;
-        final loadingState = currentstate == SubmissionState.LOADING;
-        final initialState = currentstate == SubmissionState.INITIAL;
+  //       final currentstate = state.questionState[index];
+  //       final errorState = currentstate == SubmissionState.ERROR;
+  //       final successState = currentstate == SubmissionState.SUCCESS;
+  //       final loadingState = currentstate == SubmissionState.LOADING;
+  //       final initialState = currentstate == SubmissionState.INITIAL;
 
-        final buttonColor =
-            initialState
-                ? AppColors.DEFAULT_BLUE_DARK
-                : successState
-                ? AppColors.kGreen
-                : errorState
-                ? AppColors.kRed
-                : AppColors.grey;
+  //       final buttonColor =
+  //           initialState
+  //               ? AppColors.DEFAULT_BLUE_DARK
+  //               : successState
+  //               ? AppColors.kGreen
+  //               : errorState
+  //               ? AppColors.kRed
+  //               : AppColors.grey;
 
-        final titleColor =
-            initialState
-                ? null
-                : successState
-                ? AppColors.kGreen.withOpacity(.1)
-                : errorState
-                ? AppColors.kRed.withOpacity(.1)
-                : null;
+  //       final titleColor =
+  //           initialState
+  //               ? null
+  //               : successState
+  //               ? AppColors.kGreen.withOpacity(.1)
+  //               : errorState
+  //               ? AppColors.kRed.withOpacity(.1)
+  //               : null;
 
-        return Container(
-          color: titleColor,
-          padding: EdgeInsets.all(AppDimensions.paddingSize10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                question.question,
-                style: AppStyle.style(
-                  size: AppDimensions.fontSize18(context),
-                  context: context,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              AppSpacer(heightPortion: .02),
-              if (question.questionType == "MCQ") ...[
-                _buildSubQuestionViewForMcq(index, subQuestionAnswer),
-                _buildAnswerForMcq(index, answer),
-                _buildValidOptionView(index, validAnswer),
-                _buildInValidOptionView(index, inValidAnswer),
-              ],
-              if (question.questionType == "Descriptive") ...[
-                _buildDescriptiveQuestion(index),
-              ],
-              if (question.picture != "Not Required") ...[
-                _takePictureView(
-                  question.picture == "Required Optional" ? true : false,
-                  index,
-                ),
-              ],
-              _commentBoxView(index, comment),
-              Align(
-                alignment: Alignment.centerRight,
-                child:
-                    successState
-                        ? Icon(
-                          Icons.cloud_done_outlined,
-                          size: 35,
-                          color: AppColors.kGreen,
-                        )
-                        : loadingState
-                        ? CircularProgressIndicator(strokeWidth: 2)
-                        : ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: buttonColor,
-                          ),
-                          onPressed: () {
-                            if (currentstate != SubmissionState.LOADING) {
-                              onSubmitQuestion(context, index);
-                            }
-                          },
-                          child: Text(
-                            errorState ? "Failed" : "Save",
-                            style: AppStyle.style(
-                              context: context,
-                              color: AppColors.white,
-                            ),
-                          ),
-                        ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  //       return Container(
+  //         color: titleColor,
+  //         padding: EdgeInsets.all(AppDimensions.paddingSize10),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Text(
+  //               question.question,
+  //               style: AppStyle.style(
+  //                 size: AppDimensions.fontSize18(context),
+  //                 context: context,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //             ),
+  //             AppSpacer(heightPortion: .02),
+  //             if (question.questionType == "MCQ") ...[
+  //               _buildSubQuestionViewForMcq(index, subQuestionAnswer),
+  //               _buildAnswerForMcq(index, answer),
+  //               _buildValidOptionView(index, validAnswer),
+  //               _buildInValidOptionView(index, inValidAnswer),
+  //             ],
+  //             if (question.questionType == "Descriptive") ...[
+  //               _buildDescriptiveQuestion(index, answer),
+  //             ],
+  //             if (question.picture != "Not Required") ...[
+  //               _takePictureView(
+  //                 question.picture == "Required Optional" ? true : false,
+  //                 index,
+  //                 images,
+  //               ),
+  //             ],
+  //             _commentBoxView(index, comment),
+  //             Align(
+  //               alignment: Alignment.centerRight,
+  //               child:
+  //                   successState
+  //                       ? Icon(
+  //                         Icons.cloud_done_outlined,
+  //                         size: 35,
+  //                         color: AppColors.kGreen,
+  //                       )
+  //                       : loadingState
+  //                       ? CircularProgressIndicator(strokeWidth: 2)
+  //                       : ElevatedButton(
+  //                         style: ElevatedButton.styleFrom(
+  //                           backgroundColor: buttonColor,
+  //                         ),
+  //                         onPressed: () {
+  //                           if (currentstate != SubmissionState.LOADING) {
+  //                             onSubmitQuestion(context, index);
+  //                           }
+  //                         },
+  //                         child: Text(
+  //                           errorState ? "Failed" : "Save",
+  //                           style: AppStyle.style(
+  //                             context: context,
+  //                             color: AppColors.white,
+  //                           ),
+  //                         ),
+  //                       ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
-  Widget _buildSubQuestionViewForMcq(int questionIndex, String? answer) {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-    if (currentState is SuccessFetchQuestionsState) {
-      final question = currentState.listOfQuestions[questionIndex];
-      final currentIndexVariables = currentState.listOfUploads[questionIndex];
-      final subQuestions = question.subQuestionOptions;
-      return Visibility(
-        visible: question.subQuestionOptions.isNotEmpty,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppDimensions.paddingSize5,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                question.subQuestionTitle ?? '',
-                style: AppStyle.style(
-                  context: context,
-                  fontWeight: FontWeight.w600,
-                  size: AppDimensions.fontSize17(context),
-                ),
-              ),
-              AppSpacer(heightPortion: .01),
-              Row(
-                children:
-                    subQuestions
-                        .asMap()
-                        .entries
-                        .map(
-                          (e) => BuildAnswerSelectionButton(
-                            isOutlined: true,
-                            isSelected:
-                                (currentIndexVariables.subQuestionAnswer !=
-                                    null) &&
-                                (currentIndexVariables.subQuestionAnswer ==
-                                    e.value),
-                            title: e.value,
-                            activeColor: AppColors.DEFAULT_BLUE_DARK,
-                            inActiveColor: AppColors.grey.withOpacity(.4),
-                            onTap:
-                                () => Functions.onSelectSubQuestion(
-                                  context,
-                                  questionIndex,
-                                  e.value,
-                                ),
-                          ),
-                        )
-                        .toList(),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      return SizedBox();
-    }
-  }
+  // Widget _buildAnswerdUi(
+  //   InspectionPrefillModel prefill,
+  //   QuestionModelData currentQuestion,
+  //   int index,
+  // ) {
+  //   return BlocBuilder<
+  //     EvSubmitAnswerControllerCubit,
+  //     EvSubmitAnswerControllerState
+  //   >(
+  //     builder: (context, state) {
+  //       String? subQuestionAnswer = prefill.subQuestionAnswer;
+  //       String? answer = prefill.answer;
+  //       String? validAnswer = prefill.validOption;
+  //       String? inValidAnswer = prefill.invalidOption;
+  //       String? comment = prefill.comment;
+  //       final images = prefill.images;
+  //       return Container(
+  //         color: AppColors.DEFAULT_ORANGE.withAlpha(50),
+  //         padding: EdgeInsets.all(10),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             // Text(currentQuestion.questionId),
+  //             if (images.isNotEmpty) ...[
+  //               SizedBox(
+  //                 width: w(context),
+  //                 child: GridView.builder(
+  //                   physics: NeverScrollableScrollPhysics(),
+  //                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //                     crossAxisCount: 2,
+  //                     crossAxisSpacing: 20,
+  //                     mainAxisSpacing: 20,
+  //                   ),
+  //                   shrinkWrap: true,
+  //                   itemCount: images.length >= 2 ? 2 : images.length,
+  //                   itemBuilder: (context, index) {
+  //                     return Container(
+  //                       width: w(context) * .23,
+  //                       height: h(context) * .1,
+  //                       decoration: BoxDecoration(
+  //                         border: Border.all(color: AppColors.grey),
+  //                         // borderRadius:
+  //                         //     BorderRadius.circular(AppDimensions.radiusSize10),
+  //                         color: AppColors.white,
+  //                         image: DecorationImage(
+  //                           fit: BoxFit.fill,
+  //                           image: CachedNetworkImageProvider(
+  //                             images[index].image,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     );
+  //                   },
+  //                 ),
+  //               ),
+  //               Align(
+  //                 alignment: Alignment.centerRight,
+  //                 child: TextButton(onPressed: () {}, child: Text("See All")),
+  //               ),
+  //             ],
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 Expanded(
+  //                   child: Text(
+  //                     currentQuestion.question,
+  //                     style: AppStyle.style(
+  //                       size: AppDimensions.fontSize24(context),
+  //                       context: context,
+  //                       color: AppColors.black,
+  //                       fontWeight: FontWeight.w600,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 if (currentQuestion.questionType == "MCQ" &&
+  //                     subQuestionAnswer != null &&
+  //                     currentQuestion.subQuestionTitle == null) ...[
+  //                   Text("($subQuestionAnswer)"),
+  //                 ],
+  //                 if (currentQuestion.questionType == "MCQ" &&
+  //                     answer != null) ...[
+  //                   // selected option
+  //                   CircleAvatar(
+  //                     backgroundColor:
+  //                         answer == "Yes" || answer == "Ok"
+  //                             ? AppColors.kGreen
+  //                             : AppColors.kRed,
+  //                     radius: 30,
+  //                     child: Text(
+  //                       answer.toUpperCase(),
+  //                       style: AppStyle.style(
+  //                         context: context,
+  //                         color: AppColors.white,
+  //                         size: AppDimensions.fontSize16(context),
+  //                         fontWeight: FontWeight.w600,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ],
+  //             ),
 
-  Widget _buildAnswerForMcq(int questionIndex, String? answer) {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-    if (currentState is SuccessFetchQuestionsState) {
-      final question = currentState.listOfQuestions[questionIndex];
-      final currentIndexVariables = currentState.listOfUploads[questionIndex];
-      final answers = question.answers;
-      return Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: AppDimensions.paddingSize5,
-        ),
-        child: Row(
-          children:
-              answers
-                  .asMap()
-                  .entries
-                  .map(
-                    (e) => BuildAnswerSelectionButton(
-                      isSelected:
-                          (currentIndexVariables.answer != null) &&
-                          (currentIndexVariables.answer == e.value),
-                      title: e.value,
-                      activeColor: AppColors.black,
-                      inActiveColor: AppColors.white,
-                      onTap:
-                          () => Functions.onSelectAnswertion(
-                            context,
-                            questionIndex,
-                            e.value,
-                          ),
-                    ),
-                  )
-                  .toList(),
-        ),
-      );
-    } else {
-      return SizedBox();
-    }
-  }
+  //             // ----------MCQ
+  //             if (currentQuestion.questionType == "MCQ") ...[
+  //               // Subquestion
+  //               if (subQuestionAnswer != null) ...[
+  //                 AppSpacer(heightPortion: .01),
+  //                 Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     Expanded(
+  //                       child: Container(
+  //                         padding: EdgeInsets.all(10),
+  //                         decoration: BoxDecoration(
+  //                           color: AppColors.FILL_COLOR,
+  //                           border: Border.all(color: AppColors.grey),
+  //                         ),
+  //                         child: Text(
+  //                           currentQuestion.subQuestionTitle ?? '',
+  //                           style: AppStyle.style(
+  //                             context: context,
+  //                             fontWeight: FontWeight.w600,
+  //                             size: AppDimensions.fontSize17(context),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
 
-  Widget _buildValidOptionView(int questionIndex, String? answer) {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-    if (currentState is SuccessFetchQuestionsState) {
-      final question = currentState.listOfQuestions[questionIndex];
-      final currentIndexVariables = currentState.listOfUploads[questionIndex];
-      final validOptions = question.validOptions;
+  //                     Container(
+  //                       padding: EdgeInsets.all(10),
+  //                       decoration: BoxDecoration(
+  //                         color: AppColors.kAppSecondaryColor,
+  //                         border: Border.all(
+  //                           color: AppColors.kAppSecondaryColor,
+  //                         ),
+  //                       ),
+  //                       child: Text(
+  //                         subQuestionAnswer,
+  //                         style: AppStyle.style(
+  //                           color: AppColors.white,
+  //                           context: context,
+  //                           fontWeight: FontWeight.w600,
+  //                           size: AppDimensions.fontSize17(context),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 AppSpacer(heightPortion: .01),
+  //               ],
+  //               AppSpacer(heightPortion: .01),
+  //               Visibility(
+  //                 visible: validAnswer != null || inValidAnswer != null,
+  //                 child: Container(
+  //                   padding: EdgeInsets.all(10),
+  //                   width: w(context),
+  //                   decoration: BoxDecoration(
+  //                     color:
+  //                         answer == "Yes" || answer == "Ok"
+  //                             ? AppColors.kGreen.withAlpha(60)
+  //                             : AppColors.kRed.withAlpha(60),
+  //                   ),
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       // if selected valid
+  //                       if (validAnswer != null)
+  //                         Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           children: [
+  //                             Text(
+  //                               currentQuestion.validOptionsTitle.isNotEmpty
+  //                                   ? currentQuestion.validOptionsTitle
+  //                                   : 'Selected answers :-',
+  //                               style: AppStyle.style(
+  //                                 context: context,
+  //                                 color: AppColors.DARK_SECONDARY,
+  //                                 fontWeight: FontWeight.w600,
+  //                                 size: AppDimensions.fontSize17(context),
+  //                               ),
+  //                             ),
+  //                             AppSpacer(heightPortion: .01),
+  //                             Padding(
+  //                               padding: EdgeInsets.only(left: 10),
+  //                               child: Text(
+  //                                 validAnswer,
+  //                                 style: AppStyle.style(
+  //                                   context: context,
+  //                                   color: AppColors.kGreen,
+  //                                   fontWeight: FontWeight.w600,
+  //                                   size: AppDimensions.fontSize17(context),
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
 
-      return Visibility(
-        visible:
-            (currentIndexVariables.answer != null) &&
-            (currentIndexVariables.answer == question.answers.first &&
-                question.validOptions.isNotEmpty),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppDimensions.paddingSize5,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppSpacer(heightPortion: .01),
-              Text(
-                question.validOptionsTitle.isNotEmpty
-                    ? question.validOptionsTitle
-                    : 'Please choose the option',
-                style: AppStyle.style(
-                  context: context,
-                  fontWeight: FontWeight.w600,
-                  size: AppDimensions.fontSize17(context),
-                ),
-              ),
-              AppSpacer(heightPortion: .01),
-              Column(
-                children:
-                    validOptions
-                        .asMap()
-                        .entries
-                        .map(
-                          (e) => BuildCheckBox(
-                            isSelected:
-                                currentIndexVariables.validOption == null
-                                    ? false
-                                    : currentIndexVariables.validOption!
-                                        .contains(e.value),
-                            title: e.value,
-                            onChanged: (p0) {
-                              Functions.onSelectValidOption(
-                                context,
-                                questionIndex,
-                                e.value,
-                              );
-                            },
-                          ),
-                        )
-                        .toList(),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      return SizedBox();
-    }
-  }
+  //                       // if selected inValid
+  //                       if (inValidAnswer != null)
+  //                         Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           children: [
+  //                             Text(
+  //                               currentQuestion.validOptionsTitle.isNotEmpty
+  //                                   ? currentQuestion.invalidOptionsTitle
+  //                                   : 'Selected answers :-',
+  //                               style: AppStyle.style(
+  //                                 context: context,
+  //                                 color: AppColors.DARK_SECONDARY,
+  //                                 fontWeight: FontWeight.w600,
+  //                                 size: AppDimensions.fontSize17(context),
+  //                               ),
+  //                             ),
+  //                             AppSpacer(heightPortion: .01),
+  //                             Padding(
+  //                               padding: EdgeInsets.only(left: 10),
+  //                               child: Text(
+  //                                 inValidAnswer,
+  //                                 style: AppStyle.style(
+  //                                   context: context,
+  //                                   color: AppColors.kRed,
+  //                                   fontWeight: FontWeight.w600,
+  //                                   size: AppDimensions.fontSize17(context),
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //             // Descriptive
+  //             if (currentQuestion.questionType == "Descriptive" &&
+  //                 answer != null) ...[
+  //               AppSpacer(heightPortion: .01),
+  //               Container(
+  //                 width: w(context),
+  //                 padding: EdgeInsets.all(10),
+  //                 decoration: BoxDecoration(
+  //                   borderRadius: BorderRadius.circular(10),
+  //                   border: Border.all(color: AppColors.BORDER_COLOR),
+  //                 ),
+  //                 child: Text(
+  //                   answer,
+  //                   style: AppStyle.style(
+  //                     context: context,
+  //                     color: AppColors.DEFAULT_BLUE_GREY,
+  //                     fontWeight: FontWeight.w600,
+  //                     size: 18,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //             if (comment != null) ...[
+  //               AppSpacer(heightPortion: .01),
+  //               Container(
+  //                 width: w(context),
+  //                 padding: EdgeInsets.all(10),
+  //                 decoration: BoxDecoration(
+  //                   borderRadius: BorderRadius.circular(10),
+  //                   border: Border.all(color: AppColors.BORDER_COLOR),
+  //                 ),
+  //                 child: Column(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Text(
+  //                       "Additional Comment :-",
+  //                       style: AppStyle.style(
+  //                         context: context,
+  //                         color: AppColors.DEFAULT_BLUE_GREY,
+  //                         fontWeight: FontWeight.w600,
+  //                         size: 18,
+  //                       ),
+  //                     ),
+  //                     Text(
+  //                       comment,
+  //                       style: AppStyle.style(
+  //                         context: context,
+  //                         color: AppColors.BORDER_COLOR,
+  //                         fontWeight: FontWeight.w400,
+  //                         size: 15,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ],
+  //             AppSpacer(heightPortion: .01),
+  //             Align(
+  //               alignment: Alignment.bottomRight,
+  //               child: ElevatedButton.icon(
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: AppColors.DARK_SECONDARY,
+  //                 ),
+  //                 onPressed: () {
+  //                   context
+  //                       .read<EvSubmitAnswerControllerCubit>()
+  //                       .changeToUpdateView(index);
+  //                 },
+  //                 icon: Icon(SolarIconsOutline.pen2, color: AppColors.white),
+  //                 label: Text(
+  //                   "Edit",
+  //                   style: AppStyle.style(
+  //                     context: context,
+  //                     color: AppColors.white,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
 
-  Widget _buildInValidOptionView(int questionIndex, String? answer) {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-    if (currentState is SuccessFetchQuestionsState) {
-      final question = currentState.listOfQuestions[questionIndex];
-      final currentIndexVariables = currentState.listOfUploads[questionIndex];
-      final inValidOptions = question.invalidOptions;
-      return Visibility(
-        visible:
-            (currentIndexVariables.answer != null) &&
-            currentIndexVariables.answer == question.invalidAnswers,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppDimensions.paddingSize5,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppSpacer(heightPortion: .01),
-              Text(
-                question.validOptionsTitle.isNotEmpty
-                    ? question.invalidOptionsTitle
-                    : 'Please choose the option',
-                style: AppStyle.style(
-                  context: context,
-                  fontWeight: FontWeight.w600,
-                  size: AppDimensions.fontSize17(context),
-                ),
-              ),
-              AppSpacer(heightPortion: .01),
-              Column(
-                children:
-                    inValidOptions
-                        .asMap()
-                        .entries
-                        .map(
-                          (e) => BuildCheckBox(
-                            isSelected:
-                                currentIndexVariables.invalidOption == null
-                                    ? false
-                                    : currentIndexVariables.invalidOption!
-                                        .contains(e.value),
-                            title: e.value,
-                            onChanged: (p0) {
-                              Functions.onSelectInValidOption(
-                                context,
-                                questionIndex,
-                                e.value,
-                              );
-                            },
-                          ),
-                        )
-                        .toList(),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else {
-      return SizedBox();
-    }
-  }
-
-  //-----------------------------TEXTFIELD-------------------------------------------
-  Widget _commentBoxView(int questionIndex, String? answer) {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-    if (currentState is SuccessFetchQuestionsState) {
-      final question = currentState.listOfQuestions[questionIndex];
-      final commentTitle = question.commentsTitle;
-      final invalidAnswer = question.invalidAnswers;
-      if (answer != null) {
-        helperVariables[questionIndex]["commentController"].text = answer;
-      }
-      final selectedMainOption =
-          currentState.listOfUploads[questionIndex].answer;
-      return Form(
-        key: helperVariables[questionIndex]["commentKey"],
-        child: Column(
-          children: [
-            AppSpacer(heightPortion: .02),
-            Text(answer ?? ''),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: commentTitle.isEmpty ? 'Comment' : commentTitle,
-                    style: AppStyle.style(
-                      context: context,
-                      fontWeight: FontWeight.w600,
-                      size: AppDimensions.fontSize17(context),
-                    ),
-                    children: [
-                      TextSpan(
-                        text:
-                            commentTitle.isNotEmpty ||
-                                    invalidAnswer == selectedMainOption
-                                ? " * "
-                                : "",
-                        style: AppStyle.style(
-                          context: context,
-                          color: AppColors.kRed,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: Divider(thickness: .2, endIndent: 10, indent: 10),
-                ),
-              ],
-            ),
-            EvAppCustomTextfield(
-              onChanged: (p0) {
-                final state =
-                    BlocProvider.of<FetchQuestionsBloc>(context).state;
-                if (state is SuccessFetchQuestionsState) {
-                  context.read<EvSubmitAnswerControllerCubit>().resetState(
-                    questionIndex,
-                  );
-                }
-              },
-              focusColor: AppColors.black,
-              fontWeght: FontWeight.normal,
-              maxLine: 3,
-              validator: (value) {
-                if (invalidAnswer == selectedMainOption) {
-                  if (value!.isEmpty) {
-                    return 'Enter the comment';
-                  } else {
-                    return null;
-                  }
-                } else {
-                  return null;
-                }
-              },
-              controller: helperVariables[questionIndex]["commentController"],
-              hintText:
-                  commentTitle.isEmpty
-                      ? 'Enter the comment in any...'
-                      : commentTitle,
-            ),
-          ],
-        ),
-      );
-    } else {
-      return SizedBox();
-    }
-  }
-
-  Widget _buildDescriptiveQuestion(int questionIndex) {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-
-    if (currentState is SuccessFetchQuestionsState) {
-      final question = currentState.listOfQuestions[questionIndex];
-      return Form(
-        key: helperVariables[questionIndex]["descriptiveKey"],
-        child: Column(
-          children: [
-            EvAppCustomTextfield(
-              onChanged: (p0) {
-                final state =
-                    BlocProvider.of<FetchQuestionsBloc>(context).state;
-                if (state is SuccessFetchQuestionsState) {
-                  context.read<EvSubmitAnswerControllerCubit>().resetState(
-                    questionIndex,
-                  );
-                }
-              },
-              focusColor: AppColors.black,
-              fontWeght: FontWeight.w500,
-              keyBoardType: getKeyboardType(question.keyboardType),
-              controller:
-                  helperVariables[questionIndex]['descriptiveController'],
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'This filed is required';
-                } else {
-                  return null;
-                }
-              },
-              hintText: 'Enter the value here',
-            ),
-          ],
-        ),
-      );
-    } else {
-      return SizedBox();
-    }
-  }
-
-  TextInputType getKeyboardType(String keybordType) {
-    switch (keybordType) {
-      case 'Float':
-        {
-          return TextInputType.number;
-        }
-      case 'Integer':
-        {
-          return TextInputType.number;
-        }
-      default:
-        {
-          return TextInputType.name;
-        }
-    }
-  }
-
-  //--------------------------IMAGE
-  Widget _takePictureView(bool isOptional, int questionIndex) {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-
-    if (currentState is SuccessFetchQuestionsState) {
-      final listOfImages =
-          helperVariables[questionIndex]["listOfImages"] as List;
-      return Column(
-        children: [
-          AppSpacer(heightPortion: .02),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RichText(
-                text: TextSpan(
-                  text: 'Upload Pictures',
-                  style: AppStyle.style(
-                    context: context,
-                    fontWeight: FontWeight.w600,
-                    size: AppDimensions.fontSize17(context),
-                  ),
-                  children: [
-                    TextSpan(
-                      text: isOptional ? "" : " * ",
-                      style: AppStyle.style(
-                        context: context,
-                        color: AppColors.kRed,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: Divider(thickness: .2, endIndent: 10, indent: 10),
-              ),
-            ],
-          ),
-          AppSpacer(heightPortion: .02),
-          SizedBox(
-            width: w(context),
-            child: GridView.builder(
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
-              ),
-              shrinkWrap: true,
-              itemCount: listOfImages.length + 1,
-              itemBuilder: (context, index) {
-                if (index == listOfImages.length) {
-                  return InkWell(
-                    onTap: () {
-                      _openCamera(questionIndex);
-                    },
-                    child: CustomPaint(
-                      painter: DashedBorderPainter(),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add, size: 70, color: AppColors.grey),
-                          AppSpacer(heightPortion: .01),
-                          Text(
-                            listOfImages.isNotEmpty
-                                ? 'Add More'
-                                : 'Add Picture',
-                            style: AppStyle.style(
-                              context: context,
-                              color: AppColors.grey,
-                              fontWeight: FontWeight.bold,
-                              size: AppDimensions.fontSize12(context),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                return Container(
-                  width: w(context) * .23,
-                  height: h(context) * .1,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.grey),
-                    // borderRadius:
-                    //     BorderRadius.circular(AppDimensions.radiusSize10),
-                    color: AppColors.white,
-                    image: DecorationImage(
-                      fit: BoxFit.fill,
-                      image: FileImage(listOfImages[index]),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      );
-    } else {
-      return SizedBox();
-    }
-  }
-
-  void _openCamera(int questionIndex) async {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-
-    if (currentState is SuccessFetchQuestionsState) {
-      final listOfImages = helperVariables[questionIndex]["listOfImages"];
-      final imagepicker = ImagePicker();
-      final pickedXfile = await imagepicker.pickImage(
-        source: ImageSource.camera,
-      );
-      if (pickedXfile != null) {
-        setState(() {
-          listOfImages.add(File(pickedXfile.path));
-        });
-      }
-    }
-  }
-
-  void onSubmitQuestion(BuildContext context, int index) {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-
-    final descriptiveKey =
-        helperVariables[index]['descriptiveKey'] as GlobalKey<FormState>;
-
-    final descriptiveController =
-        helperVariables[index]['descriptiveController']
-            as TextEditingController;
-
-    if (currentState is SuccessFetchQuestionsState) {
-      final question = currentState.listOfQuestions[index];
-      final uploadData = currentState.listOfUploads[index];
-      final isMcq = question.questionType == "MCQ";
-
-      final isSelectedInValid = question.invalidAnswers == uploadData.answer;
-      final isInValidHaveOptions = question.invalidOptions.isNotEmpty;
-      final isValidHaveOptions = question.validOptions.isNotEmpty;
-      switch (isMcq) {
-        case true:
-          {
-            if (uploadData.answer != null) {
-              // ---------------------------------SELECTED INVALID  --------------
-              if (isSelectedInValid) {
-                if (isInValidHaveOptions) {
-                  if (uploadData.invalidOption != null) {
-                    checkCommentAndImage(index, question, uploadData, true);
-                  } else {
-                    // show Error Message : Select atleast on option
-                    // Completed
-                    _showMessage('Select atleast one option!');
-                  }
-                } else {
-                  checkCommentAndImage(index, question, uploadData, true);
-                }
-                //------------------------< SELECTED VALID  >--------------------------------------------------
-              } else {
-                if (isValidHaveOptions) {
-                  if (uploadData.validOption != null) {
-                    checkCommentAndImage(index, question, uploadData, false);
-                  } else {
-                    // show Error Message : Select atleast on option
-                    //Completed
-                    _showMessage("Select atleast one option");
-                  }
-                } else {
-                  checkCommentAndImage(index, question, uploadData, false);
-                }
-              }
-            } else {
-              //---show Error : Select the Main Option
-              _showMessage("Please choose the answer");
-              // Completed
-            }
-          }
-        case false:
-          {
-            if (descriptiveKey.currentState!.validate()) {
-              Functions.onFillDescriptiveAnswer(
-                context,
-                index,
-                descriptiveController.text,
-              );
-              checkCommentAndImage(index, question, uploadData, false);
-            }
-          }
-      }
-    }
-  }
-
-  void checkCommentAndImage(
-    int index,
-    QuestionModelData question,
-    UploadInspectionModel uploadData,
-    bool isCommentMandotory,
-  ) async {
-    final commentKey =
-        helperVariables[index]["commentKey"] as GlobalKey<FormState>;
-    final commentController =
-        helperVariables[index]['commentController'] as TextEditingController;
-    final listOFImages = helperVariables[index]['listOfImages'] as List<File>;
-    bool? isImageOptioanl;
-    if (question.picture == 'Required Optional') {
-      isImageOptioanl = true;
-    } else if (question.picture == 'Required Mandatory') {
-      isImageOptioanl = false;
-    }
-
-    if (isCommentMandotory) {
-      if (commentKey.currentState!.validate()) {
-        if (isImageOptioanl == null || isImageOptioanl == true) {
-          await Functions.onAddComment(context, index, commentController.text);
-          await Functions.onAddImages(context, index, listOFImages);
-          saveAnswer(index);
-        } else {
-          if (listOFImages.isEmpty) {
-            // Error : Select atleast one image
-            _showMessage("Select atlease one image");
-          } else {
-            await Functions.onAddComment(
-              context,
-              index,
-              commentController.text,
-            );
-            await Functions.onAddImages(context, index, listOFImages);
-            saveAnswer(index);
-          }
-        }
-      }
-    } else {
-      if (isImageOptioanl == null || isImageOptioanl == true) {
-        await Functions.onAddImages(context, index, listOFImages);
-        await Functions.onAddComment(context, index, commentController.text);
-
-        saveAnswer(index);
-
-        // PROCEED
-      } else {
-        // Error : Select atleast one image
-        if (listOFImages.isEmpty) {
-          _showMessage("Select atlease one image");
-        } else {
-          await Functions.onAddImages(context, index, listOFImages);
-          await Functions.onAddComment(context, index, commentController.text);
-          saveAnswer(index);
-        }
-      }
-    }
-  }
-
-  void saveAnswer(int questionIndex) async {
-    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
-    if (currentState is SuccessFetchQuestionsState) {
-      final data = currentState.listOfUploads[questionIndex];
-      // log(data.toJson().toString());
-      await context.read<EvSubmitAnswerControllerCubit>().onSubmitAnswer(
-        context,
-        data,
-        questionIndex,
-      );
-      _showMessage("Saved !");
-    }
-  }
-
-  _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        showCloseIcon: true,
-        behavior: SnackBarBehavior.floating,
-        content: Text(
-          message,
-          style: AppStyle.style(context: context, color: AppColors.white),
-        ),
-      ),
-    );
-  }
+  //             // AppSpacer(heightPortion: .02),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }

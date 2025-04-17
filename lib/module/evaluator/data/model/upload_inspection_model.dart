@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class Attachment {
   final String fileName;
   final String file;
@@ -11,31 +13,30 @@ class Attachment {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'fileName': fileName,
-    'file': file,
-  };
+  Map<String, dynamic> toJson() => {'fileName': fileName, 'file': file};
 }
 
 class UploadInspectionModel {
   final dynamic inspectionId;
   final dynamic questionId;
-   String? subQuestionAnswer;
-   String? answer;
-   String? validOption;
-   String? invalidOption;
-   String? comment;
-   List<Attachment>? attachments;
+  String? subQuestionAnswer;
+  String? answer;
+  String? validOption;
+  String? invalidOption;
+  String? comment;
+  List<Attachment>? attachments;
+  // List<Uint8List> ?prefillImages;
 
   UploadInspectionModel({
     required this.inspectionId,
     required this.questionId,
     this.subQuestionAnswer,
     this.answer,
+    // this.prefillImages,
     this.validOption,
     this.invalidOption,
     this.comment,
-     this.attachments,
+    this.attachments,
   });
 
   factory UploadInspectionModel.fromJson(Map<String, dynamic> json) {
@@ -47,9 +48,10 @@ class UploadInspectionModel {
       validOption: json['validOption'] as String?,
       invalidOption: json['invalidOption'] as String?,
       comment: json['comment'] as String?,
-      attachments: (json['attachments'] as List<dynamic>)
-          .map((e) => Attachment.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      attachments:
+          (json['attachments'] as List<dynamic>)
+              .map((e) => Attachment.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
   }
 
@@ -61,6 +63,7 @@ class UploadInspectionModel {
     'validOption': validOption,
     'invalidOption': invalidOption,
     'comment': comment,
-    'attachments': attachments!=null?attachments!.map((e) => e.toJson()).toList():[],
+    'attachments':
+        attachments != null ? attachments!.map((e) => e.toJson()).toList() : [],
   };
 }
