@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/core/components/app_appbar.dart';
+import 'package:wheels_kart/core/components/app_loading_indicator.dart';
 import 'package:wheels_kart/core/components/app_margin.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
@@ -16,9 +17,10 @@ import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20q
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_textfield.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20city/fetch_city_bloc.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/master/fetch_the_instruction_repo.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/new_inspection_repo.dart';
+import 'package:wheels_kart/module/evaluator/data/repositories/inspection/new_inspection_repo.dart';
 
 class EvCreateInspectionScreen extends StatefulWidget {
   const EvCreateInspectionScreen({super.key});
@@ -43,6 +45,7 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen> {
   String? _selectedCity;
 
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,36 +101,56 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen> {
 
                 AppSpacer(heightPortion: .02),
 
-                EvAppCustomButton(
-                  title: "SUBMIT",
-                  onTap: () async {
-                    if (_formKey.currentState!.validate()) {
-                      final response = await NewInspectionRepo.createInspection(
-                        context,
-                        _nameController.text.trim(),
-                        _mobileNumber.text.trim(),
-                        _addressController.text.trim(),
-                        _emailAddress.text.trim(),
-                        int.parse(_selectedCity!),
-                      );
-                      if (response.isNotEmpty) {
-                        if (response['error'] == false) {
-                          final data = InspectionModel.fromJson(
-                            response['data'],
-                          );
+                isLoading
+                    ? AppLoadingIndicator()
+                    : EvAppCustomButton(
+                      title: "SUBMIT",
+                      onTap: () async {
+                        if (_formKey.currentState!.validate()) {
+                          isLoading = true;
+                          setState(() {});
+                          final response =
+                              await NewInspectionRepo.createInspection(
+                                context,
+                                _nameController.text.trim(),
+                                _mobileNumber.text.trim(),
+                                _addressController.text.trim(),
+                                _emailAddress.text.trim(),
+                                int.parse(_selectedCity!),
+                              );
+                          if (response.isNotEmpty) {
+                            if (response['error'] == false) {
+                              // final data = InspectionModel.fromJson(
+                              //   response['data'],
+                              // );
 
-                          showSheet(context, data);
-                        } else {
-                          showSnakBar(
-                            context,
-                            response['message'],
-                            isError: true,
-                          );
+                              // showSheet(context, data);
+                              context.read<FetchInspectionsBloc>().add(
+                                OnGetInspectionList(
+                                  context: context,
+                                  inspetionListType: 'ASSIGNED',
+                                ),
+                              );
+                              showSnakBar(
+                                context,
+                                response['message'],
+                                isError: false,
+                              );
+                              Navigator.of(context).pop();
+                            } else {
+                              showSnakBar(
+                                context,
+                                response['message'],
+                                isError: true,
+                              );
+                            }
+                          }
+                          isLoading = false;
+                          setState(() {});
                         }
-                      }
-                    }
-                  },
-                ),
+                      },
+                    ),
+                AppSpacer(heightPortion: .02),
               ],
             ),
           ),
@@ -239,7 +262,6 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen> {
                         Navigator.of(context).push(
                           AppRoutes.createRoute(
                             EvSelectPostionScreen(
-                              inspectionModel: inspectionModel,
                               inspectionId: inspectionModel.inspectionId,
                               instructionData:
                                   snapshot['data'][0]['instructions'],
@@ -253,7 +275,6 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen> {
                       Navigator.of(context).push(
                         AppRoutes.createRoute(
                           EvSelectPostionScreen(
-                            inspectionModel: inspectionModel,
                             instructionData: null,
                             inspectionId: inspectionModel.inspectionId,
                           ),

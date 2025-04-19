@@ -8,7 +8,7 @@ import 'package:wheels_kart/module/decision_screen.dart';
 
 import 'package:wheels_kart/core/components/app_loading_indicator.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_dashboard_screen.dart';
-import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

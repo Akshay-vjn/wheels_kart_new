@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart';
 import 'package:wheels_kart/core/constant/string.dart';
 import 'package:http/http.dart' as http;
-import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 
 class FetchCitiesRepo {
   static Future<Map<String, dynamic>> getCityList(BuildContext context) async {

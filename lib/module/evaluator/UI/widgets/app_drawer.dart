@@ -5,7 +5,7 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/responsive_helper.dart';
-import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});

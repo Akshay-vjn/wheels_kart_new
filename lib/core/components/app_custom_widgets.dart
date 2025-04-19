@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 
-Widget customBackButton(BuildContext context, {Color? color}) => IconButton(
-  onPressed: () {
+Widget customBackButton(BuildContext context, {Color? color,void Function()? onPressed}) => IconButton(
+  onPressed:onPressed?? () {
     Navigator.pop(context);
   },
   icon: Icon(

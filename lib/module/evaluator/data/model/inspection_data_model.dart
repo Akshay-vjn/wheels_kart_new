@@ -1,7 +1,7 @@
 import 'package:wheels_kart/module/evaluator/data/model/created_at_model.dart';
 
 class InspectionModel {
-  String inspectionId;
+  dynamic inspectionId;
   String evaluationId;
   String makeId;
   String manufacturingYear;
@@ -45,21 +45,21 @@ class InspectionModel {
 
   factory InspectionModel.fromJson(Map<String, dynamic> json) =>
       InspectionModel(
-        inspectionId: json["inspectionId"],
-        evaluationId: json["evaluationId"],
-        makeId: json["makeId"],
-        manufacturingYear: json["manufacturingYear"],
-        modelId: json["modelId"],
-        engineTypeId: json["engineTypeId"],
-        fuelType: json["fuel_type"],
-        transmissionType: json["transmission_type"],
-        variantId: json["variantId"],
-        regNo: json["regNo"],
-        kmsDriven: json["kmsDriven"],
-        cityId: json["cityId"],
-        userId: json["userId"],
-        customerId: json["customerId"],
-        status: json["status"],
+        inspectionId: json["inspectionId"]??'',
+        evaluationId: json["evaluationId"]??'',
+        makeId: json["makeId"]??'',
+        manufacturingYear: json["manufacturingYear"]??'',
+        modelId: json["modelId"]??'',
+        engineTypeId: json["engineTypeId"]??'',
+        fuelType: json["fuel_type"]??'',
+        transmissionType: json["transmission_type"]??'',
+        variantId: json["variantId"]??'',
+        regNo: json["regNo"]??'',
+        kmsDriven: json["kmsDriven"]??'',
+        cityId: json["cityId"]??'',
+        userId: json["userId"]??'',
+        customerId: json["customerId"]??'',
+        status: json["status"]??'',
         createdAt: CreatedAt.fromJson(json["created_at"]),
         modifiedAt: DateTime.parse(json["modified_at"]),
         customer: Customer.fromJson(json["customer"]),
@@ -177,10 +177,10 @@ class Customer {
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) => Customer(
-    customerId: json["customerId"],
-    customerName: json["customerName"],
-    customerMobileNumber: json["customerMobileNumber"],
-    cityId: json["cityId"],
+    customerId: json["customerId"]??'',
+    customerName: json["customerName"]??'',
+    customerMobileNumber: json["customerMobileNumber"]??'',
+    cityId: json["cityId"]??'',
     createdAt: CreatedAt.fromJson(json["created_at"]),
     modifiedAt: DateTime.parse(json["modified_at"]),
   );

@@ -1,10 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:transformable_list_view/transformable_list_view.dart';
-import 'package:wheels_kart/core/components/app_custom_widgets.dart';
 import 'package:wheels_kart/core/components/app_empty_text.dart';
 import 'package:wheels_kart/core/components/app_loading_indicator.dart';
 import 'package:wheels_kart/core/components/app_margin.dart';
@@ -22,7 +19,6 @@ import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.da
 import 'package:wheels_kart/module/evaluator/data/repositories/master/fetch_the_instruction_repo.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_eselect_portion_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/function_sale_car_screen.dart';
 
 class EvLiveLeadsTab extends StatefulWidget {
   const EvLiveLeadsTab({super.key});
@@ -66,19 +62,26 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
               {
                 return state.listOfInspection.isEmpty
                     ? AppEmptyText(text: state.message)
-                    : TransformableListView.separated(
+                    : TransformableListView.builder(
+                      physics: BouncingScrollPhysics(),
                       padding: EdgeInsets.all(0),
                       itemBuilder: (context, index) {
                         InspectionModel data = state.listOfInspection[index];
 
-                        return _buildItems(context, data);
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            bottom:
+                                index + 1 == state.listOfInspection.length
+                                    ? 80
+                                    : 0,
+                          ),
+                          child: _buildItems(context, data),
+                        );
                       },
                       getTransformMatrix: (item) {
                         return getTransformMatrix(item);
                       },
-                      separatorBuilder:
-                          (context, index) =>
-                              const AppSpacer(heightPortion: .02),
+
                       itemCount: state.listOfInspection.length,
                     );
               }
@@ -156,12 +159,8 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      overlayColor: AppColors.DEFAULT_ORANGE,
-                      side: BorderSide(color: AppColors.DEFAULT_ORANGE),
-                    ),
-                    onPressed: () {
+                  InkWell(
+                    onTap: () {
                       final state =
                           BlocProvider.of<EvFetchCarMakeBloc>(context).state;
                       if (state is FetchCarMakeSuccessState) {
@@ -178,29 +177,80 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.car_repair, color: AppColors.DEFAULT_ORANGE),
-                        AppSpacer(widthPortion: .02),
-                        Text(
-                          "Vehilce Details",
-                          style: AppStyle.style(
-                            context: context,
-                            color: AppColors.DEFAULT_ORANGE,
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              bottomLeft: Radius.circular(50),
+                            ),
+                            border: Border.all(
+                              color:
+                                  inspectionModel.engineTypeId.isEmpty
+                                      ? AppColors.DEFAULT_ORANGE
+                                      : AppColors.kGreen,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.car_repair,
+                                color:
+                                    inspectionModel.engineTypeId.isEmpty
+                                        ? AppColors.DEFAULT_ORANGE
+                                        : AppColors.kGreen,
+                              ),
+                              AppSpacer(widthPortion: .02),
+                              Text(
+                                "Reg. Vehicle",
+                                style: AppStyle.style(
+                                  context: context,
+                                  color:
+                                      inspectionModel.engineTypeId.isEmpty
+                                          ? AppColors.DEFAULT_ORANGE
+                                          : AppColors.kGreen,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(50),
+                              bottomRight: Radius.circular(50),
+                            ),
+                            color:
+                                inspectionModel.engineTypeId.isEmpty
+                                    ? AppColors.DEFAULT_ORANGE
+                                    : AppColors.kGreen,
+                          ),
+                          child: Icon(
+                            inspectionModel.engineTypeId.isEmpty
+                                ? Icons.pending_actions
+                                : Icons.task_alt_outlined,
+                            color: AppColors.white,
                           ),
                         ),
                       ],
                     ),
                   ),
                   const AppSpacer(widthPortion: .02),
-                  OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppColors.kAppSecondaryColor),
-                    ),
-                    onPressed: () async {
+                  InkWell(
+                    onTap: () async {
                       if (inspectionModel.engineTypeId.isEmpty ||
                           inspectionModel.engineTypeId == '0') {
                         showCustomMessageDialog(
                           context,
-                          'Fill the basic detailes and try again',
+                          'Complete the vehicle registration and try again.',
                           messageType: MessageCategory.WARNING,
                         );
                       } else {
@@ -224,25 +274,20 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                               messageType: MessageCategory.ERROR,
                             );
                           } else if (snapshot['error'] == false) {
-                            // log(snapshot['data'][0]['instructions'].toString());
                             Navigator.of(context).push(
                               AppRoutes.createRoute(
                                 EvSelectPostionScreen(
-                                  inspectionModel: inspectionModel,
                                   inspectionId: inspectionModel.inspectionId,
                                   instructionData:
                                       snapshot['data'][0]['instructions'],
                                 ),
                               ),
                             );
-                            // navigate to instruction page
                           }
                         } else if (inspectionModel.engineTypeId == '1') {
-                          // naviga to guestion page
                           Navigator.of(context).push(
                             AppRoutes.createRoute(
                               EvSelectPostionScreen(
-                                inspectionModel: inspectionModel,
                                 instructionData: null,
                                 inspectionId: inspectionModel.inspectionId,
                               ),
@@ -251,22 +296,49 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                         }
                       }
                     },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.content_paste_search_rounded,
-                          color: AppColors.kAppSecondaryColor,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        border: Border.all(
+                          color:
+                              inspectionModel.engineTypeId.isEmpty ||
+                                      inspectionModel.engineTypeId == '0'
+                                  ? AppColors.grey
+                                  : AppColors.kAppSecondaryColor,
                         ),
-                        AppSpacer(widthPortion: .02),
-                        Text(
-                          "Inspect",
-                          style: AppStyle.style(
-                            context: context,
-                            color: AppColors.kAppSecondaryColor,
+                      ),
+                      // style: OutlinedButton.styleFrom(
+                      //   side: BorderSide(color: AppColors.kAppSecondaryColor),
+                      // ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.content_paste_search_rounded,
+                            color:
+                                inspectionModel.engineTypeId.isEmpty ||
+                                        inspectionModel.engineTypeId == '0'
+                                    ? AppColors.grey
+                                    : AppColors.kAppSecondaryColor,
                           ),
-                        ),
-                      ],
+                          AppSpacer(widthPortion: .02),
+                          Text(
+                            "Inspect",
+                            style: AppStyle.style(
+                              context: context,
+                              color:
+                                  inspectionModel.engineTypeId.isEmpty ||
+                                          inspectionModel.engineTypeId == '0'
+                                      ? AppColors.grey
+                                      : AppColors.kAppSecondaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -274,7 +346,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
             ),
           ],
         ),
-        Divider(thickness: 2),
+        Divider(thickness: 5),
       ],
     );
   }

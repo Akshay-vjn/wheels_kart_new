@@ -6,20 +6,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:wheels_kart/core/constant/string.dart';
-import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 
-class FetchInspectionRepo {
-  static Future<Map<String, dynamic>> getInspectionByStatus(
-      BuildContext context,String inspectionType) async {
+class FetchDocumentTypesRepo {
+  static Future<Map<String, dynamic>> getFetchDocumentTypes(
+    BuildContext context,
+  ) async {
     final state = context.read<EvAuthBlocCubit>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
-        final url = Uri.parse('${AppString.baseUrl}inspections');
+        final url = Uri.parse('${AppString.baseUrl}masters/documenttypes');
 
-        Response response = await http.post(url, headers: {
-          'Content-Type': 'application/json',
-          'Authorization': state.userModel.token
-        },body: jsonEncode({"status": inspectionType}));
+        Response response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': state.userModel.token,
+          },
+        );
 
         final decodedata = jsonDecode(response.body);
 
@@ -27,16 +31,16 @@ class FetchInspectionRepo {
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
-            'data': decodedata['data']
+            'data': decodedata['data'],
           };
         } else {
           return {
             'error': decodedata['error'],
-            'message': decodedata['message']
+            'message': decodedata['message'],
           };
         }
       } catch (e) {
-        log('repo - catch error - fetch car inspections => ${e.toString()}   ');
+        log('repo - catch error - fetch document types => ${e.toString()}');
         return {};
       }
     } else {

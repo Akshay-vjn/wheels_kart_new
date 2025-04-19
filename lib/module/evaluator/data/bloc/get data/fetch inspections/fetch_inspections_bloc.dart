@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/fetch_inspections.dart';
+import 'package:wheels_kart/module/evaluator/data/repositories/inspection/fetch_inspections.dart';
 
 part 'fetch_inspections_event.dart';
 part 'fetch_inspections_state.dart';

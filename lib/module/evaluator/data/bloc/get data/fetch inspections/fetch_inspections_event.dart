@@ -8,3 +8,5 @@ class OnGetInspectionList extends FetchInspectionsEvent {
   String inspetionListType;
   OnGetInspectionList({required this.context, required this.inspetionListType});
 }
+
+

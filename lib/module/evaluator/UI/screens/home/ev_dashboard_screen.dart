@@ -16,8 +16,8 @@ import 'package:wheels_kart/module/evaluator/UI/screens/leads/pending/ev_pending
 
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/live/ev_live_leads_tab.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch_dashboard/ev_fetch_dashboard_bloc.dart';
-import 'package:wheels_kart/module/evaluator/data/cubit/app%20navigation%20cubit/app_navigation_cubit.dart';
-import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 
 class EvDashboardScreen extends StatefulWidget {
   const EvDashboardScreen({super.key});

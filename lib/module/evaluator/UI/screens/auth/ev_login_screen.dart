@@ -12,7 +12,7 @@ import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_dashboard_screen
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_textfield.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/login%20page%20bloc/login_bloc_bloc.dart';
-import 'package:wheels_kart/module/evaluator/data/cubit/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 
 import '../../../../../core/utils/custome_show_messages.dart';
 

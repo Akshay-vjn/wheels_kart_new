@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -18,7 +16,7 @@ import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20q
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/helper/widget_build_check_box.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_textfield.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
-import 'package:wheels_kart/module/evaluator/data/cubit/submit%20answer%20controller/submit_answer_controller_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_prefill_model.dart';
 import 'package:wheels_kart/module/evaluator/data/model/question_model_data.dart';
 import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
@@ -27,11 +25,9 @@ class BuildQuestionTile extends StatefulWidget {
   final QuestionModelData question;
   final InspectionPrefillModel? prefillModel;
   final int index;
-  final List<Map<String, dynamic>> helperVariables;
   const BuildQuestionTile({
     super.key,
     required this.question,
-    required this.helperVariables,
     this.prefillModel,
     required this.index,
   });
@@ -41,13 +37,16 @@ class BuildQuestionTile extends StatefulWidget {
 }
 
 class _BuildQuestionTileState extends State<BuildQuestionTile> {
-  // bool isLoading = false;
-  List<Map<String, dynamic>> helperVariables = [];
-  bool isLoading = true;
+  Map<String, dynamic> helperVariable = {
+    "commentController": TextEditingController(),
+    "commentKey": GlobalKey<FormState>(),
+    "descriptiveController": TextEditingController(),
+    "descriptiveKey": GlobalKey<FormState>(),
+    "listOfImages": <Uint8List>[],
+  };
 
   @override
   void initState() {
-    helperVariables = widget.helperVariables;
     if (widget.prefillModel != null) {
       Functions.onPrefillTheQuestion(
         context,
@@ -56,16 +55,18 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
       );
 
       if (widget.prefillModel!.comment != null) {
-        helperVariables[widget.index]['commentController'].text =
-            widget.prefillModel!.comment;
+        helperVariable['commentController'].text = widget.prefillModel!.comment;
       }
 
       WidgetsBinding.instance.addPostFrameCallback((_) => _init());
+    } else {
+      isLoadingImage = false;
     }
 
     super.initState();
   }
 
+  bool isLoadingImage = true;
   void _init() async {
     final images = widget.prefillModel!.images;
     if (images.isNotEmpty) {
@@ -77,16 +78,13 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
         );
         prefillImages.add(bytes);
       }
+      helperVariable['listOfImages'] = prefillImages;
 
       if (!mounted) return;
-
-      helperVariables[widget.index]['listOfImages'] = prefillImages;
     }
-
+    isLoadingImage = false;
     if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() {});
     }
   }
 
@@ -105,6 +103,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
         // final images = widget.prefillModel?.images;
 
         final currentstate = state.questionState[widget.index];
+
         final errorState = currentstate == SubmissionState.ERROR;
         final successState = currentstate == SubmissionState.SUCCESS;
         final loadingState = currentstate == SubmissionState.LOADING;
@@ -253,9 +252,9 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
                                 activeColor: AppColors.DEFAULT_BLUE_DARK,
                                 inActiveColor: AppColors.grey.withOpacity(.4),
                                 onTap: () {
-                                  context
-                                      .read<EvSubmitAnswerControllerCubit>()
-                                      .changeToUpdateView(questionIndex);
+                                  // context
+                                  //     .read<EvSubmitAnswerControllerCubit>()
+                                  //     .changeToUpdateView(questionIndex);
                                   Functions.onSelectSubQuestion(
                                     context,
                                     questionIndex,
@@ -482,7 +481,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
       final selectedMainOption =
           currentState.listOfUploads[questionIndex].answer;
       return Form(
-        key: helperVariables[questionIndex]["commentKey"],
+        key: helperVariable["commentKey"],
         child: Column(
           children: [
             AppSpacer(heightPortion: .02),
@@ -544,7 +543,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
                   return null;
                 }
               },
-              controller: helperVariables[questionIndex]["commentController"],
+              controller: helperVariable["commentController"],
               hintText:
                   commentTitle.isEmpty
                       ? 'Enter the comment in any...'
@@ -564,7 +563,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[questionIndex];
       return Form(
-        key: helperVariables[questionIndex]["descriptiveKey"],
+        key: helperVariable["descriptiveKey"],
         child: Column(
           children: [
             EvAppCustomTextfield(
@@ -580,9 +579,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
               focusColor: AppColors.black,
               fontWeght: FontWeight.w500,
               keyBoardType: getKeyboardType(question.keyboardType),
-              controller:
-                  widget
-                      .helperVariables[questionIndex]['descriptiveController'],
+              controller: helperVariable['descriptiveController'],
               validator: (value) {
                 if (value!.isEmpty) {
                   return 'This filed is required';
@@ -622,8 +619,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     if (currentState is SuccessFetchQuestionsState) {
-      final listOfImages =
-          helperVariables[questionIndex]["listOfImages"] as List;
+      final listOfImages = helperVariable["listOfImages"] as List;
       return Column(
         children: [
           AppSpacer(heightPortion: .02),
@@ -665,9 +661,18 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
                 mainAxisSpacing: 20,
               ),
               shrinkWrap: true,
-              itemCount: listOfImages.length + 1,
+              itemCount:
+                  isLoadingImage
+                      ? listOfImages.length + 2
+                      : listOfImages.length + 1,
               itemBuilder: (context, index) {
-                if (index == listOfImages.length) {
+                if (isLoadingImage && index == 0) {
+                  return AppLoadingIndicator();
+                }
+                if (index ==
+                    (isLoadingImage
+                        ? listOfImages.length + 1
+                        : listOfImages.length)) {
                   return InkWell(
                     onTap: () {
                       _openCamera(questionIndex);
@@ -695,22 +700,53 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
                     ),
                   );
                 }
-                return Container(
-                  width: w(context) * .23,
-                  height: h(context) * .1,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.grey),
-                    // borderRadius:
-                    //     BorderRadius.circular(AppDimensions.radiusSize10),
-                    color: AppColors.white,
-                    image:
-                        listOfImages[index] == null
-                            ? null
-                            : DecorationImage(
-                              fit: BoxFit.fill,
-                              image: MemoryImage(listOfImages[index]),
-                            ),
-                  ),
+                final imageIndex = isLoadingImage ? index - 1 : index;
+                return Stack(
+                  children: [
+                    Container(
+                      // width: w(context) * .23,
+                      // height: h(context) * .1,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.grey),
+                        // borderRadius:
+                        //     BorderRadius.circular(AppDimensions.radiusSize10),
+                        color: AppColors.white,
+                        image:
+                            listOfImages[imageIndex] == null
+                                ? null
+                                : DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: MemoryImage(listOfImages[imageIndex]),
+                                ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          try {
+                            log("Remove");
+                            listOfImages.removeWhere(
+                              (element) => element == listOfImages[imageIndex],
+                            );
+                            Functions.resetButtonStatus(context, questionIndex);
+                            // setState(() {});
+                          } catch (e) {
+                            log(e.toString());
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.close, size: 18, color: Colors.red),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -726,7 +762,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     if (currentState is SuccessFetchQuestionsState) {
-      final listOfImages = helperVariables[questionIndex]["listOfImages"];
+      final listOfImages = helperVariable["listOfImages"];
       final imagepicker = ImagePicker();
       final pickedXfile = await imagepicker.pickImage(
         source: ImageSource.camera,
@@ -738,6 +774,8 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
           listOfImages.add(bytes);
         });
       }
+
+      Functions.resetButtonStatus(context, questionIndex);
     }
   }
 
@@ -745,11 +783,10 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     final descriptiveKey =
-        helperVariables[index]['descriptiveKey'] as GlobalKey<FormState>;
+        helperVariable['descriptiveKey'] as GlobalKey<FormState>;
 
     final descriptiveController =
-        helperVariables[index]['descriptiveController']
-            as TextEditingController;
+        helperVariable['descriptiveController'] as TextEditingController;
 
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[index];
@@ -818,12 +855,10 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
     bool isCommentMandotory,
   ) async {
     try {
-      final commentKey =
-          helperVariables[index]["commentKey"] as GlobalKey<FormState>;
+      final commentKey = helperVariable["commentKey"] as GlobalKey<FormState>;
       final commentController =
-          helperVariables[index]['commentController'] as TextEditingController;
-      final listOFImages =
-          helperVariables[index]['listOfImages'] as List<Uint8List?>;
+          helperVariable['commentController'] as TextEditingController;
+      final listOFImages = helperVariable['listOfImages'] as List<Uint8List?>;
       bool? isImageOptioanl;
       if (question.picture == 'Required Optional') {
         isImageOptioanl = true;

@@ -15,7 +15,7 @@ import 'package:wheels_kart/module/evaluator/UI/widgets/app_cutom_evaluation_sta
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20city/fetch_city_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/model/city_model.dart';
 import 'package:wheels_kart/module/evaluator/data/model/evaluation_data_model.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/update_inspection_repo.dart';
+import 'package:wheels_kart/module/evaluator/data/repositories/inspection/update_inspection_repo.dart';
 
 import 'package:wheels_kart/core/components/app_custom_widgets.dart';
 import 'package:wheels_kart/core/components/app_empty_text.dart';

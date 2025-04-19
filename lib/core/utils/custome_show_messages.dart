@@ -17,7 +17,7 @@ Color getColor(MessageCategory messageType) {
       }
     case MessageCategory.WARNING:
       {
-        return AppColors.kWarningColor;
+        return AppColors.kRed;
       }
     case MessageCategory.SUCCESS:
       {
@@ -34,7 +34,8 @@ IconData getIcon(MessageCategory messageType) {
       }
     case MessageCategory.WARNING:
       {
-        return Icons.warning_amber_rounded;
+        return Icons.block;
+        // Icons.warning_amber_rounded;
       }
     case MessageCategory.SUCCESS:
       {

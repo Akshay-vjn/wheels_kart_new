@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
 
 class DashedBorderPainter extends CustomPainter {
+  Color? color;
+  DashedBorderPainter({this.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint =
         Paint()
           ..color =
+              color ??
               AppColors
                   .grey // Border color
           ..strokeWidth = 2

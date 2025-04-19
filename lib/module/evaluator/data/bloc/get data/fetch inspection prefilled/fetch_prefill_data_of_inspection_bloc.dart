@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_prefill_model.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/fetch_inspection_prefilled_datas_repo.dart';
+import 'package:wheels_kart/module/evaluator/data/repositories/inspection/fetch_inspection_prefilled_datas_repo.dart';
 
 part 'fetch_prefill_data_of_inspection_event.dart';
 part 'fetch_prefill_data_of_inspection_state.dart';

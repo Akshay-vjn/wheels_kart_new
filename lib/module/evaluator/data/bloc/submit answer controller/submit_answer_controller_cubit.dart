@@ -1,10 +1,8 @@
-import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:meta/meta.dart';
 import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/upload_inspection_repo.dart';
+import 'package:wheels_kart/module/evaluator/data/repositories/inspection/upload_inspection_repo.dart';
 
 part 'submit_answer_controller_state.dart';
 
@@ -13,10 +11,16 @@ class EvSubmitAnswerControllerCubit
   EvSubmitAnswerControllerCubit()
     : super(EvSubmitAnswerControllerState(questionState: [], canUpdate: []));
 
-  changeToUpdateView(int questionIndex) {
-    List<bool> updatedView = state.canUpdate;
-    updatedView[questionIndex] = true;
-    emit(state.copyWith(isUpdateView: updatedView));
+  // changeToUpdateView(int questionIndex) {
+  //   List<bool> updatedView = state.canUpdate;
+  //   updatedView[questionIndex] = true;
+  //   emit(state.copyWith(isUpdateView: updatedView));
+  // }
+
+  void changeStatusToSaved(int questionIndex) {
+    final updatedStates = state.questionState;
+    updatedStates[questionIndex] = SubmissionState.SUCCESS;
+    emit(state.copyWith(questionState: updatedStates));
   }
 
   Future<void> onSubmitAnswer(

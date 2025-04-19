@@ -28,7 +28,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
   void initState() {
     super.initState();
     context.read<FetchInspectionsBloc>().add(
-      OnGetInspectionList(context: context, inspetionListType: 'ASSIGNED'),
+      OnGetInspectionList(context: context, inspetionListType: 'COMPLETED'),
     );
   }
 
@@ -60,10 +60,10 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
                         return AppMargin(
                           child: _buildItems(
                             context,
-                            datas[index]['id'],
-                            datas[index]['id'],
-                            datas[index]['name'],
-                            datas[index]['mobileNumber'],
+                            data.inspectionId,
+                            data.evaluationId,
+                            data.customer.customerName,
+                            data.customer.customerMobileNumber,
                             data,
                           ),
                         );

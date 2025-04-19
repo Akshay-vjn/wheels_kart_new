@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:wheels_kart/module/evaluator/data/model/question_model_data.dart';
 import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/master/fetch_questions_repo.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/upload_inspection_repo.dart';
+import 'package:wheels_kart/module/evaluator/data/repositories/inspection/upload_inspection_repo.dart';
 
 part 'fetch_questions_event.dart';
 part 'fetch_questions_state.dart';

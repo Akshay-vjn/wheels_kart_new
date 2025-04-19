@@ -7,30 +7,41 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:wheels_kart/core/constant/string.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
 
-class FetchPortionsRepo {
-  static Future<Map<String, dynamic>> getThePrtionsForQuestion(
+class UploadDocumentRepo {
+  static Future<Map<String, dynamic>> uploadDocument(
     BuildContext context,
-    String inspectionId,
+    String insectionId,
+    Map<String, dynamic> data,
   ) async {
     final state = context.read<EvAuthBlocCubit>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
-        final url = Uri.parse('${AppString.baseUrl}masters/portions');
+        final url = Uri.parse(
+          '${AppString.baseUrl}inspections/uploaddocuments',
+        );
+        Object body;
+        //
 
+        List<Map<String, dynamic>> documents = [];
+        documents.add(data);
+        body = jsonEncode({'inspectionId': insectionId,'documents':documents});
+        //
         Response response = await http.post(
           url,
-
-          body: jsonEncode({"inspectionId": inspectionId}),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': state.userModel.token,
           },
+          body: body,
         );
 
         final decodedata = jsonDecode(response.body);
 
         if (decodedata['status'] == 200) {
+          log(decodedata.toString());
+
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
@@ -43,7 +54,9 @@ class FetchPortionsRepo {
           };
         }
       } catch (e) {
-        log('repo - catch error - fetch portions => ${e.toString()}   ');
+        log(
+          'repo - catch error - uploading inspectiobn  => ${e.toString()}   ',
+        );
         return {};
       }
     } else {

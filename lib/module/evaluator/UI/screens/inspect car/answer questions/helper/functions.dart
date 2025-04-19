@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
@@ -10,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
-import 'package:wheels_kart/module/evaluator/data/cubit/submit%20answer%20controller/submit_answer_controller_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_prefill_model.dart';
 import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
 
@@ -28,13 +27,7 @@ class Functions {
       String? validAnswer = prefillData.validOption;
       String? inValidAnswer = prefillData.invalidOption;
       String? comment = prefillData.comment;
-      // final images = prefillData.images;
-      // List<Uint8List?> prefillImages = [];
-      // for (var image in images) {
-      //   prefillImages.add(
-      //     await _convartNetworkImageToUni8ListFormate(image.image),
-      //   );
-      // }
+
       List<UploadInspectionModel> updatedIndexVariables =
           currentState.listOfUploads;
       //-----------------------REST------------------------------
@@ -45,19 +38,23 @@ class Functions {
       updatedIndexVariables[questionIndex].validOption = validAnswer;
       updatedIndexVariables[questionIndex].attachments = null;
       updatedIndexVariables[questionIndex].comment = comment;
-      // updatedIndexVariables[questionIndex].prefillImages = prefillImages.cast<Uint8List>();
 
       //------------------------------------------------------
 
       context.read<FetchQuestionsBloc>().add(
         OnAnswerTheQuestion(
+           
           listOfUploads: updatedIndexVariables,
           index: questionIndex,
         ),
       );
-
-      // Reset
-      _resetButtonStatus(context, questionIndex);
+      final state = BlocProvider.of<FetchQuestionsBloc>(context).state;
+      if (state is SuccessFetchQuestionsState) {
+        context.read<EvSubmitAnswerControllerCubit>().changeStatusToSaved(
+          questionIndex,
+        );
+      }
+      
     }
   }
 
@@ -90,7 +87,7 @@ class Functions {
       );
 
       // Reset
-      _resetButtonStatus(context, questionIndex);
+      resetButtonStatus(context, questionIndex);
     }
   }
 
@@ -119,7 +116,7 @@ class Functions {
         ),
       );
       // Reset
-      _resetButtonStatus(context, questionIndex);
+      resetButtonStatus(context, questionIndex);
     }
   }
 
@@ -183,7 +180,7 @@ class Functions {
         );
       }
       // Reset
-      _resetButtonStatus(context, questionIndex);
+      resetButtonStatus(context, questionIndex);
     }
   }
 
@@ -246,7 +243,7 @@ class Functions {
         );
       }
       // Reset
-      _resetButtonStatus(context, questionIndex);
+      resetButtonStatus(context, questionIndex);
     }
   }
 
@@ -316,6 +313,7 @@ class Functions {
           index: questionIndex,
         ),
       );
+     
     }
   }
 
@@ -394,7 +392,7 @@ class Functions {
     }
   }
 
-  static _resetButtonStatus(BuildContext context, int questionIndex) {
+  static resetButtonStatus(BuildContext context, int questionIndex) {
     final state = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (state is SuccessFetchQuestionsState) {
       context.read<EvSubmitAnswerControllerCubit>().resetState(questionIndex);
