@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/core/utils/custome_show_messages.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20documents/fetch_documents_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/inspection/upload_document_repo.dart';
 
 part 'submit_document_state.dart';
@@ -23,7 +25,12 @@ class SubmitDocumentCubit extends Cubit<SubmitDocumentState> {
       );
       if (response.isNotEmpty) {
         if (response['error'] == false) {
+          context.read<FetchDocumentsCubit>().onFetchDocumets(
+            context,
+            inspectionId,
+          );
           emit(SubmitDocumentSuccessState());
+
           Navigator.of(context).pop();
         } else {
           showSnakBar(context, response['message'], isError: true);

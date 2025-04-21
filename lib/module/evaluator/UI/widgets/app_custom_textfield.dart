@@ -22,6 +22,7 @@ class EvAppCustomTextfield extends StatelessWidget {
   final void Function(String)? onChanged;
   final double? borderRudius;
   final Color? fillColor;
+  final TextStyle ?lebelStyle;
 
   EvAppCustomTextfield({
     super.key,
@@ -40,7 +41,7 @@ class EvAppCustomTextfield extends StatelessWidget {
     this.isTextCapital,
     this.maxLine,
     this.borderRudius,
-    this.fillColor,
+    this.fillColor, this.lebelStyle,
   });
 
   @override
@@ -50,7 +51,7 @@ class EvAppCustomTextfield extends StatelessWidget {
       children: [
         Text(
           labeltext ?? '',
-          style: AppStyle.style(
+          style:lebelStyle?? AppStyle.style(
             context: context,
             size: AppDimensions.fontSize15(context),
             color: AppColors.DEFAULT_BLUE_DARK,

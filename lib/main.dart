@@ -13,12 +13,14 @@ import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20portio
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20systems/fetch_systems_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch_dashboard/ev_fetch_dashboard_bloc.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/login%20page%20bloc/login_bloc_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/search/search%20car%20make/search_car_make_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/submit%20document/submit_document_cubit.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
 
 import 'package:wheels_kart/module/vendor/data/cubit/auth/v_auth_controller_cubit.dart';
@@ -68,8 +70,9 @@ class MyApp extends StatelessWidget {
           create: (_) => FetchDocumentTypeBloc(),
         ),
         BlocProvider<FetchDocumentsCubit>(create: (_) => FetchDocumentsCubit()),
-         BlocProvider<SubmitDocumentCubit>(create: (_) => SubmitDocumentCubit()),
-
+        BlocProvider<SubmitDocumentCubit>(create: (_) => SubmitDocumentCubit()),
+        BlocProvider<FetchUploadedVehilcePhotosCubit>(create: (_) => FetchUploadedVehilcePhotosCubit()),
+        BlocProvider<UplaodVehilcePhotoCubit>(create: (_) => UplaodVehilcePhotoCubit()),
         // USER CONTROLLERS
         BlocProvider<VAuthControllerCubit>(
           create: (_) => VAuthControllerCubit(),
@@ -77,7 +80,6 @@ class MyApp extends StatelessWidget {
         BlocProvider<VBottomNavControllerCubit>(
           create: (_) => VBottomNavControllerCubit(),
         ),
-        
       ],
       child: SafeArea(
         child: MaterialApp(

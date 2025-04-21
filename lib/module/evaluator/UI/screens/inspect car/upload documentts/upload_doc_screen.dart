@@ -46,6 +46,7 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
   }
 
   String? selectedDoumentId;
+  String? selectedDocument;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,7 +131,7 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                                 state.documentTypes
                                                     .map(
                                                       (e) => DropdownMenuItem(
-                                                        value: e.documentTypeId,
+                                                        value: e,
                                                         child: Text(
                                                           e.documentTypeName,
                                                         ),
@@ -138,8 +139,12 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                                     )
                                                     .toList(),
                                             onChanged: (value) {
-                                              selectedDoumentId = value;
+                                              selectedDoumentId =
+                                                  value?.documentTypeId;
+                                              selectedDocument =
+                                                  value?.documentTypeName;
                                               setState(() {});
+                                              log(selectedDoumentId ?? "Null");
                                             },
                                           ),
                                           AppSpacer(heightPortion: .08),
@@ -160,10 +165,6 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                               child:
                                                   _captureFile != null
                                                       ? _buildPdfView()
-                                                      : _memoryFile != null
-                                                      ? Image.memory(
-                                                        _memoryFile!,
-                                                      )
                                                       : Column(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
@@ -203,92 +204,6 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                             ),
                                           ),
                                           AppSpacer(heightPortion: .01),
-                                          Align(
-                                            alignment: Alignment.bottomRight,
-                                            child: ElevatedButton.icon(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    AppColors.DARK_SECONDARY,
-                                                disabledBackgroundColor:
-                                                    AppColors.black2,
-                                              ),
-                                              onPressed:
-                                                  _captureFile == null ||
-                                                          _memoryFile != null ||
-                                                          submissionState
-                                                              is SubmitDocumentSuccessState
-                                                      ? null
-                                                      : () async {
-                                                        String base64 = '';
-                                                        String fileName = '';
-                                                        if (_captureFile !=
-                                                            null) {
-                                                          final file = File(
-                                                            _captureFile!,
-                                                          );
-                                                          final bytes =
-                                                              await file
-                                                                  .readAsBytes();
-                                                          base64 = base64Encode(
-                                                            bytes,
-                                                          );
-                                                          fileName =
-                                                              "${DateTime.now().toIso8601String()}.pdf";
-                                                        }
-                                                        if (_memoryFile !=
-                                                            null) {
-                                                          base64 = base64Encode(
-                                                            _memoryFile!,
-                                                          );
-                                                          fileName =
-                                                              "${DateTime.now().toIso8601String()}.jpg";
-                                                        }
-                                                        final json = {
-                                                          'documentId':
-                                                              selectedDoumentId,
-                                                          'fileName': fileName,
-                                                          'file': base64,
-                                                        };
-                                                        log(json.toString());
-                                                        await context
-                                                            .read<
-                                                              SubmitDocumentCubit
-                                                            >()
-                                                            .onSubmitDocument(
-                                                              context,
-                                                              widget
-                                                                  .inspectionId,
-                                                              json,
-                                                            );
-                                                        // Navigator.of(context)
-                                                      },
-                                              icon: Icon(
-                                                SolarIconsOutline.upload,
-                                                color:
-                                                    _captureFile == null ||
-                                                            _memoryFile !=
-                                                                null ||
-                                                            submissionState
-                                                                is SubmitDocumentSuccessState
-                                                        ? AppColors.grey
-                                                        : AppColors.white,
-                                              ),
-                                              label: Text(
-                                                "Save",
-                                                style: AppStyle.style(
-                                                  context: context,
-                                                  color:
-                                                      _captureFile == null ||
-                                                              _memoryFile !=
-                                                                  null ||
-                                                              submissionState
-                                                                  is SubmitDocumentSuccessState
-                                                          ? AppColors.grey
-                                                          : AppColors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
                                         ],
                                       ),
                                     ),
@@ -306,34 +221,9 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Flexible(
-                                            child: Divider(
-                                              endIndent: 10,
-                                              indent: 100,
-                                              color: AppColors.BORDER_COLOR,
-                                            ),
-                                          ),
-                                          Text(
-                                            "or",
-                                            style: AppStyle.style(
-                                              context: context,
-                                              color: AppColors.BORDER_COLOR,
-                                            ),
-                                          ),
-                                          Flexible(
-                                            child: Divider(
-                                              indent: 10,
-                                              endIndent: 100,
-                                              color: AppColors.BORDER_COLOR,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                       AppSpacer(heightPortion: .03),
                                       InkWell(
-                                        onTap: () => _onSelectDocument(false),
+                                        onTap: () => _onSelectDocument(),
                                         child: Container(
                                           margin:
                                               EdgeInsetsDirectional.symmetric(
@@ -344,17 +234,13 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                                 horizontal: 10,
                                                 vertical: 15,
                                               ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              5,
-                                            ),
-                                          ),
+
                                           child: Row(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Icon(
-                                                SolarIconsOutline.gallery,
+                                                SolarIconsOutline.document1,
                                                 color:
                                                     selectedDoumentId != null
                                                         ? AppColors
@@ -370,7 +256,7 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      "Select the documents from Gallery",
+                                                      "Scan your documets or take a photo",
                                                       style: AppStyle.style(
                                                         context: context,
                                                         fontWeight:
@@ -389,7 +275,7 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      "PNG or JPEG",
+                                                      "PNG,JPEG or PDF",
                                                       style: AppStyle.style(
                                                         context: context,
                                                         fontWeight:
@@ -424,17 +310,47 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                         Positioned(
                           bottom: h(context) * .275,
                           child: InkWell(
-                            onTap: () => _onSelectDocument(true),
+                            onTap:
+                                _captureFile == null ||
+                                        submissionState
+                                            is SubmitDocumentSuccessState
+                                    ? null
+                                    : () async {
+                                      String base64 = '';
+                                      String fileName = '';
+                                      if (_captureFile != null) {
+                                        final file = File(_captureFile!);
+                                        final bytes = await file.readAsBytes();
+                                        base64 = base64Encode(bytes);
+                                        fileName =
+                                            "$selectedDocument-${widget.inspectionId}.pdf";
+                                      }
+
+                                      final json = {
+                                        'documentId': selectedDoumentId,
+                                        'fileName': fileName,
+                                        'file': base64,
+                                      };
+                                      log(json.toString());
+                                      await context
+                                          .read<SubmitDocumentCubit>()
+                                          .onSubmitDocument(
+                                            context,
+                                            widget.inspectionId,
+                                            json,
+                                          );
+                                      // Navigator.of(context)
+                                    },
                             child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 10,
-                              ),
-                              width: w(context) * .5,
+                              height: h(context) * .06,
+                              width: w(context) * .6,
                               decoration: BoxDecoration(
                                 boxShadow:
-                                    selectedDoumentId != null
-                                        ? [
+                                    _captureFile == null ||
+                                            submissionState
+                                                is SubmitDocumentSuccessState
+                                        ? []
+                                        : [
                                           BoxShadow(
                                             offset: Offset(0, 1),
                                             color: AppColors.black.withAlpha(
@@ -443,38 +359,41 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                             blurRadius: 4,
                                             spreadRadius: 2,
                                           ),
-                                        ]
-                                        : [],
-                                borderRadius: BorderRadius.circular(50),
+                                        ],
                                 color:
-                                    selectedDoumentId != null
-                                        ? AppColors.DEFAULT_ORANGE
-                                        : AppColors.kSelectionColor,
+                                    _captureFile == null ||
+                                            submissionState
+                                                is SubmitDocumentSuccessState
+                                        ? AppColors.kSelectionColor
+                                        : AppColors.DEFAULT_ORANGE,
+                                borderRadius: BorderRadius.circular(60),
                               ),
-
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    SolarIconsOutline.camera,
-                                    color:
-                                        selectedDoumentId != null
-                                            ? AppColors.white
-                                            : AppColors.grey,
-                                    size: 35,
-                                  ),
-                                  AppSpacer(widthPortion: .02),
                                   Text(
-                                    "Use Camera",
+                                    "Save",
                                     style: AppStyle.style(
                                       context: context,
-                                      size: AppDimensions.fontSize18(context),
-                                      fontWeight: FontWeight.w600,
                                       color:
-                                          selectedDoumentId != null
-                                              ? AppColors.white
-                                              : AppColors.grey,
+                                          _captureFile == null ||
+                                                  submissionState
+                                                      is SubmitDocumentSuccessState
+                                              ? AppColors.grey
+                                              : AppColors.white,
+                                      fontWeight: FontWeight.bold,
+                                      size: 20,
                                     ),
+                                  ),
+                                  AppSpacer(widthPortion: .04),
+                                  Icon(
+                                    SolarIconsOutline.upload,
+                                    color:
+                                        _captureFile == null ||
+                                                submissionState
+                                                    is SubmitDocumentSuccessState
+                                            ? AppColors.grey
+                                            : AppColors.white,
                                   ),
                                 ],
                               ),
@@ -503,41 +422,25 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
     );
   }
 
-  final _imagePicker = ImagePicker();
-  Uint8List? _memoryFile;
   String? _captureFile;
 
-  void _onSelectDocument(bool itsCamera) async {
+  void _onSelectDocument() async {
     try {
       if (selectedDoumentId != null) {
-        if (itsCamera) {
-          final scannedDocResult = await FlutterDocScanner().getScanDocuments(
-            page: 1,
-          );
-          if (scannedDocResult != null) {
-            _memoryFile = null;
-            log(scannedDocResult.toString());
+        final scannedDocResult = await FlutterDocScanner().getScanDocuments(
+          page: 1,
+        );
+        if (scannedDocResult != null) {
+          log(scannedDocResult.toString());
 
-            final pdfUri = scannedDocResult['pdfUri'];
-            if (pdfUri != null) {
-              _captureFile = Uri.parse(pdfUri).toFilePath();
-              log(_captureFile.toString());
-            }
-
-            setState(() {});
-          } else {
-            // Handle cancellation or error
-            print("Document scanning was cancelled or failed.");
+          final pdfUri = scannedDocResult['pdfUri'];
+          if (pdfUri != null) {
+            _captureFile = Uri.parse(pdfUri).toFilePath();
           }
-        } else {
-          final xFile = await _imagePicker.pickImage(
-            source: ImageSource.gallery,
-          );
-          _captureFile = null;
-          if (xFile == null) return;
 
-          _memoryFile = await _convertFileInToUint8List(xFile);
           setState(() {});
+        } else {
+          print("Document scanning was cancelled or failed.");
         }
       }
     } catch (e) {
@@ -545,10 +448,10 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
     }
   }
 
-  Future<Uint8List> _convertFileInToUint8List(XFile files) async {
-    final file = File(files.path);
-    return await file.readAsBytes();
-  }
+  // Future<Uint8List> _convertFileInToUint8List(XFile files) async {
+  //   final file = File(files.path);
+  //   return await file.readAsBytes();
+  // }
 
   Widget _buildPdfView() => PDFView(
     fitPolicy: FitPolicy.BOTH,
