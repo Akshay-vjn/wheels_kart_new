@@ -6,6 +6,7 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/components/app_loading_indicator.dart';
+import 'package:wheels_kart/core/utils/responsive_helper.dart';
 
 enum MessageCategory { ERROR, SUCCESS, WARNING }
 
@@ -66,24 +67,28 @@ void showCustomMessageDialog(
               return Transform.scale(
                 scale: v,
                 child: AlertDialog(
-                  icon: TweenAnimationBuilder(
-                    duration: const Duration(seconds: 2),
-                    tween: Tween<double>(begin: 0.8, end: 1.0),
-                    curve: Curves.elasticOut,
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: Icon(
-                          size: 120,
-                          getIcon(messageType),
-                          color: getColor(messageType),
-                        ),
-                      );
-                    },
+                  icon: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TweenAnimationBuilder(
+                      duration: const Duration(seconds: 2),
+                      tween: Tween<double>(begin: 0.8, end: 1.0),
+                      curve: Curves.elasticOut,
+                      builder: (context, value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Icon(
+                            size: 120,
+                            getIcon(messageType),
+                            color: getColor(messageType),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
+
                   elevation: 2,
                   titleTextStyle: AppStyle.style(
                     context: context,
@@ -95,12 +100,32 @@ void showCustomMessageDialog(
                           ? Text(title, textAlign: TextAlign.center)
                           : null,
                   contentTextStyle: AppStyle.style(
-                    size: AppDimensions.fontSize18(context),
                     context: context,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.black,
+                    fontWeight: FontWeight.w500,
+                    size: AppDimensions.fontSize15(context),
                   ),
                   content: Text(textAlign: TextAlign.center, message),
+                  actionsAlignment: MainAxisAlignment.center,
+                  actions: [
+                    SizedBox(
+                      width: w(context) * .4,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: getColor(messageType),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                          "OK",
+                          style: AppStyle.style(
+                            context: context,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               );
             },

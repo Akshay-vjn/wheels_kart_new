@@ -6,6 +6,8 @@ class VehiclePhotoModel {
   String pictureType;
   String pictureName;
   String picture;
+  dynamic angleId;
+  dynamic description;
   String status;
   CreatedAt createdAt;
   DateTime modifiedAt;
@@ -16,6 +18,8 @@ class VehiclePhotoModel {
     required this.pictureType,
     required this.pictureName,
     required this.picture,
+    required this.angleId,
+    required this.description,
     required this.status,
     required this.createdAt,
     required this.modifiedAt,
@@ -28,6 +32,8 @@ class VehiclePhotoModel {
         pictureType: json["pictureType"] ?? '',
         pictureName: json["pictureName"] ?? '',
         picture: json["picture"] ?? '',
+        angleId: json["angleId"] ?? '',
+        description: json["description"] ?? '',
         status: json["status"] ?? '',
         createdAt: CreatedAt.fromJson(json["created_at"]),
         modifiedAt: DateTime.parse(json["modified_at"]),
@@ -39,6 +45,8 @@ class VehiclePhotoModel {
     "pictureType": pictureType,
     "pictureName": pictureName,
     "picture": picture,
+    "angleId": angleId,
+    "description": description,
     "status": status,
     "created_at": createdAt.toJson(),
     "modified_at": modifiedAt.toIso8601String(),

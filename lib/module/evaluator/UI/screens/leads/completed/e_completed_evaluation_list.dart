@@ -52,7 +52,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
               {
                 return state.listOfInspection.isEmpty
                     ? AppEmptyText(text: state.message)
-                    : TransformableListView.separated(
+                    : ListView.separated(
                       padding: EdgeInsets.all(0),
                       itemBuilder: (context, index) {
                         InspectionModel data = state.listOfInspection[index];
@@ -68,9 +68,9 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab> {
                           ),
                         );
                       },
-                      getTransformMatrix: (item) {
-                        return getTransformMatrix(item);
-                      },
+                      // getTransformMatrix: (item) {
+                      //   return getTransformMatrix(item);
+                      // },
                       separatorBuilder:
                           (context, index) => AppSpacer(heightPortion: .02),
                       itemCount: state.listOfInspection.length,

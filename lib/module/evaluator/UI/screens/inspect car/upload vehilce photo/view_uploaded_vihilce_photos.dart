@@ -173,24 +173,41 @@ class _ViewUploadedVihilcePhotosScreenState
                 }
                 return Stack(
                   children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          child: CachedNetworkImage(
-                            errorListener: (value) {},
-                            errorWidget:
-                                (context, url, error) => Text("No Image"),
-                            imageUrl: data[index].picture,
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.BORDER_COLOR),
+                      ),
+                      child: Column(
+                        children: [
+                          // AppSpacer(heightPortion: .01),
+                          Expanded(
+                            child: CachedNetworkImage(
+                              errorListener: (value) {},
+                              errorWidget:
+                                  (context, url, error) => Text("No Image"),
+                              imageUrl: data[index].picture,
+                            ),
                           ),
-                        ),
-                        Text(
-                          data[index].pictureName,
-                          style: AppStyle.style(
-                            context: context,
-                            fontWeight: FontWeight.w500,
+                          AppSpacer(heightPortion: .01),
+                          Container(
+                            padding: EdgeInsets.all(3),
+                            alignment: Alignment.center,
+                            width: w(context),
+                            decoration: BoxDecoration(
+                              color: AppColors.DARK_SECONDARY,
+                            ),
+                            child: Text(
+                              textAlign: TextAlign.center,
+                              data[index].description,
+                              style: AppStyle.style(
+                                color: AppColors.white,
+                                context: context,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     Positioned(
                       left: 20,

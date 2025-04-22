@@ -96,7 +96,12 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                     }
                                     return document.document.contains('.pdf')
                                         ? Container(
+                                          clipBehavior:
+                                              Clip.antiAliasWithSaveLayer,
                                           decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                             color: AppColors.white,
                                             border: Border.all(
                                               width: 2,
@@ -107,36 +112,53 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Padding(
-                                                padding: const EdgeInsets.all(
-                                                  8.0,
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      AppColors
+                                                          .kAppSecondaryColor,
                                                 ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    Text(
-                                                      document.documentType,
-                                                      style: AppStyle.poppins(
-                                                        size: 30,
-                                                        context: context,
-                                                        color: AppColors.black2,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    8.0,
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        document.documentType,
+                                                        style: AppStyle.poppins(
+                                                          size: 20,
+                                                          context: context,
+                                                          color:
+                                                              AppColors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    Text(
-                                                      "${currentPage + 1}/${state.documets.length}",
-                                                      style: AppStyle.poppins(
-                                                        context: context,
-                                                        size: 20,
-                                                        color: AppColors.black2,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                      IconButton(
+                                                        onPressed: () {
+                                                          context
+                                                              .read<
+                                                                FetchDocumentsCubit
+                                                              >()
+                                                              .deleteDocument(
+                                                                context,
+                                                                widget
+                                                                    .inspectionId,
+                                                                document
+                                                                    .inspectionDocumentId,
+                                                              );
+                                                        },
+                                                        icon: Icon(
+                                                          Icons.close,
+                                                          color: AppColors.kRed,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                               Expanded(
@@ -151,39 +173,14 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                                   padding: const EdgeInsets.all(
                                                     15,
                                                   ),
-                                                  child: ElevatedButton(
-                                                    style:
-                                                        ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              AppColors.kRed,
-                                                        ),
-                                                    onPressed: () async {
-                                                      context
-                                                          .read<
-                                                            FetchDocumentsCubit
-                                                          >()
-                                                          .deleteDocument(
-                                                            context,
-                                                            widget.inspectionId,
-                                                            document
-                                                                .inspectionDocumentId,
-                                                          );
-
-                                                      // context
-                                                      //     .read<
-                                                      //       FetchDocumentsCubit
-                                                      //     >()
-                                                      //     .onFetchDocumets(
-                                                      //       context,
-                                                      //       widget.inspectionId,
-                                                      //     );
-                                                    },
-                                                    child: Text(
-                                                      "Delete",
-                                                      style: AppStyle.style(
-                                                        context: context,
-                                                        color: AppColors.white,
-                                                      ),
+                                                  child: Text(
+                                                    "${currentPage + 1}/${state.documets.length}",
+                                                    style: AppStyle.poppins(
+                                                      context: context,
+                                                      size: 20,
+                                                      color: AppColors.black2,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),

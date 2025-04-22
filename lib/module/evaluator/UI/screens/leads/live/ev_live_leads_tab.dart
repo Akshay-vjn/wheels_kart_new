@@ -62,7 +62,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
               {
                 return state.listOfInspection.isEmpty
                     ? AppEmptyText(text: state.message)
-                    : TransformableListView.builder(
+                    : ListView.builder(
                       physics: BouncingScrollPhysics(),
                       padding: EdgeInsets.all(0),
                       itemBuilder: (context, index) {
@@ -78,10 +78,10 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                           child: _buildItems(context, data),
                         );
                       },
-                      getTransformMatrix: (item) {
-                        return getTransformMatrix(item);
-                      },
 
+                      // getTransformMatrix: (item) {
+                      //   return getTransformMatrix(item);
+                      // },
                       itemCount: state.listOfInspection.length,
                     );
               }

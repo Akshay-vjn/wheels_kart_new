@@ -9,6 +9,7 @@ import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20docume
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20documents/fetch_documents_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspection%20prefilled/fetch_prefill_data_of_inspection_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20picture%20angles/fetch_picture_angles_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20portions/fetch_portions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20systems/fetch_systems_bloc.dart';
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<SubmitDocumentCubit>(create: (_) => SubmitDocumentCubit()),
         BlocProvider<FetchUploadedVehilcePhotosCubit>(create: (_) => FetchUploadedVehilcePhotosCubit()),
         BlocProvider<UplaodVehilcePhotoCubit>(create: (_) => UplaodVehilcePhotoCubit()),
+        BlocProvider<FetchPictureAnglesCubit>(create: (_) => FetchPictureAnglesCubit()),
         // USER CONTROLLERS
         BlocProvider<VAuthControllerCubit>(
           create: (_) => VAuthControllerCubit(),

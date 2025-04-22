@@ -316,29 +316,34 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                             is SubmitDocumentSuccessState
                                     ? null
                                     : () async {
-                                      String base64 = '';
-                                      String fileName = '';
-                                      if (_captureFile != null) {
-                                        final file = File(_captureFile!);
-                                        final bytes = await file.readAsBytes();
-                                        base64 = base64Encode(bytes);
-                                        fileName =
-                                            "$selectedDocument-${widget.inspectionId}.pdf";
+                                      if (submissionState
+                                          is! SubmitDocumentLoadingState) {
+                                        String base64 = '';
+                                        String fileName = '';
+                                        if (_captureFile != null) {
+                                          final file = File(_captureFile!);
+                                          final bytes =
+                                              await file.readAsBytes();
+                                          base64 = base64Encode(bytes);
+                                          fileName =
+                                              "$selectedDocument-${widget.inspectionId}.pdf";
+                                        }
+
+                                        final json = {
+                                          'documentId': selectedDoumentId,
+                                          'fileName': fileName,
+                                          'file': base64,
+                                        };
+                                        log(json.toString());
+                                        await context
+                                            .read<SubmitDocumentCubit>()
+                                            .onSubmitDocument(
+                                              context,
+                                              widget.inspectionId,
+                                              json,
+                                            );
                                       }
 
-                                      final json = {
-                                        'documentId': selectedDoumentId,
-                                        'fileName': fileName,
-                                        'file': base64,
-                                      };
-                                      log(json.toString());
-                                      await context
-                                          .read<SubmitDocumentCubit>()
-                                          .onSubmitDocument(
-                                            context,
-                                            widget.inspectionId,
-                                            json,
-                                          );
                                       // Navigator.of(context)
                                     },
                             child: Container(
