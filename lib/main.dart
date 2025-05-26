@@ -23,14 +23,13 @@ import 'package:wheels_kart/module/evaluator/data/bloc/submit%20answer%20control
 import 'package:wheels_kart/module/evaluator/data/bloc/submit%20document/submit_document_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
-
 import 'package:wheels_kart/module/vendor/data/cubit/auth/v_auth_controller_cubit.dart';
 import 'package:wheels_kart/module/vendor/data/cubit/bottom_nav_controller/v_bottom_nav_controller_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(statusBarColor: AppColors.DARK_PRIMARY),
+    SystemUiOverlayStyle(statusBarColor: AppColors.DEFAULT_BLUE_DARK),
   );
   runApp(const MyApp());
 }

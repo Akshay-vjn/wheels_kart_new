@@ -66,10 +66,12 @@ class _SplashScreenState extends State<SplashScreen> {
                   });
                 },
                 duration: Duration(seconds: 1),
-                tween: Tween(begin: 0, end: 1),
+                tween: Tween(begin: .5, end: 1),
                 builder: (context, value, child) {
-                  return Transform.scale(
-                    scale: value,
+                  return FadeTransition(
+                    opacity: Animation.fromValueListenable(
+                      ValueNotifier(value),
+                    ),
                     child: SizedBox(
                       width: w(context) * .6,
                       child: Image.asset(ConstImages.appLogo),

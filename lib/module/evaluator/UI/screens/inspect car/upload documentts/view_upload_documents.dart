@@ -100,7 +100,7 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                               Clip.antiAliasWithSaveLayer,
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(
-                                              20,
+                                              15,
                                             ),
                                             color: AppColors.white,
                                             border: Border.all(
@@ -114,13 +114,13 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                             children: [
                                               Container(
                                                 decoration: BoxDecoration(
-                                                  color:
-                                                      AppColors
-                                                          .kAppSecondaryColor,
+                                                  // color:
+                                                  //     AppColors
+                                                  //         .kAppSecondaryColor,
                                                 ),
                                                 child: Padding(
                                                   padding: const EdgeInsets.all(
-                                                    8.0,
+                                                    15,
                                                   ),
                                                   child: Row(
                                                     mainAxisAlignment:
@@ -133,13 +133,13 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                                           size: 20,
                                                           context: context,
                                                           color:
-                                                              AppColors.white,
+                                                              AppColors.black,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                         ),
                                                       ),
-                                                      IconButton(
-                                                        onPressed: () {
+                                                      InkWell(
+                                                        onTap: () {
                                                           context
                                                               .read<
                                                                 FetchDocumentsCubit
@@ -152,7 +152,7 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                                                     .inspectionDocumentId,
                                                               );
                                                         },
-                                                        icon: Icon(
+                                                        child: Icon(
                                                           Icons.close,
                                                           color: AppColors.kRed,
                                                         ),
@@ -223,7 +223,7 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                       size: 100,
                                     ),
                                     Text(
-                                      "Upload new one",
+                                      "Add More",
                                       style: AppStyle.style(
                                         context: context,
                                         color: AppColors.grey,

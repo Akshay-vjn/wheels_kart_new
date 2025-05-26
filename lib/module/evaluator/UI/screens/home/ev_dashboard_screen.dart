@@ -10,7 +10,6 @@ import 'package:wheels_kart/core/utils/responsive_helper.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_create_new_inspection_screen.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_profile_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/completed/e_completed_evaluation_list.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/pending/ev_pending_leads.dart';
 
@@ -152,48 +151,50 @@ class _EvDashboardScreenState extends State<EvDashboardScreen> {
         },
       ),
 
-      bottomNavigationBar: BlocBuilder<
-        EvAppNavigationCubit,
-        EvAppNavigationState
-      >(
-        builder: (context, state) {
-          return (state is AppNavigationInitialState)
-              ? BottomNavigationBar(
-                currentIndex: state.initailIndex,
+      bottomNavigationBar:
+          BlocBuilder<EvAppNavigationCubit, EvAppNavigationState>(
+            builder: (context, state) {
+              return (state is AppNavigationInitialState)
+                  ? BottomNavigationBar(
+                    currentIndex: state.initailIndex,
 
-                backgroundColor: AppColors.DEFAULT_BLUE_DARK,
-                selectedItemColor: AppColors.DEFAULT_ORANGE,
-                unselectedItemColor: AppColors.white,
-                selectedLabelStyle: AppStyle.style(
-                  context: context,
-                  color: AppColors.DEFAULT_ORANGE,
-                  fontWeight: FontWeight.w500,
-                  size: AppDimensions.fontSize12(context),
-                ),
-                unselectedLabelStyle: AppStyle.style(
-                  context: context,
-                  color: AppColors.white,
-                  fontWeight: FontWeight.w500,
-                  size: AppDimensions.fontSize12(context),
-                ),
+                    backgroundColor: AppColors.DEFAULT_BLUE_DARK,
+                    selectedItemColor: AppColors.DEFAULT_ORANGE,
+                    unselectedItemColor: AppColors.white,
+                    showSelectedLabels: true,
+                    selectedLabelStyle: AppStyle.style(
+                      context: context,
+                      color: AppColors.DEFAULT_ORANGE,
+                      fontWeight: FontWeight.w900,
+                      size: AppDimensions.fontSize12(context),
+                    ),
+                    unselectedLabelStyle: AppStyle.style(
+                      context: context,
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w900,
+                      size: AppDimensions.fontSize12(context),
+                    ),
 
-                items: [
-                  _buildDestinationButton("Live Leads", CupertinoIcons.bolt),
-                  _buildDestinationButton("Pending Leads", CupertinoIcons.time),
-                  _buildDestinationButton(
-                    "Completed Leads",
-                    CupertinoIcons.check_mark_circled,
-                  ),
-                ],
-                onTap: (value) {
-                  context.read<EvAppNavigationCubit>().handleBottomnavigation(
-                    value,
-                  );
-                },
-              )
-              : SizedBox();
-        },
-      ),
+                    items: [
+                      _buildDestinationButton("Live", CupertinoIcons.bolt),
+                      _buildDestinationButton(
+                        "Pending",
+                        CupertinoIcons.square_list_fill,
+                      ),
+                      _buildDestinationButton(
+                        "Completed",
+                        CupertinoIcons.check_mark_circled,
+                      ),
+                    ],
+                    onTap: (value) {
+                      context
+                          .read<EvAppNavigationCubit>()
+                          .handleBottomnavigation(value);
+                    },
+                  )
+                  : SizedBox();
+            },
+          ),
     );
   }
 

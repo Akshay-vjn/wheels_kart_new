@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/core/components/app_custom_widgets.dart';
@@ -18,7 +17,6 @@ import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20v
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/model/vehicle_photo_model.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/inspection/fetch_uploaded_vehicle_photo_repo.dart';
 
 class ViewUploadedVihilcePhotosScreen extends StatefulWidget {
   final String inspectionId;
@@ -194,7 +192,7 @@ class _ViewUploadedVihilcePhotosScreenState
                             alignment: Alignment.center,
                             width: w(context),
                             decoration: BoxDecoration(
-                              color: AppColors.DARK_SECONDARY,
+                              color: AppColors.DEFAULT_BLUE_DARK,
                             ),
                             child: Text(
                               textAlign: TextAlign.center,
@@ -210,8 +208,8 @@ class _ViewUploadedVihilcePhotosScreenState
                       ),
                     ),
                     Positioned(
-                      left: 20,
-                      top: 20,
+                      left: 10,
+                      top: 10,
                       child: InkWell(
                         onTap: () {
                           context

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/core/utils/custome_show_messages.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
-import 'package:wheels_kart/module/evaluator/data/repositories/inspection/fetch_uploaded_vehicle_photo_repo.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/inspection/upload_vehicle_photo_repo.dart';
 
 part 'uplaod_vehilce_photo_state.dart';
