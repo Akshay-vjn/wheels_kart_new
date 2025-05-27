@@ -51,7 +51,7 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
       appBar: AppBar(
         leading: customBackButton(context),
         title: Text(
-          "Upload Documents",
+          "Vehicle Documents",
           style: AppStyle.style(
             context: context,
             color: AppColors.white,
@@ -72,135 +72,15 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                 return state.documets.isEmpty
                     ? _buildNoDocumentsUi()
                     : Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         AppSpacer(heightPortion: .01),
-
-                        Expanded(
-                          child: AppMargin(
-                            child: PageView.builder(
-                              onPageChanged: (value) {
-                                currentPage = value;
-                              },
-                              scrollDirection: Axis.horizontal,
-
-                              itemCount: state.documets.length,
-                              itemBuilder: (context, index) {
-                                final document = state.documets[index];
-
-                                return FutureBuilder(
-                                  future: downloadPdf(document.document),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return AppLoadingIndicator();
-                                    }
-                                    return document.document.contains('.pdf')
-                                        ? Container(
-                                          clipBehavior:
-                                              Clip.antiAliasWithSaveLayer,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              15,
-                                            ),
-                                            color: AppColors.white,
-                                            border: Border.all(
-                                              width: 2,
-                                              color: AppColors.BORDER_COLOR,
-                                            ),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  // color:
-                                                  //     AppColors
-                                                  //         .kAppSecondaryColor,
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                    15,
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        document.documentType,
-                                                        style: AppStyle.poppins(
-                                                          size: 20,
-                                                          context: context,
-                                                          color:
-                                                              AppColors.black,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      InkWell(
-                                                        onTap: () {
-                                                          context
-                                                              .read<
-                                                                FetchDocumentsCubit
-                                                              >()
-                                                              .deleteDocument(
-                                                                context,
-                                                                widget
-                                                                    .inspectionId,
-                                                                document
-                                                                    .inspectionDocumentId,
-                                                              );
-                                                        },
-                                                        child: Icon(
-                                                          Icons.close,
-                                                          color: AppColors.kRed,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: _buildPdfView(
-                                                  snapshot.data,
-                                                ),
-                                              ),
-                                              Align(
-                                                alignment:
-                                                    Alignment.bottomRight,
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(
-                                                    15,
-                                                  ),
-                                                  child: Text(
-                                                    "${currentPage + 1}/${state.documets.length}",
-                                                    style: AppStyle.poppins(
-                                                      context: context,
-                                                      size: 20,
-                                                      color: AppColors.black2,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                        : CachedNetworkImage(
-                                          imageUrl: document.document,
-                                        );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        AppSpacer(heightPortion: .01),
                         AppMargin(
-                          child: InkWell(
-                            onTap: () async {
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.DEFAULT_ORANGE,
+                            ),
+                            onPressed: () {
                               Navigator.of(context).push(
                                 AppRoutes.createRoute(
                                   UploadDocScreen(
@@ -209,96 +89,172 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen> {
                                 ),
                               );
                             },
-                            child: CustomPaint(
-                              foregroundPainter: DashedBorderPainter(),
-                              child: SizedBox(
-                                height: 150,
-                                width: w(context),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add,
-                                      color: AppColors.grey,
-                                      size: 100,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "Upload New Document",
+                                    style: AppStyle.style(
+                                      context: context,
+                                      fontWeight: FontWeight.w900,
+                                      color: AppColors.white,
                                     ),
-                                    Text(
-                                      "Add More",
-                                      style: AppStyle.style(
-                                        context: context,
-                                        color: AppColors.grey,
-                                        size: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  AppSpacer(widthPortion: .03),
+                                  Icon(Icons.add, color: AppColors.white),
+                                ],
                               ),
                             ),
                           ),
                         ),
-                        AppSpacer(heightPortion: .02),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 1,
-                                spreadRadius: 1,
-                                color: AppColors.DARK_PRIMARY.withAlpha(50),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              AppSpacer(heightPortion: .02),
-                              AppMargin(
-                                child: EvAppCustomButton(
-                                  isSquare: false,
-                                  bgColor:
-                                      state.documets.isNotEmpty
-                                          ? null
-                                          : Color(0xFFC2C3C5),
-                                  onTap: () {
-                                    if (state.documets.isNotEmpty) {}
-                                    Navigator.of(context).push(
-                                      AppRoutes.createRoute(
-                                        ViewUploadedVihilcePhotosScreen(
-                                          inspectionId: widget.inspectionId,
-                                        ),
-                                      ),
-                                    );
-                                  },
+                        AppSpacer(heightPortion: .01),
 
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        'Upload Vehicle Photos',
-                                        style: AppStyle.style(
-                                          context: context,
-                                          color: AppColors.white,
-                                          fontWeight: FontWeight.bold,
-                                          size: 16,
-                                        ),
-                                      ),
-                                      Text(
-                                        '(Upload photos from different angles)',
-                                        style: AppStyle.style(
-                                          context: context,
-                                          color: AppColors.white.withOpacity(
-                                            0.9,
-                                          ),
-                                          size: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                        AppMargin(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Uploaded Documets",
+                              style: AppStyle.style(
+                                context: context,
+                                color: AppColors.DARK_PRIMARY,
+                                fontWeight: FontWeight.bold,
+                                size: 20,
                               ),
-                              AppSpacer(heightPortion: .02),
-                            ],
+                            ),
                           ),
                         ),
+                        AppSpacer(heightPortion: .01),
+                        SizedBox(
+                          height: h(context) * .6,
+                          child: PageView.builder(
+                            onPageChanged: (value) {
+                              currentPage = value;
+                            },
+                            scrollDirection: Axis.horizontal,
+
+                            itemCount: state.documets.length,
+                            itemBuilder: (context, index) {
+                              final document = state.documets[index];
+
+                              return FutureBuilder(
+                                future: downloadPdf(document.document),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return AppLoadingIndicator();
+                                  }
+                                  return document.document.contains('.pdf')
+                                      ? Container(
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
+                                        margin: EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                          color: AppColors.white,
+                                          border: Border.all(),
+                                        ),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            _buildPdfView(snapshot.data),
+                                            Positioned(
+                                              bottom: 10,
+                                              left: 10,
+                                              right: 10,
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 5,
+                                                ),
+                                                width: w(context),
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      AppColors.DEFAULT_ORANGE,
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      document.documentType,
+                                                      style: AppStyle.poppins(
+                                                        size: 20,
+                                                        context: context,
+                                                        color: AppColors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      "${currentPage + 1}/${state.documets.length}",
+                                                      style: AppStyle.style(
+                                                        context: context,
+                                                        size: 20,
+                                                        color: AppColors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              right: 15,
+                                              top: 10,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  context
+                                                      .read<
+                                                        FetchDocumentsCubit
+                                                      >()
+                                                      .deleteDocument(
+                                                        context,
+                                                        widget.inspectionId,
+                                                        document
+                                                            .inspectionDocumentId,
+                                                      );
+                                                },
+                                                child: Container(
+                                                  padding: EdgeInsets.all(5),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.FILL_COLOR,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          50,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    "Remove",
+                                                    style: AppStyle.style(
+                                                      color: AppColors.kRed,
+                                                      context: context,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      : CachedNetworkImage(
+                                        imageUrl: document.document,
+                                      );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                        AppSpacer(heightPortion: .01),
                       ],
                     );
               }

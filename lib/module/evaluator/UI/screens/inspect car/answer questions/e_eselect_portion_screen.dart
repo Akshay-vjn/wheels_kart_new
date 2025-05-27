@@ -14,7 +14,6 @@ import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/custome_show_messages.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_select_system_screen.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20documentts/upload_doc_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20documentts/view_upload_documents.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_selection_button.dart';

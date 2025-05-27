@@ -243,57 +243,7 @@ class _ViewUploadedVihilcePhotosScreenState
             ),
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 1,
-                spreadRadius: 1,
-                color: AppColors.DARK_PRIMARY.withAlpha(50),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              AppSpacer(heightPortion: .02),
-              AppMargin(
-                child: EvAppCustomButton(
-                  isSquare: false,
-                  bgColor: data.isNotEmpty ? null : Color(0xFFC2C3C5),
-                  onTap: () {
-                    if (data.isNotEmpty) {
-                      showSnakBar(context, "Coming Soon!", isError: true);
-                    }
-                  },
-
-                  child: Column(
-                    children: [
-                      Text(
-                        'Submit',
-                        style: AppStyle.style(
-                          context: context,
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
-                          size: 16,
-                        ),
-                      ),
-                      Text(
-                        '(Submit vehicle for verification)',
-                        style: AppStyle.style(
-                          context: context,
-                          color: AppColors.white.withOpacity(0.9),
-                          size: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              AppSpacer(heightPortion: .02),
-            ],
-          ),
-        ),
+      
       ],
     );
   }

@@ -790,6 +790,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
       final imagepicker = ImagePicker();
       final pickedXfile = await imagepicker.pickImage(
         source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear,
       );
       if (pickedXfile != null) {
         final bytes = await pickedXfile.readAsBytes();

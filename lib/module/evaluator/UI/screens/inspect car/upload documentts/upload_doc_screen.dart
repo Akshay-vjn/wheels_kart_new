@@ -75,77 +75,117 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  AppSpacer(heightPortion: .01 ),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [customBackButton(context)],
+                                    children: [
+                                      customBackButton(context),
+                                      Text(
+                                        "Choose Document Type ",
+                                        style: AppStyle.style(
+                                          context: context,
+                                          color: AppColors.white,
+                                          fontWeight: FontWeight.bold,
+                                          size: 25,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-
+                                  AppSpacer(heightPortion: .02),
                                   Expanded(
                                     child: AppMargin(
                                       child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
-                                          AppSpacer(heightPortion: .05),
-                                          DropdownButtonFormField(
-                                            decoration: InputDecoration(
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: AppColors.white,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(0),
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: AppColors.white,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(0),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: AppColors.white,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(0),
-                                              ),
-                                            ),
-                                            hint: Text(
-                                              "Select the document type",
-                                              style: AppStyle.poppins(
-                                                context: context,
-                                                fontWeight: FontWeight.bold,
-                                                color: AppColors.white,
-                                              ),
-                                            ),
-                                            dropdownColor:
-                                                AppColors.DEFAULT_BLUE_GREY,
-                                            style: AppStyle.poppins(
-                                              context: context,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.white,
-                                            ),
-                                            items:
-                                                state.documentTypes
-                                                    .map(
-                                                      (e) => DropdownMenuItem(
-                                                        value: e,
-                                                        child: Text(
-                                                          e.documentTypeName,
+                                          AppSpacer(heightPortion: .01),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              AppSpacer(widthPortion: .02),
+                                              Flexible(
+                                                child: DropdownButtonFormField(
+                                                  decoration: InputDecoration(
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                color:
+                                                                    AppColors
+                                                                        .white,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                20,
+                                                              ),
                                                         ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                color:
+                                                                    AppColors
+                                                                        .white,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                20,
+                                                              ),
+                                                        ),
+                                                    border: OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                        color: AppColors.white,
                                                       ),
-                                                    )
-                                                    .toList(),
-                                            onChanged: (value) {
-                                              selectedDoumentId =
-                                                  value?.documentTypeId;
-                                              selectedDocument =
-                                                  value?.documentTypeName;
-                                              setState(() {});
-                                              log(selectedDoumentId ?? "Null");
-                                            },
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            20,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  hint: Text(
+                                                    "Select the document type",
+                                                    style: AppStyle.poppins(
+                                                      context: context,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: AppColors.white,
+                                                    ),
+                                                  ),
+                                                  dropdownColor:
+                                                      AppColors
+                                                          .DEFAULT_BLUE_GREY,
+                                                  style: AppStyle.poppins(
+                                                    context: context,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppColors.white,
+                                                  ),
+                                                  items:
+                                                      state.documentTypes
+                                                          .map(
+                                                            (
+                                                              e,
+                                                            ) => DropdownMenuItem(
+                                                              value: e,
+                                                              child: Text(
+                                                                e.documentTypeName,
+                                                              ),
+                                                            ),
+                                                          )
+                                                          .toList(),
+                                                  onChanged: (value) {
+                                                    selectedDoumentId =
+                                                        value?.documentTypeId;
+                                                    selectedDocument =
+                                                        value?.documentTypeName;
+                                                    setState(() {});
+                                                    log(
+                                                      selectedDoumentId ??
+                                                          "Null",
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              AppSpacer(widthPortion: .02),
+                                            ],
                                           ),
                                           AppSpacer(heightPortion: .08),
                                           CustomPaint(
@@ -203,7 +243,121 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                                       ),
                                             ),
                                           ),
-                                          AppSpacer(heightPortion: .01),
+                                          AppSpacer(heightPortion: .05),
+                                          InkWell(
+                                            onTap:
+                                                _captureFile == null ||
+                                                        submissionState
+                                                            is SubmitDocumentSuccessState
+                                                    ? null
+                                                    : () async {
+                                                      if (submissionState
+                                                          is! SubmitDocumentLoadingState) {
+                                                        String base64 = '';
+                                                        String fileName = '';
+                                                        if (_captureFile !=
+                                                            null) {
+                                                          final file = File(
+                                                            _captureFile!,
+                                                          );
+                                                          final bytes =
+                                                              await file
+                                                                  .readAsBytes();
+                                                          base64 = base64Encode(
+                                                            bytes,
+                                                          );
+                                                          fileName =
+                                                              "$selectedDocument-${widget.inspectionId}.pdf";
+                                                        }
+
+                                                        final json = {
+                                                          'documentId':
+                                                              selectedDoumentId,
+                                                          'fileName': fileName,
+                                                          'file': base64,
+                                                        };
+                                                        log(json.toString());
+                                                        await context
+                                                            .read<
+                                                              SubmitDocumentCubit
+                                                            >()
+                                                            .onSubmitDocument(
+                                                              context,
+                                                              widget
+                                                                  .inspectionId,
+                                                              json,
+                                                            );
+                                                      }
+
+                                                      // Navigator.of(context)
+                                                    },
+                                            child: Container(
+                                              height: h(context) * .06,
+                                              width: w(context) * .6,
+                                              decoration: BoxDecoration(
+                                                boxShadow:
+                                                    _captureFile == null ||
+                                                            submissionState
+                                                                is SubmitDocumentSuccessState
+                                                        ? []
+                                                        : [
+                                                          BoxShadow(
+                                                            offset: Offset(
+                                                              0,
+                                                              1,
+                                                            ),
+                                                            color: AppColors
+                                                                .black
+                                                                .withAlpha(60),
+                                                            blurRadius: 4,
+                                                            spreadRadius: 2,
+                                                          ),
+                                                        ],
+                                                color:
+                                                    _captureFile == null ||
+                                                            submissionState
+                                                                is SubmitDocumentSuccessState
+                                                        ? AppColors
+                                                            .kSelectionColor
+                                                        : AppColors
+                                                            .DEFAULT_ORANGE,
+                                                borderRadius:
+                                                    BorderRadius.circular(60),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    "Save",
+                                                    style: AppStyle.style(
+                                                      context: context,
+                                                      color:
+                                                          _captureFile ==
+                                                                      null ||
+                                                                  submissionState
+                                                                      is SubmitDocumentSuccessState
+                                                              ? AppColors.grey
+                                                              : AppColors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                  AppSpacer(widthPortion: .04),
+                                                  Icon(
+                                                    SolarIconsOutline.upload,
+                                                    color:
+                                                        _captureFile == null ||
+                                                                submissionState
+                                                                    is SubmitDocumentSuccessState
+                                                            ? AppColors.grey
+                                                            : AppColors.white,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -307,104 +461,7 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                             ),
                           ],
                         ),
-                        Positioned(
-                          bottom: h(context) * .275,
-                          child: InkWell(
-                            onTap:
-                                _captureFile == null ||
-                                        submissionState
-                                            is SubmitDocumentSuccessState
-                                    ? null
-                                    : () async {
-                                      if (submissionState
-                                          is! SubmitDocumentLoadingState) {
-                                        String base64 = '';
-                                        String fileName = '';
-                                        if (_captureFile != null) {
-                                          final file = File(_captureFile!);
-                                          final bytes =
-                                              await file.readAsBytes();
-                                          base64 = base64Encode(bytes);
-                                          fileName =
-                                              "$selectedDocument-${widget.inspectionId}.pdf";
-                                        }
 
-                                        final json = {
-                                          'documentId': selectedDoumentId,
-                                          'fileName': fileName,
-                                          'file': base64,
-                                        };
-                                        log(json.toString());
-                                        await context
-                                            .read<SubmitDocumentCubit>()
-                                            .onSubmitDocument(
-                                              context,
-                                              widget.inspectionId,
-                                              json,
-                                            );
-                                      }
-
-                                      // Navigator.of(context)
-                                    },
-                            child: Container(
-                              height: h(context) * .06,
-                              width: w(context) * .6,
-                              decoration: BoxDecoration(
-                                boxShadow:
-                                    _captureFile == null ||
-                                            submissionState
-                                                is SubmitDocumentSuccessState
-                                        ? []
-                                        : [
-                                          BoxShadow(
-                                            offset: Offset(0, 1),
-                                            color: AppColors.black.withAlpha(
-                                              60,
-                                            ),
-                                            blurRadius: 4,
-                                            spreadRadius: 2,
-                                          ),
-                                        ],
-                                color:
-                                    _captureFile == null ||
-                                            submissionState
-                                                is SubmitDocumentSuccessState
-                                        ? AppColors.kSelectionColor
-                                        : AppColors.DEFAULT_ORANGE,
-                                borderRadius: BorderRadius.circular(60),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Save",
-                                    style: AppStyle.style(
-                                      context: context,
-                                      color:
-                                          _captureFile == null ||
-                                                  submissionState
-                                                      is SubmitDocumentSuccessState
-                                              ? AppColors.grey
-                                              : AppColors.white,
-                                      fontWeight: FontWeight.bold,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  AppSpacer(widthPortion: .04),
-                                  Icon(
-                                    SolarIconsOutline.upload,
-                                    color:
-                                        _captureFile == null ||
-                                                submissionState
-                                                    is SubmitDocumentSuccessState
-                                            ? AppColors.grey
-                                            : AppColors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
                         submissionState is SubmitDocumentSuccessState
                             ? AppLoadingIndicator()
                             : SizedBox(),
