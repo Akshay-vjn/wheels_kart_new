@@ -1,6 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,7 +15,6 @@ import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspec
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
-import 'package:wheels_kart/module/evaluator/data/model/inspection_prefill_model.dart';
 
 class EvAnswerQuestionScreen extends StatefulWidget {
   final String portionId;
@@ -71,18 +68,8 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
 
   @override
   void dispose() {
-    // dsiposeControlller();
     super.dispose();
   }
-
-  // dsiposeControlller() {
-  //   for (var i in helperVariables) {
-  //     i['commentController'].clear();
-  //     i['listOfImages'] = [];
-  //   }
-  //   //
-  //   //
-  // }
 
   bool calledBackFunction = false;
   @override
@@ -179,7 +166,6 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
                                                   .toList();
 
                                           return BuildQuestionTile(
-                                            // helperVariables: helperVariables,
                                             question: currentQuestion,
                                             prefillModel:
                                                 prefills.isNotEmpty
@@ -215,4 +201,6 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen> {
       ),
     );
   }
+
+  
 }

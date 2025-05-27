@@ -101,7 +101,8 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
         // String? inValidAnswer = widget.prefillModel?.invalidOption;
         // String? comment = widget.prefillModel?.comment;
         // final images = widget.prefillModel?.images;
-
+        // final submissionState =
+        //     BlocProvider.of<FetchQuestionsBloc>(context).state;
         final currentstate = state.questionState[widget.index];
 
         final errorState = currentstate == SubmissionState.ERROR;
@@ -154,11 +155,31 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
                     _buildDescriptiveQuestion(widget.index),
                   ],
                   if (widget.question.picture != "Not Required") ...[
-                    _takePictureView(
-                      widget.question.picture == "Required Optional"
-                          ? true
-                          : false,
-                      widget.index,
+                    Builder(
+                      builder: (context) {
+                        // This condition is NEW and this for verifying the selected is valid answer and image is optional .
+                        // for the invalid answer have only
+                        final currentState =
+                            BlocProvider.of<FetchQuestionsBloc>(context).state;
+                        if (currentState is SuccessFetchQuestionsState) {
+                          final question =
+                              currentState.listOfQuestions[widget.index];
+                          final uploadData =
+                              currentState.listOfUploads[widget.index];
+                          final isSelectedInValid =
+                              question.invalidAnswers == uploadData.answer;
+                          return _takePictureView(
+                            !isSelectedInValid
+                                ? true
+                                : widget.question.picture == "Required Optional"
+                                ? true
+                                : false,
+                            widget.index,
+                          );
+                        } else {
+                          return SizedBox();
+                        }
+                      },
                     ),
                   ],
                   _commentBoxView(widget.index),
@@ -179,7 +200,10 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
                               ),
                               onPressed: () {
                                 if (currentstate != SubmissionState.LOADING) {
-                                  onSubmitQuestion(context, widget.index);
+                                  onSubmitQuestionEachQuestion(
+                                    context,
+                                    widget.index,
+                                  );
                                 }
                               },
                               child: Text(
@@ -779,7 +803,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
     }
   }
 
-  void onSubmitQuestion(BuildContext context, int index) {
+  void onSubmitQuestionEachQuestion(BuildContext context, int index) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     final descriptiveKey =
@@ -847,6 +871,79 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
       }
     }
   }
+
+  // void onSubmitQuestionAllQuestion(BuildContext context) {
+  //   final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
+
+  //   final descriptiveKey =
+  //       helperVariable['descriptiveKey'] as GlobalKey<FormState>;
+
+  //   final descriptiveController =
+  //       helperVariable['descriptiveController'] as TextEditingController;
+
+  //   if (currentState is SuccessFetchQuestionsState) {
+  //     final questions = currentState.listOfQuestions;
+
+  //     for (var question in questions) {
+  //       final index = questions.indexOf(question);
+  //       final uploadData = currentState.listOfUploads[index];
+  //       final isMcq = question.questionType == "MCQ";
+
+  //       final isSelectedInValid = question.invalidAnswers == uploadData.answer;
+  //       final isInValidHaveOptions = question.invalidOptions.isNotEmpty;
+  //       final isValidHaveOptions = question.validOptions.isNotEmpty;
+  //       switch (isMcq) {
+  //         case true:
+  //           {
+  //             if (uploadData.answer != null) {
+  //               // ---------------------------------SELECTED INVALID  --------------
+  //               if (isSelectedInValid) {
+  //                 if (isInValidHaveOptions) {
+  //                   if (uploadData.invalidOption != null) {
+  //                     checkCommentAndImage(index, question, uploadData, true);
+  //                   } else {
+  //                     // show Error Message : Select atleast on option
+  //                     // Completed
+  //                     _showMessage('Select atleast one option!');
+  //                   }
+  //                 } else {
+  //                   checkCommentAndImage(index, question, uploadData, true);
+  //                 }
+  //                 //------------------------< SELECTED VALID  >--------------------------------------------------
+  //               } else {
+  //                 if (isValidHaveOptions) {
+  //                   if (uploadData.validOption != null) {
+  //                     checkCommentAndImage(index, question, uploadData, false);
+  //                   } else {
+  //                     // show Error Message : Select atleast on option
+  //                     //Completed
+  //                     _showMessage("Select atleast one option");
+  //                   }
+  //                 } else {
+  //                   checkCommentAndImage(index, question, uploadData, false);
+  //                 }
+  //               }
+  //             } else {
+  //               //---show Error : Select the Main Option
+  //               _showMessage("Please choose the answer");
+  //               // Completed
+  //             }
+  //           }
+  //         case false:
+  //           {
+  //             if (descriptiveKey.currentState!.validate()) {
+  //               Functions.onFillDescriptiveAnswer(
+  //                 context,
+  //                 index,
+  //                 descriptiveController.text,
+  //               );
+  //               checkCommentAndImage(index, question, uploadData, false);
+  //             }
+  //           }
+  //       }
+  //     }
+  //   }
+  // }
 
   void checkCommentAndImage(
     int index,

@@ -22,11 +22,11 @@ import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspec
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20portions/fetch_portions_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 
-class EvSelectPostionScreen extends StatefulWidget {
+class EvSelectPortionScreen extends StatefulWidget {
   final String inspectionId;
   final String? instructionData;
 
-  const EvSelectPostionScreen({
+  const EvSelectPortionScreen({
     super.key,
     // required this.inspectionModel,
     required this.inspectionId,
@@ -34,10 +34,10 @@ class EvSelectPostionScreen extends StatefulWidget {
   });
 
   @override
-  State<EvSelectPostionScreen> createState() => _EvSelectPostionScreenState();
+  State<EvSelectPortionScreen> createState() => _EvSelectPortionScreenState();
 }
 
-class _EvSelectPostionScreenState extends State<EvSelectPostionScreen> {
+class _EvSelectPortionScreenState extends State<EvSelectPortionScreen> {
   @override
   void initState() {
     super.initState();

@@ -13,6 +13,7 @@ import 'package:wheels_kart/core/utils/custome_show_messages.dart';
 import 'package:wheels_kart/core/utils/intl_helper.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/1_select_and_search_car_makes.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/inspection_start_screen.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20car%20make/fetch_car_make_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
@@ -276,7 +277,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                           } else if (snapshot['error'] == false) {
                             Navigator.of(context).push(
                               AppRoutes.createRoute(
-                                EvSelectPostionScreen(
+                                InspectionStartScreen(
                                   inspectionId: inspectionModel.inspectionId,
                                   instructionData:
                                       snapshot['data'][0]['instructions'],
@@ -287,7 +288,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
                         } else if (inspectionModel.engineTypeId == '1') {
                           Navigator.of(context).push(
                             AppRoutes.createRoute(
-                              EvSelectPostionScreen(
+                              InspectionStartScreen(
                                 instructionData: null,
                                 inspectionId: inspectionModel.inspectionId,
                               ),

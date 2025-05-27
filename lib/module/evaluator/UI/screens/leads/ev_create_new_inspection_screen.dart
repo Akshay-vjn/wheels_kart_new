@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/core/components/app_appbar.dart';
@@ -12,6 +11,7 @@ import 'package:wheels_kart/core/utils/custome_show_messages.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/core/utils/validator.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_eselect_portion_screen.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/inspection_start_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_textfield.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20city/fetch_city_bloc.dart';
@@ -255,10 +255,9 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen> {
                           messageType: MessageCategory.ERROR,
                         );
                       } else if (snapshot['error'] == false) {
-                        // log(snapshot['data'][0]['instructions'].toString());
                         Navigator.of(context).push(
                           AppRoutes.createRoute(
-                            EvSelectPostionScreen(
+                            InspectionStartScreen(
                               inspectionId: inspectionModel.inspectionId,
                               instructionData:
                                   snapshot['data'][0]['instructions'],
@@ -271,7 +270,7 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen> {
                       // naviga to guestion page
                       Navigator.of(context).push(
                         AppRoutes.createRoute(
-                          EvSelectPostionScreen(
+                          InspectionStartScreen(
                             instructionData: null,
                             inspectionId: inspectionModel.inspectionId,
                           ),

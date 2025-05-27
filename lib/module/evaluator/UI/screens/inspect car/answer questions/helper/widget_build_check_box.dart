@@ -20,7 +20,7 @@ class BuildCheckBox extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: CheckboxListTile(
-        // hoverColor: AppColors.kGreen,
+     
         side: BorderSide(color: AppColors.grey),
         shape: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.grey.withOpacity(.4)),
