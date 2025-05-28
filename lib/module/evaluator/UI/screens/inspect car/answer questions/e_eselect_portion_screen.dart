@@ -219,47 +219,47 @@ class _EvSelectPortionScreenState extends State<EvSelectPortionScreen> {
                           ),
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 1,
-                              spreadRadius: 1,
-                              color: AppColors.DARK_PRIMARY.withAlpha(50),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            AppSpacer(heightPortion: .02),
-                            AppMargin(
-                              child: EvAppCustomButton(
-                                isSquare: false,
-                                bgColor: allZero ? null : Color(0xFFC2C3C5),
-                                onTap: () {
-                                  if (allZero) {
-                                    Navigator.of(context).push(
-                                      AppRoutes.createRoute(
-                                        ViewUploadDocumentsScreen(
-                                          inspectionId: widget.inspectionId,
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    showSnakBar(
-                                      context,
-                                      "Complete the inspection and try again",
-                                    );
-                                  }
-                                },
-                                title: "Upload Documents",
-                              ),
-                            ),
-                            AppSpacer(heightPortion: .02),
-                          ],
-                        ),
-                      ),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     color: AppColors.white,
+                      //     boxShadow: [
+                      //       BoxShadow(
+                      //         blurRadius: 1,
+                      //         spreadRadius: 1,
+                      //         color: AppColors.DARK_PRIMARY.withAlpha(50),
+                      //       ),
+                      //     ],
+                      //   ),
+                      //   child: Column(
+                      //     children: [
+                      //       AppSpacer(heightPortion: .02),
+                      //       AppMargin(
+                      //         child: EvAppCustomButton(
+                      //           isSquare: false,
+                      //           bgColor: allZero ? null : Color(0xFFC2C3C5),
+                      //           onTap: () {
+                      //             if (allZero) {
+                      //               Navigator.of(context).push(
+                      //                 AppRoutes.createRoute(
+                      //                   ViewUploadDocumentsScreen(
+                      //                     inspectionId: widget.inspectionId,
+                      //                   ),
+                      //                 ),
+                      //               );
+                      //             } else {
+                      //               showSnakBar(
+                      //                 context,
+                      //                 "Complete the inspection and try again",
+                      //               );
+                      //             }
+                      //           },
+                      //           title: "Upload Documents",
+                      //         ),
+                      //       ),
+                      //       AppSpacer(heightPortion: .02),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   );
                 }

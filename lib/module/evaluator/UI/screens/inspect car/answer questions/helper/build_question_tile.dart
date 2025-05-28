@@ -168,8 +168,14 @@ class _BuildQuestionTileState extends State<BuildQuestionTile> {
                               currentState.listOfUploads[widget.index];
                           final isSelectedInValid =
                               question.invalidAnswers == uploadData.answer;
+                          bool isDescriptiveQuestion =
+                              question.questionType == "Descriptive";
                           return _takePictureView(
-                            !isSelectedInValid
+                            isDescriptiveQuestion
+                                ? widget.question.picture == "Required Optional"
+                                    ? true
+                                    : false
+                                : !isSelectedInValid
                                 ? true
                                 : widget.question.picture == "Required Optional"
                                 ? true

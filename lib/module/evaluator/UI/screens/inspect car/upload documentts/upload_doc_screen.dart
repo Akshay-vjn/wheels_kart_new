@@ -67,7 +67,7 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                         Column(
                           children: [
                             Container(
-                              height: h(context) * .65,
+                              height: h(context) * .7,
                               width: w(context),
                               decoration: BoxDecoration(
                                 color: AppColors.DEFAULT_BLUE_DARK,
@@ -75,17 +75,19 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppSpacer(heightPortion: .01 ),
+                                  AppSpacer(heightPortion: .01),
                                   Row(
                                     children: [
                                       customBackButton(context),
                                       Text(
-                                        "Choose Document Type ",
+                                        "Upload Document",
                                         style: AppStyle.style(
                                           context: context,
                                           color: AppColors.white,
                                           fontWeight: FontWeight.bold,
-                                          size: 25,
+                                          size: AppDimensions.fontSize24(
+                                            context,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -94,10 +96,24 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                   Expanded(
                                     child: AppMargin(
                                       child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
                                           AppSpacer(heightPortion: .01),
+                                          Text(
+                                            "Select the document type",
+                                            style: AppStyle.style(
+                                              context: context,
+                                              color: AppColors.white,
+                                              fontWeight: FontWeight.bold,
+                                              size: AppDimensions.fontSize16(
+                                                context,
+                                              ),
+                                            ),
+                                          ),
+                                          AppSpacer(heightPortion: .02),
                                           Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
@@ -142,7 +158,7 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                                     ),
                                                   ),
                                                   hint: Text(
-                                                    "Select the document type",
+                                                    "Document Type",
                                                     style: AppStyle.poppins(
                                                       context: context,
                                                       fontWeight:
@@ -244,117 +260,119 @@ class _UploadDocScreenState extends State<UploadDocScreen> {
                                             ),
                                           ),
                                           AppSpacer(heightPortion: .05),
-                                          InkWell(
-                                            onTap:
-                                                _captureFile == null ||
-                                                        submissionState
-                                                            is SubmitDocumentSuccessState
-                                                    ? null
-                                                    : () async {
-                                                      if (submissionState
-                                                          is! SubmitDocumentLoadingState) {
-                                                        String base64 = '';
-                                                        String fileName = '';
-                                                        if (_captureFile !=
-                                                            null) {
-                                                          final file = File(
-                                                            _captureFile!,
-                                                          );
-                                                          final bytes =
-                                                              await file
-                                                                  .readAsBytes();
-                                                          base64 = base64Encode(
-                                                            bytes,
-                                                          );
-                                                          fileName =
-                                                              "$selectedDocument-${widget.inspectionId}.pdf";
-                                                        }
-
-                                                        final json = {
-                                                          'documentId':
-                                                              selectedDoumentId,
-                                                          'fileName': fileName,
-                                                          'file': base64,
-                                                        };
-                                                        log(json.toString());
-                                                        await context
-                                                            .read<
-                                                              SubmitDocumentCubit
-                                                            >()
-                                                            .onSubmitDocument(
-                                                              context,
-                                                              widget
-                                                                  .inspectionId,
-                                                              json,
+                                          Align(
+                                            child: InkWell(
+                                              onTap:
+                                                  _captureFile == null ||
+                                                          submissionState
+                                                              is SubmitDocumentSuccessState
+                                                      ? null
+                                                      : () async {
+                                                        if (submissionState
+                                                            is! SubmitDocumentLoadingState) {
+                                                          String base64 = '';
+                                                          String fileName = '';
+                                                          if (_captureFile !=
+                                                              null) {
+                                                            final file = File(
+                                                              _captureFile!,
                                                             );
-                                                      }
-
-                                                      // Navigator.of(context)
-                                                    },
-                                            child: Container(
-                                              height: h(context) * .06,
-                                              width: w(context) * .6,
-                                              decoration: BoxDecoration(
-                                                boxShadow:
-                                                    _captureFile == null ||
-                                                            submissionState
-                                                                is SubmitDocumentSuccessState
-                                                        ? []
-                                                        : [
-                                                          BoxShadow(
-                                                            offset: Offset(
-                                                              0,
-                                                              1,
+                                                            final bytes =
+                                                                await file
+                                                                    .readAsBytes();
+                                                            base64 = base64Encode(
+                                                              bytes,
+                                                            );
+                                                            fileName =
+                                                                "$selectedDocument-${widget.inspectionId}.pdf";
+                                                          }
+                                            
+                                                          final json = {
+                                                            'documentId':
+                                                                selectedDoumentId,
+                                                            'fileName': fileName,
+                                                            'file': base64,
+                                                          };
+                                                          log(json.toString());
+                                                          await context
+                                                              .read<
+                                                                SubmitDocumentCubit
+                                                              >()
+                                                              .onSubmitDocument(
+                                                                context,
+                                                                widget
+                                                                    .inspectionId,
+                                                                json,
+                                                              );
+                                                        }
+                                            
+                                                        // Navigator.of(context)
+                                                      },
+                                              child: Container(
+                                                height: h(context) * .06,
+                                                width: w(context) * .6,
+                                                decoration: BoxDecoration(
+                                                  boxShadow:
+                                                      _captureFile == null ||
+                                                              submissionState
+                                                                  is SubmitDocumentSuccessState
+                                                          ? []
+                                                          : [
+                                                            BoxShadow(
+                                                              offset: Offset(
+                                                                0,
+                                                                1,
+                                                              ),
+                                                              color: AppColors
+                                                                  .black
+                                                                  .withAlpha(60),
+                                                              blurRadius: 4,
+                                                              spreadRadius: 2,
                                                             ),
-                                                            color: AppColors
-                                                                .black
-                                                                .withAlpha(60),
-                                                            blurRadius: 4,
-                                                            spreadRadius: 2,
-                                                          ),
-                                                        ],
-                                                color:
-                                                    _captureFile == null ||
-                                                            submissionState
-                                                                is SubmitDocumentSuccessState
-                                                        ? AppColors
-                                                            .kSelectionColor
-                                                        : AppColors
-                                                            .DEFAULT_ORANGE,
-                                                borderRadius:
-                                                    BorderRadius.circular(60),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    "Save",
-                                                    style: AppStyle.style(
-                                                      context: context,
+                                                          ],
+                                                  color:
+                                                      _captureFile == null ||
+                                                              submissionState
+                                                                  is SubmitDocumentSuccessState
+                                                          ? AppColors
+                                                              .kSelectionColor
+                                                          : AppColors
+                                                              .DEFAULT_ORANGE,
+                                                  borderRadius:
+                                                      BorderRadius.circular(60),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      "Save",
+                                                      style: AppStyle.style(
+                                                        context: context,
+                                                        color:
+                                                            _captureFile ==
+                                                                        null ||
+                                                                    submissionState
+                                                                        is SubmitDocumentSuccessState
+                                                                ? AppColors.grey
+                                                                : AppColors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                    AppSpacer(widthPortion: .04),
+                                                    Icon(
+                                                      SolarIconsOutline.upload,
                                                       color:
-                                                          _captureFile ==
-                                                                      null ||
+                                                          _captureFile == null ||
                                                                   submissionState
                                                                       is SubmitDocumentSuccessState
                                                               ? AppColors.grey
                                                               : AppColors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      size: 20,
                                                     ),
-                                                  ),
-                                                  AppSpacer(widthPortion: .04),
-                                                  Icon(
-                                                    SolarIconsOutline.upload,
-                                                    color:
-                                                        _captureFile == null ||
-                                                                submissionState
-                                                                    is SubmitDocumentSuccessState
-                                                            ? AppColors.grey
-                                                            : AppColors.white,
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ),

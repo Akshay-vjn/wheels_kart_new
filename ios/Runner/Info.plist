@@ -49,5 +49,22 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Camera and Photos -->
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos or scan documents.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select and upload images.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need permission to save images or PDFs to your photo library.</string>
+
+	<!-- Microphone (only if camera requires it) -->
+	<!-- <key>NSMicrophoneUsageDescription</key>
+	<string>We need microphone access only when scanning documents that support video capture.</string> -->
+
+	<!-- File Access (optional but useful) -->
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>We need access to your documents folder to save and view PDF files.</string>
+
 </dict>
 </plist>

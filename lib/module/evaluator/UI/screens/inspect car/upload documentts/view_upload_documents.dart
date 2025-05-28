@@ -18,7 +18,7 @@ import 'package:wheels_kart/core/paint/dash_border.dart';
 import 'package:wheels_kart/core/utils/responsive_helper.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20documentts/upload_doc_screen.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20vehilce%20photo/view_uploaded_vihilce_photos.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20vehilce%20photo/deleted/deleted_view.dart';
 import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20documents/fetch_documents_cubit.dart';
 

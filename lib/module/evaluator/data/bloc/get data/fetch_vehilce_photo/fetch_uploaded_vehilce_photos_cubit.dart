@@ -53,7 +53,7 @@ class FetchUploadedVehilcePhotosCubit
   }
 
   String? responseMessage;
-  Future<void> deleteDocument(
+  Future<void> deleteImage(
     BuildContext context,
     String inspectionId,
     String pictureId,

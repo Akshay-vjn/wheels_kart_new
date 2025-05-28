@@ -8,8 +8,8 @@ import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_eselect_portion_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20documentts/view_upload_documents.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20vehilce%20photo/upload_vehilce_photo_screen.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20vehilce%20photo/view_uploaded_vihilce_photos.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20vehilce%20photo/upload_vehicle_photos.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/upload%20vehilce%20photo/deleted/deleted_view.dart';
 
 class InspectionStartScreen extends StatefulWidget {
   final String inspectionId;
@@ -47,7 +47,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen> {
             _buildButton("Car Photos", CupertinoIcons.photo, () {
               Navigator.of(context).push(
                 AppRoutes.createRoute(
-                  ViewUploadedVihilcePhotosScreen(
+                  UploadVehiclePhotos(
                     inspectionId: widget.inspectionId,
                   ),
                 ),

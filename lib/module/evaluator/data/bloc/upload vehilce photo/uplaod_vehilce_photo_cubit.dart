@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/core/utils/custome_show_messages.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
@@ -9,7 +12,13 @@ import 'package:wheels_kart/module/evaluator/data/repositories/inspection/upload
 part 'uplaod_vehilce_photo_state.dart';
 
 class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
+  String? selectedAngleId;
+  File? selectedImageFile;
   UplaodVehilcePhotoCubit() : super(UplaodVehilcePhotoInitialState());
+
+ void onClearAll() {
+    emit(UplaodVehilcePhotoSuccessState(null, null));
+  }
 
   Future<void> onUploadVehilcePhoto(
     BuildContext context,
@@ -29,9 +38,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
           context
               .read<FetchUploadedVehilcePhotosCubit>()
               .onFetchUploadVehiclePhotos(context, inspectionId);
-          emit(UplaodVehilcePhotoSuccessState());
-
-          Navigator.of(context).pop();
+          emit(UplaodVehilcePhotoSuccessState(null, null));
         } else {
           showSnakBar(context, response['message'], isError: true);
           emit(UplaodVehilcePhotoErrorState(errorMessage: response['message']));
@@ -48,5 +55,23 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
       showSnakBar(context, "Error :- $e", isError: true);
       UplaodVehilcePhotoErrorState(errorMessage: "Error :- $e");
     }
+  }
+
+  void onSelectAngle(String angleId) {
+    selectedAngleId = angleId;
+    selectedImageFile = null;
+    emit(UplaodVehilcePhotoSuccessState(angleId, null));
+  }
+
+  void onSelectImage() async {
+    final controller = ImagePicker();
+    final xFile = await controller.pickImage(
+      source: ImageSource.camera,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+    if (xFile == null) return;
+    selectedImageFile = File(xFile.path);
+
+    emit(UplaodVehilcePhotoSuccessState(selectedAngleId, selectedImageFile));
   }
 }
