@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/core/components/app_loading_indicator.dart';
 
 import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
-import 'package:wheels_kart/core/utils/responsive_helper.dart';
-import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
+import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_profile_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/ev_create_new_inspection_screen.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/completed/e_completed_evaluation_list.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/leads/pending/ev_pending_leads.dart';
@@ -25,296 +25,742 @@ class EvDashboardScreen extends StatefulWidget {
   State<EvDashboardScreen> createState() => _EvDashboardScreenState();
 }
 
-class _EvDashboardScreenState extends State<EvDashboardScreen> {
+class _EvDashboardScreenState extends State<EvDashboardScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _headerAnimationController;
+  late AnimationController _fabAnimationController;
+  late Animation<double> _headerSlideAnimation;
+  late Animation<double> _fabScaleAnimation;
+
   @override
   void initState() {
+    super.initState();
+    
+    // Initialize animations
+    _headerAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _fabAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    
+    _headerSlideAnimation = Tween<double>(
+      begin: -100.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _headerAnimationController,
+      curve: Curves.easeOutBack,
+    ));
+    
+    _fabScaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fabAnimationController,
+      curve: Curves.elasticOut,
+    ));
+
+    // Fetch dashboard data
     context.read<EvFetchDashboardBloc>().add(
       OnGetDashBoadDataEvent(context: context),
     );
-    super.initState();
+    
+    // Start animations
+    _headerAnimationController.forward();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _fabAnimationController.forward();
+    });
   }
 
-  final _pages = [EvLiveLeadsTab(), EvPendingLeadsTab(), EvCompletedLeadTab()];
+  @override
+  void dispose() {
+    _headerAnimationController.dispose();
+    _fabAnimationController.dispose();
+    super.dispose();
+  }
+
+  final _pages = [EvLiveLeadsTab(),
+  //  EvPendingLeadsTab(),
+    EvCompletedLeadTab()];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.kSelectionColor,
+      backgroundColor: Colors.grey[50],
       body: Column(
         children: [
-          Container(
-            width: w(context),
-            color: AppColors.DEFAULT_BLUE_DARK,
-            child: SafeArea(
-              bottom: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppSpacer(heightPortion: .01),
-                  BlocBuilder<EvAuthBlocCubit, EvAuthBlocState>(
+          // Enhanced Header Section
+          AnimatedBuilder(
+            animation: _headerSlideAnimation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(0, _headerSlideAnimation.value),
+                child: _buildEnhancedHeader(),
+              );
+            },
+          ),
+          
+          // Main Content with Page Transition
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                // borderRadius: const BorderRadius.only(
+                //   topLeft: Radius.circular(24),
+                //   topRight: Radius.circular(24),
+                // ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  transitionBuilder: (child, animation) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.1, 0),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOutCubic,
+                      )),
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: BlocBuilder<EvAppNavigationCubit, EvAppNavigationState>(
                     builder: (context, state) {
-                      if (state is AuthCubitAuthenticateState) {
-                        return Padding(
-                          padding: EdgeInsets.only(left: 20, right: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Hi,",
-                                    style: AppStyle.style(
-                                      context: context,
-                                      color: AppColors.white,
-                                      fontWeight: FontWeight.w300,
-                                      size: AppDimensions.fontSize15(context),
-                                    ),
-                                  ),
-                                  Text(
-                                    state.userModel.userName,
-                                    style: AppStyle.style(
-                                      color: AppColors.kSelectionColor,
-                                      context: context,
-                                      fontWeight: FontWeight.bold,
-                                      size: AppDimensions.fontSize18(context),
-                                    ),
-                                  ),
-                                  AppSpacer(heightPortion: .02),
-                                ],
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  showLogoutDialog(context, () async {
-                                    context
-                                        .read<EvAuthBlocCubit>()
-                                        .clearPreferenceData(context);
-                                  });
-                                },
-                                child: Text(
-                                  "Logout",
-                                  style: AppStyle.style(
-                                    context: context,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.kRed,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                      if (state is AppNavigationInitialState) {
+                        return _pages[state.initailIndex];
                       } else {
                         return const SizedBox();
                       }
                     },
                   ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-
-              child: BlocBuilder<EvAppNavigationCubit, EvAppNavigationState>(
-                builder: (context, state) {
-                  if (state is AppNavigationInitialState) {
-                    return _pages[state.initailIndex];
-                  } else {
-                    return const SizedBox();
-                  }
-                },
+                ),
               ),
             ),
           ),
         ],
       ),
-      floatingActionButton: BlocBuilder<
-        EvAppNavigationCubit,
-        EvAppNavigationState
-      >(
+      
+      // Enhanced Floating Action Button
+      floatingActionButton: BlocBuilder<EvAppNavigationCubit, EvAppNavigationState>(
         builder: (context, state) {
           return (state is AppNavigationInitialState && state.initailIndex == 0)
-              ? FloatingActionButton(
-                backgroundColor: AppColors.DEFAULT_ORANGE,
-                onPressed: () {
-                  Navigator.of(
-                    context,
-                  ).push(AppRoutes.createRoute(EvCreateInspectionScreen()));
-                },
-                child: const Icon(CupertinoIcons.add, color: AppColors.white),
-              )
-              : SizedBox();
+              ? AnimatedBuilder(
+                  animation: _fabScaleAnimation,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _fabScaleAnimation.value,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.DEFAULT_ORANGE.withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: FloatingActionButton.extended(
+                          backgroundColor: AppColors.DEFAULT_ORANGE,
+                          elevation: 0,
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              AppRoutes.createRoute(EvCreateInspectionScreen()),
+                            );
+                          },
+                          icon: const Icon(
+                            CupertinoIcons.add_circled_solid,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          label: Text(
+                            "New Inspection",
+                            style: AppStyle.style(
+                              context: context,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              size: AppDimensions.fontSize15(context),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                )
+              : const SizedBox();
         },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
 
-      bottomNavigationBar:
-          BlocBuilder<EvAppNavigationCubit, EvAppNavigationState>(
-            builder: (context, state) {
-              return (state is AppNavigationInitialState)
-                  ? BottomNavigationBar(
-                    currentIndex: state.initailIndex,
-
-                    backgroundColor: AppColors.DEFAULT_BLUE_DARK,
-                    selectedItemColor: AppColors.DEFAULT_ORANGE,
-                    unselectedItemColor: AppColors.white,
-                    showSelectedLabels: true,
-                    selectedLabelStyle: AppStyle.style(
-                      context: context,
-                      color: AppColors.DEFAULT_ORANGE,
-                      fontWeight: FontWeight.w900,
-                      size: AppDimensions.fontSize12(context),
-                    ),
-                    unselectedLabelStyle: AppStyle.style(
-                      context: context,
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w900,
-                      size: AppDimensions.fontSize12(context),
-                    ),
-
-                    items: [
-                      _buildDestinationButton("Live", CupertinoIcons.bolt),
-                      _buildDestinationButton(
-                        "Pending",
-                        CupertinoIcons.square_list_fill,
-                      ),
-                      _buildDestinationButton(
-                        "Completed",
-                        CupertinoIcons.check_mark_circled,
+      // Enhanced Bottom Navigation Bar
+      bottomNavigationBar: BlocBuilder<EvAppNavigationCubit, EvAppNavigationState>(
+        builder: (context, state) {
+          return (state is AppNavigationInitialState)
+              ? Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, -5),
                       ),
                     ],
-                    onTap: (value) {
-                      context
-                          .read<EvAppNavigationCubit>()
-                          .handleBottomnavigation(value);
-                    },
-                  )
-                  : SizedBox();
+                  ),
+                  child: SafeArea(
+                    child: Container(
+                      // height: 80,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildNavItem(
+                            index: 0,
+                            currentIndex: state.initailIndex,
+                            label: "Live",
+                            icon: CupertinoIcons.bolt_fill,
+                            activeColor: AppColors.DEFAULT_ORANGE,
+                            onTap: () => _onNavTap(0),
+                          ),
+                          // _buildNavItem(
+                          //   index: 1,
+                          //   currentIndex: state.initailIndex,
+                          //   label: "Pending",
+                          //   icon: CupertinoIcons.clock_fill,
+                          //   activeColor: Colors.amber,
+                          //   onTap: () => _onNavTap(1),
+                          // ),
+                          _buildNavItem(
+                            index: 2,
+                            currentIndex: state.initailIndex,
+                            label: "Completed",
+                            icon: CupertinoIcons.checkmark_circle_fill,
+                            activeColor: Colors.green,
+                            onTap: () => _onNavTap(2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox();
+        },
+      ),
+    );
+  }
+
+  Widget _buildEnhancedHeader() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.DEFAULT_BLUE_DARK,
+            AppColors.DEFAULT_BLUE_DARK.withOpacity(0.8),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.DEFAULT_BLUE_DARK.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 20),
+          child: BlocBuilder<EvAuthBlocCubit, EvAuthBlocState>(
+            builder: (context, state) {
+              if (state is AuthCubitAuthenticateState) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Welcome back,",
+                                style: AppStyle.style(
+                                  context: context,
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontWeight: FontWeight.w400,
+                                  size: AppDimensions.fontSize18(context),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                state.userModel.userName,
+                                style: AppStyle.style(
+                                  color: Colors.white,
+                                  context: context,
+                                  fontWeight: FontWeight.bold,
+                                  size: AppDimensions.fontSize18(context),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        _buildProfileSection(state.userModel.userName),
+                      ],
+                    ),
+                    // const SizedBox(height: 24),
+                    // _buildQuickStatsRow(),
+                  ],
+                );
+              } else {
+                return const SizedBox();
+              }
             },
           ),
-    );
-  }
-
-  BottomNavigationBarItem _buildDestinationButton(String label, IconData icon) {
-    return BottomNavigationBarItem(
-      // activeIcon: Icon(icon),
-      icon: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10),
-        child: Icon(icon),
+        ),
       ),
-      label: label,
     );
   }
 
-  void showLogoutDialog(
+  Widget _buildProfileSection(String userName) {
+    return GestureDetector(
+      onTap: () => _showProfileMenu(),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 15,
+              backgroundColor: AppColors.DEFAULT_ORANGE,
+              child: Text(
+                userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              CupertinoIcons.chevron_down,
+              color: Colors.white,
+              size: 13,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickStatsRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatCard(
+            icon: CupertinoIcons.bolt_fill,
+            label: "Live",
+            value: "12",
+            color: AppColors.DEFAULT_ORANGE,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatCard(
+            icon: CupertinoIcons.clock_fill,
+            label: "Pending",
+            value: "8",
+            color: Colors.amber,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatCard(
+            icon: CupertinoIcons.checkmark_circle_fill,
+            label: "Completed",
+            value: "45",
+            color: Colors.green,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: AppStyle.style(
+              context: context,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              size: AppDimensions.fontSize16(context),
+            ),
+          ),
+          Text(
+            label,
+            style: AppStyle.style(
+              context: context,
+              color: Colors.white.withOpacity(0.8),
+              fontWeight: FontWeight.w400,
+              size: AppDimensions.fontSize10(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required int index,
+    required int currentIndex,
+    required String label,
+    required IconData icon,
+    required Color activeColor,
+    required VoidCallback onTap,
+  }) {
+    final isActive = index == currentIndex;
+    
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
+          color: isActive ? activeColor.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: isActive ? activeColor : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: isActive ? Colors.white : Colors.grey[600],
+                size: 15,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: AppStyle.style(
+                context: context,
+                color: isActive ? activeColor : Colors.grey[600]!,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.w400,
+                size: AppDimensions.fontSize12(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onNavTap(int index) {
+    context.read<EvAppNavigationCubit>().handleBottomnavigation(index);
+    
+    // Add haptic feedback
+    HapticFeedback.lightImpact();
+  }
+
+  void _showProfileMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ProfileMenuSheet(),
+    );
+  }
+}
+
+class _ProfileMenuSheet extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(CupertinoIcons.person_circle, color: Colors.grey),
+              title: const Text("Profile"),
+              onTap: () => Navigator.of(context).push(AppRoutes.createRoute(EvProfileScreen())
+            ),),
+            // ListTile(
+            //   leading: const Icon(CupertinoIcons.settings, color: Colors.grey),
+            //   title: const Text("Settings"),
+            //   onTap: () => Navigator.pop(context),
+            // ),
+            // ListTile(
+            //   leading: const Icon(CupertinoIcons.question_circle, color: Colors.grey),
+            //   title: const Text("Help & Support"),
+            //   onTap: () => Navigator.pop(context),
+            // ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(CupertinoIcons.square_arrow_right, color: Colors.red),
+              title: const Text("Logout", style: TextStyle(color: Colors.red)),
+              onTap: () {
+               
+                _showLogoutDialog(context, () async {
+                  context.read<EvAuthBlocCubit>().clearPreferenceData(context);
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog(
     BuildContext context,
     Future<void> Function() onConfirmLogout,
   ) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _LogoutDialog(onConfirmLogout: onConfirmLogout),
+      builder: (context) => _EnhancedLogoutDialog(onConfirmLogout: onConfirmLogout),
     );
   }
 }
 
-class _LogoutDialog extends StatefulWidget {
+class _EnhancedLogoutDialog extends StatefulWidget {
   final Future<void> Function() onConfirmLogout;
 
-  const _LogoutDialog({super.key, required this.onConfirmLogout});
+  const _EnhancedLogoutDialog({super.key, required this.onConfirmLogout});
 
   @override
-  State<_LogoutDialog> createState() => _LogoutDialogState();
+  State<_EnhancedLogoutDialog> createState() => _EnhancedLogoutDialogState();
 }
 
-class _LogoutDialogState extends State<_LogoutDialog> {
+class _EnhancedLogoutDialogState extends State<_EnhancedLogoutDialog>
+    with SingleTickerProviderStateMixin {
   bool isLoading = false;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutBack,
+    ));
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _handleLogout() async {
     setState(() => isLoading = true);
     await widget.onConfirmLogout();
-    if (mounted) Navigator.of(context).pop(); // Close dialog after logout
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child:
-            isLoading
-                ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppLoadingIndicator(),
-                    SizedBox(height: 16),
-                    Text(
-                      "Logging out...",
-                      style: AppStyle.style(context: context, size: 16),
-                    ),
-                  ],
-                )
-                : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.logout, size: 50, color: Colors.redAccent),
-                    const SizedBox(height: 16),
-                    const Text(
-                      "Logout",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Are you sure you want to log out?",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
+    return AnimatedBuilder(
+      animation: _scaleAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(24),
+              child: isLoading
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: Text(
-                              "Cancel",
-                              style: AppStyle.style(
-                                context: context,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(50),
                           ),
+                          child:  AppLoadingIndicator(),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            onPressed: _handleLogout,
-                            child: Text(
-                              "Logout",
-                              style: AppStyle.style(
-                                context: context,
-                                color: AppColors.FILL_COLOR,
-                              ),
-                            ),
+                        const SizedBox(height: 20),
+                        Text(
+                          "Logging out...",
+                          style: AppStyle.style(
+                            context: context,
+                            size: 16,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
+                    )
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: const Icon(
+                            CupertinoIcons.square_arrow_right,
+                            size: 32,
+                            color: Colors.red,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Logout",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Are you sure you want to log out?",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                ),
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text(
+                                  "Cancel",
+                                  style: AppStyle.style(
+                                    context: context,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[700]!,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: _handleLogout,
+                                child: Text(
+                                  "Logout",
+                                  style: AppStyle.style(
+                                    context: context,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

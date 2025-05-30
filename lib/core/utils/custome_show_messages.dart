@@ -68,7 +68,7 @@ void showCustomMessageDialog(
                 scale: v,
                 child: AlertDialog(
                   icon: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(5.0),
                     child: TweenAnimationBuilder(
                       duration: const Duration(seconds: 2),
                       tween: Tween<double>(begin: 0.8, end: 1.0),
@@ -77,7 +77,7 @@ void showCustomMessageDialog(
                         return Transform.scale(
                           scale: value,
                           child: Icon(
-                            size: 120,
+                            size: 70,
                             getIcon(messageType),
                             color: getColor(messageType),
                           ),
@@ -108,7 +108,7 @@ void showCustomMessageDialog(
                   actionsAlignment: MainAxisAlignment.center,
                   actions: [
                     SizedBox(
-                      width: w(context) * .4,
+                      width: w(context) * .2,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: getColor(messageType),
@@ -117,7 +117,7 @@ void showCustomMessageDialog(
                           Navigator.of(context).pop();
                         },
                         child: Text(
-                          "OK",
+                          "Got It",
                           style: AppStyle.style(
                             context: context,
                             color: AppColors.white,

@@ -7,6 +7,7 @@ class AppString {
   static const String userType = "USER_TYPE";
   // static const String tokenExpireMessage = 'TOKEN_EXPIRE_MESSAGE';
   static const String baseUrl = 'https://crisantdemo.in/wheels/api/';
+  // static const String ishtiyaqApiBaseURL="https://crisantdemo.in/wheels/";
 
   static RegExp carRegNumberRegex = RegExp(r'^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$');
 

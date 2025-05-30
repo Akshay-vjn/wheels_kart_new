@@ -1,7 +1,9 @@
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wheels_kart/module/evaluator/data/model/upload_inspection_model.dart';
+import 'package:wheels_kart/module/evaluator/data/repositories/inspection/update_inspection_status_to_copleted.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/inspection/upload_inspection_repo.dart';
 
 part 'submit_answer_controller_state.dart';
@@ -73,5 +75,27 @@ class EvSubmitAnswerControllerCubit
     updatedStates[questionIndex] = SubmissionState.INITIAL;
 
     emit(state.copyWith(questionState: updatedStates));
+  }
+
+  Future<bool> onSubmitInspectionForPending(
+    BuildContext context,
+    String id,
+  ) async {
+    final resposne =
+        await UpdateInspectionStatusToCompleted.updateInspectionStatusToCompleted(
+          context,
+          id,
+        );
+
+    if (resposne.isNotEmpty) {
+      log(resposne.toString());
+      if (resposne['error'] == false) {
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
   }
 }

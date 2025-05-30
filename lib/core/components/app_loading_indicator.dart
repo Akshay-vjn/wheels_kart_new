@@ -17,7 +17,7 @@ class AppLoadingIndicator extends StatelessWidget {
                 height: h(context) * .8,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: AppColors.DEFAULT_ORANGE,
+                  // color: AppColors.DEFAULT_ORANGE,
                 ),
 
                 // SpinKitFadingCircle(
@@ -33,7 +33,7 @@ class AppLoadingIndicator extends StatelessWidget {
               )
               : CircularProgressIndicator(
                 strokeWidth: 2,
-                color: AppColors.DEFAULT_ORANGE,
+                // color: AppColors.DEFAULT_ORANGE,
               ),
 
       //  SpinKitFadingCircle(

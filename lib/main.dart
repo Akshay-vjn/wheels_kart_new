@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/download%20pdf/download_pdf_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20car%20make/fetch_car_make_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20car%20models/fetch_car_model_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20city/fetch_city_bloc.dart';
@@ -25,11 +26,12 @@ import 'package:wheels_kart/module/evaluator/data/bloc/upload%20vehilce%20photo/
 import 'package:wheels_kart/module/spash_screen.dart';
 import 'package:wheels_kart/module/vendor/data/cubit/auth/v_auth_controller_cubit.dart';
 import 'package:wheels_kart/module/vendor/data/cubit/bottom_nav_controller/v_bottom_nav_controller_cubit.dart';
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(statusBarColor: AppColors.DEFAULT_BLUE_DARK),
+    SystemUiOverlayStyle(statusBarColor: AppColors.white),
   );
   runApp(const MyApp());
 }
@@ -74,6 +76,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<FetchUploadedVehilcePhotosCubit>(create: (_) => FetchUploadedVehilcePhotosCubit()),
         BlocProvider<UplaodVehilcePhotoCubit>(create: (_) => UplaodVehilcePhotoCubit()),
         BlocProvider<FetchPictureAnglesCubit>(create: (_) => FetchPictureAnglesCubit()),
+           BlocProvider<DownloadPdfCubit>(create: (_) => DownloadPdfCubit()),
         // USER CONTROLLERS
         BlocProvider<VAuthControllerCubit>(
           create: (_) => VAuthControllerCubit(),
@@ -84,6 +87,8 @@ class MyApp extends StatelessWidget {
       ],
       child: SafeArea(
         child: MaterialApp(
+            navigatorObservers: [routeObserver],
+
           debugShowCheckedModeBanner: false,
           title: 'Wheels Kart',
           theme: ThemeData(

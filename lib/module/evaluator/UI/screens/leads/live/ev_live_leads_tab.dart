@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:transformable_list_view/transformable_list_view.dart';
 import 'package:wheels_kart/core/components/app_empty_text.dart';
 import 'package:wheels_kart/core/components/app_loading_indicator.dart';
 import 'package:wheels_kart/core/components/app_margin.dart';
@@ -18,8 +17,6 @@ import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20car%20
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/master/fetch_the_instruction_repo.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/answer%20questions/e_eselect_portion_screen.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
 
 class EvLiveLeadsTab extends StatefulWidget {
   const EvLiveLeadsTab({super.key});
@@ -28,16 +25,43 @@ class EvLiveLeadsTab extends StatefulWidget {
   State<EvLiveLeadsTab> createState() => _EvLiveLeadsTabState();
 }
 
-class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
+class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
+    with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
     context.read<EvFetchCarMakeBloc>().add(
       InitalFetchCarMakeEvent(context: context),
     );
     context.read<FetchInspectionsBloc>().add(
       OnGetInspectionList(context: context, inspetionListType: 'ASSIGNED'),
     );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> load() async {
@@ -48,339 +72,594 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        await load();
-      },
-      child: BlocBuilder<FetchInspectionsBloc, FetchInspectionsState>(
-        builder: (context, state) {
-          switch (state) {
-            case LoadingFetchInspectionsState():
-              {
-                return AppLoadingIndicator();
-              }
-            case SuccessFetchInspectionsState():
-              {
-                return state.listOfInspection.isEmpty
-                    ? AppEmptyText(text: state.message)
-                    : ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      padding: EdgeInsets.all(0),
-                      itemBuilder: (context, index) {
-                        InspectionModel data = state.listOfInspection[index];
-
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            bottom:
-                                index + 1 == state.listOfInspection.length
-                                    ? 80
-                                    : 0,
-                          ),
-                          child: _buildItems(context, data),
-                        );
-                      },
-
-                      // getTransformMatrix: (item) {
-                      //   return getTransformMatrix(item);
-                      // },
-                      itemCount: state.listOfInspection.length,
-                    );
-              }
-            case ErrorFetchInspectionsState():
-              {
-                return AppEmptyText(text: state.errormessage);
-              }
-            default:
-              {
-                return const SizedBox();
-              }
-          }
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.grey[50]!, Colors.white],
+        ),
+      ),
+      child: RefreshIndicator(
+        onRefresh: () async {
+          await load();
+          _animationController.reset();
+          _animationController.forward();
         },
+        color: AppColors.DEFAULT_BLUE_DARK,
+        backgroundColor: Colors.white,
+        child: BlocBuilder<FetchInspectionsBloc, FetchInspectionsState>(
+          builder: (context, state) {
+            switch (state) {
+              case LoadingFetchInspectionsState():
+                return Center(child: AppLoadingIndicator());
+              case SuccessFetchInspectionsState():
+                return state.listOfInspection.isEmpty
+                    ? _buildEmptyState(state.message)
+                    : _buildInspectionList(state.listOfInspection);
+              case ErrorFetchInspectionsState():
+                return _buildErrorState(state.errormessage);
+              default:
+                return const SizedBox();
+            }
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildItems(BuildContext context, InspectionModel inspectionModel) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppMargin(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    inspectionModel.evaluationId,
-                    style: AppStyle.style(
-                      size: AppDimensions.fontSize24(context),
-                      fontWeight: FontWeight.bold,
-                      context: context,
-                    ),
-                  ),
-                  Text(
-                    IntlHelper.converToDate(inspectionModel.createdAt.date),
-                    style: AppStyle.style(
-                      size: AppDimensions.fontSize15(context),
-                      fontWeight: FontWeight.w500,
-                      context: context,
-                    ),
-                  ),
-                ],
-              ),
+  Widget _buildEmptyState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
             ),
-            AppSpacer(heightPortion: .01),
-            Container(
-              color: AppColors.DEFAULT_BLUE_GREY,
-              padding: EdgeInsets.symmetric(
-                horizontal: AppDimensions.paddingSize10,
-              ),
-              child: Column(
-                children: [
-                  AppSpacer(heightPortion: .004),
-                  _buildDetails(
-                    "Customer Name :",
-                    inspectionModel.customer.customerName,
-                    SolarIconsOutline.userCircle,
-                  ),
-                  AppSpacer(heightPortion: .008),
-                  _buildDetails(
-                    "Contact Number :",
-                    inspectionModel.customer.customerMobileNumber,
-                    SolarIconsOutline.phoneCallingRounded,
-                  ),
-                  AppSpacer(heightPortion: .004),
-                ],
-              ),
+            child: Icon(
+              Icons.assignment_outlined,
+              size: 64,
+              color: Colors.grey[400],
             ),
-            AppSpacer(heightPortion: .01),
-
-            AppMargin(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      final state =
-                          BlocProvider.of<EvFetchCarMakeBloc>(context).state;
-                      if (state is FetchCarMakeSuccessState) {
-                        Navigator.of(context).push(
-                          AppRoutes.createRoute(
-                            EvSelectAndSearchCarMakes(
-                              inspectuionId: inspectionModel.inspectionId,
-                              listofCarMake: state.carMakeData,
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(50),
-                              bottomLeft: Radius.circular(50),
-                            ),
-                            border: Border.all(
-                              color:
-                                  inspectionModel.engineTypeId.isEmpty
-                                      ? AppColors.DEFAULT_ORANGE
-                                      : AppColors.kGreen,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.car_repair,
-                                color:
-                                    inspectionModel.engineTypeId.isEmpty
-                                        ? AppColors.DEFAULT_ORANGE
-                                        : AppColors.kGreen,
-                              ),
-                              AppSpacer(widthPortion: .02),
-                              Text(
-                                "Reg. Vehicle",
-                                style: AppStyle.style(
-                                  context: context,
-                                  color:
-                                      inspectionModel.engineTypeId.isEmpty
-                                          ? AppColors.DEFAULT_ORANGE
-                                          : AppColors.kGreen,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(50),
-                              bottomRight: Radius.circular(50),
-                            ),
-                            color:
-                                inspectionModel.engineTypeId.isEmpty
-                                    ? AppColors.DEFAULT_ORANGE
-                                    : AppColors.kGreen,
-                          ),
-                          child: Icon(
-                            inspectionModel.engineTypeId.isEmpty
-                                ? Icons.pending_actions
-                                : Icons.task_alt_outlined,
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const AppSpacer(widthPortion: .02),
-                  InkWell(
-                    onTap: () async {
-                      if (inspectionModel.engineTypeId.isEmpty ||
-                          inspectionModel.engineTypeId == '0') {
-                        showCustomMessageDialog(
-                          context,
-                          'Complete the vehicle registration and try again.',
-                          messageType: MessageCategory.WARNING,
-                        );
-                      } else {
-                        if (inspectionModel.engineTypeId == '1') {
-                          final snapshot =
-                              await FetchTheInstructionRepo.getTheInstructionForStartEngine(
-                                context,
-                                inspectionModel.engineTypeId,
-                              );
-
-                          if (snapshot['error'] == true) {
-                            showCustomMessageDialog(
-                              context,
-                              snapshot['message'],
-                              messageType: MessageCategory.ERROR,
-                            );
-                          } else if (snapshot.isEmpty) {
-                            showCustomMessageDialog(
-                              context,
-                              'Instruction page not found!',
-                              messageType: MessageCategory.ERROR,
-                            );
-                          } else if (snapshot['error'] == false) {
-                            Navigator.of(context).push(
-                              AppRoutes.createRoute(
-                                InspectionStartScreen(
-                                  inspectionId: inspectionModel.inspectionId,
-                                  instructionData:
-                                      snapshot['data'][0]['instructions'],
-                                ),
-                              ),
-                            );
-                          }
-                        } else if (inspectionModel.engineTypeId == '1') {
-                          Navigator.of(context).push(
-                            AppRoutes.createRoute(
-                              InspectionStartScreen(
-                                instructionData: null,
-                                inspectionId: inspectionModel.inspectionId,
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        border: Border.all(
-                          color:
-                              inspectionModel.engineTypeId.isEmpty ||
-                                      inspectionModel.engineTypeId == '0'
-                                  ? AppColors.grey
-                                  : AppColors.kAppSecondaryColor,
-                        ),
-                      ),
-                      // style: OutlinedButton.styleFrom(
-                      //   side: BorderSide(color: AppColors.kAppSecondaryColor),
-                      // ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.content_paste_search_rounded,
-                            color:
-                                inspectionModel.engineTypeId.isEmpty ||
-                                        inspectionModel.engineTypeId == '0'
-                                    ? AppColors.grey
-                                    : AppColors.kAppSecondaryColor,
-                          ),
-                          AppSpacer(widthPortion: .02),
-                          Text(
-                            "Inspect",
-                            style: AppStyle.style(
-                              context: context,
-                              color:
-                                  inspectionModel.engineTypeId.isEmpty ||
-                                          inspectionModel.engineTypeId == '0'
-                                      ? AppColors.grey
-                                      : AppColors.kAppSecondaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No Active Inspections',
+            style: AppStyle.style(
+              context: context,
+              size: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
             ),
-          ],
-        ),
-        Divider(thickness: 5),
-      ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            style: AppStyle.style(
+              context: context,
+              size: 14,
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildDetails(String title, String details, IconData icon) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+          const SizedBox(height: 16),
+          Text(
+            'Something went wrong',
+            style: AppStyle.style(
+              context: context,
+              size: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.red[700],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error,
+            style: AppStyle.style(
+              context: context,
+              size: 14,
+              color: Colors.red[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: load,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Try Again'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.DEFAULT_BLUE_DARK,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInspectionList(List<InspectionModel> inspections) {
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: inspections.length,
+      itemBuilder: (context, index) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300 + (index * 100)),
+              margin: EdgeInsets.only(
+                bottom: index + 1 == inspections.length ? 80 : 16,
+              ),
+              child: _buildEnhancedInspectionCard(context, inspections[index]),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEnhancedInspectionCard(
+    BuildContext context,
+    InspectionModel inspectionModel,
+  ) {
+    final bool isVehicleRegistered =
+        inspectionModel.engineTypeId.isNotEmpty &&
+        inspectionModel.engineTypeId != '0';
+    final bool canInspect = isVehicleRegistered;
+
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black26,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.white, Colors.grey[50]!],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: AppColors.white),
-            AppSpacer(widthPortion: .02),
-            Text(
-              title,
-              style: AppStyle.style(
-                size: AppDimensions.fontSize15(context),
-                color: AppColors.white,
-                fontWeight: FontWeight.w400,
-                context: context,
+            _buildCardHeader(inspectionModel),
+            _buildCustomerDetails(inspectionModel),
+            _buildActionButtons(
+              context,
+              inspectionModel,
+              isVehicleRegistered,
+              canInspect,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardHeader(InspectionModel inspectionModel) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 15),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.DEFAULT_BLUE_DARK,
+            AppColors.DEFAULT_BLUE_DARK.withOpacity(0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'INSPECTION ID',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  inspectionModel.evaluationId,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  color: Colors.white.withOpacity(0.9),
+                  size: 15,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  IntlHelper.converToDate(inspectionModel.createdAt.date),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomerDetails(InspectionModel inspectionModel) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Customer Details',
+            style: AppStyle.style(
+              context: context,
+              size: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildDetailItem(
+                  icon: SolarIconsOutline.userCircle,
+                  label: 'Name',
+                  value: inspectionModel.customer.customerName,
+                  color: Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildDetailItem(
+                  icon: SolarIconsOutline.phoneCallingRounded,
+                  label: 'Phone',
+                  value: inspectionModel.customer.customerMobileNumber,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: AppStyle.style(
+              context: context,
+              size: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[800],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(
+    BuildContext context,
+    InspectionModel inspectionModel,
+    bool isVehicleRegistered,
+    bool canInspect,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildActionButton(
+              label: 'Register Vehicle',
+              icon: Icons.directions_car,
+              isCompleted: isVehicleRegistered,
+              onTap: () => _onRegisterVehicle(context, inspectionModel),
+              backgroundColor:
+                  isVehicleRegistered ? Colors.green : Colors.orange,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildActionButton(
+              label: 'Start Inspection',
+              icon: Icons.search,
+              isCompleted: false,
+              isEnabled: canInspect,
+              onTap:
+                  canInspect
+                      ? () => _onStartInspection(context, inspectionModel)
+                      : null,
+              backgroundColor:
+                  canInspect ? AppColors.kAppSecondaryColor : Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required String label,
+    required IconData icon,
+    required bool isCompleted,
+    bool isEnabled = true,
+    required VoidCallback? onTap,
+    required Color backgroundColor,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+        decoration: BoxDecoration(
+          color:
+              isEnabled ? backgroundColor.withOpacity(0.1) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isEnabled ? backgroundColor : Colors.grey[300]!,
+            width: 2,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isCompleted ? Icons.check_circle : icon,
+              color: isEnabled ? backgroundColor : Colors.grey[400],
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isEnabled ? backgroundColor : Colors.grey[400],
+                  fontWeight: FontWeight.w600,
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
-        Text(
-          details,
-          style: AppStyle.style(
-            color: AppColors.white,
-            size: AppDimensions.fontSize15(context),
-            fontWeight: FontWeight.w400,
-            context: context,
+      ),
+    );
+  }
+
+  void _onRegisterVehicle(
+    BuildContext context,
+    InspectionModel inspectionModel,
+  ) {
+    final state = BlocProvider.of<EvFetchCarMakeBloc>(context).state;
+    if (state is FetchCarMakeSuccessState) {
+      Navigator.of(context).push(
+        AppRoutes.createRoute(
+          EvSelectAndSearchCarMakes(
+            inspectuionId: inspectionModel.inspectionId,
+            listofCarMake: state.carMakeData,
           ),
         ),
-      ],
+      );
+    } else {
+      _showErrorSnackBar(
+        context,
+        'Car make data not available. Please try again.',
+      );
+    }
+  }
+
+  void _onStartInspection(
+    BuildContext context,
+    InspectionModel inspectionModel,
+  ) async {
+    if (inspectionModel.engineTypeId.isEmpty ||
+        inspectionModel.engineTypeId == '0') {
+      _showWarningDialog(
+        context,
+        'Vehicle Registration Required',
+        'Please complete the vehicle registration before starting the inspection.',
+      );
+      return;
+    }
+
+    _showLoadingDialog(context);
+
+    try {
+      if (inspectionModel.engineTypeId == '1') {
+        final snapshot =
+            await FetchTheInstructionRepo.getTheInstructionForStartEngine(
+              context,
+              inspectionModel.engineTypeId,
+            );
+
+        Navigator.of(context).pop(); // Close loading dialog
+
+        if (snapshot['error'] == true) {
+          _showErrorSnackBar(context, snapshot['message']);
+        } else if (snapshot.isEmpty) {
+          _showErrorSnackBar(context, 'Instruction page not found!');
+        } else if (snapshot['error'] == false) {
+          Navigator.of(context).push(
+            AppRoutes.createRoute(
+              InspectionStartScreen(
+                inspectionId: inspectionModel.inspectionId,
+                instructionData: snapshot['data'][0]['instructions'],
+              ),
+            ),
+          );
+        }
+      } else {
+        Navigator.of(context).pop(); // Close loading dialog
+        Navigator.of(context).push(
+          AppRoutes.createRoute(
+            InspectionStartScreen(
+              instructionData: null,
+              inspectionId: inspectionModel.inspectionId,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.of(context).pop(); // Close loading dialog
+      _showErrorSnackBar(context, 'An error occurred. Please try again.');
+    }
+  }
+
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => const Center(
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Loading instructions...'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+    );
+  }
+
+  void _showWarningDialog(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(Icons.warning_amber, color: Colors.orange[600]),
+                const SizedBox(width: 12),
+                Text(title),
+              ],
+            ),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        action: SnackBarAction(
+          label: 'DISMISS',
+          textColor: Colors.white,
+          onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+        ),
+      ),
     );
   }
 }
