@@ -501,43 +501,34 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: InkWell(
-        onTap: isDownloading ? null : () {
-          HapticFeedback.lightImpact();
-          Navigator.of(context).push(
-            AppRoutes.createRoute(PdfPreviewScreen(model: model)),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                Colors.grey.shade50,
-              ],
-            ),
-          ),
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDownloadButton(context, model, isDownloading),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildInspectionDetails(context, model),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildContactInfo(context, model),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              Colors.grey.shade50,
             ],
           ),
+        ),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDownloadButton(context, model, isDownloading),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildInspectionDetails(context, model),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildContactInfo(context, model),
+          ],
         ),
       ),
     );

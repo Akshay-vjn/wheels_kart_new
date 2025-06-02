@@ -30,9 +30,9 @@ final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<v
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(statusBarColor: AppColors.white),
-  );
+  // SystemChrome.setSystemUIOverlayStyle(
+  //   SystemUiOverlayStyle(statusBarColor: AppColors.white),
+  // );
   runApp(const MyApp());
 }
 
@@ -85,26 +85,24 @@ class MyApp extends StatelessWidget {
           create: (_) => VBottomNavControllerCubit(),
         ),
       ],
-      child: SafeArea(
-        child: MaterialApp(
-            navigatorObservers: [routeObserver],
-
-          debugShowCheckedModeBanner: false,
-          title: 'Wheels Kart',
-          theme: ThemeData(
-            appBarTheme: AppBarTheme(
-              toolbarHeight: 70,
-              color: AppColors.DEFAULT_BLUE_DARK,
-            ),
-            scaffoldBackgroundColor: AppColors.kScafoldBgColor,
-            iconTheme: const IconThemeData(color: AppColors.DEFAULT_BLUE_DARK),
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: AppColors.DEFAULT_BLUE_DARK,
-            ),
-            useMaterial3: true,
+      child: MaterialApp(
+          navigatorObservers: [routeObserver],
+      
+        debugShowCheckedModeBanner: false,
+        title: 'Wheels Kart',
+        theme: ThemeData(
+          appBarTheme: AppBarTheme(
+            toolbarHeight: 70,
+            color: AppColors.DEFAULT_BLUE_DARK,
           ),
-          home: SplashScreen(),
+          scaffoldBackgroundColor: AppColors.kScafoldBgColor,
+          iconTheme: const IconThemeData(color: AppColors.DEFAULT_BLUE_DARK),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppColors.DEFAULT_BLUE_DARK,
+          ),
+          useMaterial3: true,
         ),
+        home: SplashScreen(),
       ),
     );
   }

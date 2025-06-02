@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:wheels_kart/core/components/app_custom_widgets.dart';
 import 'package:wheels_kart/core/components/app_margin.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
 import 'package:wheels_kart/core/constant/colors.dart';
@@ -10,8 +10,7 @@ import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
 import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_dashboard_screen.dart';
-import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_button.dart';
-import 'package:wheels_kart/module/evaluator/UI/widgets/app_custom_textfield.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/get%20data/login%20page%20bloc/login_bloc_bloc.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 
@@ -165,7 +164,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
         child: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            child: Container(
+            child: SizedBox(
               height: MediaQuery.of(context).size.height - 
                      MediaQuery.of(context).padding.top,
               child: AppMargin(
@@ -173,6 +172,10 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                   key: _formKey,
                   child: Column(
                     children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: customBackButton(context,color: AppColors.black)),
+
                       // Header Section
                       Expanded(
                         flex: 2,
@@ -181,6 +184,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+
                               // App Icon/Logo placeholder
                               ScaleTransition(
                                 scale: _scaleAnimation,
@@ -384,6 +388,8 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                   onTap: () async {
                                     if (_formKey.currentState!.validate()) {
                                       HapticFeedback.mediumImpact();
+                                                         context.read<EvAppNavigationCubit>().handleBottomnavigation(0);
+
                                       await context.read<EvAuthBlocCubit>().loginUser(
                                         context,
                                         _mobileNumberController.text,

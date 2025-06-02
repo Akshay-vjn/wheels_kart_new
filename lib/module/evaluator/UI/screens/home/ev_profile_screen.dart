@@ -6,6 +6,7 @@ import 'package:wheels_kart/core/constant/colors.dart';
 import 'package:wheels_kart/core/constant/dimensions.dart';
 import 'package:wheels_kart/core/constant/style.dart';
 import 'package:wheels_kart/core/utils/responsive_helper.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/model/auth_model.dart';
 import 'package:wheels_kart/core/components/app_spacer.dart';
@@ -37,21 +38,16 @@ class _EvProfileScreenState extends State<EvProfileScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
 
     _animationController.forward();
   }
@@ -66,89 +62,85 @@ class _EvProfileScreenState extends State<EvProfileScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: CustomScrollView(
-            slivers: [
-              // Custom App Bar with Profile Header
-              SliverToBoxAdapter(
-                child: _buildProfileHeader(),
-              ),
-              
-              // Profile Menu Items
-              SliverToBoxAdapter(
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Padding(
-                    padding: EdgeInsets.all(AppDimensions.paddingSize20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const AppSpacer(heightPortion: .02),
-                        
-                        // Account Section
-                        // _buildSectionTitle("Account"),
-                        // const AppSpacer(heightPortion: .01),
-                        // _buildMenuSection([
-                        //   _buildProfileTile(
-                        //     "Edit Profile",
-                        //     SolarIconsBold.user,
-                        //     () => _showEditProfileDialog(),
-                        //     backgroundColor: Colors.blue[50],
-                        //     iconColor: Colors.blue[600],
-                        //   ),
-                        //   _buildProfileTile(
-                        //     "Change Password",
-                        //     SolarIconsBold.lockPassword,
-                        //     () => _showChangePasswordDialog(),
-                        //     backgroundColor: Colors.orange[50],
-                        //     iconColor: Colors.orange[600],
-                        //   ),
-                        //   _buildProfileTile(
-                        //     "Notifications",
-                        //     SolarIconsBold.notificationUnread,
-                        //     () => _navigateToNotifications(),
-                        //     backgroundColor: Colors.green[50],
-                        //     iconColor: Colors.green[600],
-                        //   ),
-                        // ]),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: CustomScrollView(
+          slivers: [
+            // Custom App Bar with Profile Header
+            SliverToBoxAdapter(child: _buildProfileHeader()),
 
-                        // const AppSpacer(heightPortion: .03),
+            // Profile Menu Items
+            SliverToBoxAdapter(
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Padding(
+                  padding: EdgeInsets.all(AppDimensions.paddingSize20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AppSpacer(heightPortion: .02),
 
-                        // // Support Section
-                        // _buildSectionTitle("Support"),
-                        // const AppSpacer(heightPortion: .01),
-                        // _buildMenuSection([
-                        //   _buildProfileTile(
-                        //     "Help & Support",
-                        //     SolarIconsBold.questionCircle,
-                        //     () => _showHelpDialog(),
-                        //     backgroundColor: Colors.purple[50],
-                        //     iconColor: Colors.purple[600],
-                        //   ),
-                        //   _buildProfileTile(
-                        //     "About",
-                        //     SolarIconsBold.infoCircle,
-                        //     () => _showAboutDialog(),
-                        //     backgroundColor: Colors.indigo[50],
-                        //     iconColor: Colors.indigo[600],
-                        //   ),
-                        // ]),
+                      // Account Section
+                      // _buildSectionTitle("Account"),
+                      // const AppSpacer(heightPortion: .01),
+                      // _buildMenuSection([
+                      //   _buildProfileTile(
+                      //     "Edit Profile",
+                      //     SolarIconsBold.user,
+                      //     () => _showEditProfileDialog(),
+                      //     backgroundColor: Colors.blue[50],
+                      //     iconColor: Colors.blue[600],
+                      //   ),
+                      //   _buildProfileTile(
+                      //     "Change Password",
+                      //     SolarIconsBold.lockPassword,
+                      //     () => _showChangePasswordDialog(),
+                      //     backgroundColor: Colors.orange[50],
+                      //     iconColor: Colors.orange[600],
+                      //   ),
+                      //   _buildProfileTile(
+                      //     "Notifications",
+                      //     SolarIconsBold.notificationUnread,
+                      //     () => _navigateToNotifications(),
+                      //     backgroundColor: Colors.green[50],
+                      //     iconColor: Colors.green[600],
+                      //   ),
+                      // ]),
 
-                        // const AppSpacer(heightPortion: .04),
+                      // const AppSpacer(heightPortion: .03),
 
-                        // Logout Button
-                        _buildLogoutButton(),
-                        
-                        const AppSpacer(heightPortion: .02),
-                      ],
-                    ),
+                      // // Support Section
+                      // _buildSectionTitle("Support"),
+                      // const AppSpacer(heightPortion: .01),
+                      // _buildMenuSection([
+                      //   _buildProfileTile(
+                      //     "Help & Support",
+                      //     SolarIconsBold.questionCircle,
+                      //     () => _showHelpDialog(),
+                      //     backgroundColor: Colors.purple[50],
+                      //     iconColor: Colors.purple[600],
+                      //   ),
+                      //   _buildProfileTile(
+                      //     "About",
+                      //     SolarIconsBold.infoCircle,
+                      //     () => _showAboutDialog(),
+                      //     backgroundColor: Colors.indigo[50],
+                      //     iconColor: Colors.indigo[600],
+                      //   ),
+                      // ]),
+
+                      // const AppSpacer(heightPortion: .04),
+
+                      // Logout Button
+                      _buildLogoutButton(),
+
+                      const AppSpacer(heightPortion: .02),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -156,12 +148,12 @@ class _EvProfileScreenState extends State<EvProfileScreen>
 
   Widget _buildProfileHeader() {
     return Container(
-      height: h(context) * .35,
+      height: h(context) * .43,
       child: Stack(
         children: [
           // Background Gradient
           Container(
-            height: h(context) * .28,
+            height: h(context) * .35,
             width: w(context),
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -204,11 +196,11 @@ class _EvProfileScreenState extends State<EvProfileScreen>
             ),
           ),
 
-          customBackButton(context),
+          Positioned(top: 50, child: customBackButton(context)),
 
           // Profile Avatar
           Positioned(
-            top: h(context) * .08,
+            top: h(context) * .12,
             left: w(context) * .5 - 60,
             child: Container(
               decoration: BoxDecoration(
@@ -292,7 +284,9 @@ class _EvProfileScreenState extends State<EvProfileScreen>
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.DEFAULT_BLUE_DARK.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusSize18,
+                      ),
                     ),
                     child: Text(
                       userModel.userType,
@@ -370,7 +364,9 @@ class _EvProfileScreenState extends State<EvProfileScreen>
                 padding: EdgeInsets.all(AppDimensions.paddingSize10),
                 decoration: BoxDecoration(
                   color: backgroundColor ?? Colors.grey[100],
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSize10),
+                  borderRadius: BorderRadius.circular(
+                    AppDimensions.radiusSize10,
+                  ),
                 ),
                 child: Icon(
                   icon,
@@ -441,46 +437,52 @@ class _EvProfileScreenState extends State<EvProfileScreen>
   void _showEditProfileDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
-        ),
-        title: Text("Edit Profile"),
-        content: Text("Edit profile functionality will be implemented here."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
+            ),
+            title: Text("Edit Profile"),
+            content: Text(
+              "Edit profile functionality will be implemented here.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Edit"),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Edit"),
-          ),
-        ],
-      ),
     );
   }
 
   void _showChangePasswordDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
-        ),
-        title: Text("Change Password"),
-        content: Text("Change password functionality will be implemented here."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
+            ),
+            title: Text("Change Password"),
+            content: Text(
+              "Change password functionality will be implemented here.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Change"),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Change"),
-          ),
-        ],
-      ),
     );
   }
 
@@ -499,68 +501,73 @@ class _EvProfileScreenState extends State<EvProfileScreen>
   void _showHelpDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
-        ),
-        title: Text("Help & Support"),
-        content: Text("For assistance, please contact our support team."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Close"),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
+            ),
+            title: Text("Help & Support"),
+            content: Text("For assistance, please contact our support team."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Close"),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
   void _showAboutDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
-        ),
-        title: Text("About"),
-        content: Text("Wheels Kart Evaluator App\nVersion 1.0.0"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Close"),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
+            ),
+            title: Text("About"),
+            content: Text("Wheels Kart Evaluator App\nVersion 1.0.0"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Close"),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
-        ),
-        title: Text("Logout"),
-        content: Text("Are you sure you want to logout?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await context.read<EvAuthBlocCubit>().clearPreferenceData(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[600],
-              foregroundColor: Colors.white,
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
             ),
-            child: Text("Logout"),
+            title: Text("Logout"),
+            content: Text("Are you sure you want to logout?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await context.read<EvAuthBlocCubit>().clearPreferenceData(
+                    context,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[600],
+                  foregroundColor: Colors.white,
+                ),
+                child: Text("Logout"),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }

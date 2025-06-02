@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wheels_kart/core/constant/string.dart';
 import 'package:wheels_kart/core/utils/routes.dart';
+import 'package:wheels_kart/module/evaluator/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/module/evaluator/data/model/auth_model.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/login/fetch_profile_repo.dart';
 import 'package:wheels_kart/module/evaluator/data/repositories/login/login_repo.dart';
@@ -120,6 +121,7 @@ class EvAuthBlocCubit extends Cubit<EvAuthBlocState> {
     await prefs.remove(AppString.userType);
 
     emit(AuthCubitUnAuthenticatedState());
+
     Navigator.of(context).pushAndRemoveUntil(
       AppRoutes.createRoute(const SplashScreen()),
       (context) => false,
