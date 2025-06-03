@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
@@ -172,6 +174,7 @@ class _DecisionScreenState extends State<DecisionScreen>
                           Icons.store_outlined,
                           const Color(0xFF1565C0),
                           () {
+                            log("message");
                             // _navigateWithAnimation(VeLoginScreen());
                           },
                         ),
