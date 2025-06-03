@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wheels_kart/core/components/app_spacer.dart';
-import 'package:wheels_kart/core/constant/images.dart';
-import 'package:wheels_kart/core/utils/responsive_helper.dart';
-import 'package:wheels_kart/core/utils/routes.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const_images.dart';
+import 'package:wheels_kart/common/utils/responsive_helper.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/decision_screen.dart';
 
-import 'package:wheels_kart/core/components/app_loading_indicator.dart';
-import 'package:wheels_kart/module/evaluator/UI/screens/home/ev_dashboard_screen.dart';
-import 'package:wheels_kart/module/evaluator/data/bloc/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/auth%20cubit/auth_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,31 +16,30 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> 
+class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  
   late AnimationController _logoController;
   late AnimationController _textController;
   late AnimationController _loadingController;
   late AnimationController _backgroundController;
-  
+
   late Animation<double> _logoScaleAnimation;
   late Animation<double> _logoOpacityAnimation;
   late Animation<double> _textOpacityAnimation;
   late Animation<Offset> _textSlideAnimation;
   late Animation<double> _loadingOpacityAnimation;
   late Animation<double> _backgroundAnimation;
-  
+
   bool showLoading = false;
   bool showText = false;
 
   @override
   void initState() {
     super.initState();
-    
+
     _initializeAnimations();
     _startAnimationSequence();
-    
+
     Future.delayed(const Duration(milliseconds: 2500)).then((value) async {
       BlocProvider.of<EvAuthBlocCubit>(context).checkForLogin(context);
     });
@@ -53,19 +51,19 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     // Text animation controller
     _textController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     // Loading animation controller
     _loadingController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     // Background animation controller
     _backgroundController = AnimationController(
       duration: const Duration(milliseconds: 2000),
@@ -73,71 +71,54 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     // Logo animations
-    _logoScaleAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _logoController,
-      curve: Curves.elasticOut,
-    ));
-    
-    _logoOpacityAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _logoController,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-    ));
+    _logoScaleAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
+    );
+
+    _logoOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _logoController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
 
     // Text animations
     _textOpacityAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _textController,
-      curve: Curves.easeOut,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
+
     _textSlideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _textController,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic),
+    );
 
     // Loading animation
-    _loadingOpacityAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _loadingController,
-      curve: Curves.easeIn,
-    ));
+    _loadingOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _loadingController, curve: Curves.easeIn),
+    );
 
     // Background animation
-    _backgroundAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _backgroundController,
-      curve: Curves.easeInOut,
-    ));
+    _backgroundAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _backgroundController, curve: Curves.easeInOut),
+    );
   }
 
   void _startAnimationSequence() async {
     // Start background animation immediately
     _backgroundController.forward();
-    
+
     // Start logo animation after a short delay
     await Future.delayed(const Duration(milliseconds: 300));
     _logoController.forward();
-    
+
     // Start text animation after logo
     await Future.delayed(const Duration(milliseconds: 800));
     setState(() => showText = true);
     _textController.forward();
-    
+
     // Show loading after text
     await Future.delayed(const Duration(milliseconds: 600));
     setState(() => showLoading = true);
@@ -190,11 +171,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Theme.of(context).scaffoldBackgroundColor,
                     Theme.of(context).primaryColor.withOpacity(0.05),
                   ],
-                  stops: [
-                    0.0,
-                    0.5 + (_backgroundAnimation.value * 0.3),
-                    1.0,
-                  ],
+                  stops: [0.0, 0.5 + (_backgroundAnimation.value * 0.3), 1.0],
                 ),
               ),
               child: SafeArea(
@@ -219,22 +196,25 @@ class _SplashScreenState extends State<SplashScreen>
                                       padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Theme.of(context)
-                                                .primaryColor
-                                                .withOpacity(0.2 * _logoOpacityAnimation.value),
-                                            blurRadius: 20,
-                                            spreadRadius: 5,
-                                          ),
-                                        ],
+                                        // boxShadow: [
+                                        //   BoxShadow(
+                                        //     color: Theme.of(context)
+                                        //         .primaryColor
+                                        //         .withOpacity(0.2 * _logoOpacityAnimation.value),
+                                        //     blurRadius: 20,
+                                        //     spreadRadius: 5,
+                                        //   ),
+                                        // ],
                                       ),
                                       child: SizedBox(
-                                        width: w(context) * 0.4,
-                                        height: w(context) * 0.4,
-                                        child: Image.asset(
-                                          ConstImages.appLogo,
-                                          fit: BoxFit.contain,
+                                        width: w(context) * 0.5,
+                                        height: w(context) * 0.5,
+                                        child: Hero(
+                                          tag: "app_logo",
+                                          child: Image.asset(
+                                            EvConstImages.appLogoHr,
+                                            fit: BoxFit.contain,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -242,9 +222,9 @@ class _SplashScreenState extends State<SplashScreen>
                                 );
                               },
                             ),
-                            
+
                             const SizedBox(height: 32),
-                            
+
                             // Animated Welcome Text
                             if (showText)
                               AnimatedBuilder(
@@ -258,18 +238,17 @@ class _SplashScreenState extends State<SplashScreen>
                                         children: [
                                           Text(
                                             'Welcome to',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.color
-                                                      ?.withOpacity(0.7),
-                                                  fontWeight: FontWeight.w300,
-                                                  letterSpacing: 1.2,
-                                                ),
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleMedium?.copyWith(
+                                              color: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.color
+                                                  ?.withOpacity(0.7),
+                                              fontWeight: FontWeight.w300,
+                                              letterSpacing: 1.2,
+                                            ),
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
@@ -279,7 +258,10 @@ class _SplashScreenState extends State<SplashScreen>
                                                 .headlineMedium
                                                 ?.copyWith(
                                                   fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).primaryColor,
+                                                  color:
+                                                      Theme.of(
+                                                        context,
+                                                      ).primaryColor,
                                                   letterSpacing: 0.5,
                                                 ),
                                           ),
@@ -290,13 +272,15 @@ class _SplashScreenState extends State<SplashScreen>
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
                                                 colors: [
-                                                  Theme.of(context).primaryColor,
-                                                  Theme.of(context)
-                                                      .primaryColor
+                                                  Theme.of(
+                                                    context,
+                                                  ).primaryColor,
+                                                  Theme.of(context).primaryColor
                                                       .withOpacity(0.5),
                                                 ],
                                               ),
-                                              borderRadius: BorderRadius.circular(2),
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
                                             ),
                                           ),
                                         ],
@@ -309,7 +293,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ),
                     ),
-                    
+
                     // Bottom section with loading
                     Expanded(
                       flex: 2,
@@ -334,14 +318,14 @@ class _SplashScreenState extends State<SplashScreen>
                                             Container(
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: Theme.of(context)
-                                                    .primaryColor
-                                                    .withOpacity(0.1),
+                                                color: Theme.of(
+                                                  context,
+                                                ).primaryColor.withOpacity(0.1),
                                               ),
                                             ),
                                             // Loading indicator
-                                             Center(
-                                              child: AppLoadingIndicator(),
+                                            Center(
+                                              child: EVAppLoadingIndicator(),
                                             ),
                                           ],
                                         ),
@@ -349,17 +333,16 @@ class _SplashScreenState extends State<SplashScreen>
                                       const SizedBox(height: 16),
                                       Text(
                                         'Loading your experience...',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.color
-                                                  ?.withOpacity(0.6),
-                                              letterSpacing: 0.5,
-                                            ),
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.color
+                                              ?.withOpacity(0.6),
+                                          letterSpacing: 0.5,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -369,7 +352,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ],
                       ),
                     ),
-                    
+
                     // Bottom padding
                     const SizedBox(height: 32),
                   ],
