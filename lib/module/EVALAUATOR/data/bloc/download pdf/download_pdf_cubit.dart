@@ -1,9 +1,7 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/download_inspection_pdf_repo.dart';
 import 'package:open_file/open_file.dart';
@@ -73,31 +71,38 @@ class DownloadPdfCubit extends Cubit<DownloadPdfState> {
   }
 
   Future<bool> _requestStoragePermission() async {
-    if (Platform.isAndroid) {
-      // For Android 10+ (API 29+), we need different permissions
-      if (await Permission.storage.isGranted) {
-        return true;
+  if (Platform.isAndroid) {
+    final deviceInfo = await DeviceInfoPlugin().androidInfo;
+    final sdkInt = deviceInfo.version.sdkInt;
+
+    if (sdkInt >= 33) {
+      // Android 13+ (API 33+): Use media-specific permissions
+      var photos = await Permission.photos.status;
+      if (!photos.isGranted) {
+        photos = await Permission.photos.request();
       }
-      
-      final status = await Permission.storage.request();
-      if (status.isGranted) {
-        return true;
-      }
-      
-      // Try with manage external storage for Android 11+
+      return photos.isGranted;
+    } else if (sdkInt >= 30) {
+      // Android 11 & 12 (API 30–32): MANAGE_EXTERNAL_STORAGE
       if (await Permission.manageExternalStorage.isGranted) {
         return true;
       }
-      
-      final manageStatus = await Permission.manageExternalStorage.request();
-      return manageStatus.isGranted;
-    } else if (Platform.isIOS) {
-      // iOS doesn't need explicit storage permission for app documents
-      return true;
+      final result = await Permission.manageExternalStorage.request();
+      return result.isGranted;
+    } else {
+      // Android 10 and below (API <30): STORAGE permission
+      if (await Permission.storage.isGranted) {
+        return true;
+      }
+      final result = await Permission.storage.request();
+      return result.isGranted;
     }
-    
-    return false;
+  } else if (Platform.isIOS) {
+    return true; // iOS does not need explicit storage permission
   }
+
+  return false;
+}
 
   Future<Directory?> _getDownloadDirectory() async {
     try {

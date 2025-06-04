@@ -21,45 +21,46 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/auth%20cubit/auth_cubit.
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
-blocProviders(Widget child)=>MultiBlocProvider(
-      providers: [
-        BlocProvider<EvLoginBlocBloc>(create: (_) => EvLoginBlocBloc()),
-        BlocProvider<EvFetchCarMakeBloc>(create: (_) => EvFetchCarMakeBloc()),
-        BlocProvider<EvFetchCarModelBloc>(create: (_) => EvFetchCarModelBloc()),
-        BlocProvider<EvSearchCarMakeBloc>(create: (_) => EvSearchCarMakeBloc()),
-        BlocProvider<EvFetchCityBloc>(create: (_) => EvFetchCityBloc()),
-        BlocProvider<EvAuthBlocCubit>(create: (_) => EvAuthBlocCubit()),
-        BlocProvider<EvAppNavigationCubit>(
-          create: (_) => EvAppNavigationCubit(),
-        ),
+import 'package:wheels_kart/module/VENDOR/data/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 
-        BlocProvider<EvFetchDashboardBloc>(
-          create: (_) => EvFetchDashboardBloc(),
-        ),
-        BlocProvider<FetchInspectionsBloc>(
-          create: (_) => FetchInspectionsBloc(),
-        ),
-        BlocProvider<FetchPortionsBloc>(create: (_) => FetchPortionsBloc()),
-        BlocProvider<FetchSystemsBloc>(create: (_) => FetchSystemsBloc()),
-        BlocProvider<FetchQuestionsBloc>(create: (_) => FetchQuestionsBloc()),
-        BlocProvider<EvSubmitAnswerControllerCubit>(
-          create: (_) => EvSubmitAnswerControllerCubit(),
-        ),
-        BlocProvider<EvFetchPrefillDataOfInspectionBloc>(
-          create: (_) => EvFetchPrefillDataOfInspectionBloc(),
-        ),
-        BlocProvider<FetchDocumentTypeBloc>(
-          create: (_) => FetchDocumentTypeBloc(),
-        ),
-        BlocProvider<FetchDocumentsCubit>(create: (_) => FetchDocumentsCubit()),
-        BlocProvider<SubmitDocumentCubit>(create: (_) => SubmitDocumentCubit()),
-        BlocProvider<FetchUploadedVehilcePhotosCubit>(create: (_) => FetchUploadedVehilcePhotosCubit()),
-        BlocProvider<UplaodVehilcePhotoCubit>(create: (_) => UplaodVehilcePhotoCubit()),
-        BlocProvider<FetchPictureAnglesCubit>(create: (_) => FetchPictureAnglesCubit()),
-           BlocProvider<DownloadPdfCubit>(create: (_) => DownloadPdfCubit()),
-        // USER CONTROLLERS
-       
-      ],
-      child: child,);
+blocProviders(Widget child) => MultiBlocProvider(
+  providers: [
+    BlocProvider<EvLoginBlocBloc>(create: (_) => EvLoginBlocBloc()),
+    BlocProvider<EvFetchCarMakeBloc>(create: (_) => EvFetchCarMakeBloc()),
+    BlocProvider<EvFetchCarModelBloc>(create: (_) => EvFetchCarModelBloc()),
+    BlocProvider<EvSearchCarMakeBloc>(create: (_) => EvSearchCarMakeBloc()),
+    BlocProvider<EvFetchCityBloc>(create: (_) => EvFetchCityBloc()),
+    BlocProvider<EvAuthBlocCubit>(create: (_) => EvAuthBlocCubit()),
+    BlocProvider<EvAppNavigationCubit>(create: (_) => EvAppNavigationCubit()),
+    BlocProvider<EvFetchDashboardBloc>(create: (_) => EvFetchDashboardBloc()),
+    BlocProvider<FetchInspectionsBloc>(create: (_) => FetchInspectionsBloc()),
+    BlocProvider<FetchPortionsBloc>(create: (_) => FetchPortionsBloc()),
+    BlocProvider<FetchSystemsBloc>(create: (_) => FetchSystemsBloc()),
+    BlocProvider<FetchQuestionsBloc>(create: (_) => FetchQuestionsBloc()),
+    BlocProvider<EvSubmitAnswerControllerCubit>(
+      create: (_) => EvSubmitAnswerControllerCubit(),
+    ),
+    BlocProvider<EvFetchPrefillDataOfInspectionBloc>(
+      create: (_) => EvFetchPrefillDataOfInspectionBloc(),
+    ),
+    BlocProvider<FetchDocumentTypeBloc>(create: (_) => FetchDocumentTypeBloc()),
+    BlocProvider<FetchDocumentsCubit>(create: (_) => FetchDocumentsCubit()),
+    BlocProvider<SubmitDocumentCubit>(create: (_) => SubmitDocumentCubit()),
+    BlocProvider<FetchUploadedVehilcePhotosCubit>(
+      create: (_) => FetchUploadedVehilcePhotosCubit(),
+    ),
+    BlocProvider<UplaodVehilcePhotoCubit>(
+      create: (_) => UplaodVehilcePhotoCubit(),
+    ),
+    BlocProvider<FetchPictureAnglesCubit>(
+      create: (_) => FetchPictureAnglesCubit(),
+    ),
+    BlocProvider<DownloadPdfCubit>(create: (_) => DownloadPdfCubit()),
 
-
+    // USER CONTROLLERS
+    BlocProvider<VNavControllerCubit>(
+      create: (_) => VNavControllerCubit(),
+    ),
+  ],
+  child: child,
+);

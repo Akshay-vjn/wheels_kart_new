@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
@@ -485,6 +486,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
+        width: w(context)*.25,
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(

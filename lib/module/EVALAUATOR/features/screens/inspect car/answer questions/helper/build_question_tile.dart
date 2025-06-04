@@ -1102,12 +1102,11 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
         }
         helperVariable['listOfImages'] = prefillImages;
       }
-    } catch (e) {
-      log(e.toString());
-    } finally {
       setState(() {
         isLoadingImage = false;
       });
+    } catch (e) {
+      log(e.toString());
     }
   }
 
@@ -1973,7 +1972,11 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
                   } else {
                     // show Error Message : Select atleast on option
                     // Completed
-                    showSnakBar(context, 'Select atleast one option.',isError: true);
+                    showSnakBar(
+                      context,
+                      'Select atleast one option.',
+                      isError: true,
+                    );
                   }
                 } else {
                   checkCommentAndImage(index, question, uploadData, true);
@@ -1986,7 +1989,11 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
                   } else {
                     // show Error Message : Select atleast on option
                     //Completed
-                    showSnakBar(context,"Select atleast one option.",isError: true);
+                    showSnakBar(
+                      context,
+                      "Select atleast one option.",
+                      isError: true,
+                    );
                   }
                 } else {
                   checkCommentAndImage(index, question, uploadData, false);
@@ -1994,7 +2001,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
               }
             } else {
               //---show Error : Select the Main Option
-              showSnakBar(context,"Please select the answer",isError: true);
+              showSnakBar(context, "Please select the answer", isError: true);
               // Completed
             }
           }
@@ -2088,7 +2095,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           } else {
             if (listOFImages.isEmpty) {
               // Error : Select atleast one image
-              showSnakBar(context,"Take atleast one picture",isError: true);
+              showSnakBar(context, "Take atleast one picture", isError: true);
             } else {
               await Functions.onAddComment(
                 context,
@@ -2111,7 +2118,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
         } else {
           // Error : Select atleast one image
           if (listOFImages.isEmpty) {
-            showSnakBar(context,"Take atleast one picture",isError: true);
+            showSnakBar(context, "Take atleast one picture", isError: true);
           } else {
             await Functions.onAddImages(context, index, listOFImages);
             await Functions.onAddComment(

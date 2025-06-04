@@ -323,6 +323,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                   });
                   showSnakBar(
                     context,
+                    // state.message,
                     'Failed to download PDF. Please try again.',
                    isError: true
                   );
