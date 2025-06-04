@@ -12,36 +12,17 @@ class EVAppLoadingIndicator extends StatelessWidget {
           needMorHigt == true
               ? SizedBox(
                 height: h(context) * .8,
-                child: CircularProgressIndicator(
+                child: CircularProgressIndicator.adaptive(
                   strokeWidth: 2,
-                  // color: AppColors.DEFAULT_ORANGE,
                 ),
 
-                // SpinKitFadingCircle(
-                //   itemBuilder:
-                //       (context, index) => DecoratedBox(
-                //         decoration: BoxDecoration(
-                //           borderRadius: BorderRadius.circular(100),
-                //           color: AppColors.DEFAULT_ORANGE,
-                //         ),
-                //       ),
-                // ),
-                // CircularProgressIndicator(strokeWidth: 2),
+   
               )
-              : CircularProgressIndicator(
+              : CircularProgressIndicator.adaptive(
                 strokeWidth: 2,
-                // color: AppColors.DEFAULT_ORANGE,
               ),
 
-      //  SpinKitFadingCircle(
-      //   itemBuilder:
-      //       (context, index) => DecoratedBox(
-      //         decoration: BoxDecoration(
-      //           borderRadius: BorderRadius.circular(100),
-      //           color: AppColors.DEFAULT_ORANGE,
-      //         ),
-      //       ),
-      // ),
+   
     );
   }
 }

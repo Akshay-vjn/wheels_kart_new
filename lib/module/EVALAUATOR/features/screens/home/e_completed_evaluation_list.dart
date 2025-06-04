@@ -299,9 +299,10 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
           colors: [Colors.grey[50]!, Colors.white],
         ),
       ),
-      child: RefreshIndicator(
+      child: RefreshIndicator.adaptive(
         onRefresh: _onRefresh,
-        color: EvAppColors.DARK_SECONDARY,
+      color: EvAppColors.DEFAULT_BLUE_DARK,
+        backgroundColor: Colors.white,
         child: MultiBlocListener(
           listeners: [
             BlocListener<DownloadPdfCubit, DownloadPdfState>(

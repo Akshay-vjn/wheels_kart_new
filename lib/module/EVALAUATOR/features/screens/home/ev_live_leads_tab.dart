@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
-import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
-import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
-import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/intl_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/1_select_and_search_car_makes.dart';
@@ -80,7 +75,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
           colors: [Colors.grey[50]!, Colors.white],
         ),
       ),
-      child: RefreshIndicator(
+      child: RefreshIndicator.adaptive(
         onRefresh: () async {
           await load();
           _animationController.reset();
