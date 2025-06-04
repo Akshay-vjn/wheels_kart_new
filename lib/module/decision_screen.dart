@@ -174,7 +174,7 @@ class _DecisionScreenState extends State<DecisionScreen>
                           Icons.store_outlined,
                           const Color(0xFF1565C0),
                           () {
-                            log("message");
+                            log("messageffff");
                             // _navigateWithAnimation(VeLoginScreen());
                           },
                         ),
