@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
-import 'package:wheels_kart/module/VENDOR/features/home/home_tab.dart';
+import 'package:wheels_kart/module/vendor/data/models/vehicle_model.dart';
 
 class VehicleCard extends StatelessWidget {
   final VehicleModel vehicle;

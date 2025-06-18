@@ -1,9 +1,12 @@
 
+
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/dimensions.dart';
-import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
-import 'package:wheels_kart/module/VENDOR/core/v_style.dart';
-import 'package:wheels_kart/module/VENDOR/features/home/widgets/vehicle_card.dart';
+import 'package:wheels_kart/module/VENDOR/features/home/home_tab.dart';
+import 'package:wheels_kart/module/vendor/core/const/v_colors.dart';
+import 'package:wheels_kart/module/vendor/core/v_style.dart';
+import 'package:wheels_kart/module/vendor/data/models/vehicle_model.dart';
+import 'package:wheels_kart/module/vendor/features/home/widgets/vehicle_card.dart';
 
 class VHomeTab extends StatefulWidget {
   const VHomeTab({super.key});
@@ -77,7 +80,6 @@ class _VHomeTabState extends State<VHomeTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       backgroundColor: VColors.WHITEBGCOLOR,
       body: CustomScrollView(
         controller: _scrollController,
@@ -159,7 +161,7 @@ class _VHomeTabState extends State<VHomeTab> {
 
           // Vehicle List
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 return VehicleCard(
@@ -216,30 +218,4 @@ class _VHomeTabState extends State<VHomeTab> {
       icon: const Icon(Icons.notifications_outlined, color: VColors.PRIMARY),
     ),
   );
-}
-
-class VehicleModel {
-  final String id;
-  final String name;
-  final String model;
-  final String fuelType;
-  final String regNumber;
-  final String ownership;
-  final String kmDriven;
-  final String price;
-  final String imageUrl;
-  final List<String> features;
-
-  VehicleModel({
-    required this.id,
-    required this.name,
-    required this.model,
-    required this.fuelType,
-    required this.regNumber,
-    required this.ownership,
-    required this.kmDriven,
-    required this.price,
-    required this.imageUrl,
-    required this.features,
-  });
 }

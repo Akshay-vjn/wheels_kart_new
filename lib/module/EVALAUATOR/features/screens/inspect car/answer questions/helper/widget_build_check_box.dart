@@ -17,8 +17,8 @@ class BuildCheckBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CheckboxListTile( 
-    
+    return CheckboxListTile(
+      
       side: BorderSide(color: EvAppColors.grey),
       shape: OutlineInputBorder(
         borderSide: BorderSide(color: EvAppColors.grey.withOpacity(.4)),
@@ -26,9 +26,9 @@ class BuildCheckBox extends StatelessWidget {
       ),
       fillColor: isSelected ? WidgetStatePropertyAll(EvAppColors.black) : null,
       checkColor: EvAppColors.white,
-    
+
       overlayColor: WidgetStatePropertyAll(EvAppColors.kAppSecondaryColor),
-    
+
       tileColor: isSelected ? EvAppColors.kSelectionColor : null,
       checkboxShape: ContinuousRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimensions.radiusSize5),

@@ -22,7 +22,7 @@ class EvAppCustomTextfield extends StatelessWidget {
   final void Function(String)? onChanged;
   final double? borderRudius;
   final Color? fillColor;
-  final TextStyle ?lebelStyle;
+  final TextStyle? lebelStyle;
 
   EvAppCustomTextfield({
     super.key,
@@ -41,7 +41,8 @@ class EvAppCustomTextfield extends StatelessWidget {
     this.isTextCapital,
     this.maxLine,
     this.borderRudius,
-    this.fillColor, this.lebelStyle,
+    this.fillColor,
+    this.lebelStyle,
   });
 
   @override
@@ -49,18 +50,21 @@ class EvAppCustomTextfield extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          labeltext ?? '',
-          style:lebelStyle?? EvAppStyle.style(
-            context: context,
-            size: AppDimensions.fontSize15(context),
-            color: EvAppColors.DEFAULT_BLUE_DARK,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        labeltext != null
+            ? Text(
+              labeltext!,
+              style:
+                  lebelStyle ??
+                  EvAppStyle.style(
+                    context: context,
+                    size: AppDimensions.fontSize15(context),
+                    color: EvAppColors.DEFAULT_BLUE_DARK,
+                    fontWeight: FontWeight.w600,
+                  ),
+            )
+            : SizedBox.shrink(),
         // const AppSpacer(heightPortion: ),
         TextFormField(
-          
           onChanged: onChanged,
           maxLines: maxLine ?? 1,
           textCapitalization:
@@ -87,7 +91,10 @@ class EvAppCustomTextfield extends StatelessWidget {
           decoration: InputDecoration(
             filled: fillColor != null,
             fillColor: fillColor,
-            errorStyle: EvAppStyle.style(context: context, color: EvAppColors.kRed),
+            errorStyle: EvAppStyle.style(
+              context: context,
+              color: EvAppColors.kRed,
+            ),
             contentPadding: const EdgeInsets.symmetric(
               vertical: 15,
               horizontal: 10,
@@ -143,7 +150,7 @@ class EvAppCustomTextfield extends StatelessWidget {
             ),
           ),
         ),
-        const AppSpacer(heightPortion: .015),
+        // const AppSpacer(heightPortion: .015),
       ],
     );
   }

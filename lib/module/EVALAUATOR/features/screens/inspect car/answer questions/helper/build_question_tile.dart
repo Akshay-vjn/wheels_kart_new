@@ -993,6 +993,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/camera_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
@@ -1038,7 +1040,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
   };
 
   bool isLoadingImage = true;
-  bool _isExpanded = false;
+  bool _isExpanded = true;
 
   @override
   void initState() {
@@ -1182,10 +1184,11 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
       child: Container(
         padding: EdgeInsets.all(AppDimensions.paddingSize10),
         decoration: BoxDecoration(
+          border: Border.all(color: _getBorderColor(currentstate), width: 1.5),
           color: _getHeaderColor(currentstate),
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(AppDimensions.radiusSize18),
-            topRight: Radius.circular(AppDimensions.radiusSize18),
+            topLeft: Radius.circular(AppDimensions.radiusSize18 - 2),
+            topRight: Radius.circular(AppDimensions.radiusSize18 - 2),
           ),
         ),
         child: Row(
@@ -1597,7 +1600,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
             },
             focusColor: EvAppColors.DEFAULT_BLUE_DARK,
             fontWeght: FontWeight.normal,
-            maxLine: 3,
+            maxLine: 1,
             validator: (value) {
               if (invalidAnswer == selectedMainOption) {
                 if (value!.isEmpty) {
@@ -1654,7 +1657,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+              crossAxisCount: 3,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
               childAspectRatio: 1.2,
@@ -2040,6 +2043,23 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
 
       Functions.resetButtonStatus(context, questionIndex);
     }
+
+    // Navigator.of(context).push(
+    //   AppRoutes.createRoute(
+    //     CameraScreen(
+    //       onImageCaptured: (file) async {
+    //         final bytes = await file.readAsBytes();
+
+    //         setState(() {
+    //           listOfImages.add(bytes);
+    //         });
+
+    //         Functions.resetButtonStatus(context, questionIndex);
+    //       },
+    //     ),
+    //   ),
+    // );
+    // }
   }
 
   void checkCommentAndImage(
