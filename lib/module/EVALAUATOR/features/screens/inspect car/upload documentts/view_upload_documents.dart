@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
@@ -437,6 +438,8 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen>
                 ),
               ),
             ),
+
+            AppSpacer(heightPortion: .09,)
         ],
       ),
     );
@@ -444,7 +447,7 @@ class _ViewUploadDocumentsScreenState extends State<ViewUploadDocumentsScreen>
 
   Widget _buildDocumentCard(dynamic document, int index) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16,right: 10,),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),

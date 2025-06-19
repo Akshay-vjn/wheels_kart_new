@@ -999,6 +999,7 @@ import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_in
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
+import 'package:image/image.dart' as img;
 
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/functions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/widget_build_check_box.dart';
@@ -1239,24 +1240,24 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      widget.question.questionType,
-                      style: EvAppStyle.style(
-                        context: context,
-                        size: AppDimensions.fontSize12(context),
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 8,
+                  //     vertical: 4,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.white.withOpacity(0.2),
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   child: Text(
+                  //     widget.question.questionType,
+                  //     style: EvAppStyle.style(
+                  //       context: context,
+                  //       size: AppDimensions.fontSize12(context),
+                  //       color: Colors.white,
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -1266,10 +1267,10 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (isCompleted)
-                  Icon(Icons.check_circle, color: Colors.white, size: 28)
+                  Icon(Icons.check_circle, color: Colors.white, size: 20)
                 else if (hasError)
-                  Icon(Icons.error_outline, color: Colors.white, size: 28),
-                SizedBox(width: 8),
+                  Icon(Icons.error_outline, color: Colors.white, size: 20),
+                SizedBox(width: 5),
                 AnimatedRotation(
                   turns: _isExpanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 300),
@@ -1655,6 +1656,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
       child: Column(
         children: [
           GridView.builder(
+            padding: EdgeInsets.all(0),
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
@@ -2027,39 +2029,54 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     if (currentState is SuccessFetchQuestionsState) {
-      final listOfImages = helperVariable["listOfImages"];
-      final imagepicker = ImagePicker();
-      final pickedXfile = await imagepicker.pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.rear,
+      Navigator.of(context).push(
+        AppRoutes.createRoute(
+          CameraScreen(
+            onImageCaptured: (file) async {
+              final listOfImages = helperVariable["listOfImages"];
+
+              final bytes = await file.readAsBytes();
+              img.Image? image = img.decodeImage(bytes);
+              if (image == null) {
+                throw Exception("Unable to decode image");
+              }
+              if (image.width > 800) {
+                image = img.copyResize(image, width: 800);
+              }
+              final compressed = img.encodeJpg(image, quality: 80);
+              //---------------
+              setState(() {
+                listOfImages.add(compressed);
+              });
+              Functions.resetButtonStatus(context, questionIndex);
+            },
+          ),
+        ),
       );
-      if (pickedXfile != null) {
-        final bytes = await pickedXfile.readAsBytes();
-
-        setState(() {
-          listOfImages.add(bytes);
-        });
-      }
-
-      Functions.resetButtonStatus(context, questionIndex);
+      //  final listOfImages = helperVariable["listOfImages"];
+      // final imagepicker = ImagePicker();
+      // final pickedXfile = await imagepicker.pickImage(
+      //   source: ImageSource.camera,
+      //   preferredCameraDevice: CameraDevice.rear,
+      // );
+      // if (pickedXfile != null) {
+      //   final bytes = await pickedXfile.readAsBytes();
+      //   //--
+      //   img.Image? image = img.decodeImage(bytes);
+      //   if (image == null) {
+      //     throw Exception("Unable to decode image");
+      //   }
+      //   if (image.width > 800) {
+      //     image = img.copyResize(image, width: 800);
+      //   }
+      //   final compressed = img.encodeJpg(image, quality: 80);
+      //   //---------------
+      //   setState(() {
+      //     listOfImages.add(compressed);
+      //   });
+      // Functions.resetButtonStatus(context, questionIndex);
+      // }
     }
-
-    // Navigator.of(context).push(
-    //   AppRoutes.createRoute(
-    //     CameraScreen(
-    //       onImageCaptured: (file) async {
-    //         final bytes = await file.readAsBytes();
-
-    //         setState(() {
-    //           listOfImages.add(bytes);
-    //         });
-
-    //         Functions.resetButtonStatus(context, questionIndex);
-    //       },
-    //     ),
-    //   ),
-    // );
-    // }
   }
 
   void checkCommentAndImage(

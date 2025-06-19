@@ -6,8 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/upload_vehicle_photo_repo.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/camera_screen.dart';
 
 part 'uplaod_vehilce_photo_state.dart';
 
@@ -16,7 +18,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
   File? selectedImageFile;
   UplaodVehilcePhotoCubit() : super(UplaodVehilcePhotoInitialState());
 
- void onClearAll() {
+  void onClearAll() {
     emit(UplaodVehilcePhotoSuccessState(null, null));
   }
 
@@ -63,15 +65,29 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     emit(UplaodVehilcePhotoSuccessState(angleId, null));
   }
 
-  void onSelectImage() async {
-    final controller = ImagePicker();
-    final xFile = await controller.pickImage(
-      source: ImageSource.camera,
-      preferredCameraDevice: CameraDevice.rear,
-    );
-    if (xFile == null) return;
-    selectedImageFile = File(xFile.path);
+  void onSelectImage(BuildContext context) async {
+    // final controller = ImagePicker();
+    // final xFile = await controller.pickImage(
+    //   source: ImageSource.camera,
+    //   preferredCameraDevice: CameraDevice.rear,
+    // );
+    // if (xFile == null) return;
+    // selectedImageFile = File(xFile.path);
 
-    emit(UplaodVehilcePhotoSuccessState(selectedAngleId, selectedImageFile));
+    Navigator.of(context).push(
+      AppRoutes.createRoute(
+        CameraScreen(
+          onImageCaptured: (file) {
+            selectedImageFile = file;
+            emit(
+              UplaodVehilcePhotoSuccessState(
+                selectedAngleId,
+                selectedImageFile,
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 }

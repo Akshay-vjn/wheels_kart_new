@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image/image.dart' as img;
 
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
@@ -61,11 +62,11 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
   @override
   void dispose() {
     _animationController.dispose();
-    descriptionController.dispose();
+    // descriptionController.dispose();
     super.dispose();
   }
 
-  final descriptionController = TextEditingController();
+  // final descriptionController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -272,8 +273,8 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                         uploadState,
                       ),
                       const SizedBox(height: 24),
-                      _buildDescriptionSection(fetchUploadsState, uploadState),
-                      const SizedBox(height: 32),
+                      // _buildDescriptionSection(fetchUploadsState, uploadState),
+                      // const SizedBox(height: 32),
                       _buildActionButton(
                         angleState,
                         fetchUploadsState,
@@ -303,7 +304,10 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.1), Colors.white],
+          colors: [
+            EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.1),
+            Colors.white,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -736,97 +740,97 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
     );
   }
 
-  Widget _buildDescriptionSection(
-    FetchUploadedVehilcePhotosSuccessSate fetchUploadsState,
-    UplaodVehilcePhotoState uploadState,
-  ) {
-    final hasUploadedPhoto = fetchUploadsState.vehiclePhtotos.any(
-      (element) => element.angleId == uploadState.selectedAngleId,
-    );
+  // Widget _buildDescriptionSection(
+  //   FetchUploadedVehilcePhotosSuccessSate fetchUploadsState,
+  //   UplaodVehilcePhotoState uploadState,
+  // ) {
+  //   final hasUploadedPhoto = fetchUploadsState.vehiclePhtotos.any(
+  //     (element) => element.angleId == uploadState.selectedAngleId,
+  //   );
 
-    if (uploadState.selectedImageFile != null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle("Add Description", Icons.description),
-          const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: TextFormField(
-              controller: descriptionController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText:
-                    "Describe the photo details (damage, condition, etc.)",
-                hintStyle: EvAppStyle.style(
-                  context: context,
-                  color: Colors.grey[500],
-                  size: AppDimensions.fontSize15(context),
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Please add a description for this photo";
-                }
-                return null;
-              },
-            ),
-          ),
-        ],
-      );
-    }
+  //   if (uploadState.selectedImageFile != null) {
+  //     return Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         _buildSectionTitle("Add Description", Icons.description),
+  //         const SizedBox(height: 16),
+  //         Container(
+  //           decoration: BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.circular(12),
+  //             border: Border.all(color: Colors.grey[300]!),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: Colors.black.withOpacity(0.05),
+  //                 blurRadius: 5,
+  //                 offset: const Offset(0, 2),
+  //               ),
+  //             ],
+  //           ),
+  //           child: TextFormField(
+  //             controller: descriptionController,
+  //             maxLines: 3,
+  //             decoration: InputDecoration(
+  //               hintText:
+  //                   "Describe the photo details (damage, condition, etc.)",
+  //               hintStyle: EvAppStyle.style(
+  //                 context: context,
+  //                 color: Colors.grey[500],
+  //                 size: AppDimensions.fontSize15(context),
+  //               ),
+  //               border: InputBorder.none,
+  //               contentPadding: const EdgeInsets.all(16),
+  //             ),
+  //             validator: (value) {
+  //               if (value == null || value.trim().isEmpty) {
+  //                 return "Please add a description for this photo";
+  //               }
+  //               return null;
+  //             },
+  //           ),
+  //         ),
+  //       ],
+  //     );
+  //   }
 
-    if (hasUploadedPhoto) {
-      final description =
-          fetchUploadsState.vehiclePhtotos
-              .where(
-                (element) => element.angleId == uploadState.selectedAngleId,
-              )
-              .first
-              .description;
+  //   if (hasUploadedPhoto) {
+  //     final description =
+  //         fetchUploadsState.vehiclePhtotos
+  //             .where(
+  //               (element) => element.angleId == uploadState.selectedAngleId,
+  //             )
+  //             .first
+  //             .description;
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle("Photo Description", Icons.description),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.green[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green[200]!),
-            ),
-            child: Text(
-              description,
-              style: EvAppStyle.style(
-                context: context,
-                color: Colors.green[800],
-                size: AppDimensions.fontSize15(context),
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ],
-      );
-    }
+  //     return Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         _buildSectionTitle("Photo Description", Icons.description),
+  //         const SizedBox(height: 16),
+  //         Container(
+  //           width: double.infinity,
+  //           padding: const EdgeInsets.all(16),
+  //           decoration: BoxDecoration(
+  //             color: Colors.green[50],
+  //             borderRadius: BorderRadius.circular(12),
+  //             border: Border.all(color: Colors.green[200]!),
+  //           ),
+  //           child: Text(
+  //             description,
+  //             style: EvAppStyle.style(
+  //               context: context,
+  //               color: Colors.green[800],
+  //               size: AppDimensions.fontSize15(context),
+  //               fontWeight: FontWeight.w400,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     );
+  //   }
 
-    return const SizedBox();
-  }
+  //   return const SizedBox();
+  // }
 
   Widget _buildActionButton(
     FetchPictureAnglesSuccessState angleState,
@@ -901,7 +905,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
     UplaodVehilcePhotoState uploadState,
   ) async {
     if (uploadState.selectedImageFile == null) {
-      context.read<UplaodVehilcePhotoCubit>().onSelectImage();
+      context.read<UplaodVehilcePhotoCubit>().onSelectImage(context);
     } else {
       if (_formKey.currentState!.validate()) {
         final convertedImage = await convertFile(uploadState.selectedImageFile);
@@ -918,7 +922,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
           "pictureType": "FINAL",
           "pictureName": '$angleName-${widget.inspectionId}.jpg',
           'angleId': uploadState.selectedAngleId,
-          'description': descriptionController.text.trim(),
+          'description': angleName,
           'picture': convertedImage,
         };
 
@@ -929,7 +933,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
         );
 
         if (mounted) {
-          descriptionController.clear();
+          // descriptionController.clear();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text("Photo uploaded successfully!"),
@@ -978,18 +982,16 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
             ),
             ElevatedButton(
               onPressed: () async {
-              
                 final pictureId =
                     fetchUploadsState.vehiclePhtotos
                         .where((element) => element.angleId == angleId)
                         .first
                         .pictureId;
-     
+
                 await context
                     .read<FetchUploadedVehilcePhotosCubit>()
                     .deleteImage(context, widget.inspectionId, pictureId);
-                    Navigator.of(context).pop();
-             
+                Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -1009,6 +1011,14 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
   Future<String> convertFile(File? file) async {
     if (file == null) return '';
     final bytes = await file.readAsBytes();
-    return base64Encode(bytes);
+    img.Image? image = img.decodeImage(bytes);
+    if (image == null) {
+      throw Exception("Unable to decode image");
+    }
+    if (image.width > 800) {
+      image = img.copyResize(image, width: 800);
+    }
+    final compressed = img.encodeJpg(image, quality: 80);
+    return base64Encode(compressed);
   }
 }

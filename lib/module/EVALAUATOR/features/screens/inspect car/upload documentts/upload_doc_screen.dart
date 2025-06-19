@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_doc_scanner/flutter_doc_scanner.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
-import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
+import 'package:image/image.dart' as img;
 
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
@@ -18,7 +18,7 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit
 
 class UploadDocScreen extends StatefulWidget {
   final String inspectionId;
-  
+
   const UploadDocScreen({super.key, required this.inspectionId});
 
   @override
@@ -64,26 +64,17 @@ class _UploadDocScreenState extends State<UploadDocScreen>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
 
-    _progressAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeInOut,
-    ));
+    _progressAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
+    );
 
     _slideController.forward();
     _scaleController.forward();
@@ -131,7 +122,9 @@ class _UploadDocScreenState extends State<UploadDocScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(EvAppColors.DEFAULT_ORANGE),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              EvAppColors.DEFAULT_ORANGE,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -174,10 +167,7 @@ class _UploadDocScreenState extends State<UploadDocScreen>
             ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _initData,
-            child: const Text('Retry'),
-          ),
+          ElevatedButton(onPressed: _initData, child: const Text('Retry')),
         ],
       ),
     );
@@ -327,7 +317,9 @@ class _UploadDocScreenState extends State<UploadDocScreen>
           LinearProgressIndicator(
             value: _capturedFilePath != null ? 1.0 : 0.5,
             backgroundColor: Colors.grey[200],
-            valueColor: AlwaysStoppedAnimation<Color>(EvAppColors.DEFAULT_ORANGE),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              EvAppColors.DEFAULT_ORANGE,
+            ),
           ),
         ],
       ),
@@ -378,32 +370,36 @@ class _UploadDocScreenState extends State<UploadDocScreen>
                 hintStyle: TextStyle(color: Colors.grey[500]),
               ),
               dropdownColor: Colors.white,
-              icon: Icon(Icons.arrow_drop_down, color: EvAppColors.DEFAULT_ORANGE),
-              items: state.documentTypes
-                  .map(
-                    (docType) => DropdownMenuItem(
-                      value: docType,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.description,
-                            color: EvAppColors.DEFAULT_ORANGE,
-                            size: 20,
+              icon: Icon(
+                Icons.arrow_drop_down,
+                color: EvAppColors.DEFAULT_ORANGE,
+              ),
+              items:
+                  state.documentTypes
+                      .map(
+                        (docType) => DropdownMenuItem(
+                          value: docType,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.description,
+                                color: EvAppColors.DEFAULT_ORANGE,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                docType.documentTypeName,
+                                style: EvAppStyle.style(
+                                  context: context,
+                                  color: EvAppColors.DARK_PRIMARY,
+                                  size: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            docType.documentTypeName,
-                            style: EvAppStyle.style(
-                              context: context,
-                              color: EvAppColors.DARK_PRIMARY,
-                              size: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+                        ),
+                      )
+                      .toList(),
               onChanged: (value) {
                 HapticFeedback.selectionClick();
                 setState(() {
@@ -464,9 +460,10 @@ class _UploadDocScreenState extends State<UploadDocScreen>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: _capturedFilePath != null
-            ? _buildDocumentViewer()
-            : _buildEmptyPreview(),
+        child:
+            _capturedFilePath != null
+                ? _buildDocumentViewer()
+                : _buildEmptyPreview(),
       ),
     );
   }
@@ -540,11 +537,7 @@ class _UploadDocScreenState extends State<UploadDocScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.picture_as_pdf,
-                    color: Colors.white,
-                    size: 16,
-                  ),
+                  Icon(Icons.picture_as_pdf, color: Colors.white, size: 16),
                   const SizedBox(width: 4),
                   Text(
                     'PDF',
@@ -589,14 +582,16 @@ class _UploadDocScreenState extends State<UploadDocScreen>
                 duration: const Duration(milliseconds: 300),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: selectedDocumentId != null
-                      ? EvAppColors.DEFAULT_ORANGE.withOpacity(0.1)
-                      : Colors.grey[100],
+                  color:
+                      selectedDocumentId != null
+                          ? EvAppColors.DEFAULT_ORANGE.withOpacity(0.1)
+                          : Colors.grey[100],
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: selectedDocumentId != null
-                        ? EvAppColors.DEFAULT_ORANGE
-                        : Colors.grey[300]!,
+                    color:
+                        selectedDocumentId != null
+                            ? EvAppColors.DEFAULT_ORANGE
+                            : Colors.grey[300]!,
                     width: 2,
                   ),
                 ),
@@ -605,9 +600,10 @@ class _UploadDocScreenState extends State<UploadDocScreen>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: selectedDocumentId != null
-                            ? EvAppColors.DEFAULT_ORANGE
-                            : Colors.grey[400],
+                        color:
+                            selectedDocumentId != null
+                                ? EvAppColors.DEFAULT_ORANGE
+                                : Colors.grey[400],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -625,9 +621,10 @@ class _UploadDocScreenState extends State<UploadDocScreen>
                             'Scan Document',
                             style: EvAppStyle.style(
                               context: context,
-                              color: selectedDocumentId != null
-                                  ? EvAppColors.DARK_PRIMARY
-                                  : Colors.grey[600],
+                              color:
+                                  selectedDocumentId != null
+                                      ? EvAppColors.DARK_PRIMARY
+                                      : Colors.grey[600],
                               fontWeight: FontWeight.bold,
                               size: 18,
                             ),
@@ -648,18 +645,19 @@ class _UploadDocScreenState extends State<UploadDocScreen>
                     ),
                     Icon(
                       Icons.arrow_forward_ios,
-                      color: selectedDocumentId != null
-                          ? EvAppColors.DEFAULT_ORANGE
-                          : Colors.grey[400],
+                      color:
+                          selectedDocumentId != null
+                              ? EvAppColors.DEFAULT_ORANGE
+                              : Colors.grey[400],
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Upload Button
           SizedBox(
             width: double.infinity,
@@ -679,9 +677,10 @@ class _UploadDocScreenState extends State<UploadDocScreen>
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _canUpload()
-                    ? EvAppColors.DEFAULT_ORANGE
-                    : Colors.grey[400],
+                backgroundColor:
+                    _canUpload()
+                        ? EvAppColors.DEFAULT_ORANGE
+                        : Colors.grey[400],
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -747,9 +746,9 @@ class _UploadDocScreenState extends State<UploadDocScreen>
   }
 
   bool _canUpload() {
-    return selectedDocumentId != null && 
-           _capturedFilePath != null && 
-           !_isUploading;
+    return selectedDocumentId != null &&
+        _capturedFilePath != null &&
+        !_isUploading;
   }
 
   void _onSelectDocument() async {
@@ -760,20 +759,20 @@ class _UploadDocScreenState extends State<UploadDocScreen>
 
     try {
       HapticFeedback.mediumImpact();
-      
+
       final scannedDocResult = await FlutterDocScanner().getScanDocuments(
         page: 1,
       );
-      
+
       if (scannedDocResult != null) {
         log('Scanned document result: $scannedDocResult');
-        
+
         final pdfUri = scannedDocResult['pdfUri'];
         if (pdfUri != null) {
           setState(() {
             _capturedFilePath = Uri.parse(pdfUri).toFilePath();
           });
-          
+
           HapticFeedback.lightImpact();
           _showSuccessSnackBar('Document scanned successfully!');
         }
@@ -791,11 +790,12 @@ class _UploadDocScreenState extends State<UploadDocScreen>
 
     try {
       HapticFeedback.mediumImpact();
-      
+
       final file = File(_capturedFilePath!);
       final bytes = await file.readAsBytes();
       final base64 = base64Encode(bytes);
       final fileName = "$selectedDocumentName-${widget.inspectionId}.pdf";
+
 
       final json = {
         'documentId': selectedDocumentId,
@@ -834,11 +834,7 @@ class _UploadDocScreenState extends State<UploadDocScreen>
                   color: Colors.green.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 48,
-                ),
+                child: Icon(Icons.check_circle, color: Colors.green, size: 48),
               ),
               const SizedBox(height: 16),
               Text(
@@ -900,9 +896,7 @@ class _UploadDocScreenState extends State<UploadDocScreen>
         ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -919,9 +913,7 @@ class _UploadDocScreenState extends State<UploadDocScreen>
         ),
         backgroundColor: Colors.red,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }

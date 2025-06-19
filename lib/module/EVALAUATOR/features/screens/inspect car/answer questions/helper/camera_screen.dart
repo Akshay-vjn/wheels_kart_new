@@ -93,10 +93,32 @@ class _CameraScreenState extends State<CameraScreen> {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: ElevatedButton(
-                        onPressed: _takePicture,
-                        child: const Icon(Icons.camera_alt, size: 30),
+                      padding: const EdgeInsets.all(30),
+                      child: InkWell(
+                        overlayColor: WidgetStatePropertyAll(Colors.transparent),
+                        onTap: _takePicture,
+                        child: Container(
+                          padding: EdgeInsets.all(30),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: EvAppColors.white,
+                          ),
+                          child: const Icon(Icons.camera_alt, size: 40),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(30),
+                        child: InkWell(
+                          onTap: ()=>Navigator.of(context).pop(),
+                          child: const Icon(Icons.close,color: EvAppColors.white, size: 30,
+                          ),
+                        ),
                       ),
                     ),
                   ),
