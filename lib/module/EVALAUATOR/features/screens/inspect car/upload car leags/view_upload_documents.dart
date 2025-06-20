@@ -16,7 +16,7 @@ import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 
 import 'package:wheels_kart/common/utils/routes.dart';
-import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20documentts/upload_doc_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/upload_doc_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20documents/fetch_documents_cubit.dart';
 
 class ViewUploadDocumentsScreen extends StatefulWidget {

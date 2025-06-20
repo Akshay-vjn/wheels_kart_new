@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/upload_car_legals.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
@@ -14,7 +15,7 @@ import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/main.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/e_eselect_portion_screen.dart';
-import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20documentts/view_upload_documents.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/view_upload_documents.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20vehilce%20photo/upload_vehicle_photos.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_button.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20document%20types/fetch_document_type_bloc.dart';
@@ -589,7 +590,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   void _navigateToDocuments() {
     Navigator.of(context).push(
       AppRoutes.createRoute(
-        ViewUploadDocumentsScreen(inspectionId: widget.inspectionId),
+        UploadCarLegals(inspectionId: widget.inspectionId),
       ),
     );
   }
