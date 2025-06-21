@@ -13,21 +13,43 @@ class SubmitDocumentCubit extends Cubit<SubmitDocumentState> {
 
   Future<void> onSubmitDocument(
     BuildContext context,
-    String inspectionId,
-    Map<String, dynamic> data,
+    String insectionId,
+    List<Map<String, dynamic>> documents,
+    String numberOfOwners,
+    String roadTaxPaid,
+    String roadTaxValidityDate,
+    String insuranceType,
+    String insuranceValidityDate,
+    String currentRto,
+    String carLength,
+    String cubicCapacity,
+    String manufactureDate,
+    String numberOfKeys,
+    String regDate,
   ) async {
     try {
       emit(SubmitDocumentLoadingState());
       final response = await UploadDocumentRepo.uploadDocument(
         context,
-        inspectionId,
-        data,
+        insectionId,
+        documents,
+        numberOfOwners,
+        roadTaxPaid,
+        roadTaxValidityDate,
+        insuranceType,
+        insuranceValidityDate,
+        currentRto,
+        carLength,
+        cubicCapacity,
+        manufactureDate,
+        numberOfKeys,
+        regDate,
       );
       if (response.isNotEmpty) {
         if (response['error'] == false) {
           context.read<FetchDocumentsCubit>().onFetchDocumets(
             context,
-            inspectionId,
+            insectionId,
           );
           emit(SubmitDocumentSuccessState());
 

@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wheels_kart/common/dimensions.dart';
+import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 
 class UploadCarLegals extends StatefulWidget {
@@ -21,8 +24,8 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
   final ImagePicker _picker = ImagePicker();
 
   // Document images
-  List<File> rcImages = [];
-  List<File> insuranceImages = [];
+  List<Map<String, dynamic>> rcDocument = [];
+  List<Map<String, dynamic>> insuranceDocument = [];
 
   // Dropdown values
   int? numberOfOwners;
@@ -61,26 +64,38 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
   Future<void> _pickImage(String documentType) async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     if (image != null) {
-      setState(() {
-        if (documentType == 'RC') {
-          if (rcImages.length < 2) {
-            rcImages.add(File(image.path));
-          }
-        } else if (documentType == 'Insurance') {
-          if (insuranceImages.length < 2) {
-            insuranceImages.add(File(image.path));
-          }
+      if (documentType == 'RC') {
+        if (rcDocument.length < 2) {
+          // rcImages.add(File(image.path));
+          final doc = await _genarateImageJson(
+            File(image.path),
+            "RC (${rcDocument.length})",
+            "2",
+          );
+          rcDocument.add(doc);
+          setState(() {});
         }
-      });
+      } else if (documentType == 'Insurance') {
+        if (insuranceDocument.length < 2) {
+          final doc = await _genarateImageJson(
+            File(image.path),
+            "Insurance (${insuranceDocument.length})",
+            "1",
+          );
+          insuranceDocument.add(doc);
+          setState(() {});
+          // insuranceImages.add(File(image.path));
+        }
+      }
     }
   }
 
   void _removeImage(String documentType, int index) {
     setState(() {
       if (documentType == 'RC') {
-        rcImages.removeAt(index);
+        rcDocument.removeAt(index);
       } else if (documentType == 'Insurance') {
-        insuranceImages.removeAt(index);
+        insuranceDocument.removeAt(index);
       }
     });
   }
@@ -222,12 +237,32 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Form submitted successfully!'),
-          backgroundColor: EvAppColors.kGreen,
-        ),
-      );
+      if (insuranceDocument.isEmpty || rcDocument.isEmpty) {
+        showSnakBar(context, "Upload the Documents");
+      } else {
+        context.read<SubmitDocumentCubit>().onSubmitDocument(
+          context,
+          widget.inspectionId,
+          [...insuranceDocument, ...rcDocument],
+          numberOfOwners.toString(),
+          roadTaxPaid.toString(),
+          roadTaxValidityController.text,
+          insuranceType.toString(),
+          insuranceValidityController.text,
+          currentRTOController.text,
+          carLength.toString(),
+          cubicCapacityController.text,
+          manufactureDateController.text,
+          numberOfKeys.toString(),
+          registrationDateController.text,
+        );
+      }
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text('Form submitted successfully!'),
+      //     backgroundColor: EvAppColors.kGreen,
+      //   ),
+      // );
     }
   }
 
@@ -261,13 +296,13 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
               SizedBox(height: 16),
 
               // RC Documents
-              _buildDocumentUploadSection('RC Documents', rcImages, 'RC'),
+              _buildDocumentUploadSection('RC Documents', rcDocument, 'RC'),
               SizedBox(height: 16),
 
               // Insurance Documents
               _buildDocumentUploadSection(
                 'Insurance Documents',
-                insuranceImages,
+                insuranceDocument,
                 'Insurance',
               ),
               SizedBox(height: 24),
@@ -439,7 +474,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
 
   Widget _buildDocumentUploadSection(
     String title,
-    List<File> images,
+    List<Map<String, dynamic>> images,
     String documentType,
   ) {
     return Container(
@@ -477,8 +512,8 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            images[index],
+                          child: Image.memory(
+                            base64Decode(images[index]['file']),
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
@@ -647,5 +682,17 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
         },
       ),
     );
+  }
+
+  Future<Map<String, dynamic>> _genarateImageJson(
+    File file,
+    String docName,
+    String docId,
+  ) async {
+    final bytes = await file.readAsBytes();
+    final base64 = base64Encode(bytes);
+    final fileName = "$docName-${widget.inspectionId}.png";
+
+    return {'documentId': docId, 'fileName': fileName, 'file': base64};
   }
 }

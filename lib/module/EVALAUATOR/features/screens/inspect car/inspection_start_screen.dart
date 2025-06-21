@@ -359,8 +359,8 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
         ),
         const SizedBox(height: 16),
         _buildEnhancedStepCard(
-          title: "Documents",
-          subtitle: "Upload required documentation",
+          title: "Vehicle Legals",
+          subtitle: "Upload required vehilce legals",
           icon: CupertinoIcons.doc_fill,
           isCompleted: isDocsAllUploaded,
           onTap: () => _navigateToDocuments(),
@@ -642,8 +642,8 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       );
     } else if (!isDocsAllUploaded) {
       _showWarningAndNavigate(
-        "Upload Documents",
-        "Please upload all required documents before submitting.",
+        "Upload Vehilce Legals",
+        "Please upload all required vehilce legals before submitting.",
         _navigateToDocuments,
       );
     } else if (!isQuestionsAllCompleded) {
