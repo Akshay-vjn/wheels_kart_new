@@ -12,12 +12,12 @@ final class FetchDocumentsErrorState extends FetchDocumentsState {
 }
 
 final class FetchDocumentsSuccessState extends FetchDocumentsState {
-  final List<DocumentDataModel> documets;
+  final VehicleLgalModel vehicleLgalModel;
 
-  FetchDocumentsSuccessState({required this.documets});
+  FetchDocumentsSuccessState({required this.vehicleLgalModel});
 
   FetchDocumentsSuccessState copyWith() {
-    return FetchDocumentsSuccessState(documets: documets);
+    return FetchDocumentsSuccessState(vehicleLgalModel: vehicleLgalModel);
   }
 }
 

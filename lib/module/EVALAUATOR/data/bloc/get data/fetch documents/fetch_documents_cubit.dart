@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -20,20 +22,26 @@ class FetchDocumentsCubit extends Cubit<FetchDocumentsState> {
 
       if (response.isNotEmpty) {
         if (response['error'] == false) {
-          final data = response['data'] as List;
-
+          final data = response['data'] as Map;
+          log("--Success");
           emit(
             FetchDocumentsSuccessState(
-              documets: data.map((e) => DocumentDataModel.fromJson(e)).toList(),
+              vehicleLgalModel: VehicleLgalModel.fromJson(
+                data as Map<String, dynamic>,
+              ),
             ),
           );
         } else {
+          log("--Error");
           emit(FetchDocumentsErrorState(error: response['message']));
         }
       } else {
+        log("Error- 2");
         emit(FetchDocumentsErrorState(error: 'Error - Empty response'));
       }
     } catch (e) {
+      log("Catch-$e");
+
       emit(FetchDocumentsErrorState(error: 'Error - $e'));
     }
   }
@@ -54,6 +62,8 @@ class FetchDocumentsCubit extends Cubit<FetchDocumentsState> {
         inspectionDocumentId,
       );
       if (response.isNotEmpty) {
+        log(response['message']);
+        // await onFetchDocumets(context, inspectionId);
         responseMessage = response['message'];
       } else {
         responseMessage = 'Error - Empty response';

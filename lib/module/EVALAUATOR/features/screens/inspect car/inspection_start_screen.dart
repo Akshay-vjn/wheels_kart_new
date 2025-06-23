@@ -3,21 +3,19 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/document_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/upload_car_legals.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/view_car_legals.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
-import 'package:wheels_kart/common/components/app_spacer.dart';
+
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
-import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/main.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/e_eselect_portion_screen.dart';
-import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/view_upload_documents.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20vehilce%20photo/upload_vehicle_photos.dart';
-import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_button.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20document%20types/fetch_document_type_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20documents/fetch_documents_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
@@ -44,7 +42,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   InspectionModel? inspectionModel;
   bool isLoading = true;
   bool isQuestionsAllCompleded = false;
-  bool isDocsAllUploaded = false;
+  bool isLegalsAllUPloaded = false;
   bool isPicturedAllUploaded = false;
 
   late AnimationController _progressController;
@@ -54,6 +52,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   @override
   void initState() {
     super.initState();
+    log("inspectionId =>${widget.inspectionId}");
     _progressController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -130,23 +129,54 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
     // DOCS
     final stateOfUploadedDocs =
         BlocProvider.of<FetchDocumentsCubit>(context).state;
-    final stateOfDocumetsTypes =
-        BlocProvider.of<FetchDocumentTypeBloc>(context).state;
-    if (stateOfUploadedDocs is FetchDocumentsSuccessState &&
-        stateOfDocumetsTypes is FetchDocumentTypeSuccessState) {
-      final uploadedDocs = stateOfUploadedDocs.documets;
-      final docTypes = stateOfDocumetsTypes.documentTypes;
+    
+    if (stateOfUploadedDocs is FetchDocumentsSuccessState
+    ) {
+      final vehicleLegalModel = stateOfUploadedDocs.vehicleLgalModel;
+     
 
-      for (var docType in docTypes) {
-        if (uploadedDocs.any(
-          (element) => element.documentType == docType.documentTypeName,
-        )) {
-          isDocsAllUploaded = true;
-        } else {
-          isDocsAllUploaded = false;
-          break;
-        }
+      bool isDocAllUploaded = false;
+
+      
+      final haveInsurenceDoc = vehicleLegalModel.documents.any(
+        (element) => element.documentType == DocumentType.INSURANCE,
+      );
+      final haveRc = vehicleLegalModel.documents.any(
+        (element) => element.documentType == DocumentType.RC_CARD,
+      );
+      isDocAllUploaded = haveRc && haveInsurenceDoc;
+     
+      final inspection = vehicleLegalModel.inspection;
+      final numberOfAwners = inspection.noOfOwners;
+      final roadTaxPaid = inspection.roadTaxPaid;
+      final roadTaxValidity = inspection.roadTaxValidity;
+      final insuranceType = inspection.insuranceType;
+      final insuranceValidity = inspection.insuranceValidity;
+      final currentRto = inspection.currentRto;
+      final carLength = inspection.carLength;
+      final cubicCapacity = inspection.cubicCapacity;
+      final manufactureDate = inspection.manufactureDate;
+      final noOfKeys = inspection.noOfKeys;
+      final regDate = inspection.regDate;
+
+      if (numberOfAwners.isEmpty ||
+          roadTaxPaid.isEmpty ||
+          roadTaxValidity.isEmpty ||
+          insuranceType.isEmpty ||
+          currentRto.isEmpty ||
+          carLength.isEmpty ||
+          cubicCapacity.isEmpty ||
+          manufactureDate.isEmpty ||
+          noOfKeys.isEmpty ||
+          regDate.isEmpty ||
+          insuranceValidity.isEmpty ||
+          !isDocAllUploaded) {
+        isLegalsAllUPloaded = false;
+      } else {
+        isLegalsAllUPloaded = true;
       }
+      log("Doc" + isDocAllUploaded.toString());
+      log(isLegalsAllUPloaded.toString());
     } else {
       log("Doc Not initialized.");
     }
@@ -189,7 +219,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       _checkDocumetsAllUplaoded();
       // -- Check completed Car Photos --
       _checkCarPhotosAllUplaoded();
-
+      // await Future.delayed(Duration(seconds: 1));
       isLoading = false;
       setState(() {});
       _fadeController.forward();
@@ -202,13 +232,13 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   double get completionProgress {
     int completed = 0;
     if (isPicturedAllUploaded) completed++;
-    if (isDocsAllUploaded) completed++;
+    if (isLegalsAllUPloaded) completed++;
     if (isQuestionsAllCompleded) completed++;
     return completed / 3;
   }
 
   bool get isAllCompleted =>
-      isPicturedAllUploaded && isDocsAllUploaded && isQuestionsAllCompleded;
+      isPicturedAllUploaded && isLegalsAllUPloaded && isQuestionsAllCompleded;
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +354,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
           Text(
             isAllCompleted
                 ? 'All steps completed! Ready to submit.'
-                : '${3 - [isPicturedAllUploaded, isDocsAllUploaded, isQuestionsAllCompleded].where((e) => e).length} steps remaining',
+                : '${3 - [isPicturedAllUploaded, isLegalsAllUPloaded, isQuestionsAllCompleded].where((e) => e).length} steps remaining',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
               fontSize: 14,
@@ -362,7 +392,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
           title: "Vehicle Legals",
           subtitle: "Upload required vehilce legals",
           icon: CupertinoIcons.doc_fill,
-          isCompleted: isDocsAllUploaded,
+          isCompleted: isLegalsAllUPloaded,
           onTap: () => _navigateToDocuments(),
           stepNumber: 2,
         ),
@@ -588,11 +618,28 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   }
 
   void _navigateToDocuments() {
-    Navigator.of(context).push(
-      AppRoutes.createRoute(
-        UploadCarLegals(inspectionId: widget.inspectionId),
-      ),
-    );
+    final state = context.read<FetchDocumentsCubit>().state;
+    if (state is FetchDocumentsSuccessState) {
+      if (isLegalsAllUPloaded) {
+        Navigator.of(context).push(
+          AppRoutes.createRoute(
+            ViewCarLegals(inspectionId: widget.inspectionId,),
+          ),
+        );
+      } else {
+        Navigator.of(context).push(
+          AppRoutes.createRoute(
+            UploadCarLegals(inspectionId: widget.inspectionId),
+          ),
+        );
+      }
+    } else {
+      // Navigator.of(context).push(
+      //   AppRoutes.createRoute(
+      //     UploadCarLegals(inspectionId: widget.inspectionId),
+      //   ),
+      // );
+    }
   }
 
   void _navigateToReport() {
@@ -616,7 +663,6 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       // Add your submission logic here
 
       if (isError) {
-        
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -640,7 +686,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
         "Please upload all required vehicle photos before submitting.",
         _navigateToPhotos,
       );
-    } else if (!isDocsAllUploaded) {
+    } else if (!isLegalsAllUPloaded) {
       _showWarningAndNavigate(
         "Upload Vehilce Legals",
         "Please upload all required vehilce legals before submitting.",

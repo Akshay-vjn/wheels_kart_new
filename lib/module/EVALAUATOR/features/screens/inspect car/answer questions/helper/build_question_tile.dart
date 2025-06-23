@@ -989,9 +989,11 @@
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/camera_screen.dart';
@@ -1751,18 +1753,36 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
   ) {
     return Stack(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[300]!),
-            color: Colors.white,
-            image:
-                listOfImages[imageIndex] == null
-                    ? null
-                    : DecorationImage(
-                      fit: BoxFit.cover,
-                      image: MemoryImage(listOfImages[imageIndex]),
+        InkWell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => Material(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: EvAppColors.black,
+                        image: DecorationImage(
+                          image: MemoryImage(listOfImages[imageIndex]),
+                        ),
+                      ),
                     ),
+                  ),
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[300]!),
+              color: Colors.white,
+              image:
+                  listOfImages[imageIndex] == null
+                      ? null
+                      : DecorationImage(
+                        fit: BoxFit.cover,
+                        image: MemoryImage(listOfImages[imageIndex]),
+                      ),
+            ),
           ),
         ),
         Positioned(

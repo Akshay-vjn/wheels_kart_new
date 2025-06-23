@@ -50,6 +50,12 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
   DateTime? manufactureDate;
   DateTime? registrationDate;
 
+  final _scrollController = ScrollController();
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   void dispose() {
     roadTaxValidityController.dispose();
@@ -238,7 +244,8 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       if (insuranceDocument.isEmpty || rcDocument.isEmpty) {
-        showSnakBar(context, "Upload the Documents");
+        showSnakBar(context, "Upload the Documents", isError: true);
+        _scrollController.jumpTo(0);
       } else {
         context.read<SubmitDocumentCubit>().onSubmitDocument(
           context,
@@ -287,6 +294,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
+          controller: _scrollController,
           padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,7 +304,11 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
               SizedBox(height: 16),
 
               // RC Documents
-              _buildDocumentUploadSection('RC Documents', rcDocument, 'RC'),
+              _buildDocumentUploadSection(
+                'RC Documents (Front & Back)',
+                rcDocument,
+                'RC',
+              ),
               SizedBox(height: 16),
 
               // Insurance Documents
@@ -430,7 +442,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
               SizedBox(height: 32),
 
               // Submit Button
-              Container(
+              SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
