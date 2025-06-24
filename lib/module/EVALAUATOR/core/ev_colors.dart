@@ -6,7 +6,7 @@ class EvAppColors {
   static const Color grey = Colors.grey;
   static Color kScafoldBgColor = Colors.white;
   static const Color black2 = Color(0xFF2c2c2c);
-  static const Color kAppSecondaryColor = Color(0xFF1C67A5);
+  static const Color  kAppSecondaryColor = Color(0xFF1C67A5);
   static const Color kSelectionColor = Color.fromARGB(255, 238, 239, 240);
   static const Color kRed = Color.fromARGB(255, 184, 47, 37);
   static const Color kGreen = Colors.green;

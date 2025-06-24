@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/dimensions.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VStyle {
   static TextStyle style({
@@ -11,11 +12,13 @@ class VStyle {
     FontWeight? fontWeight,
     double? letterSpacing,
     Color? color,
+    TextDecorationStyle? textDecorationStyle,
     TextDecoration? decoration,
   }) {
     return TextStyle(
       decoration: decoration,
       decorationColor: color,
+
       shadows:
           shadowColor == null
               ? []

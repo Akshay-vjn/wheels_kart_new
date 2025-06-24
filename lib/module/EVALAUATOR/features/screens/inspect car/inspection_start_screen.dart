@@ -634,11 +634,11 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
         );
       }
     } else {
-      // Navigator.of(context).push(
-      //   AppRoutes.createRoute(
-      //     UploadCarLegals(inspectionId: widget.inspectionId),
-      //   ),
-      // );
+      Navigator.of(context).push(
+        AppRoutes.createRoute(
+          UploadCarLegals(inspectionId: widget.inspectionId),
+        ),
+      );
     }
   }
 

@@ -2,17 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 
 class AppDimensions {
-  static double fontSize10(
-    BuildContext context,
-  ) =>
+  static double fontSize10(BuildContext context) =>
       responsiveTextSize(context, .0067); ////10.0;
-  static double fontSize12(
-    BuildContext context,
-  ) =>
+  static double fontSize12(BuildContext context) =>
       responsiveTextSize(context, .0088); ////12.0;
-  static double fontSize13(
-    BuildContext context,
-  ) =>
+  static double fontSize13(BuildContext context) =>
       responsiveTextSize(context, .0099);
 
   ///13
@@ -44,6 +38,7 @@ class AppDimensions {
   static const double radiusSize5 = 5.0;
   static const double radiusSize8 = 8.0;
   static const double radiusSize10 = 10.0;
+  static const double radiusSize15 = 15.0;
   static const double radiusSize18 = 18.0;
   static const double radiusSize50 = 50.0;
 }

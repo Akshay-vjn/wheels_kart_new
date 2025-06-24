@@ -4,17 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
 import 'package:wheels_kart/module/VENDOR/core/v_style.dart';
 import 'package:wheels_kart/module/VENDOR/data/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
-import 'package:wheels_kart/module/VENDOR/features/account/v_account_tab.dart';
-import 'package:wheels_kart/module/VENDOR/features/favorates/v_fav_tab.dart';
-import 'package:wheels_kart/module/VENDOR/features/home/home_tab.dart';
-import 'package:wheels_kart/module/VENDOR/features/my%20orders/v_my_order_tab.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/account/v_account_tab.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/favorates/v_fav_tab.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/home/home_tab.dart';
 
 class VNavScreen extends StatelessWidget {
   const VNavScreen({super.key});
   static List<Widget> tabs = [
     VHomeTab(),
     VFavTab(),
-    VMyOrderTab(),
     VAccountTab(),
   ];
   @override
@@ -30,12 +28,12 @@ class VNavScreen extends StatelessWidget {
             builder:
                 (context, state) => BottomNavigationBar(
                   backgroundColor: VColors.WHITE,
-                  selectedItemColor: VColors.GREENHARD,
+                  selectedItemColor: VColors.SECONDARY,
                   unselectedItemColor: VColors.GREYHARD,
                   unselectedLabelStyle: VStyle.style(context: context),
                   selectedLabelStyle: VStyle.style(
                     context: context,
-                    color: VColors.GREENHARD,
+                    color: VColors.SECONDARY,
                     fontWeight: FontWeight.bold,
                   ),
                   currentIndex: state.currentIndex,
@@ -44,7 +42,7 @@ class VNavScreen extends StatelessWidget {
                   },
                   items: [
                     BottomNavigationBarItem(
-                      label: "Live",
+                      label: "Cars",
                       activeIcon: Icon(CupertinoIcons.wand_stars),
                       icon: Icon(CupertinoIcons.wand_stars_inverse),
                     ),
@@ -54,11 +52,11 @@ class VNavScreen extends StatelessWidget {
                       activeIcon: Icon(CupertinoIcons.heart_fill),
                       icon: Icon(CupertinoIcons.heart),
                     ),
-                    BottomNavigationBarItem(
-                      label: "My Order",
-                      activeIcon: Icon(CupertinoIcons.list_dash),
-                      icon: Icon(CupertinoIcons.list_bullet),
-                    ),
+                    // BottomNavigationBarItem(
+                    //   label: "My Order",
+                    //   activeIcon: Icon(CupertinoIcons.list_dash),
+                    //   icon: Icon(CupertinoIcons.list_bullet),
+                    // ),
                     BottomNavigationBarItem(
                       label: "Account",
                       activeIcon: Icon(CupertinoIcons.person_fill),

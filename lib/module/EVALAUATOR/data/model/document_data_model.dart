@@ -123,7 +123,7 @@ class Inspection {
       roadTaxPaid: json["roadTaxPaid"] ?? '',
       roadTaxValidity: json["roadTaxValidity"] ?? '',
       insuranceType: json["insuranceType"] ?? '',
-      insuranceValidity:json["insuranceValidity"],
+      insuranceValidity:json["insuranceValidity"]??'',
       currentRto: json["currentRto"] ?? '',
       carLength: json["carLength"] ?? '',
       cubicCapacity: json["cubicCapacity"] ?? '',

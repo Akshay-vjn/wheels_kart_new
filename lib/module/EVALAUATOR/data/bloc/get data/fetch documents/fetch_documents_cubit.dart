@@ -24,6 +24,8 @@ class FetchDocumentsCubit extends Cubit<FetchDocumentsState> {
         if (response['error'] == false) {
           final data = response['data'] as Map;
           log("--Success");
+
+          // log(data.toString());
           emit(
             FetchDocumentsSuccessState(
               vehicleLgalModel: VehicleLgalModel.fromJson(

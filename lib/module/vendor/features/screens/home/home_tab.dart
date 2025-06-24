@@ -1,12 +1,12 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/dimensions.dart';
-import 'package:wheels_kart/module/VENDOR/features/home/home_tab.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/home/car_details_screen.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/home/widgets/vehicle_card.dart';
 import 'package:wheels_kart/module/vendor/core/const/v_colors.dart';
 import 'package:wheels_kart/module/vendor/core/v_style.dart';
 import 'package:wheels_kart/module/vendor/data/models/vehicle_model.dart';
-import 'package:wheels_kart/module/vendor/features/home/widgets/vehicle_card.dart';
 
 class VHomeTab extends StatefulWidget {
   const VHomeTab({super.key});
@@ -91,7 +91,7 @@ class _VHomeTabState extends State<VHomeTab> {
             floating: false,
             pinned: false,
             elevation: 0,
-            backgroundColor: VColors.PRIMARY,
+            backgroundColor: VColors.WHITE,
 
             flexibleSpace: FlexibleSpaceBar(
               // collapseMode: CollapseMode.parallax,
@@ -106,7 +106,7 @@ class _VHomeTabState extends State<VHomeTab> {
                             "WheelsKart",
                             style: VStyle.style(
                               context: context,
-                              color: VColors.WHITE,
+                              color: VColors.BLACK,
                               fontWeight: FontWeight.bold,
                               size: AppDimensions.fontSize24(context),
                             ),
@@ -115,44 +115,53 @@ class _VHomeTabState extends State<VHomeTab> {
                       )
                       : SizedBox(),
               background: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: VColors.WHITE,
-                            borderRadius: BorderRadius.circular(25),
-                            boxShadow: [
-                              BoxShadow(
-                                color: VColors.BLACK.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: const InputDecoration(
-                              hintText: 'Search vehicles...',
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: VColors.DARK_GREY,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 15,
+                child: Container(
+                  decoration: BoxDecoration(
+                    // gradient: LinearGradient(
+                    //   begin: Alignment.topCenter,
+                    //   end: Alignment.bottomCenter,
+                    //   // colors: [VColors.SECONDARY.withAlpha(120), VColors.WHITE.withAlpha(120)],
+                    // ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: VColors.WHITE,
+                              borderRadius: BorderRadius.circular(25),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: VColors.BLACK.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: const InputDecoration(
+                                hintText: 'Search vehicles...',
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: VColors.DARK_GREY,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 15,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      _buildNotificationButton(),
-                    ],
+                        const SizedBox(width: 12),
+                        _buildNotificationButton(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -161,10 +170,10 @@ class _VHomeTabState extends State<VHomeTab> {
 
           // Vehicle List
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16,vertical: 5),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                return VehicleCard(
+                return CVehicleCard(
                   vehicle: vehicles[index],
                   isFavorite: favoriteVehicles.contains(vehicles[index].id),
                   onFavoriteToggle: () {
@@ -176,14 +185,9 @@ class _VHomeTabState extends State<VHomeTab> {
                       }
                     });
                   },
-                  onBuyPressed: () {
+                  onPressCard: () {
                     // Handle buy action
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Buy ${vehicles[index].name}'),
-                        backgroundColor: VColors.SUCCESS,
-                      ),
-                    );
+                    Navigator.of(context).push(AppRoutes.createRoute(VCarDetailsScreen())); 
                   },
                 );
               }, childCount: vehicles.length),
@@ -215,7 +219,7 @@ class _VHomeTabState extends State<VHomeTab> {
       onPressed: () {
         // Handle notification tap
       },
-      icon: const Icon(Icons.notifications_outlined, color: VColors.PRIMARY),
+      icon: const Icon(Icons.notifications_outlined, color: VColors.SECONDARY),
     ),
   );
 }
