@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
 import 'package:wheels_kart/module/VENDOR/core/v_style.dart';
-import 'package:wheels_kart/module/VENDOR/data/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
+import 'package:wheels_kart/module/VENDOR/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/account/v_account_tab.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/favorates/v_fav_tab.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/home/home_tab.dart';

@@ -7,7 +7,7 @@ import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/bloc/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 
@@ -28,7 +28,7 @@ class _EvProfileScreenState extends State<EvProfileScreen>
   @override
   void initState() {
     super.initState();
-    final state = context.read<EvAuthBlocCubit>().state;
+    final state = context.read<AppAuthController>().state;
     if (state is AuthCubitAuthenticateState) {
       userModel = state.userModel;
     }
@@ -556,7 +556,7 @@ class _EvProfileScreenState extends State<EvProfileScreen>
               ElevatedButton(
                 onPressed: () async {
                   Navigator.pop(context);
-                  await context.read<EvAuthBlocCubit>().clearPreferenceData(
+                  await context.read<AppAuthController>().clearPreferenceData(
                     context,
                   );
                 },

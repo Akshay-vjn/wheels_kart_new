@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
@@ -8,7 +10,7 @@ import 'package:wheels_kart/common/utils/validator.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_image_const.dart';
 import 'package:wheels_kart/module/VENDOR/core/v_style.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/auth/v_login_screen.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/auth/screens/v_login_screen.dart';
 import 'package:wheels_kart/module/VENDOR/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/VENDOR/features/widgets/v_custom_button.dart';
 import 'package:wheels_kart/module/VENDOR/features/widgets/v_custom_texfield.dart';
@@ -17,8 +19,11 @@ class VRegistrationScreen extends StatelessWidget {
   VRegistrationScreen({super.key});
 
   final _mobileNumberController = TextEditingController();
-  final _companyNameController = TextEditingController();
+  final _emailContller = TextEditingController();
   final _fullNameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordContoller = TextEditingController();
+  final _cityController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -86,6 +91,14 @@ class VRegistrationScreen extends StatelessWidget {
                   children: [
                     VCustomTexfield(
                       keyboardType: TextInputType.number,
+                      title: "Full Name",
+                      hintText: "Enter your name",
+                      controller: _fullNameController,
+                      validator: (p0) => Validator.validateRequired(p0),
+                    ),
+                    AppSpacer(heightPortion: .03),
+                    VCustomTexfield(
+                      keyboardType: TextInputType.number,
                       title: "Mobile number",
                       hintText: "Enter mobile number",
                       controller: _mobileNumberController,
@@ -94,28 +107,54 @@ class VRegistrationScreen extends StatelessWidget {
                     AppSpacer(heightPortion: .03),
                     VCustomTexfield(
                       keyboardType: TextInputType.number,
-                      title: "Full Name",
-                      hintText: "Enter your name",
-                      controller: _fullNameController,
-                      validator: (p0) => Validator.validateMobileNumber(p0),
+                      title: "Email",
+                      hintText: "Enter your email address",
+                      controller: _emailContller,
+                      validator: (p0) => Validator.validateEmail(p0),
                     ),
                     AppSpacer(heightPortion: .03),
                     VCustomTexfield(
                       keyboardType: TextInputType.number,
-                      title: "Company Name",
-                      hintText: "Enter company name",
-                      controller: _companyNameController,
-                      validator: (p0) => Validator.validateMobileNumber(p0),
+                      title: "City",
+                      hintText: "Enter your city",
+                      controller: _cityController,
+                      validator: (p0) => Validator.validateRequired(p0),
+                    ),
+                    AppSpacer(heightPortion: .06),
+
+                    VCustomTexfield(
+                      keyboardType: TextInputType.number,
+                      title: "Password",
+                      hintText: "Enter a new password",
+                      controller: _passwordController,
+                      validator: (p0) => Validator.validateRequired(p0),
+                    ),
+                    AppSpacer(heightPortion: .03),
+                    VCustomTexfield(
+                      keyboardType: TextInputType.number,
+                      title: "Confirm Password",
+                      hintText: "Enter password again",
+                      controller: _confirmPasswordContoller,
+                      validator: (p0) => Validator.validateRequired(p0),
                     ),
 
                     AppSpacer(heightPortion: .06),
                     VCustomButton(
                       title: "REGISTER",
-                      onTap: () {
-                        Navigator.of(context).pushAndRemoveUntil(
-                          AppRoutes.createRoute(VNavScreen()),
-                          (route) => false,
-                        );
+                      onTap: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await context
+                              .read<AppAuthController>()
+                              .registerVendor(
+                                context,
+                                _mobileNumberController.text.trim(),
+                                _passwordController.text.trim(),
+                                _confirmPasswordContoller.text.trim(),
+                                _fullNameController.text.trim(),
+                                _emailContller.text.trim(),
+                                _cityController.text.trim(),
+                              );
+                        }
                       },
                     ),
                     AppSpacer(heightPortion: .03),

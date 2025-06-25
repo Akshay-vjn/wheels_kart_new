@@ -3,11 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const_images.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/VENDOR/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/decision_screen.dart';
 
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/bloc/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen>
     _startAnimationSequence();
 
     Future.delayed(const Duration(milliseconds: 2500)).then((value) async {
-      BlocProvider.of<EvAuthBlocCubit>(context).checkForLogin(context);
+      BlocProvider.of<AppAuthController>(context).checkForLogin(context);
     });
   }
 
@@ -136,15 +137,22 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<EvAuthBlocCubit, EvAuthBlocState>(
+    return BlocListener<AppAuthController, AppAuthControllerState>(
       listener: (context, state) {
         switch (state) {
           case AuthCubitAuthenticateState():
             {
-              Navigator.of(context).pushAndRemoveUntil(
-                AppRoutes.createRoute(EvDashboardScreen()),
-                (context) => false,
-              );
+              if (state.userModel.userType == "EVALUATOR") {
+                Navigator.of(context).pushAndRemoveUntil(
+                  AppRoutes.createRoute(EvDashboardScreen()),
+                  (context) => false,
+                );
+              } else {
+                Navigator.of(context).pushAndRemoveUntil(
+                  AppRoutes.createRoute(VNavScreen()),
+                  (context) => false,
+                );
+              }
             }
           case AuthCubitUnAuthenticatedState():
             {

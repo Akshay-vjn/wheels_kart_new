@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
-import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_image_const.dart';
 import 'package:wheels_kart/module/VENDOR/features/widgets/v_custom_button.dart';
+import 'package:wheels_kart/module/VENDOR/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/vendor/core/v_style.dart';
 
 class VAccountTab extends StatelessWidget {
@@ -72,7 +73,15 @@ class VAccountTab extends StatelessWidget {
                   ),
                 ),
                 AppSpacer(heightPortion: .04),
-                VCustomButton(title: "LOGOUT"),
+                VCustomButton(
+                  title: "LOGOUT",
+                  onTap: () {
+                    context.read<VNavControllerCubit>().onChangeNav(0);
+                    context.read<AppAuthController>().clearPreferenceData(
+                      context,
+                    );
+                  },
+                ),
               ],
             ),
           ),

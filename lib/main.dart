@@ -2,8 +2,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/block_providers.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/auth/v_login_screen.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/auth/screens/v_login_screen.dart';
 import 'package:wheels_kart/module/VENDOR/features/v_nav_screen.dart';
+import 'package:wheels_kart/module/spash_screen.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: VNavScreen(),
+        home: SplashScreen(),
       ),
     );
   }

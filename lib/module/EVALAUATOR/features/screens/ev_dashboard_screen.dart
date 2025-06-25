@@ -17,7 +17,7 @@ import 'package:wheels_kart/module/EVALAUATOR/features/screens/home/e_completed_
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/home/ev_live_leads_tab.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_dashboard/ev_fetch_dashboard_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/bloc/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 
 class EvDashboardScreen extends StatefulWidget {
   const EvDashboardScreen({super.key});
@@ -298,7 +298,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
         bottom: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 20),
-          child: BlocBuilder<EvAuthBlocCubit, EvAuthBlocState>(
+          child: BlocBuilder<AppAuthController, AppAuthControllerState>(
             builder: (context, state) {
               if (state is AuthCubitAuthenticateState) {
                 return Column(
@@ -592,7 +592,7 @@ class _ProfileMenuSheet extends StatelessWidget {
               title: const Text("Logout", style: TextStyle(color: Colors.red)),
               onTap: () {
                 _showLogoutDialog(context, () async {
-                  context.read<EvAuthBlocCubit>().clearPreferenceData(context);
+                  context.read<AppAuthController>().clearPreferenceData(context);
                 });
               },
             ),

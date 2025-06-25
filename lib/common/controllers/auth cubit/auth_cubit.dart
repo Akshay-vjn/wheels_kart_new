@@ -5,18 +5,21 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_api_const.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/fetch_profile_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/login_repo.dart';
+import 'package:wheels_kart/module/VENDOR/core/utils/v_messages.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/auth/data/repo/v_login_repo.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/auth/data/repo/v_register_repo.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/auth/screens/v_login_screen.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
+import 'package:wheels_kart/module/vendor/core/const/v_colors.dart';
 
 part 'auth_state.dart';
 
-class EvAuthBlocCubit extends Cubit<EvAuthBlocState> {
-  EvAuthBlocCubit() : super(AuthCubitInitialState());
+class AppAuthController extends Cubit<AppAuthControllerState> {
+  AppAuthController() : super(AppAuthControllerInitialState());
 
   static const String mobileNumberKey = 'MOBILE_NUMBER';
   static const String passwordKey = 'PASSWORD_KEY';
@@ -56,10 +59,33 @@ class EvAuthBlocCubit extends Cubit<EvAuthBlocState> {
     );
 
     if (token != null && password != null && number != null) {
-      await loginUser(context, number, password);
+      if (userType != null && userType == "EVALUATOR") {
+        await loginUser(context, number, password);
+      } else {
+        await loginVendor(context, number, password);
+      }
     } else {
       emit(AuthCubitUnAuthenticatedState());
     }
+  }
+
+  // LOG OUT USER
+  Future<void> clearPreferenceData(context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(mobileNumberKey);
+    await prefs.remove(passwordKey);
+    await prefs.remove(tokenKey);
+    // profile data
+    await prefs.remove(userNameKey);
+    await prefs.remove(userIdKey);
+    await prefs.remove(userTypeKey);
+
+    emit(AuthCubitUnAuthenticatedState());
+
+    Navigator.of(context).pushAndRemoveUntil(
+      AppRoutes.createRoute(const SplashScreen()),
+      (context) => false,
+    );
   }
 
   // LOGIN USER
@@ -116,22 +142,72 @@ class EvAuthBlocCubit extends Cubit<EvAuthBlocState> {
     }
   }
 
-  // LOG OUT USER
-  Future<void> clearPreferenceData(context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(mobileNumberKey);
-    await prefs.remove(passwordKey);
-    await prefs.remove(tokenKey);
-    // profile data
-    await prefs.remove(userNameKey);
-    await prefs.remove(userIdKey);
-    await prefs.remove(userTypeKey);
+  // LOGIN USER
+  Future<bool> loginVendor(
+    BuildContext context,
+    String mobileNumber,
+    String password,
+  ) async {
+    emit(AuthLodingState());
+    final snapshot = await VLoginRepo.loginVendor(mobileNumber, password);
 
-    emit(AuthCubitUnAuthenticatedState());
+    if (snapshot['error'] == false && snapshot.isNotEmpty) {
+      log(snapshot['data'].toString());
+      final authmodel = AuthUserModel(
+        mobileNumber: mobileNumber,
+        password: password,
+        token: snapshot['token'],
+        userName: "",
+        userId: "",
+        userType: "VENDOR",
+      );
+      await _setLoginPreference(authmodel);
+      emit(
+        AuthCubitAuthenticateState(
+          userModel: authmodel,
+          loginMesaage: snapshot['message'],
+        ),
+      );
+      return true;
+    } else {
+      emit(AuthErrorState(errorMessage: snapshot['message']));
+      return false;
+    }
+  }
 
-    Navigator.of(context).pushAndRemoveUntil(
-      AppRoutes.createRoute(const SplashScreen()),
-      (context) => false,
+  Future<bool> registerVendor(
+    BuildContext context,
+    String mobileNumber,
+    String password,
+    String confirmPassword,
+    String name,
+    String email,
+    String city,
+  ) async {
+    emit(AuthLodingState());
+    final snapshot = await VRegisterRepo.registerVendor(
+      mobileNumber,
+      password,
+      name,
+      email,
+      city,
+      confirmPassword,
     );
+
+    if (snapshot['error'] == false && snapshot.isNotEmpty) {
+      emit(AppAuthControllerInitialState());
+      vSnackBarMessage(
+        context,
+        "Congratulation!.Registration successful, you can login now.",
+      );
+      Navigator.of(
+        context,
+      ).pushReplacement(AppRoutes.createRoute(VLoginScreen()));
+      return true;
+    } else {
+      vSnackBarMessage(context, snapshot['message'], state: VSnackState.ERROR);
+      emit(AuthErrorState(errorMessage: snapshot['message']));
+      return false;
+    }
   }
 }

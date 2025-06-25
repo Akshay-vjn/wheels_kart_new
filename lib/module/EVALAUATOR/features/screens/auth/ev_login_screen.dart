@@ -12,7 +12,7 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/login%20page%20bloc/login_bloc_bloc.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/bloc/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 
 import '../../../../../common/utils/custome_show_messages.dart';
 
@@ -136,7 +136,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: BlocListener<EvAuthBlocCubit, EvAuthBlocState>(
+      body: BlocListener<AppAuthController, AppAuthControllerState>(
         listener: (context, state) {
           switch (state) {
             case AuthErrorState():
@@ -390,7 +390,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                       HapticFeedback.mediumImpact();
                                                          context.read<EvAppNavigationCubit>().handleBottomnavigation(0);
 
-                                      await context.read<EvAuthBlocCubit>().loginUser(
+                                      await context.read<AppAuthController>().loginUser(
                                         context,
                                         _mobileNumberController.text,
                                         _passwordController.text,

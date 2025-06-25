@@ -4,9 +4,9 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/home/car_details_screen.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/home/widgets/vehicle_card.dart';
+import 'package:wheels_kart/module/VENDOR/helper/models/vehicle_model.dart';
 import 'package:wheels_kart/module/vendor/core/const/v_colors.dart';
 import 'package:wheels_kart/module/vendor/core/v_style.dart';
-import 'package:wheels_kart/module/vendor/data/models/vehicle_model.dart';
 
 class VHomeTab extends StatefulWidget {
   const VHomeTab({super.key});

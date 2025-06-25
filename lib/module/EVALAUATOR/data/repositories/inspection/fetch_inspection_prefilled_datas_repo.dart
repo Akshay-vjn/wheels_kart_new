@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_api_const.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/bloc/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 
 class FetchInspectionPrefilledDataRepo {
   static Future<Map<String, dynamic>> fetchInspectionPrefilledData(
@@ -15,7 +15,7 @@ class FetchInspectionPrefilledDataRepo {
     String portionId,
     String systemId,
   ) async {
-    final state = context.read<EvAuthBlocCubit>().state;
+    final state = context.read<AppAuthController>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
         final url = Uri.parse('${EvApiConst.baseUrl}${EvApiConst.fetchInspectionsPrefill}');

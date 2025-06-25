@@ -17,11 +17,11 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/login%20page%20bloc/login_bloc_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/search/search%20car%20make/search_car_make_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/bloc/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
-import 'package:wheels_kart/module/VENDOR/data/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
+import 'package:wheels_kart/module/VENDOR/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 
 blocProviders(Widget child) => MultiBlocProvider(
   providers: [
@@ -30,7 +30,7 @@ blocProviders(Widget child) => MultiBlocProvider(
     BlocProvider<EvFetchCarModelBloc>(create: (_) => EvFetchCarModelBloc()),
     BlocProvider<EvSearchCarMakeBloc>(create: (_) => EvSearchCarMakeBloc()),
     BlocProvider<EvFetchCityBloc>(create: (_) => EvFetchCityBloc()),
-    BlocProvider<EvAuthBlocCubit>(create: (_) => EvAuthBlocCubit()),
+    BlocProvider<AppAuthController>(create: (_) => AppAuthController()),
     BlocProvider<EvAppNavigationCubit>(create: (_) => EvAppNavigationCubit()),
     BlocProvider<EvFetchDashboardBloc>(create: (_) => EvFetchDashboardBloc()),
     BlocProvider<FetchInspectionsBloc>(create: (_) => FetchInspectionsBloc()),

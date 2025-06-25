@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
+import 'package:wheels_kart/module/VENDOR/helper/models/vehicle_model.dart';
 import 'package:wheels_kart/module/vendor/core/v_style.dart';
-import 'package:wheels_kart/module/vendor/data/models/vehicle_model.dart';
 
 class CVehicleCard extends StatefulWidget {
   final VehicleModel vehicle;
