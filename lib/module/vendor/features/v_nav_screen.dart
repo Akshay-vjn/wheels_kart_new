@@ -17,7 +17,9 @@ class VNavScreen extends StatelessWidget {
   ];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return 
+    
+    Scaffold(
       
       backgroundColor: VColors.WHITEBGCOLOR,
       body: BlocBuilder<VNavControllerCubit, VNavControllerState>(
