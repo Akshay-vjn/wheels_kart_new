@@ -21,6 +21,7 @@ import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/VENDOR/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 
 blocProviders(Widget child) => MultiBlocProvider(
@@ -57,10 +58,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     ),
     BlocProvider<DownloadPdfCubit>(create: (_) => DownloadPdfCubit()),
 
-    // USER CONTROLLERS
-    BlocProvider<VNavControllerCubit>(
-      create: (_) => VNavControllerCubit(),
-    ),
+    // VENDOR CONTROLLERS
+    BlocProvider<VNavControllerCubit>(create: (_) => VNavControllerCubit()),
+    BlocProvider<VDashboardControlllerBloc>(create: (_) => VDashboardControlllerBloc()),
   ],
   child: child,
 );

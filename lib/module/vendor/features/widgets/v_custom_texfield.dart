@@ -40,6 +40,7 @@ class VCustomTexfield extends StatelessWidget {
                 ),
           ),
         TextFormField(
+        textInputAction: TextInputAction.next,
           keyboardType: keyboardType,
           validator: validator,
           controller: controller,

@@ -10,6 +10,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
 class UploadCarLegals extends StatefulWidget {
   final String inspectionId;
@@ -442,27 +443,34 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
               SizedBox(height: 32),
 
               // Submit Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: EvAppColors.DARK_PRIMARY,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              BlocBuilder<SubmitDocumentCubit, SubmitDocumentState>(
+                builder: (context, state) {
+                  if (state is SubmitDocumentLoadingState) {
+                    return EVAppLoadingIndicator();
+                  }
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: EvAppColors.DARK_PRIMARY,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Submit Vehicle Legals',
+                        style: EvAppStyle.style(
+                          context: context,
+                          color: EvAppColors.white,
+                          size: AppDimensions.fontSize16(context),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    'Submit Vehicle Legals',
-                    style: EvAppStyle.style(
-                      context: context,
-                      color: EvAppColors.white,
-                      size: AppDimensions.fontSize16(context),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
               SizedBox(height: 20),
             ],

@@ -13,7 +13,6 @@ import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_image_const.dart';
 import 'package:wheels_kart/module/VENDOR/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/VENDOR/core/v_style.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/auth/screens/otp_sheet.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/auth/screens/v_registration_screen.dart';
 import 'package:wheels_kart/module/VENDOR/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/VENDOR/features/widgets/v_custom_button.dart';
@@ -62,7 +61,13 @@ class VLoginScreen extends StatelessWidget {
                 Stack(
                   alignment: Alignment.bottomLeft,
                   children: [
-                    Image.asset(VImageConst.loginBg),
+                    SizedBox(
+                      width: w(context),
+                      child: Image.asset(
+                        fit: BoxFit.fitWidth,
+                        VImageConst.loginBg,
+                      ),
+                    ),
                     Positioned(
                       bottom: h(context) * .1,
                       child: AppMargin(
@@ -122,7 +127,7 @@ class VLoginScreen extends StatelessWidget {
                       ),
                       AppSpacer(heightPortion: .02),
                       VCustomTexfield(
-                        keyboardType: TextInputType.number,
+                        // keyboardType: TextInputType,
                         title: "Password",
                         hintText: "Enter password",
                         controller: _passwordController,

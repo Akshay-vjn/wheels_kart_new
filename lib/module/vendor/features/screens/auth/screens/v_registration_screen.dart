@@ -38,7 +38,13 @@ class VRegistrationScreen extends StatelessWidget {
               Stack(
                 alignment: Alignment.bottomLeft,
                 children: [
-                  Image.asset(VImageConst.loginBg),
+                  SizedBox(
+                    width: w(context),
+                    child: Image.asset(
+                      fit: BoxFit.fitWidth,
+                      VImageConst.loginBg,
+                    ),
+                  ),
                   Positioned(
                     bottom: h(context) * .1,
                     child: AppMargin(
@@ -90,7 +96,6 @@ class VRegistrationScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     VCustomTexfield(
-                      keyboardType: TextInputType.number,
                       title: "Full Name",
                       hintText: "Enter your name",
                       controller: _fullNameController,
@@ -106,7 +111,7 @@ class VRegistrationScreen extends StatelessWidget {
                     ),
                     AppSpacer(heightPortion: .03),
                     VCustomTexfield(
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.emailAddress,
                       title: "Email",
                       hintText: "Enter your email address",
                       controller: _emailContller,
@@ -114,7 +119,6 @@ class VRegistrationScreen extends StatelessWidget {
                     ),
                     AppSpacer(heightPortion: .03),
                     VCustomTexfield(
-                      keyboardType: TextInputType.number,
                       title: "City",
                       hintText: "Enter your city",
                       controller: _cityController,
@@ -123,7 +127,6 @@ class VRegistrationScreen extends StatelessWidget {
                     AppSpacer(heightPortion: .06),
 
                     VCustomTexfield(
-                      keyboardType: TextInputType.number,
                       title: "Password",
                       hintText: "Enter a new password",
                       controller: _passwordController,
@@ -131,7 +134,6 @@ class VRegistrationScreen extends StatelessWidget {
                     ),
                     AppSpacer(heightPortion: .03),
                     VCustomTexfield(
-                      keyboardType: TextInputType.number,
                       title: "Confirm Password",
                       hintText: "Enter password again",
                       controller: _confirmPasswordContoller,

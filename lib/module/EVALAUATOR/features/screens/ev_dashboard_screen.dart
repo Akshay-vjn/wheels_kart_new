@@ -398,6 +398,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
                   label: "Live",
                   value: state.progressRequest,
                   color: EvAppColors.DEFAULT_ORANGE,
+                  index: 0,
                 ),
               ),
               // const SizedBox(width: 12),
@@ -416,6 +417,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
                   label: "Completed",
                   value: state.completedRequested,
                   color: Colors.green,
+                  index: 1,
                 ),
               ),
             ],
@@ -432,43 +434,52 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
     required String label,
     required String value,
     required Color color,
+    required int index,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                value,
-                style: EvAppStyle.style(
-                  context: context,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  size: AppDimensions.fontSize24(context),
+    return GestureDetector(
+      onTap: () {
+        context.read<EvAppNavigationCubit>().handleBottomnavigation(index);
+
+        // Add haptic feedback
+        HapticFeedback.lightImpact();
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: EvAppStyle.style(
+                    context: context,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    size: AppDimensions.fontSize24(context),
+                  ),
                 ),
-              ),
-              AppSpacer(widthPortion: .05),
-              Icon(icon, color: color, size: 25),
-            ],
-          ),
-      AppSpacer(heightPortion: .01,),
-          Text(
-            label,
-            style: EvAppStyle.style(
-              context: context,
-              color: Colors.white.withOpacity(0.8),
-              fontWeight: FontWeight.w400,
-              size: AppDimensions.fontSize15(context),
+                AppSpacer(widthPortion: .05),
+                Icon(icon, color: color, size: 25),
+              ],
             ),
-          ),
-        ],
+            AppSpacer(heightPortion: .01),
+            Text(
+              label,
+              style: EvAppStyle.style(
+                context: context,
+                color: Colors.white.withOpacity(0.8),
+                fontWeight: FontWeight.w400,
+                size: AppDimensions.fontSize15(context),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -486,7 +497,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        width: w(context)*.25,
+        width: w(context) * .25,
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(
@@ -592,7 +603,9 @@ class _ProfileMenuSheet extends StatelessWidget {
               title: const Text("Logout", style: TextStyle(color: Colors.red)),
               onTap: () {
                 _showLogoutDialog(context, () async {
-                  context.read<AppAuthController>().clearPreferenceData(context);
+                  context.read<AppAuthController>().clearPreferenceData(
+                    context,
+                  );
                 });
               },
             ),

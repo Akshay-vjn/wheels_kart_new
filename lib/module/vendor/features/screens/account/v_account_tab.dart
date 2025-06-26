@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
@@ -11,76 +13,188 @@ import 'package:wheels_kart/module/VENDOR/features/widgets/v_custom_button.dart'
 import 'package:wheels_kart/module/VENDOR/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/vendor/core/v_style.dart';
 
-class VAccountTab extends StatelessWidget {
+class VAccountTab extends StatefulWidget {
   const VAccountTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      // physics: AlwaysScrollableScrollPhysics(),
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          SizedBox(
-            height: h(context),
+  State<VAccountTab> createState() => _VAccountTabState();
+}
 
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Image.asset(VImageConst.loginBg),
+class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutCubic,
+    ));
+    
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: AppMargin(
+                child: Column(
+                  children: [
+                    AppSpacer(heightPortion: .02),
+                    
+                    // Profile Header Section
+                    _buildProfileHeader(context),
+                    
+                    AppSpacer(heightPortion: .03),
+                    
+                    // Account Info Section
+                    _buildAccountInfoSection(context),
+                    
+                    AppSpacer(heightPortion: .03),
+                    
+                    // Quick Actions Section
+                    _buildQuickActionsSection(context),
+                    
+                    AppSpacer(heightPortion: .04),
+                    
+                    // Settings Section
+                    _buildSettingsSection(context),
+                    
+                    AppSpacer(heightPortion: .04),
+                    
+                    // Logout Button
+                    _buildLogoutButton(context),
+                    
+                    AppSpacer(heightPortion: .04),
+                  ],
+                ),
+              ),
             ),
           ),
+        );
+      },
+    );
+  }
 
-          Positioned(
-            width: w(context) * .85,
-            top: h(context) * .5,
-            child: Column(
+  Widget _buildProfileHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      width: w(context),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            VColors.SECONDARY.withOpacity(0.1),
+            VColors.SECONDARY.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSize15 + 5),
+        border: Border.all(
+          color: VColors.SECONDARY.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          // Profile Avatar
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [VColors.SECONDARY, VColors.SECONDARY.withOpacity(0.7)],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: VColors.SECONDARY.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: const Icon(
+              SolarIconsOutline.user,
+              size: 35,
+              color: VColors.WHITE,
+            ),
+          ),
+          
+          AppSpacer(heightPortion: .02),
+          
+          // Name and Status
+          Text(
+            "Rio Joi",
+            style: VStyle.style(
+              context: context,
+              fontWeight: FontWeight.bold,
+              size: AppDimensions.fontSize18(context),
+              color: VColors.SECONDARY,
+            ),
+          ),
+          
+          AppSpacer(heightPortion: .005),
+          
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.green.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  width: w(context),
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: VColors.SECONDARY.withAlpha(50),
-                        blurRadius: 10,
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(
-                      AppDimensions.radiusSize15,
-                    ),
-                    color: VColors.WHITE,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Account Info",
-                        style: VStyle.style(
-                          context: context,
-                          fontWeight: FontWeight.bold,
-                          size: AppDimensions.fontSize18(context),
-                        ),
-                      ),
-                      AppSpacer(heightPortion: .02),
-                      _build("7756873424", SolarIconsOutline.phone, context),
-                      AppSpacer(heightPortion: .01),
-                      _build("Anand Jain", SolarIconsOutline.user, context),
-                      AppSpacer(heightPortion: .01),
-                      _build("ABC Company", SolarIconsOutline.shop, context),
-
-                      // AppSpacer(heightPortion: .03,),
-                    ],
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
                   ),
                 ),
-                AppSpacer(heightPortion: .04),
-                VCustomButton(
-                  title: "LOGOUT",
-                  onTap: () {
-                    context.read<VNavControllerCubit>().onChangeNav(0);
-                    context.read<AppAuthController>().clearPreferenceData(
-                      context,
-                    );
-                  },
+                const SizedBox(width: 6),
+                Text(
+                  "Active Vendor",
+                  style: VStyle.style(
+                    context: context,
+                    size: 12,
+                    color: Colors.green.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -90,30 +204,488 @@ class VAccountTab extends StatelessWidget {
     );
   }
 
-  Widget _build(String title, IconData icon, BuildContext context) {
+  Widget _buildAccountInfoSection(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+      padding: const EdgeInsets.all(20),
       width: w(context),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusSize15),
-        border: Border.all(color: VColors.SECONDARY, width: .5),
-        color: VColors.GREY.withAlpha(30),
+        boxShadow: [
+          BoxShadow(
+            color: VColors.SECONDARY.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSize15 + 5),
+        color: VColors.WHITE,
+        border: Border.all(color: VColors.GREY.withOpacity(0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                SolarIconsOutline.user,
+                color: VColors.SECONDARY,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Account Information",
+                style: VStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.bold,
+                  size: AppDimensions.fontSize16(context),
+                  color: VColors.SECONDARY,
+                ),
+              ),
+            ],
+          ),
+          
+          AppSpacer(heightPortion: .02),
+          
+          _buildInfoItem(
+            "Full Name",
+            "Rio Joi",
+            SolarIconsOutline.user,
+            context,
+            isFirst: true,
+          ),
+          
+          _buildInfoItem(
+            "Phone Number",
+            "7756873424",
+            SolarIconsOutline.phone,
+            context,
+          ),
+          
+          _buildInfoItem(
+            "Email Address",
+            "abc@gmail.com",
+            CupertinoIcons.mail,
+            context,
+          ),
+          
+          _buildInfoItem(
+            "Location",
+            "Mysuru",
+            CupertinoIcons.location,
+            context,
+            isLast: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionsSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      width: w(context),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: VColors.SECONDARY.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSize15 + 5),
+        color: VColors.WHITE,
+        border: Border.all(color: VColors.GREY.withOpacity(0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                SolarIconsOutline.widget,
+                color: VColors.SECONDARY,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Quick Actions",
+                style: VStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.bold,
+                  size: AppDimensions.fontSize16(context),
+                  color: VColors.SECONDARY,
+                ),
+              ),
+            ],
+          ),
+          
+          AppSpacer(heightPortion: .02),
+          
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  "Edit Profile",
+                  SolarIconsOutline.pen,
+                  context,
+                  onTap: () {
+                    // Navigate to edit profile
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  "Change Password",
+                  SolarIconsOutline.lock,
+                  context,
+                  onTap: () {
+                    // Navigate to change password
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      width: w(context),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: VColors.SECONDARY.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSize15 + 5),
+        color: VColors.WHITE,
+        border: Border.all(color: VColors.GREY.withOpacity(0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                SolarIconsOutline.settings,
+                color: VColors.SECONDARY,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Settings & Preferences",
+                style: VStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.bold,
+                  size: AppDimensions.fontSize16(context),
+                  color: VColors.SECONDARY,
+                ),
+              ),
+            ],
+          ),
+          
+          AppSpacer(heightPortion: .02),
+          
+          _buildSettingsItem(
+            "Notifications",
+            "Manage your notification preferences",
+            SolarIconsOutline.bell,
+            context,
+            onTap: () {},
+            isFirst: true,
+          ),
+          
+          _buildSettingsItem(
+            "Privacy & Security",
+            "Control your privacy settings",
+            SolarIconsOutline.shieldCheck,
+            context,
+            onTap: () {},
+          ),
+          
+          _buildSettingsItem(
+            "Help & Support",
+            "Get help or contact support",
+            SolarIconsOutline.questionCircle,
+            context,
+            onTap: () {},
+            isLast: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(
+    String label,
+    String value,
+    IconData icon,
+    BuildContext context, {
+    bool isFirst = false,
+    bool isLast = false,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(
+        bottom: isLast ? 0 : 12,
+        top: isFirst ? 0 : 0,
+      ),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: VColors.GREY.withOpacity(0.05),
+        border: Border.all(color: VColors.GREY.withOpacity(0.1)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: VColors.SECONDARY),
-          AppSpacer(widthPortion: .04),
-          Text(
-            title,
-            style: VStyle.style(
-              fontWeight: FontWeight.w500,
-              context: context,
-              size: 15,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: VColors.SECONDARY.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
               color: VColors.SECONDARY,
+              size: 18,
+            ),
+          ),
+          
+          const SizedBox(width: 12),
+          
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: VStyle.style(
+                    context: context,
+                    size: 12,
+                    color: VColors.GREY,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: VStyle.style(
+                    context: context,
+                    size: 15,
+                    color: VColors.SECONDARY,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildActionCard(
+    String title,
+    IconData icon,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: VColors.SECONDARY.withOpacity(0.05),
+          border: Border.all(color: VColors.SECONDARY.withOpacity(0.1)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: VColors.SECONDARY.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: VColors.SECONDARY,
+                size: 24,
+              ),
+            ),
+            
+            const SizedBox(height: 8),
+            
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: VStyle.style(
+                context: context,
+                size: 13,
+                color: VColors.SECONDARY,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsItem(
+    String title,
+    String subtitle,
+    IconData icon,
+    BuildContext context, {
+    VoidCallback? onTap,
+    bool isFirst = false,
+    bool isLast = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: VColors.GREY.withOpacity(0.05),
+          border: Border.all(color: VColors.GREY.withOpacity(0.1)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: VColors.SECONDARY.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: VColors.SECONDARY,
+                size: 18,
+              ),
+            ),
+            
+            const SizedBox(width: 12),
+            
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: VStyle.style(
+                      context: context,
+                      size: 15,
+                      color: VColors.SECONDARY,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: VStyle.style(
+                      context: context,
+                      size: 12,
+                      color: VColors.GREY,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            Icon(
+              CupertinoIcons.chevron_right,
+              color: VColors.GREY,
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    return Container(
+      width: w(context),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSize15 + 5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.red.withOpacity(0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: VCustomButton(
+        title: "LOGOUT",
+        onTap: () {
+          _showLogoutDialog(context);
+        },
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                SolarIconsOutline.logout,
+                color: Colors.red,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              const Text("Logout"),
+            ],
+          ),
+          content: const Text(
+            "Are you sure you want to logout from your account?",
+          ),
+          actions: [
+            TextButton(
+              child: Text(
+                "Cancel",
+                style: VStyle.style(
+                  context: context,
+                  color: VColors.GREY,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                "Logout",
+                style: VStyle.style(
+                  context: context,
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onPressed: () {
+               
+                context.read<VNavControllerCubit>().onChangeNav(0);
+                context.read<AppAuthController>().clearPreferenceData(context);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
