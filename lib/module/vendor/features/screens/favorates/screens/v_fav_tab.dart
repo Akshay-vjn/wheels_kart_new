@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
@@ -34,16 +35,31 @@ class _VFavTabState extends State<VFavTab> {
               {
                 return state.myWishList.isEmpty
                     ? AppEmptyText(text: "Nothing is found in your list")
-                    : ListView.separated(
-                      padding: EdgeInsets.only(top: 10),
-                      separatorBuilder:
-                          (context, index) => AppSpacer(heightPortion: .02),
-                      itemCount: state.myWishList.length,
-                      itemBuilder: (context, index) {
-                        return AppMargin(
-                          child: VWhishlistCard(model: state.myWishList[index]),
-                        );
-                      },
+                    : AnimationLimiter(
+                      child: ListView.separated(
+                        padding: EdgeInsets.only(top: 10),
+                        separatorBuilder:
+                            (context, index) => AppSpacer(heightPortion: .02),
+                        itemCount: state.myWishList.length,
+                        itemBuilder: (context, index) {
+                          return AppMargin(
+                            child: AnimationConfiguration.staggeredList(
+                              position: index,
+                              duration: const Duration(milliseconds: 375),
+
+                              child: SlideAnimation(
+                                verticalOffset: 50.0,
+
+                                child: FadeInAnimation(
+                                  child: VWhishlistCard(
+                                    model: state.myWishList[index],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     );
               }
             case VWishlistControllerErrorState():

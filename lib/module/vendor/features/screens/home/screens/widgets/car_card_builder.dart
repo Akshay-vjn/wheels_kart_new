@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/VENDOR/core/components/v_loading.dart';
@@ -36,42 +37,60 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
             {
               final carList = state.listOfCars;
 
-              return SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  myLikes.add(carList[index].isLiked == 1 ? true : false);
-                  return CVehicleCard(
-                    vehicle: carList[index],
-                    isFavorite: myLikes[index],
-                    onFavoriteToggle: () async {
-                      await context
-                          .read<VWishlistControllerCubit>()
-                          .onChangeFavState(
-                            context,
-                            carList[index].inspectionId,
-                          );
-                      if (myLikes[index]) {
-                        myLikes[index] = false;
-                      } else {
-                        myLikes[index] = true;
-                      }
-                      setState(() {});
-                    },
-                    onPressCard: () {
-                      // Handle buy action
-                      Navigator.of(context).push(
-                        AppRoutes.createRoute(
-                          VCarDetailsScreen(car: carList[index]),
+              return SliverToBoxAdapter(
+                child: AnimationLimiter(
+                  child: ListView.builder(
+                    padding: EdgeInsets.only(top: 10),
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      myLikes.add(carList[index].isLiked == 1 ? true : false);
+                      return AnimationConfiguration.staggeredList(
+                        position: index,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                            verticalOffset: 50.0,
+
+                          child: FadeInAnimation(
+                            child: CVehicleCard(
+                              vehicle: carList[index],
+                              isFavorite: myLikes[index],
+                              onFavoriteToggle: () async {
+                                await context
+                                    .read<VWishlistControllerCubit>()
+                                    .onChangeFavState(
+                                      context,
+                                      carList[index].inspectionId,
+                                    );
+                                if (myLikes[index]) {
+                                  myLikes[index] = false;
+                                } else {
+                                  myLikes[index] = true;
+                                }
+                                setState(() {});
+                              },
+                              onPressCard: () {
+                                // Handle buy action
+                                Navigator.of(context).push(
+                                  AppRoutes.createRoute(
+                                    VCarDetailsScreen(inspectionId: carList[index].inspectionId),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                         ),
                       );
                     },
-                  );
-                }, childCount: carList.length),
+                    itemCount: carList.length,
+                  ),
+                ),
               );
             }
           default:
             {
               return SliverToBoxAdapter(
-                child: Center(child: VLoadingIndicator()),
+                child: Align(child: VLoadingIndicator()),
               );
             }
         }

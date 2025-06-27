@@ -324,7 +324,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
         Expanded(
           child: OutlinedButton.icon(
             onPressed: () {
-              Navigator.of(context).push(AppRoutes.createRoute(VCarDetailsScreen(car: widget.model)));
+              Navigator.of(context).push(AppRoutes.createRoute(VCarDetailsScreen(inspectionId: widget.model.inspectionId)));
             },
             icon: const Icon(Icons.visibility_rounded, size: 16),
             label: const Text("View Details"),
