@@ -150,28 +150,32 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
   ) async {
     emit(AuthLodingState());
     final snapshot = await VLoginRepo.loginVendor(mobileNumber, password);
-
-    if (snapshot['error'] == false && snapshot.isNotEmpty) {
-      log(snapshot['data'].toString());
-      final authmodel = AuthUserModel(
-        mobileNumber: mobileNumber,
-        password: password,
-        token: snapshot['token'],
-        userName: "",
-        userId: "",
-        userType: "VENDOR",
-      );
-      await _setLoginPreference(authmodel);
-      emit(
-        AuthCubitAuthenticateState(
-          userModel: authmodel,
-          loginMesaage: snapshot['message'],
-        ),
-      );
-      return true;
-    } else {
-      emit(AuthErrorState(errorMessage: snapshot['message']));
-      return false;
+    if (snapshot.isNotEmpty) {
+      if (snapshot['error'] == false) {
+        log(snapshot['data'].toString());
+        final authmodel = AuthUserModel(
+          mobileNumber: mobileNumber,
+          password: password,
+          token: snapshot['token'],
+          userName: "",
+          userId: "",
+          userType: "VENDOR",
+        );
+        await _setLoginPreference(authmodel);
+        emit(
+          AuthCubitAuthenticateState(
+            userModel: authmodel,
+            loginMesaage: snapshot['message'],
+          ),
+        );
+        return true;
+      } else {
+        emit(AuthErrorState(errorMessage: snapshot['message']));
+        return false;
+      }
+    }else{
+       emit(AuthErrorState(errorMessage: "No Internet Connection!"));
+       return false;
     }
   }
 

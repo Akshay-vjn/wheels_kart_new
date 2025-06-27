@@ -8,6 +8,7 @@ class VCarModel {
   String regNo;
   String city;
   dynamic currentBid;
+  int isLiked;
 
   VCarModel({
     required this.inspectionId,
@@ -19,28 +20,31 @@ class VCarModel {
     required this.regNo,
     required this.city,
     required this.currentBid,
+    required this.isLiked
   });
 
   factory VCarModel.fromJson(Map<String, dynamic> json) {
-    String? kmDrivern=json["kmsDriven"];
-    if(kmDrivern==null||kmDrivern.isEmpty){
-      kmDrivern="0";
+    String? kmDrivern = json["kmsDriven"];
+    if (kmDrivern == null || kmDrivern.isEmpty) {
+      kmDrivern = "0";
     }
     return VCarModel(
-    inspectionId: json["inspectionId"] ?? '',
-    modelName: json["modelName"] ?? '',
-    frontImage: json["frontImage"] ?? '',
-    manufacturingYear: json["manufacturingYear"] ?? '',
-    fuelType: json["fuel_type"] ?? '',
-    kmsDriven:kmDrivern,
-    regNo: json["regNo"] ?? '',
-    city: json["City"] ?? '',
-    currentBid: json["currentBid"] ?? '',
-  );
+      isLiked: json['wishlisted'],
+      inspectionId: json["inspectionId"] ?? '',
+      modelName: json["modelName"] ?? '',
+      frontImage: json["frontImage"] ?? '',
+      manufacturingYear: json["manufacturingYear"] ?? '',
+      fuelType: json["fuel_type"] ?? '',
+      kmsDriven: kmDrivern,
+      regNo: json["regNo"] ?? '',
+      city: json["City"] ?? '',
+      currentBid: json["currentBid"] ?? '',
+    );
   }
 
   Map<String, dynamic> toJson() => {
     "inspectionId": inspectionId,
+    "wishlisted":isLiked,
     "modelName": modelName,
     "frontImage": frontImage,
     "manufacturingYear": manufacturingYear,

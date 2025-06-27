@@ -106,7 +106,10 @@ class _CVehicleCardState extends State<CVehicleCard>
 
                       // Content Section
                       Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -115,22 +118,26 @@ class _CVehicleCardState extends State<CVehicleCard>
 
                             AppSpacer(heightPortion: .01),
 
-                            // Vehicle Details Grid
-                            _buildDetailsGrid(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildDetailsGrid(),
 
-                            AppSpacer(heightPortion: .01),
+                                    AppSpacer(heightPortion: .01),
 
-                            // Registration Number
-                            SizedBox(
-                              width: w(context) / 3,
-                              child: _buildRegistrationChip(),
+                                    _buildRegistrationChip(),
+                                  ],
+                                ),
+                                AppSpacer(widthPortion: .01),
+
+                                _buildCurrentBidSection(),
+                              ],
                             ),
 
                             // Current Bid Section
-                            if (widget.vehicle.currentBid.isNotEmpty) ...[
-                              AppSpacer(heightPortion: .020),
-                              _buildCurrentBidSection(),
-                            ],
                           ],
                         ),
                       ),
@@ -269,38 +276,35 @@ class _CVehicleCardState extends State<CVehicleCard>
   Widget _buildDetailsGrid() {
     return Row(
       children: [
-        Flexible(
-          flex: 3,
-          child: _buildEnhancedDetailChip(
-            Icons.local_gas_station_rounded,
-            getFuelType(widget.vehicle.fuelType),
-            getFuelTypeColor(widget.vehicle.fuelType),
-          ),
+        _buildEnhancedDetailChip(
+          Icons.local_gas_station_rounded,
+          getFuelType(widget.vehicle.fuelType),
+          getFuelTypeColor(widget.vehicle.fuelType),
         ),
-        const SizedBox(width: 12),
-        Flexible(
-          flex: 3,
-          child: _buildEnhancedDetailChip(
-            Icons.speed_rounded,
-            '${widget.vehicle.kmsDriven} km',
-            VColors.SECONDARY,
-          ),
+        AppSpacer(widthPortion: .01),
+        _buildEnhancedDetailChip(
+          Icons.speed_rounded,
+          '${widget.vehicle.kmsDriven} km',
+          VColors.SECONDARY,
         ),
       ],
     );
   }
 
   Widget _buildRegistrationChip() {
-    return _buildEnhancedDetailChip(
-      Icons.confirmation_number_rounded,
-      widget.vehicle.regNo.replaceRange(
-        4,
-        widget.vehicle.regNo.length,
-        // '●●●●●●',
-        '######',
+    return SizedBox(
+      width: w(context) / 3,
+      child: _buildEnhancedDetailChip(
+        Icons.confirmation_number_rounded,
+        widget.vehicle.regNo.replaceRange(
+          4,
+          widget.vehicle.regNo.length,
+          // '●●●●●●',
+          '######',
+        ),
+        Colors.deepPurple,
+        isFullWidth: true,
       ),
-      Colors.deepPurple,
-      isFullWidth: true,
     );
   }
 
@@ -308,20 +312,33 @@ class _CVehicleCardState extends State<CVehicleCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            VColors.ACCENT.withOpacity(0.1),
-            VColors.ACCENT.withOpacity(0.05),
-          ],
-        ),
+        // gradient: LinearGradient(
+        //   colors: [
+        //     VColors.ACCENT.withOpacity(0.1),
+        //     VColors.ACCENT.withOpacity(0.05),
+        //   ],
+        // ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: VColors.ACCENT.withOpacity(0.2), width: 1),
+        border: Border.all(color: VColors.BLACK.withOpacity(0.2), width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: VColors.BLACK,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.gavel_rounded,
+              color: Colors.white,
+              size: 16,
+            ),
+          ),
+          AppSpacer(widthPortion: .01),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 "Current Bid",
@@ -337,24 +354,12 @@ class _CVehicleCardState extends State<CVehicleCard>
                 "₹${widget.vehicle.currentBid}",
                 style: VStyle.style(
                   context: context,
-                  size: 20,
+                  size: 18,
                   fontWeight: FontWeight.bold,
-                  color: VColors.ACCENT,
+                  color: VColors.BLACK,
                 ),
               ),
             ],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: VColors.ACCENT,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.gavel_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
           ),
         ],
       ),
@@ -379,12 +384,12 @@ class _CVehicleCardState extends State<CVehicleCard>
         mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               color: color.withAlpha(50),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(3),
             ),
-            child: Icon(icon, size: 12, color: color),
+            child: Icon(icon, size: 10, color: color),
           ),
           const SizedBox(width: 8),
           Flexible(

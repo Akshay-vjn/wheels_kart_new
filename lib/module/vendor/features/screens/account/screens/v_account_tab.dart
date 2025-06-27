@@ -2,13 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/VENDOR/core/components/v_loading.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
-import 'package:wheels_kart/module/VENDOR/core/const/v_image_const.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/account/data/model/v_profile_model.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/account/screens/v_edit_profile_screen.dart';
 import 'package:wheels_kart/module/VENDOR/features/widgets/v_custom_button.dart';
 import 'package:wheels_kart/module/VENDOR/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/vendor/core/v_style.dart';
@@ -20,35 +25,32 @@ class VAccountTab extends StatefulWidget {
   State<VAccountTab> createState() => _VAccountTabState();
 }
 
-class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin {
+class _VAccountTabState extends State<VAccountTab>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
+    context.read<VProfileControllerCubit>().onFetchProfile(context);
     super.initState();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
-    
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
+
     _animationController.forward();
   }
 
@@ -60,55 +62,80 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (context, child) {
-        return FadeTransition(
-          opacity: _fadeAnimation,
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: AppMargin(
-                child: Column(
-                  children: [
-                    AppSpacer(heightPortion: .02),
-                    
-                    // Profile Header Section
-                    _buildProfileHeader(context),
-                    
-                    AppSpacer(heightPortion: .03),
-                    
-                    // Account Info Section
-                    _buildAccountInfoSection(context),
-                    
-                    AppSpacer(heightPortion: .03),
-                    
-                    // Quick Actions Section
-                    _buildQuickActionsSection(context),
-                    
-                    AppSpacer(heightPortion: .04),
-                    
-                    // Settings Section
-                    _buildSettingsSection(context),
-                    
-                    AppSpacer(heightPortion: .04),
-                    
-                    // Logout Button
-                    _buildLogoutButton(context),
-                    
-                    AppSpacer(heightPortion: .04),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
+    return RefreshIndicator.adaptive(
+      onRefresh: () async {
+        context.read<VProfileControllerCubit>().onFetchProfile(context);
       },
+      child: BlocBuilder<VProfileControllerCubit, VProfileControllerState>(
+        builder: (context, state) {
+          switch (state) {
+            case VProfileControllerErrorState():
+              {
+                return AppEmptyText(text: state.error);
+              }
+            case VProfileControllerSuccessState():
+              {
+                final model = state.profileModel;
+                return SafeArea(
+                  child: AnimatedBuilder(
+                    animation: _animationController,
+                    builder: (context, child) {
+                      return FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: AppMargin(
+                              child: Column(
+                                children: [
+                                  AppSpacer(heightPortion: .02),
+
+                                  // Profile Header Section
+                                  _buildProfileHeader(context, model),
+
+                                  AppSpacer(heightPortion: .03),
+
+                                  // Account Info Section
+                                  _buildAccountInfoSection(context, model),
+
+                                  AppSpacer(heightPortion: .03),
+
+                                  // Quick Actions Section
+                                  _buildQuickActionsSection(context, model),
+
+                                  AppSpacer(heightPortion: .04),
+
+                                  // Settings Section
+                                  _buildSettingsSection(context),
+
+                                  AppSpacer(heightPortion: .04),
+
+                                  // Logout Button
+                                  _buildLogoutButton(context),
+
+                                  AppSpacer(heightPortion: .04),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+            default:
+              {
+                return Center(child: VLoadingIndicator());
+              }
+          }
+        },
+      ),
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context) {
+  Widget _buildProfileHeader(BuildContext context, VProfileModel model) {
     return Container(
       padding: const EdgeInsets.all(24),
       width: w(context),
@@ -122,10 +149,7 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
           ],
         ),
         borderRadius: BorderRadius.circular(AppDimensions.radiusSize15 + 5),
-        border: Border.all(
-          color: VColors.SECONDARY.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: VColors.SECONDARY.withOpacity(0.2), width: 1),
       ),
       child: Column(
         children: [
@@ -152,12 +176,12 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
               color: VColors.WHITE,
             ),
           ),
-          
+
           AppSpacer(heightPortion: .02),
-          
+
           // Name and Status
           Text(
-            "Rio Joi",
+            model.vendorName,
             style: VStyle.style(
               context: context,
               fontWeight: FontWeight.bold,
@@ -165,46 +189,51 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
               color: VColors.SECONDARY,
             ),
           ),
-          
+
           AppSpacer(heightPortion: .005),
-          
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.green.withOpacity(0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
+
+          model.vendorStatus == "ACTIVE"
+              ? Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  "Active Vendor",
-                  style: VStyle.style(
-                    context: context,
-                    size: 12,
-                    color: Colors.green.shade700,
-                    fontWeight: FontWeight.w500,
-                  ),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.green.withOpacity(0.3)),
                 ),
-              ],
-            ),
-          ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      "Active Vendor",
+                      style: VStyle.style(
+                        context: context,
+                        size: 12,
+                        color: Colors.green.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              : SizedBox.shrink(),
         ],
       ),
     );
   }
 
-  Widget _buildAccountInfoSection(BuildContext context) {
+  Widget _buildAccountInfoSection(BuildContext context, VProfileModel model) {
     return Container(
       padding: const EdgeInsets.all(20),
       width: w(context),
@@ -225,11 +254,7 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
         children: [
           Row(
             children: [
-              Icon(
-                SolarIconsOutline.user,
-                color: VColors.SECONDARY,
-                size: 20,
-              ),
+              Icon(SolarIconsOutline.user, color: VColors.SECONDARY, size: 20),
               const SizedBox(width: 8),
               Text(
                 "Account Information",
@@ -242,34 +267,34 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
               ),
             ],
           ),
-          
+
           AppSpacer(heightPortion: .02),
-          
+
           _buildInfoItem(
             "Full Name",
-            "Rio Joi",
+            model.vendorName,
             SolarIconsOutline.user,
             context,
             isFirst: true,
           ),
-          
+
           _buildInfoItem(
             "Phone Number",
-            "7756873424",
+            model.vendorMobileNumber,
             SolarIconsOutline.phone,
             context,
           ),
-          
+
           _buildInfoItem(
             "Email Address",
-            "abc@gmail.com",
+            model.vendorEmail,
             CupertinoIcons.mail,
             context,
           ),
-          
+
           _buildInfoItem(
             "Location",
-            "Mysuru",
+            model.vendorCity,
             CupertinoIcons.location,
             context,
             isLast: true,
@@ -279,7 +304,7 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildQuickActionsSection(BuildContext context) {
+  Widget _buildQuickActionsSection(BuildContext context, VProfileModel model) {
     return Container(
       padding: const EdgeInsets.all(20),
       width: w(context),
@@ -317,9 +342,9 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
               ),
             ],
           ),
-          
+
           AppSpacer(heightPortion: .02),
-          
+
           Row(
             children: [
               Expanded(
@@ -328,7 +353,9 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
                   SolarIconsOutline.pen,
                   context,
                   onTap: () {
-                    // Navigate to edit profile
+                    Navigator.of(context).push(
+                      AppRoutes.createRoute(VEditProfileScreen(model: model)),
+                    );
                   },
                 ),
               ),
@@ -388,9 +415,9 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
               ),
             ],
           ),
-          
+
           AppSpacer(heightPortion: .02),
-          
+
           _buildSettingsItem(
             "Notifications",
             "Manage your notification preferences",
@@ -399,7 +426,7 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
             onTap: () {},
             isFirst: true,
           ),
-          
+
           _buildSettingsItem(
             "Privacy & Security",
             "Control your privacy settings",
@@ -407,7 +434,7 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
             context,
             onTap: () {},
           ),
-          
+
           _buildSettingsItem(
             "Help & Support",
             "Get help or contact support",
@@ -430,10 +457,7 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
     bool isLast = false,
   }) {
     return Container(
-      margin: EdgeInsets.only(
-        bottom: isLast ? 0 : 12,
-        top: isFirst ? 0 : 0,
-      ),
+      margin: EdgeInsets.only(bottom: isLast ? 0 : 12, top: isFirst ? 0 : 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -448,15 +472,11 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
               color: VColors.SECONDARY.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: VColors.SECONDARY,
-              size: 18,
-            ),
+            child: Icon(icon, color: VColors.SECONDARY, size: 18),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -511,15 +531,11 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
                 color: VColors.SECONDARY.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icon,
-                color: VColors.SECONDARY,
-                size: 24,
-              ),
+              child: Icon(icon, color: VColors.SECONDARY, size: 24),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             Text(
               title,
               textAlign: TextAlign.center,
@@ -563,15 +579,11 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
                 color: VColors.SECONDARY.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                icon,
-                color: VColors.SECONDARY,
-                size: 18,
-              ),
+              child: Icon(icon, color: VColors.SECONDARY, size: 18),
             ),
-            
+
             const SizedBox(width: 12),
-            
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -598,12 +610,8 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
                 ],
               ),
             ),
-            
-            Icon(
-              CupertinoIcons.chevron_right,
-              color: VColors.GREY,
-              size: 16,
-            ),
+
+            Icon(CupertinoIcons.chevron_right, color: VColors.GREY, size: 16),
           ],
         ),
       ),
@@ -642,11 +650,7 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
           ),
           title: Row(
             children: [
-              Icon(
-                SolarIconsOutline.logout,
-                color: Colors.red,
-                size: 24,
-              ),
+              Icon(SolarIconsOutline.logout, color: Colors.red, size: 24),
               const SizedBox(width: 8),
               const Text("Logout"),
             ],
@@ -678,7 +682,6 @@ class _VAccountTabState extends State<VAccountTab> with TickerProviderStateMixin
                 ),
               ),
               onPressed: () {
-               
                 context.read<VNavControllerCubit>().onChangeNav(0);
                 context.read<AppAuthController>().clearPreferenceData(context);
               },

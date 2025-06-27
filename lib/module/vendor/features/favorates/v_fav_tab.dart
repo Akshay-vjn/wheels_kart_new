@@ -36,6 +36,7 @@ class VFavTab extends StatelessWidget {
               onFavoriteToggle: () {},
               onPressCard: () {},
               vehicle: VCarModel(
+                isLiked: 1,
                 inspectionId: "1",
                 modelName: "Swift",
                 frontImage: "",
