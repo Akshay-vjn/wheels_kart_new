@@ -24,6 +24,7 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehilce%20photo
 import 'package:wheels_kart/module/VENDOR/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/VENDOR/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 
 blocProviders(Widget child) => MultiBlocProvider(
@@ -62,10 +63,19 @@ blocProviders(Widget child) => MultiBlocProvider(
 
     // VENDOR CONTROLLERS
     BlocProvider<VNavControllerCubit>(create: (_) => VNavControllerCubit()),
-    BlocProvider<VDashboardControlllerBloc>(create: (_) => VDashboardControlllerBloc()),
+    BlocProvider<VDashboardControlllerBloc>(
+      create: (_) => VDashboardControlllerBloc(),
+    ),
 
-    BlocProvider<VProfileControllerCubit>(create: (_) => VProfileControllerCubit()),
-     BlocProvider<VWishlistControllerCubit>(create: (_) => VWishlistControllerCubit()),
+    BlocProvider<VProfileControllerCubit>(
+      create: (_) => VProfileControllerCubit(),
+    ),
+    BlocProvider<VWishlistControllerCubit>(
+      create: (_) => VWishlistControllerCubit(),
+    ),
+    BlocProvider<VDetailsControllerBloc>(
+      create: (_) => VDetailsControllerBloc(),
+    ),
   ],
   child: child,
 );

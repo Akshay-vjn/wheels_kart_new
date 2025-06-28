@@ -146,7 +146,8 @@ class _VHomeTabState extends State<VHomeTab> {
 
           // Vehicle List
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+
             sliver: VCarCardBuilder(),
           ),
 

@@ -1,19 +1,22 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:solar_icons/solar_icons.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
+import 'package:wheels_kart/module/VENDOR/core/components/v_loading.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
 import 'package:wheels_kart/module/VENDOR/core/v_style.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/home/data/model/v_car_model.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/VENDOR/features/widgets/v_custom_backbutton.dart';
 
 class VCarDetailsScreen extends StatefulWidget {
-  final VCarModel car;
-  const VCarDetailsScreen({super.key, required this.car});
+  final String inspectionId;
+  const VCarDetailsScreen({super.key, required this.inspectionId});
 
   @override
   State<VCarDetailsScreen> createState() => _VCarDetailsScreenState();
@@ -21,111 +24,185 @@ class VCarDetailsScreen extends StatefulWidget {
 
 class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
   @override
+  void initState() {
+    context.read<VDetailsControllerBloc>().add(
+      OnFetchDetails(context: context, inspectionId: widget.inspectionId),
+    );
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: VColors.WHITEBGCOLOR,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: VColors.WHITE,
-            leading: VCustomBackbutton(blendColor: VColors.BLACK.withAlpha(50)),
-            centerTitle: false,
+      body: BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
+        builder: (context, state) {
+          switch (state) {
+            case VDetailsControllerErrorState():
+              {
+                return Center(child: AppEmptyText(text: state.error));
+              }
+            case VDetailsControllerSuccessState():
+              {
+                final detail = state.detail;
+                return CustomScrollView(
+                  slivers: [
+                    SliverAppBar(
+                      backgroundColor: VColors.WHITE,
+                      leading: VCustomBackbutton(
+                        blendColor: VColors.BLACK.withAlpha(50),
+                      ),
+                      centerTitle: false,
 
-            title: Text(
-              "Back",
-              style: VStyle.style(
-                context: context,
-                size: AppDimensions.fontSize18(context),
-                color: VColors.BLACK,
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: EdgeInsets.all(0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate.fixed([
-                _buildImageListButton(),
+                      title: Text(
+                        "Back",
+                        style: VStyle.style(
+                          context: context,
+                          size: AppDimensions.fontSize18(context),
+                          color: VColors.BLACK,
+                        ),
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: EdgeInsets.all(0),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate.fixed([
+                          _buildImageListButton(detail.images),
 
-                _buildCarHead(),
+                          _buildCarHead(
+                            "${detail.carDetails.brand} ${detail.carDetails.model}",
+                            detail.carDetails.variant,
+                            detail.carDetails.evaluationId,
+                          ),
+                          AppSpacer(heightPortion: .01,),
+                          _buildCarLegals(),
 
-                _buildCarLegals(),
+                          // _buildCard(
+                          //   icon: CupertinoIcons.doc_fill,
+                          //   cardTitle: "Documents",
+                          //   childres: [
+                          //     _buildQuestionAndAnswerTile(
+                          //       "RC availabity",
+                          //       "No",
+                          //     ),
+                          //     _buildQuestionAndAnswerTile(
+                          //       "Insurence",
+                          //       "Comprehancive",
+                          //     ),
+                          //     _buildQuestionAndAnswerTile(
+                          //       "Road tax Paid",
+                          //       "2002",
+                          //     ),
+                          //   ],
+                          // ),
 
-                _buildCard(
-                  icon: CupertinoIcons.doc_fill,
-                  cardTitle: "Documents",
-                  childres: [
-                    _buildQuestionAndAnswerTile("RC availabity", "No"),
-                    _buildQuestionAndAnswerTile("Insurence", "Comprehancive"),
-                    _buildQuestionAndAnswerTile("Road tax Paid", "2002"),
+                          // _buildCard(cardTitle, childres)
+                        ]),
+                      ),
+                    ),
                   ],
-                ),
-
-                // _buildCard(cardTitle, childres)
-              ]),
-            ),
-          ),
-        ],
+                );
+              }
+            default:
+              {
+                return Center(child: VLoadingIndicator());
+              }
+          }
+        },
       ),
     );
   }
 
-  Widget _buildImageListButton() {
-    return Column(
-      children: [
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Container(
-            // width: w(context),
-            // height: h(context) * .,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  VColors.LIGHT_GREY.withOpacity(0.3),
-                  VColors.LIGHT_GREY,
-                ],
+  Widget _buildImageListButton(List<String> images) {
+    return BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
+      builder: (context, state) {
+        if (state is VDetailsControllerSuccessState) {
+          return Column(
+            children: [
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Container(
+                  // width: w(context),
+                  // height: h(context) * .,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        VColors.LIGHT_GREY.withOpacity(0.3),
+                        VColors.LIGHT_GREY,
+                      ],
+                    ),
+                  ),
+                  child: FadeIn(
+                    key: GlobalObjectKey(
+                      images[state.currentImageIndex].toString(),
+                    ),
+                    child: CachedNetworkImage(
+                      errorWidget:
+                          (context, url, error) => Center(
+                            child: Text(
+                              "Image not found",
+                              style: VStyle.style(
+                                context: context,
+                                color: VColors.DARK_GREY,
+                              ),
+                            ),
+                          ),
+                      imageUrl: images[state.currentImageIndex],
+                      errorListener: (value) {},
+                    ),
+                  ),
+                ),
               ),
-            ),
-            child: CachedNetworkImage(
-              errorWidget:
-                  (context, url, error) => Center(
-                    child: Text(
-                      "Image not found",
-                      style: VStyle.style(
-                        context: context,
-                        color: VColors.DARK_GREY,
+              AppSpacer(heightPortion: .01),
+              SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(
+                    images.length,
+                    (index) => GestureDetector(
+                      onTap: () {
+                        context.read<VDetailsControllerBloc>().add(
+                          OnChangeImageIndex(newIndex: index),
+                        );
+                      },
+                      child: Container(
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        margin: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            width: state.currentImageIndex==index?2:1,
+                            color:state.currentImageIndex==index ?VColors.GREENHARD:VColors.DARK_GREY,
+                          ),
+                        ),
+                        // height: 60,
+                        width: w(context) / 4,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl: images[index],
+                          ),
+                        ),
                       ),
                     ),
                   ),
-              imageUrl: widget.car.frontImage,
-              errorListener: (value) {},
-            ),
-          ),
-        ),
-        AppSpacer(heightPortion: .01),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: List.generate(
-              5,
-              (index) => Container(
-                margin: EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(width: .5, color: VColors.GREENHARD),
                 ),
-                height: 50,
-                width: w(context) / 4,
               ),
-            ),
-          ),
-        ),
-      ],
+            ],
+          );
+        } else {
+          return SizedBox.shrink();
+        }
+      },
     );
   }
 
-  Widget _buildCarHead() {
+  Widget _buildCarHead(String brandName, String location, String evaId) {
     return AppMargin(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +213,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.car.manufacturingYear + "  " + widget.car.modelName,
+                brandName,
                 style: VStyle.style(
                   context: context,
                   fontWeight: FontWeight.bold,
@@ -179,20 +256,25 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
               ),
             ],
           ),
+          AppSpacer(heightPortion: .01),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                widget.car.city,
-                style: VStyle.style(
-                  context: context,
-                  color: VColors.BLACK,
-                  fontWeight: FontWeight.w500,
-                  size: 15,
+              Flexible(
+                child: Text(
+                  location,
+                  style: VStyle.style(
+                    context: context,
+                    color: VColors.BLACK,
+                    fontWeight: FontWeight.w400,
+                    size: 15,
+                  ),
                 ),
               ),
+              AppSpacer(widthPortion: .03),
               Text(
-                "ID 635263",
+                "ID ${evaId}",
                 style: VStyle.style(context: context, color: VColors.DARK_GREY),
               ),
             ],
@@ -203,7 +285,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
   }
 
   Widget _buildCarLegals() {
-    return SizedBox();
+    return AppMargin(child: SizedBox(child: Text("legals"),));
   }
 
   Widget _buildCard({

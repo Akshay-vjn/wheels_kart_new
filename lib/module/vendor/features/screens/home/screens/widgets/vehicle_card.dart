@@ -131,11 +131,11 @@ class _CVehicleCardState extends State<CVehicleCard>
                                     _buildRegistrationChip(),
                                   ],
                                 ),
-                                AppSpacer(widthPortion: .01),
-
-                                _buildCurrentBidSection(),
                               ],
                             ),
+                            AppSpacer(heightPortion: .01),
+
+                            _buildCurrentBidSection(),
 
                             // Current Bid Section
                           ],
