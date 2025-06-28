@@ -149,7 +149,7 @@ class Section {
 class Entry {
   final String question;
   final String answer;
-  final Comment comment;
+  final String comment;
   final List<String> responseImages;
 
   Entry({
@@ -162,48 +162,48 @@ class Entry {
   factory Entry.fromJson(Map<String, dynamic> json) => Entry(
     question: json["question"] ?? '',
     answer: json["answer"] ?? '',
-    comment: commentValues.map[json["comment"]]!,
+    comment: json["comment"]??'',
     responseImages: List<String>.from(json["responseImages"].map((x) => x)),
   );
 
   Map<String, dynamic> toJson() => {
     "question": question,
     "answer": answer,
-    "comment": commentValues.reverse[comment],
+    "comment": comment,
     "responseImages": List<dynamic>.from(responseImages.map((x) => x)),
   };
 }
 
-enum Comment {
-  COMMENT_NEED_TO_REPLACE,
-  EMPTY,
-  NEED_TO_REAPLACE,
-  NEED_TO_REPLACE,
-  NO_FEATURES,
-  NO_FOG_LAMP,
-  NO_REAR_VIEW_CAMERA,
-  THE_2_D_STERIO,
-}
+// enum Comment {
+//   COMMENT_NEED_TO_REPLACE,
+//   EMPTY,
+//   NEED_TO_REAPLACE,
+//   NEED_TO_REPLACE,
+//   NO_FEATURES,
+//   NO_FOG_LAMP,
+//   NO_REAR_VIEW_CAMERA,
+//   THE_2_D_STERIO,
+// }
 
-final commentValues = EnumValues({
-  "NEED TO REPLACE": Comment.COMMENT_NEED_TO_REPLACE,
-  "": Comment.EMPTY,
-  "NEED TO REAPLACE": Comment.NEED_TO_REAPLACE,
-  "NEED TO REPLACE ": Comment.NEED_TO_REPLACE,
-  "NO FEATURES": Comment.NO_FEATURES,
-  "NO FOG LAMP ": Comment.NO_FOG_LAMP,
-  "NO REAR VIEW CAMERA ": Comment.NO_REAR_VIEW_CAMERA,
-  "2D sterio": Comment.THE_2_D_STERIO,
-});
+// final commentValues = EnumValues({
+//   "NEED TO REPLACE": Comment.COMMENT_NEED_TO_REPLACE,
+//   "": Comment.EMPTY,
+//   "NEED TO REAPLACE": Comment.NEED_TO_REAPLACE,
+//   "NEED TO REPLACE ": Comment.NEED_TO_REPLACE,
+//   "NO FEATURES": Comment.NO_FEATURES,
+//   "NO FOG LAMP ": Comment.NO_FOG_LAMP,
+//   "NO REAR VIEW CAMERA ": Comment.NO_REAR_VIEW_CAMERA,
+//   "2D sterio": Comment.THE_2_D_STERIO,
+// });
 
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
+// class EnumValues<T> {
+//   Map<String, T> map;
+//   late Map<T, String> reverseMap;
 
-  EnumValues(this.map);
+//   EnumValues(this.map);
 
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
-}
+//   Map<T, String> get reverse {
+//     reverseMap = map.map((k, v) => MapEntry(v, k));
+//     return reverseMap;
+//   }
+// }

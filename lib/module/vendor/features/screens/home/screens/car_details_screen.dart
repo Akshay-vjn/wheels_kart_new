@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
@@ -12,6 +13,7 @@ import 'package:wheels_kart/module/VENDOR/core/components/v_loading.dart';
 import 'package:wheels_kart/module/VENDOR/core/const/v_colors.dart';
 import 'package:wheels_kart/module/VENDOR/core/v_style.dart';
 import 'package:wheels_kart/module/VENDOR/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
+import 'package:wheels_kart/module/VENDOR/features/screens/home/data/model/v_car_detail_model.dart';
 import 'package:wheels_kart/module/VENDOR/features/widgets/v_custom_backbutton.dart';
 
 class VCarDetailsScreen extends StatefulWidget {
@@ -72,32 +74,84 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
 
                           _buildCarHead(
                             "${detail.carDetails.brand} ${detail.carDetails.model}",
-                            detail.carDetails.variant,
+                            detail.carDetails.city,
                             detail.carDetails.evaluationId,
+                            detail.carDetails.variant,
                           ),
-                          AppSpacer(heightPortion: .01,),
-                          _buildCarLegals(),
+                          AppSpacer(heightPortion: .01),
+                          _buildCarSpecification(detail.carDetails),
 
-                          // _buildCard(
-                          //   icon: CupertinoIcons.doc_fill,
-                          //   cardTitle: "Documents",
-                          //   childres: [
-                          //     _buildQuestionAndAnswerTile(
-                          //       "RC availabity",
-                          //       "No",
-                          //     ),
-                          //     _buildQuestionAndAnswerTile(
-                          //       "Insurence",
-                          //       "Comprehancive",
-                          //     ),
-                          //     _buildQuestionAndAnswerTile(
-                          //       "Road tax Paid",
-                          //       "2002",
-                          //     ),
-                          //   ],
-                          // ),
+                          _buildCard(
+                            icon: CupertinoIcons.doc_fill,
+                            cardTitle: "Documents",
+                            childres: [
+                              _buildQuestionAndAnswerTile(
+                                "RC availabity",
+                                "YES",
+                              ),
+                              _buildQuestionAndAnswerTile(
+                                "Insurance",
+                                detail.carDetails.insuranceType,
+                                otherInfo: detail.carDetails.insuranceValidity,
+                              ),
 
-                          // _buildCard(cardTitle, childres)
+                              _buildQuestionAndAnswerTile(
+                                "Road Tax",
+                                detail.carDetails.roadTaxPaid,
+                                otherInfo: detail.carDetails.roadTaxValidity,
+                              ),
+
+                              _buildDevider(),
+
+                              Text(
+                                "Other infromation",
+                                style: VStyle.style(
+                                  context: context,
+                                  fontWeight: FontWeight.bold,
+                                  color: VColors.GREENHARD,
+                                  size: AppDimensions.fontSize18(context),
+                                ),
+                              ),
+
+                              AppSpacer(heightPortion: .01),
+
+                              _buildQuestionAndAnswerTile(
+                                "Registration Date",
+                                detail.carDetails.registrationDate,
+                              ),
+                              _buildQuestionAndAnswerTile(
+                                "Manufacture Date",
+                                detail.carDetails.manufactureDate,
+                              ),
+
+                              _buildQuestionAndAnswerTile(
+                                "No. of Keys",
+                                detail.carDetails.noOfKeys,
+                              ),
+                            ],
+                          ),
+
+                          Column(
+                            children:
+                                detail.sections
+                                    .map(
+                                      (section) => _buildCard(
+                                        hideIcon: true,
+                                        icon: Icons.abc,
+                                        cardTitle: section.portionName,
+                                        childres:
+                                            section.entries.map((entry) {
+                                              return _buildQuestionAndAnswerTile(
+                                                entry.question,
+                                                entry.answer.toUpperCase(),
+                                                // otherInfo: entry.comment.name,
+                                                showIcon: true,
+                                              );
+                                            }).toList(),
+                                      ),
+                                    )
+                                    .toList(),
+                          ),
                         ]),
                       ),
                     ),
@@ -111,6 +165,66 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
           }
         },
       ),
+      bottomNavigationBar:
+          BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
+            builder: (context, state) {
+              if (state is VDetailsControllerSuccessState) {
+                return Container(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  height: h(context) * .1,
+                  decoration: BoxDecoration(
+                    color: VColors.WHITE,
+                    boxShadow: [
+                      BoxShadow(
+                        color: VColors.DARK_GREY.withAlpha(50),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Current Bid",
+                            style: VStyle.style(
+                              context: context,
+                              color: VColors.GREY,
+                              fontWeight: FontWeight.w600,
+                              size: 15,
+                            ),
+                          ),
+                          Text(
+                            "₹${state.detail.carDetails.currentBid}",
+                            style: VStyle.style(
+                              context: context,
+                              color: VColors.GREENHARD,
+                              fontWeight: FontWeight.w900,
+                              size: 27,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: VColors.GREENHARD,
+                        ),
+                        onPressed: () {},
+                        child: Icon(
+                          SolarIconsBold.chatRound,
+                          color: VColors.WHITE,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            },
+          ),
     );
   }
 
@@ -175,8 +289,11 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            width: state.currentImageIndex==index?2:1,
-                            color:state.currentImageIndex==index ?VColors.GREENHARD:VColors.DARK_GREY,
+                            width: state.currentImageIndex == index ? 2 : 1,
+                            color:
+                                state.currentImageIndex == index
+                                    ? VColors.GREENHARD
+                                    : VColors.DARK_GREY,
                           ),
                         ),
                         // height: 60,
@@ -202,7 +319,12 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
     );
   }
 
-  Widget _buildCarHead(String brandName, String location, String evaId) {
+  Widget _buildCarHead(
+    String brandName,
+    String location,
+    String evaId,
+    String varient,
+  ) {
     return AppMargin(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,39 +343,49 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                 ),
               ),
 
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: Icon(
-                          Icons.favorite_rounded,
-                          // : Icons.favorite_border_rounded,
-                          // key: ValueKey(widget.isFavorite),
-                          color: VColors.ACCENT,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
+              Text(
+                location,
+                style: VStyle.style(
+                  context: context,
+                  color: VColors.ACCENT,
+                  fontWeight: FontWeight.bold,
+                  size: 20,
                 ),
               ),
+
+              // Container(
+              //   decoration: BoxDecoration(
+              //     color: Colors.white.withOpacity(0.9),
+              //     borderRadius: BorderRadius.circular(12),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withOpacity(0.1),
+              //         blurRadius: 8,
+              //         offset: const Offset(0, 2),
+              //       ),
+              //     ],
+              //   ),
+              //   child: Material(
+              //     color: Colors.transparent,
+              //     child: InkWell(
+              //       borderRadius: BorderRadius.circular(12),
+              //       onTap: () {},
+              //       child: Padding(
+              //         padding: const EdgeInsets.all(8),
+              //         child: AnimatedSwitcher(
+              //           duration: const Duration(milliseconds: 300),
+              //           child: Icon(
+              //             Icons.favorite_rounded,
+              //             // : Icons.favorite_border_rounded,
+              //             // key: ValueKey(widget.isFavorite),
+              //             color: VColors.ACCENT,
+              //             size: 20,
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           AppSpacer(heightPortion: .01),
@@ -263,7 +395,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
             children: [
               Flexible(
                 child: Text(
-                  location,
+                  varient,
                   style: VStyle.style(
                     context: context,
                     color: VColors.BLACK,
@@ -284,14 +416,37 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
     );
   }
 
-  Widget _buildCarLegals() {
-    return AppMargin(child: SizedBox(child: Text("legals"),));
+  Widget _buildCarSpecification(CarDetails carDetails) {
+    final style = VStyle.style(context: context, fontWeight: FontWeight.bold);
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 5),
+      decoration: BoxDecoration(color: VColors.SECONDARY.withAlpha(20)),
+      width: w(context),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(carDetails.transmission.toUpperCase(), style: style),
+          AppSpacer(widthPortion: .01),
+          Text("${carDetails.kmsDriven} Km", style: style),
+          AppSpacer(widthPortion: .01),
+
+          Text("No. of owners ${carDetails.noOfOwners}", style: style),
+          AppSpacer(widthPortion: .01),
+
+          Text(carDetails.fuelType, style: style),
+          AppSpacer(widthPortion: .01),
+
+          Text(carDetails.registrationNumber.substring(0, 6), style: style),
+        ],
+      ),
+    );
   }
 
   Widget _buildCard({
     required IconData icon,
     required String cardTitle,
     required List<Widget> childres,
+    bool hideIcon = false,
   }) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
@@ -317,7 +472,9 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
             children: [
               Row(
                 children: [
-                  Icon(icon, color: VColors.GREENHARD),
+                  hideIcon
+                      ? SizedBox.shrink()
+                      : Icon(icon, color: VColors.GREENHARD),
                   AppSpacer(widthPortion: .02),
                   Text(
                     cardTitle,
@@ -330,44 +487,97 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                   ),
                 ],
               ),
-              IconButton(
-                color: VColors.GREENHARD,
-                onPressed: () {},
-                icon: Icon(Icons.arrow_drop_down_circle_outlined),
+              InkWell(
+                onTap: () {},
+                child: Icon(
+                  Icons.arrow_drop_down_circle_outlined,
+                  color: VColors.GREENHARD,
+                ),
               ),
             ],
           ),
-          AppSpacer(heightPortion: .01),
-          Column(children: childres),
+          AppSpacer(heightPortion: .015),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: childres,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildQuestionAndAnswerTile(String qestion, String answer) {
+  Widget _buildQuestionAndAnswerTile(
+    String qestion,
+    String answer, {
+    String? otherInfo,
+    bool showIcon = false,
+  }) {
+    Widget icon;
+
+    if (answer == "OK" || answer == "YES") {
+      icon = Icon(Icons.check_circle_outline_rounded, color: VColors.PRIMARY);
+    } else {
+      icon = Icon(Icons.error_outline_sharp, color: VColors.ACCENT);
+    }
     return Padding(
       padding: EdgeInsets.only(bottom: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            qestion,
-            style: VStyle.style(
-              context: context,
-              fontWeight: FontWeight.bold,
-              size: 16,
-            ),
-          ),
-          Text(
-            answer,
-            style: VStyle.style(
-              context: context,
-              fontWeight: FontWeight.bold,
-              size: 16,
+          if (showIcon) icon,
+          AppSpacer(widthPortion: .01),
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+              children: [
+                Flexible(
+                  child: Text(
+                    qestion,
+                    style: VStyle.style(
+                      context: context,
+                      fontWeight: FontWeight.bold,
+                      size: 16,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        answer,
+                        style: VStyle.style(
+                          context: context,
+                          fontWeight: FontWeight.bold,
+                          size: 16,
+                        ),
+                      ),
+
+                      otherInfo != null
+                          ? Text(
+                            otherInfo,
+                            style: VStyle.style(
+                              context: context,
+                              color: VColors.GREENHARD,
+                              fontWeight: FontWeight.w700,
+                              size: 13,
+                            ),
+                          )
+                          : SizedBox.shrink(),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildDevider() {
+    return Divider(thickness: .3, color: VColors.GREY);
   }
 }

@@ -287,6 +287,12 @@ class _CVehicleCardState extends State<CVehicleCard>
           '${widget.vehicle.kmsDriven} km',
           VColors.SECONDARY,
         ),
+
+        // _buildEnhancedDetailChip(
+        //   Icons.speed_rounded,
+        //   '${widget.vehicle.inspectionId} km',
+        //   VColors.SECONDARY,
+        // ),
       ],
     );
   }
