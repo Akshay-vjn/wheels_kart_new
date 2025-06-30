@@ -9,12 +9,12 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/fetch_profile_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/login_repo.dart';
-import 'package:wheels_kart/module/VENDOR/core/utils/v_messages.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/auth/data/repo/v_login_repo.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/auth/data/repo/v_register_repo.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/auth/screens/v_login_screen.dart';
+import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_login_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_register_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_login_screen.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
-import 'package:wheels_kart/module/vendor/core/const/v_colors.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 
 part 'auth_state.dart';
 

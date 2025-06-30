@@ -10,8 +10,8 @@ import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_login_screen.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/auth/screens/v_login_screen.dart';
-import 'package:wheels_kart/module/VENDOR/features/v_nav_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_login_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 
 class DecisionScreen extends StatefulWidget {
   const DecisionScreen({super.key});
@@ -169,8 +169,8 @@ class _DecisionScreenState extends State<DecisionScreen>
 
                         _buildEnhancedDecisionButton(
                           context,
-                          'Vendor',
-                          'Login as Vendor / Dealer',
+                          'Dealer',
+                          'Login as Dealer',
                           'Manage your vehicle inventory',
                           EvConstImages.vendorImage,
                           Icons.store_outlined,

@@ -21,11 +21,12 @@ import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
-import 'package:wheels_kart/module/VENDOR/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
-import 'package:wheels_kart/module/VENDOR/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/helper/blocs/live%20price%20change%20controller/live_price_change_controller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 
 blocProviders(Widget child) => MultiBlocProvider(
   providers: [
@@ -61,7 +62,7 @@ blocProviders(Widget child) => MultiBlocProvider(
     ),
     BlocProvider<DownloadPdfCubit>(create: (_) => DownloadPdfCubit()),
 
-    // VENDOR CONTROLLERS
+    // Dealer CONTROLLERS
     BlocProvider<VNavControllerCubit>(create: (_) => VNavControllerCubit()),
     BlocProvider<VDashboardControlllerBloc>(
       create: (_) => VDashboardControlllerBloc(),
@@ -75,6 +76,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     ),
     BlocProvider<VDetailsControllerBloc>(
       create: (_) => VDetailsControllerBloc(),
+    ),
+    BlocProvider<LivePriceChangeControllerBloc>(
+      create: (_) => LivePriceChangeControllerBloc(),
     ),
   ],
   child: child,
