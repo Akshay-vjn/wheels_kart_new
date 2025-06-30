@@ -71,7 +71,7 @@ class VDetailsControllerBloc
           final section = currentState.detail.sections[event.imageTabIndex - 1];
           for (var entry in section.entries) {
             for (var image in entry.responseImages) {
-              images.add({"image": image, "comment": ""});
+              images.add({"image": image, "comment": entry.comment});
             }
           }
         }
