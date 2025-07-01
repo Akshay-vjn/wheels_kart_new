@@ -481,7 +481,8 @@ class _CVehicleCardState extends State<CVehicleCard>
   Widget _buildStatusBadge(String status) {
     Color color;
     String title;
-    if (status == "APPROVED") {
+
+    if (status == "APPROVED" || status.isEmpty) {
       title = "LIVE";
       color = VColors.SUCCESS;
     } else {
@@ -489,8 +490,7 @@ class _CVehicleCardState extends State<CVehicleCard>
       color = VColors.REDHARD;
     }
     // You can customize this based on vehicle status
-    if (widget.vehicle.currentBid.isNotEmpty) {
-      return Positioned(
+    return Positioned(
         left: 12,
         top: 12,
         child: Container(
@@ -524,8 +524,6 @@ class _CVehicleCardState extends State<CVehicleCard>
           ),
         ),
       );
-    }
-    return const SizedBox.shrink();
   }
 
   Color getFuelTypeColor(String fuelType) {

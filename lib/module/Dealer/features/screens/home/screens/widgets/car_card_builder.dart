@@ -76,6 +76,7 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
                                 ).push(
                                   AppRoutes.createRoute(
                                     VCarDetailsScreen(
+                                      frontImage: carList[index].frontImage,
                                       inspectionId: carList[index].inspectionId,
                                       isLiked:
                                           carList[index].isLiked == 1
@@ -84,9 +85,11 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
                                     ),
                                   ),
                                 );
-                                myLikes[index]=isLiked;
-                                setState(() {          
-                                });
+
+                                if (isLiked != null) {
+                                  myLikes[index] = isLiked;
+                                  setState(() {});
+                                }
                               },
                             ),
                           ),

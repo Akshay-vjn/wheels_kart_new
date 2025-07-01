@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+
 import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
@@ -18,7 +18,6 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/repo/v_add_remove_fav_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_photo_screen.dart';
@@ -26,12 +25,50 @@ import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.d
 
 class VCarDetailsScreen extends StatefulWidget {
   final bool isLiked;
+  final String frontImage;
   final String inspectionId;
-  VCarDetailsScreen({
+  const VCarDetailsScreen({
     super.key,
+    required this.frontImage,
     required this.inspectionId,
     required this.isLiked,
   });
+
+   Future<void> openWhatsApp(
+    VCarDetailModel details,
+    String image,
+  ) async {
+    final id = details.carDetails.evaluationId;
+    final vehicleRegNo = details.carDetails.registrationNumber;
+    final vehicleModel = details.carDetails.model;
+    final yearOfManufacture = details.carDetails.yearOfManufacture;
+    final kmDriven = details.carDetails.kmsDriven;
+    final numberOfOwners = details.carDetails.noOfOwners;
+    final currentBidAmount = details.carDetails.currentBid;
+    final frontImage = image; // Assuming this is a URL
+
+    final message = '''
+$frontImage
+*Vehicle Details:*
+• Evaluation ID: $id
+• Registration No: $vehicleRegNo
+• Model: $vehicleModel
+• Year of Manufacture: $yearOfManufacture
+• KMs Driven: $kmDriven
+• No. of Owners: $numberOfOwners
+• Current Bid: ₹$currentBidAmount
+''';
+
+    final encodedMessage = Uri.encodeComponent(message);
+
+    final Uri url = Uri.parse(
+      'https://wa.me/919964955575?text=$encodedMessage',
+    );
+
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch WhatsApp chat';
+    }
+  }
 
   @override
   State<VCarDetailsScreen> createState() => _VCarDetailsScreenState();
@@ -51,12 +88,6 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
   bool _isLiked = false;
 
   // ?text=Hello%20there
-  Future<void> openWhatsApp() async {
-    final Uri url = Uri.parse('https://wa.me/919964955575');
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch https://wa.me/919964955575';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -330,7 +361,16 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: VColors.GREENHARD,
                         ),
-                        onPressed: () async => await openWhatsApp(),
+                        onPressed: () async {
+                          final currentState =
+                              context.read<VDetailsControllerBloc>().state;
+                          if (currentState is VDetailsControllerSuccessState) {
+                            await widget.openWhatsApp(
+                              currentState.detail,
+                              widget.frontImage,
+                            );
+                          }
+                        },
 
                         child: Icon(
                           SolarIconsBold.chatRound,
@@ -397,6 +437,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                     ),
                                   ),
                                 ),
+                                      placeholder: (context, url) => Center(child: VLoadingIndicator()),
                             imageUrl: images[state.currentImageIndex].url,
                             errorListener: (value) {},
                           ),
@@ -405,9 +446,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                     ),
                   ),
               AppSpacer(heightPortion: .01),
-              state.detail.images.isEmpty
-                  ? SizedBox.shrink()
-                  : SingleChildScrollView(
+              if (state.detail.images.isEmpty) SizedBox.shrink() else SingleChildScrollView(
                     physics: BouncingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -420,6 +459,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                             );
                           },
                           child: Container(
+                            height: 56,
                             padding: EdgeInsets.all(2),
 
                             clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -440,6 +480,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: CachedNetworkImage(
+                                placeholder: (context, url) => Center(child: VLoadingIndicator()),
                                 fit: BoxFit.cover,
                                 imageUrl: images[index].url,
                               ),
@@ -755,7 +796,6 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                     .split(",")
                                     .map(
                                       (e) => Row(
-
                                         children: [
                                           Flexible(
                                             child: Text(
@@ -769,7 +809,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                             ),
                                           ),
                                           Text(
-                                             e,
+                                            e,
                                             style: VStyle.style(
                                               context: context,
                                               color: VColors.DARK_GREY,

@@ -59,7 +59,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     );
 
     if (token != null && password != null && number != null) {
-      if (userType != null && userType == "EVALUATOR") {
+      if (userType != null && (userType == "EVALUATOR"||userType == "ADMIN")) {
         await loginUser(context, number, password);
       } else {
         await loginVendor(context, number, password);

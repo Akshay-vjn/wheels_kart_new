@@ -175,7 +175,7 @@ class _VHomeTabState extends State<VHomeTab> {
             ),
 
             // Bottom padding
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            // const SliverToBoxAdapter(child: SizedBox(height: 10)),
           ],
         ),
       ),

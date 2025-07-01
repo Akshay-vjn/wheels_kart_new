@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const_images.dart';
@@ -142,7 +144,8 @@ class _SplashScreenState extends State<SplashScreen>
         switch (state) {
           case AuthCubitAuthenticateState():
             {
-              if (state.userModel.userType == "EVALUATOR") {
+              
+              if (state.userModel.userType == "EVALUATOR"||state.userModel.userType == "ADMIN") {
                 Navigator.of(context).pushAndRemoveUntil(
                   AppRoutes.createRoute(EvDashboardScreen()),
                   (context) => false,

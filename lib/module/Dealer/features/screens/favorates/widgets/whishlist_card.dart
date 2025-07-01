@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -104,7 +106,6 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                     ),
                   ),
                   // Favorite button with improved positioning
-                  _buildEnhancedFavoriteButton(widget.model.inspectionId),
                   // Status indicator
                   _buildStatusBadge(widget.model.status),
                 ],
@@ -324,6 +325,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
               await Navigator.of(context).push(
                 AppRoutes.createRoute(
                   VCarDetailsScreen(
+                    frontImage: widget.model.frontImage,
                     inspectionId: widget.model.inspectionId,
                     isLiked: widget.model.isLiked == 1 ? true : false,
                   ),
@@ -343,25 +345,27 @@ class _VWhishlistCardState extends State<VWhishlistCard>
           ),
         ),
         const SizedBox(width: 12),
+        _buildEnhancedFavoriteButton(widget.model.inspectionId),
+
         // Bid Now button
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () {
-              // Handle bid action
-            },
-            icon: const Icon(Icons.gavel_rounded, size: 16),
-            label: const Text("Bid Now"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: VColors.GREENHARD,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 8),
-            ),
-          ),
-        ),
+        // Expanded(
+        //   child: ElevatedButton.icon(
+        //     onPressed: () async {
+        //       // await VCarDetailsScreen().openWhatsApp(widge);
+        //     },
+        //     icon: const Icon(Icons.gavel_rounded, size: 16),
+        //     label: const Text("Bid Now"),
+        //     style: ElevatedButton.styleFrom(
+        //       backgroundColor: VColors.GREENHARD,
+        //       foregroundColor: Colors.white,
+        //       elevation: 0,
+        //       shape: RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.circular(8),
+        //       ),
+        //       padding: const EdgeInsets.symmetric(vertical: 8),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
@@ -394,43 +398,39 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   }
 
   Widget _buildEnhancedFavoriteButton(String inspectionId) {
-    return Positioned(
-      right: 12,
-      top: 12,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: () {
-              // Add haptic feedback
-              HapticFeedback.lightImpact();
-              context.read<VWishlistControllerCubit>().onChangeFavState(
-                context,
-                inspectionId,
-                fetch: true,
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  Icons.favorite_rounded,
-                  color: VColors.ACCENT,
-                  size: 18,
-                ),
+          onTap: () {
+            // Add haptic feedback
+            HapticFeedback.lightImpact();
+            context.read<VWishlistControllerCubit>().onChangeFavState(
+              context,
+              inspectionId,
+              fetch: true,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                Icons.favorite_rounded,
+                color: VColors.ACCENT,
+                size: 18,
               ),
             ),
           ),
@@ -442,50 +442,48 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   Widget _buildStatusBadge(String status) {
     Color color;
     String title;
-    if (status == "APPROVED") {
+    if (status == "APPROVED" || status.isEmpty) {
       title = "LIVE";
       color = VColors.SUCCESS;
     } else {
       title = "SOLD";
       color = VColors.REDHARD;
     }
-    if (widget.model.currentBid.isNotEmpty) {
-      return Positioned(
-        left: 12,
-        top: 12,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: color.withAlpha(40),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.circle, size: 6, color: Colors.white),
-              const SizedBox(width: 4),
-              Text(
-                title,
-                style: VStyle.style(
-                  context: context,
-                  size: 10,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+    // if (widget.model.currentBid.isNotEmpty) {
+    return Positioned(
+      left: 12,
+      top: 12,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: color.withAlpha(40),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-      );
-    }
-    return const SizedBox.shrink();
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.circle, size: 6, color: Colors.white),
+            const SizedBox(width: 4),
+            Text(
+              title,
+              style: VStyle.style(
+                context: context,
+                size: 10,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Color getFuelTypeColor(String fuelType) {
