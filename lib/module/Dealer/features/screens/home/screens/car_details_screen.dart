@@ -34,10 +34,7 @@ class VCarDetailsScreen extends StatefulWidget {
     required this.isLiked,
   });
 
-   Future<void> openWhatsApp(
-    VCarDetailModel details,
-    String image,
-  ) async {
+  Future<void> openWhatsApp(VCarDetailModel details, String image) async {
     final id = details.carDetails.evaluationId;
     final vehicleRegNo = details.carDetails.registrationNumber;
     final vehicleModel = details.carDetails.model;
@@ -154,6 +151,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                               _buildQuestionAndAnswerTile(
                                 "Insurance",
                                 detail.carDetails.insuranceType,
+
                                 otherInfo: detail.carDetails.insuranceValidity,
                                 subtitle: "Expire on",
                               ),
@@ -437,7 +435,9 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                     ),
                                   ),
                                 ),
-                                      placeholder: (context, url) => Center(child: VLoadingIndicator()),
+                            placeholder:
+                                (context, url) =>
+                                    Center(child: VLoadingIndicator()),
                             imageUrl: images[state.currentImageIndex].url,
                             errorListener: (value) {},
                           ),
@@ -446,50 +446,54 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                     ),
                   ),
               AppSpacer(heightPortion: .01),
-              if (state.detail.images.isEmpty) SizedBox.shrink() else SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: List.generate(
-                        images.length,
-                        (index) => GestureDetector(
-                          onTap: () {
-                            context.read<VDetailsControllerBloc>().add(
-                              OnChangeImageIndex(newIndex: index),
-                            );
-                          },
-                          child: Container(
-                            height: 56,
-                            padding: EdgeInsets.all(2),
+              if (state.detail.images.isEmpty)
+                SizedBox.shrink()
+              else
+                SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: List.generate(
+                      images.length,
+                      (index) => GestureDetector(
+                        onTap: () {
+                          context.read<VDetailsControllerBloc>().add(
+                            OnChangeImageIndex(newIndex: index),
+                          );
+                        },
+                        child: Container(
+                          height: 56,
+                          padding: EdgeInsets.all(2),
 
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            margin: EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                width:
-                                    state.currentImageIndex == index ? 1 : .5,
-                                color:
-                                    state.currentImageIndex == index
-                                        ? VColors.GREENHARD
-                                        : VColors.DARK_GREY,
-                              ),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          margin: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              width: state.currentImageIndex == index ? 1 : .5,
+                              color:
+                                  state.currentImageIndex == index
+                                      ? VColors.GREENHARD
+                                      : VColors.DARK_GREY,
                             ),
-                            // height: 60,
-                            width: w(context) / 4,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: CachedNetworkImage(
-                                placeholder: (context, url) => Center(child: VLoadingIndicator()),
-                                fit: BoxFit.cover,
-                                imageUrl: images[index].url,
-                              ),
+                          ),
+                          // height: 60,
+                          width: w(context) / 4,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: CachedNetworkImage(
+                              placeholder:
+                                  (context, url) =>
+                                      Center(child: VLoadingIndicator()),
+                              fit: BoxFit.cover,
+                              imageUrl: images[index].url,
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
+                ),
             ],
           );
         } else {
@@ -757,7 +761,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
       icon = Icon(SolarIconsBold.closeCircle, color: VColors.ERROR);
     } else {
       icon = Icon(SolarIconsOutline.infoCircle, color: VColors.ACCENT);
-      subtitle = answer;
+      subtitle ??= answer;
     }
     return Padding(
       padding: EdgeInsets.only(bottom: 5),
@@ -788,36 +792,54 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                           size: 16,
                         ),
                       ),
-                      subtitle != null
+                      subtitle != null && subtitle.isNotEmpty
                           ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children:
                                 subtitle
                                     .split(",")
                                     .map(
-                                      (e) => Row(
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              "* ",
+                                      (e) => Container(
+                                        margin: EdgeInsets.only(top: 4),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              VColors.DARK_GREY.withAlpha(100),
+                                              
+                                              VColors.WHITE.withAlpha(40),
+                                              VColors.WHITE,
+                                            ],
+                                          ),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "● ",
                                               style: VStyle.style(
                                                 context: context,
-                                                color: VColors.GREENHARD,
+                                                color: VColors.DARK_GREY,
                                                 fontWeight: FontWeight.w500,
                                                 size: 12,
                                               ),
                                             ),
-                                          ),
-                                          Text(
-                                            e,
-                                            style: VStyle.style(
-                                              context: context,
-                                              color: VColors.DARK_GREY,
-                                              fontWeight: FontWeight.w500,
-                                              size: 12,
+                                            Flexible(
+                                              child: Text(
+                                                e,
+                                                style: VStyle.style(
+                                                  context: context,
+                                                  color: VColors.DARK_GREY,
+                                                  fontWeight: FontWeight.bold,
+                                                  size: 12,
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     )
                                     .toList(),

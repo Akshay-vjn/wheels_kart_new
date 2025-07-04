@@ -12,6 +12,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20picture%20angles/fetch_picture_angles_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
 class UploadVehiclePhotos extends StatefulWidget {
   final String inspectionId;
@@ -94,27 +95,14 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
         ),
       ),
       centerTitle: true,
-      title: Column(
-        children: [
-          Text(
-            "Upload Vehicle Photos",
-            style: EvAppStyle.style(
-              context: context,
-              color: Colors.black87,
-              size: AppDimensions.fontSize18(context),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            "Inspection ID: ${widget.inspectionId}",
-            style: EvAppStyle.style(
-              context: context,
-              color: Colors.grey[600],
-              size: AppDimensions.fontSize12(context),
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
+      title: Text(
+        "Upload Vehicle Photos",
+        style: EvAppStyle.style(
+          context: context,
+          color: Colors.black87,
+          size: AppDimensions.fontSize18(context),
+          fontWeight: FontWeight.w700,
+        ),
       ),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
@@ -156,12 +144,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            strokeWidth: 3,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              EvAppColors.DEFAULT_BLUE_DARK,
-            ),
-          ),
+          EVAppLoadingIndicator(),
           const SizedBox(height: 16),
           Text(
             "Loading photo angles...",

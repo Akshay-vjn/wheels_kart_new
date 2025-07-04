@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,12 +11,14 @@ import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/helper/blocs/live%20price%20change%20controller/live_price_change_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class CVehicleCard extends StatefulWidget {
   final VCarModel vehicle;
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
   final VoidCallback onPressCard;
+  final DateTime endTime;
 
   const CVehicleCard({
     super.key,
@@ -21,6 +26,7 @@ class CVehicleCard extends StatefulWidget {
     required this.isFavorite,
     required this.onFavoriteToggle,
     required this.onPressCard,
+    required this.endTime,
   });
 
   @override
@@ -35,6 +41,7 @@ class _CVehicleCardState extends State<CVehicleCard>
 
   @override
   void initState() {
+    _endTime = '00:00';
     super.initState();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 150),
@@ -43,11 +50,16 @@ class _CVehicleCardState extends State<CVehicleCard>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      getMinutesToStop();
+    });
   }
 
+  Timer? _timer;
   @override
   void dispose() {
     _animationController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -65,6 +77,28 @@ class _CVehicleCardState extends State<CVehicleCard>
   void _onTapCancel() {
     setState(() => _isPressed = false);
     _animationController.reverse();
+  }
+
+  late String _endTime;
+
+  void getMinutesToStop() {
+    final now = DateTime.now();
+    final difference = widget.endTime.difference(now);
+
+    if (difference.isNegative) {
+      _endTime = "00:00";
+    } else {
+      final min = difference.inMinutes;
+      final sec = difference.inSeconds % 60;
+
+      // Format with leading zeros if needed
+      final minStr = min.toString().padLeft(2, '0');
+      final secStr = sec.toString().padLeft(2, '0');
+
+      _endTime = "$minStr:$secStr";
+    }
+
+    setState(() {});
   }
 
   @override
@@ -128,8 +162,7 @@ class _CVehicleCardState extends State<CVehicleCard>
                                   children: [
                                     _buildDetailsGrid(),
 
-                                    AppSpacer(heightPortion: .01),
-
+                                    AppSpacer(heightPortion: .005),
                                     _buildRegistrationChip(),
                                   ],
                                 ),
@@ -138,26 +171,6 @@ class _CVehicleCardState extends State<CVehicleCard>
                             AppSpacer(heightPortion: .01),
 
                             _buildCurrentBidSection(),
-
-                            // BlocBuilder<
-                            //   LivePriceChangeControllerBloc,
-                            //   LivePriceChangeControllerState
-                            // >(
-                            //   builder: (context, state) {
-                            //     if (state is PriceUpdated) {
-                            //       return Center(
-                            //         child: Text(
-                            //           'Price: ₹${state.price}',
-                            //           style: TextStyle(fontSize: 28),
-                            //         ),
-                            //       );
-                            //     } else {
-                            //       return Center(
-                            //         child: CircularProgressIndicator(),
-                            //       );
-                            //     }
-                            //   },
-                            // ),
 
                             // Current Bid Section
                           ],
@@ -170,7 +183,18 @@ class _CVehicleCardState extends State<CVehicleCard>
                   _buildFavoriteButton(),
 
                   // Status Badge (if needed)
-                  _buildStatusBadge(widget.vehicle.status),
+                  Positioned(
+                    left: 12,
+                    top: 12,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildStatusBadge(widget.vehicle.status),
+                        AppSpacer(heightPortion: .005),
+                        _buildCurrentBidder(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -338,56 +362,111 @@ class _CVehicleCardState extends State<CVehicleCard>
 
   Widget _buildCurrentBidSection() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        // gradient: LinearGradient(
-        //   colors: [
-        //     VColors.ACCENT.withOpacity(0.1),
-        //     VColors.ACCENT.withOpacity(0.05),
-        //   ],
-        // ),
+        gradient: LinearGradient(
+          colors: [
+            VColors.SECONDARY.withOpacity(0.1),
+            VColors.REDHARD.withOpacity(0.05),
+          ],
+        ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: VColors.BLACK.withOpacity(0.2), width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: VColors.BLACK,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.gavel_rounded,
-              color: Colors.white,
-              size: 16,
+          Flexible(
+            child: Row(
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color:
+                        _endTime == "00:00" ? VColors.ERROR : VColors.GREENHARD,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.timelapse_sharp,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+                AppSpacer(widthPortion: .02),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Bid Status",
+                      style: VStyle.style(
+                        context: context,
+                        size: 12,
+                        color: VColors.DARK_GREY,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _endTime == "00:00" ? "Closed" : "$_endTime min",
+                      style: VStyle.style(
+                        context: context,
+                        size: 15,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            _endTime == "00:00"
+                                ? VColors.ERROR
+                                : VColors.GREENHARD,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          AppSpacer(widthPortion: .01),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "Current Bid",
-                style: VStyle.style(
-                  context: context,
-                  size: 12,
-                  color: VColors.DARK_GREY,
-                  fontWeight: FontWeight.w500,
+          Flexible(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      "Current Bid",
+                      style: VStyle.style(
+                        context: context,
+                        size: 12,
+                        color: VColors.DARK_GREY,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "₹${widget.vehicle.currentBid}",
+                      style: VStyle.style(
+                        context: context,
+                        size: 18,
+                        fontWeight: FontWeight.bold,
+                        color: VColors.BLACK,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                "₹${widget.vehicle.currentBid}",
-                style: VStyle.style(
-                  context: context,
-                  size: 18,
-                  fontWeight: FontWeight.bold,
-                  color: VColors.BLACK,
+                AppSpacer(widthPortion: .02),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: VColors.BLACK,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.gavel_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -478,6 +557,39 @@ class _CVehicleCardState extends State<CVehicleCard>
     );
   }
 
+  Widget _buildCurrentBidder() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: EvAppColors.DEFAULT_ORANGE,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: EvAppColors.DEFAULT_ORANGE.withAlpha(40),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.circle, size: 6, color: Colors.white),
+          const SizedBox(width: 4),
+          Text(
+            "YOU",
+            style: VStyle.style(
+              context: context,
+              size: 10,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatusBadge(String status) {
     Color color;
     String title;
@@ -490,38 +602,34 @@ class _CVehicleCardState extends State<CVehicleCard>
       color = VColors.REDHARD;
     }
     // You can customize this based on vehicle status
-    return Positioned(
-        left: 12,
-        top: 12,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: color.withAlpha(40),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+    return  Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: color.withAlpha(40),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.circle, size: 6, color: Colors.white),
+            const SizedBox(width: 4),
+            Text(
+              title,
+              style: VStyle.style(
+                context: context,
+                size: 10,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.circle, size: 6, color: Colors.white),
-              const SizedBox(width: 4),
-              Text(
-                title,
-                style: VStyle.style(
-                  context: context,
-                  size: 10,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
   }

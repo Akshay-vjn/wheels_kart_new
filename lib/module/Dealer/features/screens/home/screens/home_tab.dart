@@ -65,7 +65,7 @@ class _VHomeTabState extends State<VHomeTab> {
             SliverAppBar(
               surfaceTintColor: VColors.WHITE,
               automaticallyImplyLeading: false,
-              expandedHeight: h(context) * .15,
+              // expandedHeight: h(context) * .15,
               toolbarHeight: h(context) * .08,
               floating: false,
               pinned: true,
@@ -108,63 +108,63 @@ class _VHomeTabState extends State<VHomeTab> {
                     ],
                   ),
 
-                  isScrolled
-                      ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: FadeIn(child: _buildNotificationButton()),
-                      )
-                      : SizedBox(),
+                  // isScrolled
+                  //     ? Padding(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 5),
+                  //       child: FadeIn(child: _buildNotificationButton()),
+                  //     )
+                  //     : SizedBox(),
                 ],
               ),
-              flexibleSpace: FlexibleSpaceBar(
-                // collapseMode: CollapseMode.parallax,
-                centerTitle: false,
-                titlePadding: EdgeInsets.all(20),
+              // flexibleSpace: FlexibleSpaceBar(
+              //   // collapseMode: CollapseMode.parallax,
+              //   centerTitle: false,
+              //   titlePadding: EdgeInsets.all(20),
 
-                background: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: VColors.WHITE,
-                              borderRadius: BorderRadius.circular(25),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: VColors.GREENHARD.withAlpha(50),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: TextField(
-                              controller: _searchController,
-                              decoration: const InputDecoration(
-                                hintText: 'Search vehicles...',
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  color: VColors.DARK_GREY,
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        _buildNotificationButton(),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              //   background: SafeArea(
+              //     child: Padding(
+              //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              //       child: Row(
+              //         crossAxisAlignment: CrossAxisAlignment.end,
+              //         children: [
+              //           Expanded(
+              //             child: Container(
+              //               height: 50,
+              //               decoration: BoxDecoration(
+              //                 color: VColors.WHITE,
+              //                 borderRadius: BorderRadius.circular(25),
+              //                 boxShadow: [
+              //                   BoxShadow(
+              //                     color: VColors.GREENHARD.withAlpha(50),
+              //                     blurRadius: 8,
+              //                     offset: const Offset(0, 2),
+              //                   ),
+              //                 ],
+              //               ),
+              //               child: TextField(
+              //                 controller: _searchController,
+              //                 decoration: const InputDecoration(
+              //                   hintText: 'Search vehicles...',
+              //                   prefixIcon: Icon(
+              //                     Icons.search,
+              //                     color: VColors.DARK_GREY,
+              //                   ),
+              //                   border: InputBorder.none,
+              //                   contentPadding: EdgeInsets.symmetric(
+              //                     horizontal: 20,
+              //                     vertical: 15,
+              //                   ),
+              //                 ),
+              //               ),
+              //             ),
+              //           ),
+              //           const SizedBox(width: 12),
+              //           _buildNotificationButton(),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ),
 
             // Vehicle List

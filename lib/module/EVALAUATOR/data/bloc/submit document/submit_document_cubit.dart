@@ -59,11 +59,11 @@ class SubmitDocumentCubit extends Cubit<SubmitDocumentState> {
           emit(SubmitDocumentErrorState(error: response['message']));
         }
       } else {
-        showSnakBar(context, "Error :- Response is empty", isError: true);
+        showSnakBar(context, "Upload Failed!, Try agian.", isError: true);
         emit(SubmitDocumentErrorState(error: "Error :- Response is empty"));
       }
     } catch (e) {
-      showSnakBar(context, "Error :- $e", isError: true);
+      showSnakBar(context, "Upload Failed!, $e", isError: true);
       SubmitDocumentErrorState(error: "Error :- $e");
     }
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
@@ -122,9 +123,10 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Container(
-              height: 300,
+              // height: 300,
               padding: EdgeInsets.all(16),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Select $title',
@@ -142,7 +144,13 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
                       Expanded(
                         child: Column(
                           children: [
-                            Text('Month'),
+                            Text(
+                              'Month',
+                              style: EvAppStyle.style(
+                                context: context,
+                                size: 15,
+                              ),
+                            ),
                             DropdownButton<int>(
                               value: selectedMonth,
                               items: List.generate(12, (index) {
@@ -164,7 +172,13 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
                       Expanded(
                         child: Column(
                           children: [
-                            Text('Year'),
+                            Text(
+                              'Year',
+                              style: EvAppStyle.style(
+                                context: context,
+                                size: 15,
+                              ),
+                            ),
                             DropdownButton<int>(
                               value: selectedYear,
                               items: List.generate(50, (index) {
@@ -187,13 +201,24 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: EvAppColors.kAppSecondaryColor,
+                    ),
                     onPressed: () {
                       controller.text =
                           '${_getMonthName(selectedMonth)}/$selectedYear';
                       Navigator.pop(context);
                     },
-                    child: Text('Select'),
+                    child: Text(
+                      'Select',
+                      style: EvAppStyle.style(
+                        color: EvAppColors.white,
+                        context: context,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
+                  SizedBox(height: 20),
                 ],
               ),
             );
@@ -520,7 +545,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
 
           // Display uploaded images
           if (images.isNotEmpty)
-            Container(
+            SizedBox(
               height: 100,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -575,9 +600,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
                   images.length < 2 ? () => _pickImage(documentType) : null,
               icon: Icon(Icons.camera_alt, color: EvAppColors.DARK_PRIMARY),
               label: Text(
-                images.length < 2
-                    ? 'Take Photo (${images.length}/2)'
-                    : 'Maximum 2 photos uploaded',
+                images.length < 2 ? 'Take Photo' : 'Maximum photos uploaded',
                 style: EvAppStyle.style(
                   context: context,
                   color: EvAppColors.DARK_PRIMARY,
@@ -589,6 +612,16 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
+              ),
+            ),
+          ),
+          AppSpacer(heightPortion: .01),
+          Align(
+            child: Text(
+              "(Maximum 2 Photos)",
+              style: EvAppStyle.poppins(
+                context: context,
+                color: EvAppColors.grey,
               ),
             ),
           ),
@@ -684,6 +717,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
         border: Border.all(color: EvAppColors.grey.withOpacity(0.3)),
       ),
       child: TextFormField(
+        textCapitalization: TextCapitalization.sentences,
         controller: controller,
         keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
         inputFormatters:

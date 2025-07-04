@@ -79,29 +79,29 @@ class CarDetails {
   });
 
   factory CarDetails.fromJson(Map<String, dynamic> json) => CarDetails(
-    evaluationId: json['evaluationId'] ?? '',
-    brand: json["Brand"] ?? '',
-    yearOfManufacture: json["Year of Manufacture"] ?? '',
-    model: json["Model"] ?? '',
-    engineType: json["Engine Type"] ?? '',
-    fuelType: json["Fuel Type"] ?? '',
-    transmission: json["Transmission"] ?? '',
-    variant: json["Variant"] ?? '',
-    registrationNumber: json["Registration Number"] ?? '',
-    registrationDate: json["Registration Date"] ?? '',
-    kmsDriven: json["KMS Driven"] ?? '',
-    noOfOwners: json["No Of Owners"] ?? '',
-    roadTaxPaid: json["Road Tax Paid"] ?? '',
-    roadTaxValidity: json["Road Tax Validity"] ?? '',
-    insuranceType: json["Insurance Type"] ?? '',
-    insuranceValidity: json["Insurance Validity"] ?? '',
-    currentRto: json["Current Rto"] ?? '',
-    carLength: json["Car Length"] ?? '',
-    cubicCapacity: json["Cubic Capacity"] ?? '',
-    manufactureDate: json["Manufacture Date"] ?? '',
-    noOfKeys: json["No Of Keys"] ?? '',
-    city: json["City"] ?? '',
-    currentBid: json["Current Bid"] ?? '',
+    evaluationId: json['evaluationId'] ?? 'N/A',
+    brand: json["Brand"] ?? 'N/A',
+    yearOfManufacture: json["Year of Manufacture"] ?? 'N/A',
+    model: json["Model"] ?? 'N/A',
+    engineType: json["Engine Type"] ?? 'N/A',
+    fuelType: json["Fuel Type"] ?? 'N/A',
+    transmission: json["Transmission"] ?? 'N/A',
+    variant: json["Variant"] ?? 'N/A',
+    registrationNumber: json["Registration Number"] ?? 'N/A',
+    registrationDate: json["Registration Date"] ?? 'N/A',
+    kmsDriven: json["KMS Driven"] ?? 'N/A',
+    noOfOwners: json["No Of Owners"] ?? 'N/A',
+    roadTaxPaid: json["Road Tax Paid"] ?? 'N/A',
+    roadTaxValidity: json["Road Tax Validity"] ?? 'N/A',
+    insuranceType: json["Insurance Type"] ?? 'N/A',
+    insuranceValidity: json["Insurance Validity"] ?? 'N/A',
+    currentRto: json["Current Rto"] ?? 'N/A',
+    carLength: json["Car Length"] ?? 'N/A',
+    cubicCapacity: json["Cubic Capacity"] ?? 'N/A',
+    manufactureDate: json["Manufacture Date"] ?? 'N/A',
+    noOfKeys: json["No Of Keys"] ?? 'N/A',
+    city: json["City"] ?? 'N/A',
+    currentBid: json["Current Bid"] ?? 'N/A',
   );
 
   Map<String, dynamic> toJson() => {
@@ -138,7 +138,7 @@ class Section {
   Section({required this.portionName, required this.entries});
 
   factory Section.fromJson(Map<String, dynamic> json) => Section(
-    portionName: json["portionName"] ?? '',
+    portionName: json["portionName"] ?? 'N/A',
     entries: List<Entry>.from(json["entries"].map((x) => Entry.fromJson(x))),
   );
 
@@ -179,9 +179,9 @@ class Entry {
     String? validOption = json["validOption"];
     String? invalidOptin = json["invalidOption"];
     return Entry(
-      question: json["question"] ?? '',
-      answer: json["answer"] ?? '',
-      comment: json["comment"] ?? '',
+      question: json["question"] ?? 'N/A',
+      answer: json["answer"] ?? 'N/A',
+      comment: json["comment"] ?? 'N/A',
       responseImages: List<String>.from(json["responseImages"].map((x) => x)),
       options: validOption ?? invalidOptin ,
     );

@@ -41,7 +41,8 @@ class VCarModel {
       kmsDriven: kmDrivern,
       regNo: json["regNo"] ?? '',
       city: json["City"] ?? '',
-      currentBid: json["currentBid"] ?? '',
+      currentBid:
+          json["currentBid"].isEmpty ? "0.00" : json["currentBid"] ?? '0.00',
     );
   }
 

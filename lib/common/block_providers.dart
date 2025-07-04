@@ -20,6 +20,7 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehicle%20video/upload_vehicle_video_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
@@ -56,6 +57,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     ),
     BlocProvider<UplaodVehilcePhotoCubit>(
       create: (_) => UplaodVehilcePhotoCubit(),
+    ),
+     BlocProvider<UploadVehicleVideoCubit>(
+      create: (_) => UploadVehicleVideoCubit(),
     ),
     BlocProvider<FetchPictureAnglesCubit>(
       create: (_) => FetchPictureAnglesCubit(),

@@ -53,6 +53,7 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
 
                           child: FadeInAnimation(
                             child: CVehicleCard(
+                              endTime: DateTime(2025,7,4,16,30,),
                               vehicle: carList[index],
                               isFavorite: myLikes[index],
                               onFavoriteToggle: () async {

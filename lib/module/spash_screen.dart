@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const_images.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
@@ -28,8 +29,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   late Animation<double> _logoScaleAnimation;
   late Animation<double> _logoOpacityAnimation;
-  late Animation<double> _textOpacityAnimation;
-  late Animation<Offset> _textSlideAnimation;
+  // late Animation<double> _textOpacityAnimation;
+  // late Animation<Offset> _textSlideAnimation;
   late Animation<double> _loadingOpacityAnimation;
   late Animation<double> _backgroundAnimation;
 
@@ -86,17 +87,17 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     // Text animations
-    _textOpacityAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
+    // _textOpacityAnimation = Tween<double>(
+    //   begin: 0.0,
+    //   end: 1.0,
+    // ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
 
-    _textSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.5),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic),
-    );
+    // _textSlideAnimation = Tween<Offset>(
+    //   begin: const Offset(0, 0.5),
+    //   end: Offset.zero,
+    // ).animate(
+    //   CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic),
+    // );
 
     // Loading animation
     _loadingOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -144,8 +145,8 @@ class _SplashScreenState extends State<SplashScreen>
         switch (state) {
           case AuthCubitAuthenticateState():
             {
-              
-              if (state.userModel.userType == "EVALUATOR"||state.userModel.userType == "ADMIN") {
+              if (state.userModel.userType == "EVALUATOR" ||
+                  state.userModel.userType == "ADMIN") {
                 Navigator.of(context).pushAndRemoveUntil(
                   AppRoutes.createRoute(EvDashboardScreen()),
                   (context) => false,
@@ -178,194 +179,114 @@ class _SplashScreenState extends State<SplashScreen>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Theme.of(context).primaryColor.withOpacity(0.1),
                     Theme.of(context).scaffoldBackgroundColor,
-                    Theme.of(context).primaryColor.withOpacity(0.05),
+                    Theme.of(context).primaryColor.withAlpha(10),
+                    Theme.of(context).scaffoldBackgroundColor,
+                    Theme.of(context).primaryColor.withAlpha(10),
                   ],
-                  stops: [0.0, 0.5 + (_backgroundAnimation.value * 0.3), 1.0],
+                  stops: [
+                    0.0,
+                    0.0,
+                    0.5 + (_backgroundAnimation.value * 0.3),
+                    0.0,
+                  ],
                 ),
               ),
               child: SafeArea(
                 child: Column(
                   children: [
-                    // Top section with logo and text
+                    AppSpacer(heightPortion: .05),
                     Expanded(
-                      flex: 7,
                       child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Animated Logo
-                            AnimatedBuilder(
-                              animation: _logoController,
-                              builder: (context, child) {
-                                return Transform.scale(
-                                  scale: _logoScaleAnimation.value,
-                                  child: Opacity(
-                                    opacity: _logoOpacityAnimation.value,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        // boxShadow: [
-                                        //   BoxShadow(
-                                        //     color: Theme.of(context)
-                                        //         .primaryColor
-                                        //         .withOpacity(0.2 * _logoOpacityAnimation.value),
-                                        //     blurRadius: 20,
-                                        //     spreadRadius: 5,
-                                        //   ),
-                                        // ],
-                                      ),
-                                      child: SizedBox(
-                                        width: w(context) * 0.5,
-                                        height: w(context) * 0.5,
-                                        child: Hero(
-                                          tag: "app_logo",
-                                          child: Image.asset(
-                                            EvConstImages.appLogoHr,
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
+                        child: AnimatedBuilder(
+                          animation: _logoController,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _logoScaleAnimation.value,
+                              child: Opacity(
+                                opacity: _logoOpacityAnimation.value,
+                                child: Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: SizedBox(
+                                    width: w(context) * 0.5,
+                                    height: w(context) * 0.5,
+                                    child: Hero(
+                                      tag: "app_logo",
+                                      child: Image.asset(
+                                        EvConstImages.appLogoHr,
+                                        fit: BoxFit.contain,
                                       ),
                                     ),
                                   ),
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 32),
-
-                            // Animated Welcome Text
-                            if (showText)
-                              AnimatedBuilder(
-                                animation: _textController,
-                                builder: (context, child) {
-                                  return SlideTransition(
-                                    position: _textSlideAnimation,
-                                    child: FadeTransition(
-                                      opacity: _textOpacityAnimation,
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            'Welcome to',
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.titleMedium?.copyWith(
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.color
-                                                  ?.withOpacity(0.7),
-                                              fontWeight: FontWeight.w300,
-                                              letterSpacing: 1.2,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'Wheels Kart',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      Theme.of(
-                                                        context,
-                                                      ).primaryColor,
-                                                  letterSpacing: 0.5,
-                                                ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Container(
-                                            width: 60,
-                                            height: 4,
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Theme.of(
-                                                    context,
-                                                  ).primaryColor,
-                                                  Theme.of(context).primaryColor
-                                                      .withOpacity(0.5),
-                                                ],
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(2),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
+                                ),
                               ),
-                          ],
+                            );
+                          },
                         ),
                       ),
                     ),
 
                     // Bottom section with loading
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (showLoading)
-                            AnimatedBuilder(
-                              animation: _loadingController,
-                              builder: (context, child) {
-                                return FadeTransition(
-                                  opacity: _loadingOpacityAnimation,
-                                  child: Column(
-                                    children: [
-                                      // Custom Loading Indicator
-                                      SizedBox(
-                                        height: 60,
-                                        width: 60,
-                                        child: Stack(
-                                          children: [
-                                            // Background circle
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Theme.of(
-                                                  context,
-                                                ).primaryColor.withOpacity(0.1),
-                                              ),
-                                            ),
-                                            // Loading indicator
-                                            Center(
-                                              child: EVAppLoadingIndicator(),
-                                            ),
-                                          ],
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // if (showLoading)
+                        AnimatedBuilder(
+                          animation: _loadingController,
+                          builder: (context, child) {
+                            return FadeTransition(
+                              opacity: _loadingOpacityAnimation,
+                              child: Column(
+                                children: [
+                                  // Custom Loading Indicator
+                                  SizedBox(
+                                    height: 60,
+                                    width: 60,
+                                    child: Stack(
+                                      children: [
+                                        // Background circle
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Theme.of(
+                                              context,
+                                            ).primaryColor.withOpacity(0.1),
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        'Loading your experience...',
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.color
-                                              ?.withOpacity(0.6),
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                    ],
+                                        // Loading indicator
+                                        Center(child: EVAppLoadingIndicator()),
+                                      ],
+                                    ),
                                   ),
-                                );
-                              },
-                            ),
-                        ],
-                      ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Loading your experience...',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.color
+                                          ?.withOpacity(0.6),
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
 
+                    AppSpacer(heightPortion: .05),
+
                     // Bottom padding
-                    const SizedBox(height: 32),
+                    // const SizedBox(height: 32),
                   ],
                 ),
               ),

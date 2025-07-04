@@ -9,7 +9,7 @@ class VColors {
   static const Color REDHARD = Color(0xFF4D1717);
   static const Color GREYHARD = Color(0xFFCBCBCB);
   static const Color WHITEBGCOLOR = Color(0xFFF2F2F2);
-  static const Color ERROR = Colors.red;
+  static const Color ERROR = Color.fromARGB(255, 217, 19, 19);
 
   // Additional colors for better UI
   static const Color PRIMARY = Color(0xFF2E7D32);
