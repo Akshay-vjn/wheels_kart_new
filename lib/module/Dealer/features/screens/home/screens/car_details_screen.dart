@@ -77,6 +77,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
     context.read<VDetailsControllerBloc>().add(
       OnFetchDetails(context: context, inspectionId: widget.inspectionId),
     );
+    context.read<VDetailsControllerBloc>().add(ConnectWebSocket());
     _isLiked = widget.isLiked;
     setState(() {});
     super.initState();
@@ -805,18 +806,21 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                           horizontal: 5,
                                         ),
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                           gradient: LinearGradient(
                                             colors: [
                                               VColors.DARK_GREY.withAlpha(100),
-                                              
+
                                               VColors.WHITE.withAlpha(40),
                                               VColors.WHITE,
                                             ],
                                           ),
                                         ),
                                         child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               "● ",

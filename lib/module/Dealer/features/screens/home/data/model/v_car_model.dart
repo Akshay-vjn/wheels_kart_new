@@ -1,18 +1,24 @@
 class VCarModel {
   String inspectionId;
+  String evaluationId;
   String modelName;
-  dynamic frontImage;
+  String frontImage;
   String manufacturingYear;
   String fuelType;
   String kmsDriven;
   String regNo;
   String city;
-  dynamic currentBid;
-  int isLiked;
+  String? soldTo;
+  String? soldName;
+  String? currentBid;
+  String? bidStatus;
+  DateTime? bidClosingTime;
+  int wishlisted;
   String status;
 
   VCarModel({
     required this.inspectionId,
+    required this.evaluationId,
     required this.modelName,
     required this.frontImage,
     required this.manufacturingYear,
@@ -20,8 +26,12 @@ class VCarModel {
     required this.kmsDriven,
     required this.regNo,
     required this.city,
+    required this.soldTo,
+    required this.soldName,
     required this.currentBid,
-    required this.isLiked,
+    required this.bidStatus,
+    required this.bidClosingTime,
+    required this.wishlisted,
     required this.status,
   });
 
@@ -31,9 +41,8 @@ class VCarModel {
       kmDrivern = "0";
     }
     return VCarModel(
-      status: json["status"] ?? '',
-      isLiked: json['wishlisted'],
       inspectionId: json["inspectionId"] ?? '',
+      evaluationId: json["evaluationId"] ?? '',
       modelName: json["modelName"] ?? '',
       frontImage: json["frontImage"] ?? '',
       manufacturingYear: json["manufacturingYear"] ?? '',
@@ -41,15 +50,23 @@ class VCarModel {
       kmsDriven: kmDrivern,
       regNo: json["regNo"] ?? '',
       city: json["City"] ?? '',
+      soldTo: json["soldTo"] ?? '',
+      soldName: json["soldName"] ?? '',
       currentBid:
           json["currentBid"].isEmpty ? "0.00" : json["currentBid"] ?? '0.00',
+      bidStatus: json["bidStatus"] ?? '',
+      bidClosingTime:
+          json["bidClosingTime"] == null
+              ? null
+              : DateTime.parse(json["bidClosingTime"]),
+      wishlisted: json["wishlisted"] ?? '',
+      status: json["status"] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    "status": status,
     "inspectionId": inspectionId,
-    "wishlisted": isLiked,
+    "evaluationId": evaluationId,
     "modelName": modelName,
     "frontImage": frontImage,
     "manufacturingYear": manufacturingYear,
@@ -57,6 +74,12 @@ class VCarModel {
     "kmsDriven": kmsDriven,
     "regNo": regNo,
     "City": city,
+    "soldTo": soldTo,
+    "soldName": soldName,
     "currentBid": currentBid,
+    "bidStatus": bidStatus,
+    "bidClosingTime": bidClosingTime,
+    "wishlisted": wishlisted,
+    "status": status,
   };
 }

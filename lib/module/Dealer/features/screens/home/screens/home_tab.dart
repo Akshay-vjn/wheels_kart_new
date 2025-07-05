@@ -9,7 +9,6 @@ import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/car_card_builder.dart';
-import 'package:wheels_kart/module/Dealer/helper/blocs/live%20price%20change%20controller/live_price_change_controller_bloc.dart';
 
 class VHomeTab extends StatefulWidget {
   const VHomeTab({super.key});
@@ -30,7 +29,7 @@ class _VHomeTabState extends State<VHomeTab> {
   void initState() {
     super.initState();
     // WEB SOCKET COONECTION
-    // context.read<LivePriceChangeControllerBloc>().add(ConnectWebSocket());
+    context.read<VDashboardControlllerBloc>().add(ConnectWebSocket());
 
     //
     context.read<VProfileControllerCubit>().onFetchProfile(context);

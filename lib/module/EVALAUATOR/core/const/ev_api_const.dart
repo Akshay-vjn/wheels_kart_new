@@ -1,5 +1,5 @@
 class EvApiConst {
-  static const String baseUrl = 'https://crisantdemo.in/wheels/api/';
+  static const String baseUrl = 'https://wheelskart.in/api/';
 
   static const String deleteDoc = "inspections/deletedocument";
   static const String deleteVehiclePhoto = "inspections/deletepicture";

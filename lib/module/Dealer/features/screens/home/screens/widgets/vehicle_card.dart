@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
-import 'package:wheels_kart/module/Dealer/helper/blocs/live%20price%20change%20controller/live_price_change_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
@@ -18,7 +16,7 @@ class CVehicleCard extends StatefulWidget {
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
   final VoidCallback onPressCard;
-  final DateTime endTime;
+  final DateTime? endTime;
 
   const CVehicleCard({
     super.key,
@@ -82,23 +80,27 @@ class _CVehicleCardState extends State<CVehicleCard>
   late String _endTime;
 
   void getMinutesToStop() {
-    final now = DateTime.now();
-    final difference = widget.endTime.difference(now);
+    if (widget.endTime != null) {
+      final now = DateTime.now();
+      final difference = widget.endTime!.difference(now);
 
-    if (difference.isNegative) {
-      _endTime = "00:00";
+      if (difference.isNegative) {
+        _endTime = "00:00";
+      } else {
+        final min = difference.inMinutes;
+        final sec = difference.inSeconds % 60;
+
+        // Format with leading zeros if needed
+        final minStr = min.toString().padLeft(2, '0');
+        final secStr = sec.toString().padLeft(2, '0');
+
+        _endTime = "$minStr:$secStr";
+      }
+
+      setState(() {});
     } else {
-      final min = difference.inMinutes;
-      final sec = difference.inSeconds % 60;
-
-      // Format with leading zeros if needed
-      final minStr = min.toString().padLeft(2, '0');
-      final secStr = sec.toString().padLeft(2, '0');
-
-      _endTime = "$minStr:$secStr";
+      _endTime = "00:00";
     }
-
-    setState(() {});
   }
 
   @override
@@ -602,36 +604,36 @@ class _CVehicleCardState extends State<CVehicleCard>
       color = VColors.REDHARD;
     }
     // You can customize this based on vehicle status
-    return  Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: color.withAlpha(40),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: color.withAlpha(40),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.circle, size: 6, color: Colors.white),
+          const SizedBox(width: 4),
+          Text(
+            title,
+            style: VStyle.style(
+              context: context,
+              size: 10,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.circle, size: 6, color: Colors.white),
-            const SizedBox(width: 4),
-            Text(
-              title,
-              style: VStyle.style(
-                context: context,
-                size: 10,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 
   Color getFuelTypeColor(String fuelType) {

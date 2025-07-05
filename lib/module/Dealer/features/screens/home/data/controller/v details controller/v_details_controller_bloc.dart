@@ -1,9 +1,14 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_car_detail_repo.dart';
 
 part 'v_details_controller_event.dart';
@@ -11,6 +16,8 @@ part 'v_details_controller_state.dart';
 
 class VDetailsControllerBloc
     extends Bloc<VDetailsControllerEvent, VDetailsControllerState> {
+  late WebSocketChannel channel;
+  StreamSubscription? _subscription;
   VDetailsControllerBloc() : super(VDetailsControllerInitialState()) {
     on<OnFetchDetails>((event, emit) async {
       emit(VDetailsControllerLoadingState());
@@ -83,5 +90,48 @@ class VDetailsControllerBloc
         );
       }
     });
+
+    on<ConnectWebSocket>(_connectWebSocket);
+
+    on<UpdatePrice>((event, emit) {
+      final cuuremtSate = state;
+      if (cuuremtSate is VDetailsControllerSuccessState) {
+        log("Started ----------------");
+        final carDetailModel = cuuremtSate.detail;
+        if (carDetailModel.carDetails.evaluationId ==
+            event.newBid.evaluationId) {
+          carDetailModel.carDetails.currentBid = event.newBid.currentBid;
+          emit(cuuremtSate.coptyWith(detail: carDetailModel));
+        }
+      }
+
+      //000
+      log("Stopped ----------------");
+    });
+  }
+
+  // WEB SOCKET
+
+  void _connectWebSocket(
+    ConnectWebSocket event,
+    Emitter<VDetailsControllerState> emit,
+  ) {
+    channel = WebSocketChannel.connect(Uri.parse('ws://82.112.238.223:8080'));
+
+    _subscription = channel.stream.listen((data) {
+      log("triggered ----------------");
+      String decoded = utf8.decode(data);
+      final jsonData = jsonDecode(decoded);
+      log("Converted ----------------");
+
+      add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _subscription?.cancel();
+    channel.sink.close();
+    return super.close();
   }
 }

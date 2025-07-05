@@ -8,3 +8,11 @@ class OnFetchVendorDashboardApi extends VDashboardControlllerEvent {
 
   OnFetchVendorDashboardApi({required this.context});
 }
+
+
+class ConnectWebSocket extends VDashboardControlllerEvent {}
+
+class UpdatePrice extends VDashboardControlllerEvent {
+  final LiveBidModel newBid;
+  UpdatePrice({required this.newBid});
+}

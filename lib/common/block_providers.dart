@@ -26,8 +26,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/account/data/controll
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
-import 'package:wheels_kart/module/Dealer/helper/blocs/live%20price%20change%20controller/live_price_change_controller_bloc.dart';
-import 'package:wheels_kart/module/Dealer/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 
 blocProviders(Widget child) => MultiBlocProvider(
   providers: [
@@ -81,9 +80,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     BlocProvider<VDetailsControllerBloc>(
       create: (_) => VDetailsControllerBloc(),
     ),
-    BlocProvider<LivePriceChangeControllerBloc>(
-      create: (_) => LivePriceChangeControllerBloc(),
-    ),
+    // BlocProvider<LivePriceChangeControllerBloc>(
+    //   create: (_) => LivePriceChangeControllerBloc(),
+    // ),
   ],
   child: child,
 );

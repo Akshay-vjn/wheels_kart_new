@@ -44,7 +44,9 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      myLikes.add(carList[index].isLiked == 1 ? true : false);
+                      myLikes.add(
+                        carList[index].wishlisted == 1 ? true : false,
+                      );
                       return AnimationConfiguration.staggeredList(
                         position: index,
                         duration: const Duration(milliseconds: 375),
@@ -53,7 +55,7 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
 
                           child: FadeInAnimation(
                             child: CVehicleCard(
-                              endTime: DateTime(2025,7,4,16,30,),
+                              endTime:carList[index].bidClosingTime ,
                               vehicle: carList[index],
                               isFavorite: myLikes[index],
                               onFavoriteToggle: () async {
@@ -80,7 +82,7 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
                                       frontImage: carList[index].frontImage,
                                       inspectionId: carList[index].inspectionId,
                                       isLiked:
-                                          carList[index].isLiked == 1
+                                          carList[index].wishlisted == 1
                                               ? true
                                               : false,
                                     ),

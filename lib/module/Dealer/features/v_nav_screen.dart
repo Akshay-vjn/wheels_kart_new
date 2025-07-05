@@ -11,7 +11,7 @@ import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_account_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/screens/v_fav_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/home_tab.dart';
-import 'package:wheels_kart/module/Dealer/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 
 class VNavScreen extends StatelessWidget {
   const VNavScreen({super.key});

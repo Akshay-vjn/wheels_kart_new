@@ -15,7 +15,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/account/data/controll
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_edit_profile_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
-import 'package:wheels_kart/module/Dealer/helper/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 
 class VAccountTab extends StatefulWidget {

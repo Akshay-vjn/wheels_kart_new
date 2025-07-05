@@ -1,5 +1,5 @@
 class VApiConst {
-  static const String baseUrl = 'https://crisantdemo.in/wheels/api/';
+  static const String baseUrl = 'https://wheelskart.in/api/';
 
   static const vendorLogin = "vendorlogin";
   static const vendorRegister = "vendorlogin/register";

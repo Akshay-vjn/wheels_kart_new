@@ -29,3 +29,14 @@ class OnChangeImageTab extends VDetailsControllerEvent {
     required this.imageTabIndex,
   });
 }
+
+
+
+// WEB SOCKET
+
+class ConnectWebSocket extends VDetailsControllerEvent {}
+
+class UpdatePrice extends VDetailsControllerEvent {
+  final LiveBidModel newBid;
+  UpdatePrice({required this.newBid});
+}

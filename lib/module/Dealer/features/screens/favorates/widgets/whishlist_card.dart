@@ -327,7 +327,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                   VCarDetailsScreen(
                     frontImage: widget.model.frontImage,
                     inspectionId: widget.model.inspectionId,
-                    isLiked: widget.model.isLiked == 1 ? true : false,
+                    isLiked: widget.model.wishlisted == 1 ? true : false,
                   ),
                 ),
               );

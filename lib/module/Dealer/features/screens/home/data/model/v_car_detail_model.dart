@@ -49,7 +49,7 @@ class CarDetails {
   final String manufactureDate;
   final String noOfKeys;
   final String city;
-  final String currentBid;
+   String? currentBid;
   final String evaluationId;
 
   CarDetails({
