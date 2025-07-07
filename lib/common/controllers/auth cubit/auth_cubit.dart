@@ -30,16 +30,69 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
 
   Future<void> _setLoginPreference(AuthUserModel userData) async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
-    preferences.setString(mobileNumberKey, userData.mobileNumber);
-    preferences.setString(passwordKey, userData.password);
-    preferences.setString(tokenKey, userData.token);
+    preferences.setString(mobileNumberKey, userData.mobileNumber ?? '');
+    preferences.setString(passwordKey, userData.password ?? '');
+    preferences.setString(tokenKey, userData.token ?? '');
 
-    preferences.setString(userIdKey, userData.userId);
-    preferences.setString(userNameKey, userData.userName);
-    preferences.setString(userTypeKey, userData.userType);
+    preferences.setString(userIdKey, userData.userId ?? '');
+    preferences.setString(userNameKey, userData.userName ?? '');
+    preferences.setString(userTypeKey, userData.userType ?? '');
+  }
+
+  Future<void> updateLoginPreference(AuthUserModel userData) async {
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+
+    final data = await getUserData;
+
+    preferences.setString(
+      mobileNumberKey,
+      userData.mobileNumber ?? data.mobileNumber ?? '',
+    );
+    preferences.setString(
+      passwordKey,
+      userData.password ?? data.password ?? '',
+    );
+    preferences.setString(tokenKey, userData.token ?? data.token ?? '');
+
+    preferences.setString(userIdKey, userData.userId ?? data.userId ?? '');
+    preferences.setString(
+      userNameKey,
+      userData.userName ?? data.userName ?? '',
+    );
+    preferences.setString(
+      userTypeKey,
+      userData.userType ?? data.userType ?? '',
+    );
+
+    log(
+      'Name - > ${data.userName}\nNumber - > ${data.mobileNumber}\nType -> ${data.userType}\nUser ID - > ${data.userId}',
+    );
   }
 
   Future<void> checkForLogin(BuildContext context) async {
+    final userData = await getUserData;
+
+    log(
+      'Name - > ${userData.userName}\nNumber - > ${userData.mobileNumber}\nType -> ${userData.userType}\nUser ID - > ${userData.userId}',
+    );
+
+    if (userData.token != null &&
+        userData.password != null &&
+        userData.userName != null) {
+      if (userData.userType != null &&
+          (userData.userType == "EVALUATOR" || userData.userType == "ADMIN")) {
+        await loginUser(context, userData.mobileNumber!, userData.password!);
+      } else {
+        await loginVendor(context, userData.mobileNumber!, userData.password!);
+      }
+    } else {
+      emit(AuthCubitUnAuthenticatedState());
+    }
+  }
+
+  // GET USER DATA
+
+  Future<AuthUserModel> get getUserData async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
 
     String? number = preferences.getString(mobileNumberKey);
@@ -54,19 +107,14 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
 
     String? userType = preferences.getString(userTypeKey);
 
-    log(
-      'Name - > ${name}\nNumber - > $number\nType -> $userType\nUser ID - > $userId',
+    return AuthUserModel(
+      mobileNumber: number,
+      password: password,
+      token: token,
+      userId: userId,
+      userType: userType,
+      userName: name,
     );
-
-    if (token != null && password != null && number != null) {
-      if (userType != null && (userType == "EVALUATOR"||userType == "ADMIN")) {
-        await loginUser(context, number, password);
-      } else {
-        await loginVendor(context, number, password);
-      }
-    } else {
-      emit(AuthCubitUnAuthenticatedState());
-    }
   }
 
   // LOG OUT USER
@@ -153,6 +201,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     if (snapshot.isNotEmpty) {
       if (snapshot['error'] == false) {
         log(snapshot['data'].toString());
+
         final authmodel = AuthUserModel(
           mobileNumber: mobileNumber,
           password: password,
@@ -170,12 +219,12 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
         );
         return true;
       } else {
-        emit(AuthErrorState(errorMessage: snapshot['message']));
+        emit(AuthErrorState(errorMessage: snapshot['message'] ?? ''));
         return false;
       }
-    }else{
-       emit(AuthErrorState(errorMessage: "No Internet Connection!"));
-       return false;
+    } else {
+      emit(AuthErrorState(errorMessage: "No Internet Connection!"));
+      return false;
     }
   }
 

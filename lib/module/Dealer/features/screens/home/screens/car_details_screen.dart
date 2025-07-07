@@ -27,8 +27,10 @@ class VCarDetailsScreen extends StatefulWidget {
   final bool isLiked;
   final String frontImage;
   final String inspectionId;
+  final bool hideBidPrice;
   const VCarDetailsScreen({
     super.key,
+    required this.hideBidPrice,
     required this.frontImage,
     required this.inspectionId,
     required this.isLiked,
@@ -315,75 +317,82 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
         },
       ),
       bottomNavigationBar:
-          BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
-            builder: (context, state) {
-              if (state is VDetailsControllerSuccessState) {
-                return Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  height: Platform.isIOS ? h(context) * .13 : h(context) * .1,
-                  decoration: BoxDecoration(
-                    color: VColors.WHITE,
-                    boxShadow: [
-                      BoxShadow(
-                        color: VColors.DARK_GREY.withAlpha(50),
-                        blurRadius: 10,
+          widget.hideBidPrice == true
+              ? SizedBox.shrink()
+              : BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
+                builder: (context, state) {
+                  if (state is VDetailsControllerSuccessState) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 15,
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Current Bid",
-                            style: VStyle.style(
-                              context: context,
-                              color: VColors.GREY,
-                              fontWeight: FontWeight.w600,
-                              size: 15,
-                            ),
+                      height:
+                          Platform.isIOS ? h(context) * .13 : h(context) * .1,
+                      decoration: BoxDecoration(
+                        color: VColors.WHITE,
+                        boxShadow: [
+                          BoxShadow(
+                            color: VColors.DARK_GREY.withAlpha(50),
+                            blurRadius: 10,
                           ),
-                          Text(
-                            "₹${state.detail.carDetails.currentBid}",
-                            style: VStyle.style(
-                              context: context,
-                              color: VColors.GREENHARD,
-                              fontWeight: FontWeight.w900,
-                              size: 27,
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Current Bid",
+                                style: VStyle.style(
+                                  context: context,
+                                  color: VColors.GREY,
+                                  fontWeight: FontWeight.w600,
+                                  size: 15,
+                                ),
+                              ),
+                              Text(
+                                "₹${state.detail.carDetails.currentBid}",
+                                style: VStyle.style(
+                                  context: context,
+                                  color: VColors.GREENHARD,
+                                  fontWeight: FontWeight.w900,
+                                  size: 27,
+                                ),
+                              ),
+                            ],
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: VColors.GREENHARD,
+                            ),
+                            onPressed: () async {
+                              final currentState =
+                                  context.read<VDetailsControllerBloc>().state;
+                              if (currentState
+                                  is VDetailsControllerSuccessState) {
+                                await widget.openWhatsApp(
+                                  currentState.detail,
+                                  widget.frontImage,
+                                );
+                              }
+                            },
+
+                            child: Icon(
+                              SolarIconsBold.chatRound,
+                              color: VColors.WHITE,
                             ),
                           ),
                         ],
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: VColors.GREENHARD,
-                        ),
-                        onPressed: () async {
-                          final currentState =
-                              context.read<VDetailsControllerBloc>().state;
-                          if (currentState is VDetailsControllerSuccessState) {
-                            await widget.openWhatsApp(
-                              currentState.detail,
-                              widget.frontImage,
-                            );
-                          }
-                        },
-
-                        child: Icon(
-                          SolarIconsBold.chatRound,
-                          color: VColors.WHITE,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                return SizedBox.shrink();
-              }
-            },
-          ),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                },
+              ),
     );
   }
 
@@ -425,22 +434,25 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                           key: GlobalObjectKey(
                             images[state.currentImageIndex].toString(),
                           ),
-                          child: CachedNetworkImage(
-                            errorWidget:
-                                (context, url, error) => Center(
-                                  child: Text(
-                                    "Image not found",
-                                    style: VStyle.style(
-                                      context: context,
-                                      color: VColors.DARK_GREY,
+                          child: Hero(
+                            tag: state.detail.carDetails.evaluationId,
+                            child: CachedNetworkImage(
+                              errorWidget:
+                                  (context, url, error) => Center(
+                                    child: Text(
+                                      "Image not found",
+                                      style: VStyle.style(
+                                        context: context,
+                                        color: VColors.DARK_GREY,
+                                      ),
                                     ),
                                   ),
-                                ),
-                            placeholder:
-                                (context, url) =>
-                                    Center(child: VLoadingIndicator()),
-                            imageUrl: images[state.currentImageIndex].url,
-                            errorListener: (value) {},
+                              placeholder:
+                                  (context, url) =>
+                                      Center(child: VLoadingIndicator()),
+                              imageUrl: images[state.currentImageIndex].url,
+                              errorListener: (value) {},
+                            ),
                           ),
                         ),
                       ),
@@ -483,6 +495,16 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: CachedNetworkImage(
+                              errorWidget:
+                                  (context, url, error) => Center(
+                                    child: Text(
+                                      "Image not found",
+                                      style: VStyle.style(
+                                        context: context,
+                                        color: VColors.DARK_GREY,
+                                      ),
+                                    ),
+                                  ),
                               placeholder:
                                   (context, url) =>
                                       Center(child: VLoadingIndicator()),

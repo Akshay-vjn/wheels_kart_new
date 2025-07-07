@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
@@ -46,7 +49,16 @@ class _VHomeTabState extends State<VHomeTab> {
         setState(() {});
       });
     });
+    getSoldUserData();
   }
+
+  getSoldUserData() async {
+    final user = await AppAuthController().getUserData;
+    myId = user.userId ?? '';
+    log("Your id is $myId");
+  }
+
+  String myId = "";
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +182,7 @@ class _VHomeTabState extends State<VHomeTab> {
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
 
-              sliver: VCarCardBuilder(),
+              sliver: VCarCardBuilder(myId: myId,),
             ),
 
             // Bottom padding

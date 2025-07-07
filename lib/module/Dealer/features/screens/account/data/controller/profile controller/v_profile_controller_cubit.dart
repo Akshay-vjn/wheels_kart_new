@@ -1,10 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/repo/v_edit_profile_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/repo/v_profile_repo.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 
 part 'v_profile_controller_state.dart';
 
@@ -17,11 +20,14 @@ class VProfileControllerCubit extends Cubit<VProfileControllerState> {
     if (response.isNotEmpty) {
       if (response['error'] == false) {
         final data = response['data'] as Map;
-        emit(
-          VProfileControllerSuccessState(
-            profileModel: VProfileModel.fromJson(data as Map<String, dynamic>),
-          ),
-        );
+        final model = VProfileModel.fromJson(data as Map<String, dynamic>);
+
+        if (context.mounted) {
+          context.read<AppAuthController>().updateLoginPreference(
+            AuthUserModel(userId: model.vendorId, userName: model.vendorName),
+          );
+        }
+        emit(VProfileControllerSuccessState(profileModel: model));
       } else {
         emit(VProfileControllerErrorState(error: response['message']));
       }

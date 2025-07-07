@@ -107,7 +107,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                   ),
                   // Favorite button with improved positioning
                   // Status indicator
-                  _buildStatusBadge(widget.model.status),
+                  _buildStatusBadge(widget.model.bidStatus ?? ''),
                 ],
               ),
             ),
@@ -129,7 +129,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
             children: [
               // Enhanced image container
               _buildEnhancedImageContainer(),
-              const SizedBox(width: 16),
+              const SizedBox(width: 10),
               // Content column
               Expanded(
                 child: Column(
@@ -137,10 +137,10 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                   children: [
                     // Title with better typography
                     _buildCarTitle(),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     // Fuel and mileage chips
                     _buildDetailsChips(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
                     // Location and price row
                     _buildLocationAndPriceRow(),
                   ],
@@ -148,7 +148,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           // Action buttons row
           _buildActionButtons(),
         ],
@@ -325,6 +325,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
               await Navigator.of(context).push(
                 AppRoutes.createRoute(
                   VCarDetailsScreen(
+                    hideBidPrice: widget.model.bidStatus != "Open",
                     frontImage: widget.model.frontImage,
                     inspectionId: widget.model.inspectionId,
                     isLiked: widget.model.wishlisted == 1 ? true : false,
@@ -442,12 +443,27 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   Widget _buildStatusBadge(String status) {
     Color color;
     String title;
-    if (status == "APPROVED" || status.isEmpty) {
-      title = "LIVE";
-      color = VColors.SUCCESS;
-    } else {
-      title = "SOLD";
-      color = VColors.REDHARD;
+    switch (status) {
+      case "Open":
+        {
+          title = "OPEN";
+          color = VColors.SUCCESS;
+        }
+      case "Sold":
+        {
+          title = "SOLD";
+          color = VColors.ERROR;
+        }
+      case "Not Started":
+        {
+          title = "NOT STARTED";
+          color = VColors.DARK_GREY;
+        }
+      default:
+        {
+          title = "";
+          color = VColors.SUCCESS;
+        }
     }
     // if (widget.model.currentBid.isNotEmpty) {
     return Positioned(

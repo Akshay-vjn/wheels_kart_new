@@ -25,7 +25,7 @@ class VEditProfileRepo {
           body: {"DealerName": name, "DealerEmail": email, "DealerCity": city},
           headers: {
             // 'Content-Type': 'application/json',
-            'Authorization': state.userModel.token,
+            'Authorization': state.userModel.token!,
           },
         );
 

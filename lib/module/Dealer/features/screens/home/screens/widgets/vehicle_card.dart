@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
-import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
@@ -13,6 +11,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class CVehicleCard extends StatefulWidget {
   final VCarModel vehicle;
+  final String myId;
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
   final VoidCallback onPressCard;
@@ -20,6 +19,7 @@ class CVehicleCard extends StatefulWidget {
 
   const CVehicleCard({
     super.key,
+    required this.myId,
     required this.vehicle,
     required this.isFavorite,
     required this.onFavoriteToggle,
@@ -36,7 +36,6 @@ class _CVehicleCardState extends State<CVehicleCard>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
-
   @override
   void initState() {
     _endTime = '00:00';
@@ -103,6 +102,8 @@ class _CVehicleCardState extends State<CVehicleCard>
     }
   }
 
+  bool get soldToMe => widget.myId == widget.vehicle.soldTo;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -155,25 +156,26 @@ class _CVehicleCardState extends State<CVehicleCard>
                             _buildVehicleHeader(),
 
                             AppSpacer(heightPortion: .01),
+                            if (widget.vehicle.bidStatus != "Sold")
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [_buildDetailsGrid()],
+                                  ),
+                                ],
+                              ),
+                            if (widget.vehicle.bidStatus != "Sold")
+                              AppSpacer(heightPortion: .01),
 
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildDetailsGrid(),
+                            if (widget.vehicle.bidStatus == "Open")
+                              _buildOpenBidSection(),
 
-                                    AppSpacer(heightPortion: .005),
-                                    _buildRegistrationChip(),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            AppSpacer(heightPortion: .01),
-
-                            _buildCurrentBidSection(),
-
+                            if (widget.vehicle.bidStatus == "Sold")
+                              bidSoldSecion(),
                             // Current Bid Section
                           ],
                         ),
@@ -188,12 +190,12 @@ class _CVehicleCardState extends State<CVehicleCard>
                   Positioned(
                     left: 12,
                     top: 12,
-                    child: Column(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _buildStatusBadge(widget.vehicle.status),
-                        AppSpacer(heightPortion: .005),
-                        _buildCurrentBidder(),
+                        _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
+                        if (soldToMe) _buildStatusForSoldToMe(),
                       ],
                     ),
                   ),
@@ -223,20 +225,26 @@ class _CVehicleCardState extends State<CVehicleCard>
           fit: StackFit.expand,
           children: [
             widget.vehicle.frontImage.isNotEmpty
-                ? CachedNetworkImage(
-                  imageUrl: widget.vehicle.frontImage,
-                  fit: BoxFit.cover,
-                  placeholder:
-                      (context, url) => Container(
-                        color: VColors.LIGHT_GREY,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(VColors.ACCENT),
+                ? Hero(
+                  tag: widget.vehicle.evaluationId,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.vehicle.frontImage,
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) => Container(
+                          color: VColors.LIGHT_GREY,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation(
+                                VColors.ACCENT,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                  errorWidget: (context, url, error) => _buildPlaceholderIcon(),
+                    errorWidget:
+                        (context, url, error) => _buildPlaceholderIcon(),
+                  ),
                 )
                 : _buildPlaceholderIcon(),
 
@@ -281,19 +289,19 @@ class _CVehicleCardState extends State<CVehicleCard>
                 widget.vehicle.modelName,
                 style: VStyle.style(
                   context: context,
-                  size: 22,
+                  size: 19,
                   fontWeight: FontWeight.bold,
                   color: VColors.BLACK,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Row(
                 children: [
                   Icon(
                     Icons.calendar_today_rounded,
-                    size: 15,
+                    size: 10,
                     color: VColors.DARK_GREY,
                   ),
                   const SizedBox(width: 4),
@@ -301,7 +309,7 @@ class _CVehicleCardState extends State<CVehicleCard>
                     widget.vehicle.manufacturingYear,
                     style: VStyle.style(
                       context: context,
-                      size: 15,
+                      size: 10,
                       color: VColors.DARK_GREY,
                       fontWeight: FontWeight.w500,
                     ),
@@ -335,34 +343,72 @@ class _CVehicleCardState extends State<CVehicleCard>
           '${widget.vehicle.kmsDriven} km',
           VColors.SECONDARY,
         ),
-
-        // _buildEnhancedDetailChip(
-        //   Icons.speed_rounded,
-        //   '${widget.vehicle.inspectionId} km',
-        //   VColors.SECONDARY,
-        // ),
+        AppSpacer(widthPortion: .01),
+        _buildEnhancedDetailChip(
+          Icons.confirmation_number_rounded,
+          widget.vehicle.regNo.replaceRange(
+            6,
+            widget.vehicle.regNo.length,
+            // '●●●●●●',
+            "",
+          ),
+          const Color.fromARGB(255, 32, 138, 164),
+          isFullWidth: false,
+        ),
       ],
     );
   }
 
-  Widget _buildRegistrationChip() {
-    return SizedBox(
-      width: w(context) * .26,
-      child: _buildEnhancedDetailChip(
-        Icons.confirmation_number_rounded,
-        widget.vehicle.regNo.replaceRange(
-          6,
-          widget.vehicle.regNo.length,
-          // '●●●●●●',
-          "",
+  Widget bidSoldSecion() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            VColors.SECONDARY.withOpacity(0.1),
+            VColors.REDHARD.withOpacity(0.05),
+          ],
         ),
-        const Color.fromARGB(255, 32, 138, 164),
-        isFullWidth: true,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: VColors.BLACK.withOpacity(0.2), width: 1),
+      ),
+
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildSectionTile(
+            iconIsRightSide: true,
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(Icons.directions_car, size: 18, color: VColors.WHITE),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Icon(
+                    Icons.check_circle,
+                    size: 10, // Adjust size relative to car icon
+                    color: VColors.ACCENT,
+                  ),
+                ),
+              ],
+            ),
+            title: "Bid Status",
+            value: "Sold",
+            iconBgColor: VColors.GREENHARD,
+          ),
+          _buildSectionTile(
+            icon: Icon(Icons.person, size: 18, color: VColors.WHITE),
+            title: "Sold to",
+            value: widget.vehicle.soldName ?? '',
+            iconBgColor: const Color.fromARGB(255, 24, 82, 168),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCurrentBidSection() {
+  Widget _buildOpenBidSection() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -378,98 +424,97 @@ class _CVehicleCardState extends State<CVehicleCard>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
-            child: Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color:
-                        _endTime == "00:00" ? VColors.ERROR : VColors.GREENHARD,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.timelapse_sharp,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                ),
-                AppSpacer(widthPortion: .02),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Bid Status",
-                      style: VStyle.style(
-                        context: context,
-                        size: 12,
-                        color: VColors.DARK_GREY,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _endTime == "00:00" ? "Closed" : "$_endTime min",
-                      style: VStyle.style(
-                        context: context,
-                        size: 15,
-                        fontWeight: FontWeight.w600,
-                        color:
-                            _endTime == "00:00"
-                                ? VColors.ERROR
-                                : VColors.GREENHARD,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          _buildSectionTile(
+            iconIsRightSide: true,
+            iconBgColor:
+                _endTime == "00:00" ? VColors.ERROR : VColors.GREENHARD,
+            icon: const Icon(
+              Icons.timelapse_sharp,
+              color: Colors.white,
+              size: 16,
             ),
+            title: "Bid Status",
+            value: "$_endTime min",
           ),
-          Flexible(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      "Current Bid",
-                      style: VStyle.style(
-                        context: context,
-                        size: 12,
-                        color: VColors.DARK_GREY,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "₹${widget.vehicle.currentBid}",
-                      style: VStyle.style(
-                        context: context,
-                        size: 18,
-                        fontWeight: FontWeight.bold,
-                        color: VColors.BLACK,
-                      ),
-                    ),
-                  ],
-                ),
-                AppSpacer(widthPortion: .02),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: VColors.BLACK,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.gavel_rounded,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                ),
-              ],
+
+          _buildSectionTile(
+            iconBgColor: VColors.BLACK,
+            icon: const Icon(
+              Icons.gavel_rounded,
+              color: Colors.white,
+              size: 16,
             ),
+            title: "Current Bid",
+            value: "₹${widget.vehicle.currentBid}",
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTile({
+    required Widget icon,
+    required String title,
+    required String value,
+    required Color iconBgColor,
+    bool? iconIsRightSide = false,
+  }) {
+    return Flexible(
+      child: Row(
+        mainAxisAlignment:
+            iconIsRightSide == true
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.end,
+        children: [
+          if (iconIsRightSide == true) ...[
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: icon,
+            ),
+            AppSpacer(widthPortion: .02),
+          ],
+          Column(
+            crossAxisAlignment:
+                iconIsRightSide == true
+                    ? CrossAxisAlignment.start
+                    : CrossAxisAlignment.end,
+            children: [
+              Text(
+                title,
+                style: VStyle.style(
+                  context: context,
+                  size: 12,
+                  color: VColors.DARK_GREY,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: VStyle.style(
+                  context: context,
+                  size: 18,
+                  fontWeight: FontWeight.bold,
+                  color: iconBgColor,
+                ),
+              ),
+            ],
+          ),
+          if (iconIsRightSide == false) ...[
+            AppSpacer(widthPortion: .02),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: icon,
+            ),
+          ],
         ],
       ),
     );
@@ -483,10 +528,10 @@ class _CVehicleCardState extends State<CVehicleCard>
   }) {
     return Container(
       width: isFullWidth ? double.infinity : null,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withAlpha(25),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusSize10),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSize5),
         border: Border.all(color: color.withAlpha(50), width: 1),
       ),
       child: Row(
@@ -496,17 +541,17 @@ class _CVehicleCardState extends State<CVehicleCard>
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
               color: color.withAlpha(50),
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(9),
             ),
-            child: Icon(icon, size: 10, color: color),
+            child: Icon(icon, size: 8, color: color),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           Flexible(
             child: Text(
               text,
               style: VStyle.style(
                 context: context,
-                size: 12,
+                size: 10,
                 color: color,
                 fontWeight: FontWeight.w600,
               ),
@@ -596,12 +641,27 @@ class _CVehicleCardState extends State<CVehicleCard>
     Color color;
     String title;
 
-    if (status == "APPROVED" || status.isEmpty) {
-      title = "LIVE";
-      color = VColors.SUCCESS;
-    } else {
-      title = "SOLD";
-      color = VColors.REDHARD;
+    switch (status) {
+      case "Open":
+        {
+          title = "OPEN";
+          color = VColors.SUCCESS;
+        }
+      case "Sold":
+        {
+          title = "SOLD";
+          color = VColors.ERROR;
+        }
+      case "Not Started":
+        {
+          title = "NOT STARTED";
+          color = VColors.DARK_GREY;
+        }
+      default:
+        {
+          title = "";
+          color = VColors.SUCCESS;
+        }
     }
     // You can customize this based on vehicle status
     return Container(
@@ -633,6 +693,61 @@ class _CVehicleCardState extends State<CVehicleCard>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatusForSoldToMe() {
+    return Row(
+      children: [
+        AppSpacer(widthPortion: .01),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: VColors.ERROR,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: VColors.ERROR.withAlpha(40),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Text(
+            "TO",
+            style: VStyle.style(
+              context: context,
+              size: 10,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        AppSpacer(widthPortion: .01),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: VColors.ERROR,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: VColors.ERROR.withAlpha(40),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Text(
+            "YOU",
+            style: VStyle.style(
+              context: context,
+              size: 10,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

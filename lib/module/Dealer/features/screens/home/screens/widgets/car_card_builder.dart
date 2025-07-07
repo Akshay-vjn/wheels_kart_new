@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
+import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
@@ -12,7 +13,8 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_deta
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/vehicle_card.dart';
 
 class VCarCardBuilder extends StatefulWidget {
-  const VCarCardBuilder({super.key});
+  final String myId;
+  const VCarCardBuilder({super.key, required this.myId});
 
   @override
   State<VCarCardBuilder> createState() => _VCarCardBuilderState();
@@ -29,7 +31,7 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
           case VDashboardControllerErrorState():
             {
               return SliverToBoxAdapter(
-                child: AppEmptyText(text: state.errorMesage),
+                child: Center(child: AppEmptyText(text: state.errorMesage)),
               );
             }
 
@@ -55,7 +57,8 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
 
                           child: FadeInAnimation(
                             child: CVehicleCard(
-                              endTime:carList[index].bidClosingTime ,
+                              myId: widget.myId,
+                              endTime: carList[index].bidClosingTime,
                               vehicle: carList[index],
                               isFavorite: myLikes[index],
                               onFavoriteToggle: () async {
@@ -74,24 +77,29 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
                               },
                               onPressCard: () async {
                                 // Handle buy action
-                                final isLiked = await Navigator.of(
-                                  context,
-                                ).push(
-                                  AppRoutes.createRoute(
-                                    VCarDetailsScreen(
-                                      frontImage: carList[index].frontImage,
-                                      inspectionId: carList[index].inspectionId,
-                                      isLiked:
-                                          carList[index].wishlisted == 1
-                                              ? true
-                                              : false,
+                                if (carList[index].bidStatus != "Sold") {
+                                  final isLiked = await Navigator.of(
+                                    context,
+                                  ).push(
+                                    AppRoutes.createRoute(
+                                      VCarDetailsScreen(
+                                        hideBidPrice:
+                                            carList[index].bidStatus != "Open",
+                                        frontImage: carList[index].frontImage,
+                                        inspectionId:
+                                            carList[index].inspectionId,
+                                        isLiked:
+                                            carList[index].wishlisted == 1
+                                                ? true
+                                                : false,
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
 
-                                if (isLiked != null) {
-                                  myLikes[index] = isLiked;
-                                  setState(() {});
+                                  if (isLiked != null) {
+                                    myLikes[index] = isLiked;
+                                    setState(() {});
+                                  }
                                 }
                               },
                             ),
@@ -107,7 +115,10 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
           default:
             {
               return SliverToBoxAdapter(
-                child: Align(child: VLoadingIndicator()),
+                child: SizedBox(
+                  height: h(context) * .7,
+                  child: Center(child: VLoadingIndicator()),
+                ),
               );
             }
         }

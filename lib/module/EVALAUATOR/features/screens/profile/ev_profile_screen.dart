@@ -247,7 +247,7 @@ class _EvProfileScreenState extends State<EvProfileScreen>
               child: Column(
                 children: [
                   Text(
-                    userModel.userName,
+                    userModel.userName!,
                     style: EvAppStyle.style(
                       context: context,
                       fontWeight: FontWeight.bold,
@@ -266,7 +266,7 @@ class _EvProfileScreenState extends State<EvProfileScreen>
                       ),
                       SizedBox(width: 8),
                       Text(
-                        userModel.mobileNumber,
+                        userModel.mobileNumber!,
                         style: EvAppStyle.style(
                           context: context,
                           fontWeight: FontWeight.w400,
@@ -289,7 +289,7 @@ class _EvProfileScreenState extends State<EvProfileScreen>
                       ),
                     ),
                     child: Text(
-                      userModel.userType,
+                      userModel.userType!,
                       style: EvAppStyle.style(
                         context: context,
                         fontWeight: FontWeight.w600,

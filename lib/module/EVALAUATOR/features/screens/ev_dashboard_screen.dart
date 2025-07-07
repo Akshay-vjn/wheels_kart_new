@@ -322,7 +322,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                state.userModel.userName,
+                                state.userModel.userName!,
                                 style: EvAppStyle.style(
                                   color: Colors.white,
                                   context: context,
@@ -333,7 +333,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
                             ],
                           ),
                         ),
-                        _buildProfileSection(state.userModel.userName),
+                        _buildProfileSection(state.userModel.userName!),
                       ],
                     ),
                     const SizedBox(height: 24),
