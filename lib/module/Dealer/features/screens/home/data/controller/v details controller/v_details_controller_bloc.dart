@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
@@ -133,5 +134,50 @@ class VDetailsControllerBloc
     _subscription?.cancel();
     channel.sink.close();
     return super.close();
+  }
+
+  static Future<void> openWhatsApp(
+  // VCarDetailModel details,
+  // String image,
+  {
+    required String evaluationId,
+    required String regNumber,
+    required String model,
+    required String manufactureYear,
+    required String kmDrive,
+    required String noOfOwners,
+    required String currentBid,
+    required String image,
+  }) async {
+    final id = evaluationId;
+    final vehicleRegNo = regNumber;
+    final vehicleModel = model;
+    final yearOfManufacture = manufactureYear;
+    final kmDriven = kmDrive;
+    final numberOfOwners = noOfOwners;
+    final currentBidAmount = currentBid;
+    final frontImage = image; // Assuming this is a URL
+
+    final message = '''
+$frontImage
+*Vehicle Details:*
+• Evaluation ID: $id
+• Registration No: $vehicleRegNo
+• Model: $vehicleModel
+• Year of Manufacture: $yearOfManufacture
+• KMs Driven: $kmDriven
+• No. of Owners: $numberOfOwners
+• Current Bid: ₹$currentBidAmount
+''';
+
+    final encodedMessage = Uri.encodeComponent(message);
+
+    final Uri url = Uri.parse(
+      'https://wa.me/919964955575?text=$encodedMessage',
+    );
+
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch WhatsApp chat';
+    }
   }
 }

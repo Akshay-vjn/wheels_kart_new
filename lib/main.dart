@@ -1,7 +1,5 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/block_providers.dart';
-import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
 
@@ -19,7 +17,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
    
-    log("message");
     return blocProviders(
       MaterialApp(
         navigatorObservers: [routeObserver],

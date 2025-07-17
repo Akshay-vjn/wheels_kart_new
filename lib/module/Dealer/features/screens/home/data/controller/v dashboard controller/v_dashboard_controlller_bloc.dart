@@ -45,6 +45,7 @@ class VDashboardControlllerBloc
         for (var car in cuuremtSate.listOfCars) {
           if (car.evaluationId == event.newBid.evaluationId) {
             final bid = event.newBid;
+
             car.bidStatus = bid.bidStatus;
             car.soldName = bid.soldName;
             car.soldTo = bid.soldTo;
@@ -72,8 +73,6 @@ class VDashboardControlllerBloc
       String decoded = utf8.decode(data);
       final jsonData = jsonDecode(decoded);
       log("Converted ----------------");
-
-     
 
       add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
     });

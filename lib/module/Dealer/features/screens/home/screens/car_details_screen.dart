@@ -36,39 +36,6 @@ class VCarDetailsScreen extends StatefulWidget {
     required this.isLiked,
   });
 
-  Future<void> openWhatsApp(VCarDetailModel details, String image) async {
-    final id = details.carDetails.evaluationId;
-    final vehicleRegNo = details.carDetails.registrationNumber;
-    final vehicleModel = details.carDetails.model;
-    final yearOfManufacture = details.carDetails.yearOfManufacture;
-    final kmDriven = details.carDetails.kmsDriven;
-    final numberOfOwners = details.carDetails.noOfOwners;
-    final currentBidAmount = details.carDetails.currentBid;
-    final frontImage = image; // Assuming this is a URL
-
-    final message = '''
-$frontImage
-*Vehicle Details:*
-• Evaluation ID: $id
-• Registration No: $vehicleRegNo
-• Model: $vehicleModel
-• Year of Manufacture: $yearOfManufacture
-• KMs Driven: $kmDriven
-• No. of Owners: $numberOfOwners
-• Current Bid: ₹$currentBidAmount
-''';
-
-    final encodedMessage = Uri.encodeComponent(message);
-
-    final Uri url = Uri.parse(
-      'https://wa.me/919964955575?text=$encodedMessage',
-    );
-
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch WhatsApp chat';
-    }
-  }
-
   @override
   State<VCarDetailsScreen> createState() => _VCarDetailsScreenState();
 }
@@ -373,9 +340,16 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                   context.read<VDetailsControllerBloc>().state;
                               if (currentState
                                   is VDetailsControllerSuccessState) {
-                                await widget.openWhatsApp(
-                                  currentState.detail,
-                                  widget.frontImage,
+                                final details = currentState.detail.carDetails;
+                                await VDetailsControllerBloc.openWhatsApp(
+                                  currentBid: details.currentBid ?? '',
+                                  evaluationId: details.evaluationId,
+                                  image: widget.frontImage,
+                                  kmDrive: details.kmsDriven,
+                                  manufactureYear: details.yearOfManufacture,
+                                  model: details.model,
+                                  noOfOwners: details.noOfOwners,
+                                  regNumber: details.registrationNumber,
                                 );
                               }
                             },

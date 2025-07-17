@@ -4,25 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
+import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/vehicle_card.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/Auction/auction_vehicle_card.dart';
 
-class VCarCardBuilder extends StatefulWidget {
+class VAuctionCarBuilder extends StatefulWidget {
   final String myId;
-  const VCarCardBuilder({super.key, required this.myId});
+  const VAuctionCarBuilder({super.key, required this.myId});
 
   @override
-  State<VCarCardBuilder> createState() => _VCarCardBuilderState();
+  State<VAuctionCarBuilder> createState() => _VAuctionCarBuilderState();
 }
 
 List<bool> myLikes = [];
 
-class _VCarCardBuilderState extends State<VCarCardBuilder> {
+class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<VDashboardControlllerBloc, VDashboardControlllerState>(
@@ -30,33 +31,35 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
         switch (state) {
           case VDashboardControllerErrorState():
             {
-              return SliverToBoxAdapter(
-                child: Center(child: AppEmptyText(text: state.errorMesage)),
-              );
+              return Center(child: AppEmptyText(text: state.errorMesage));
             }
-
+    
           case VDashboardControllerSuccessState():
             {
               final carList = state.listOfCars;
-
-              return SliverToBoxAdapter(
+    
+              return RefreshIndicator.adaptive(
+                onRefresh: () async {
+                  return context.read<VDashboardControlllerBloc>().add(
+                    OnFetchVendorDashboardApi(context: context),
+                  );
+                },
                 child: AnimationLimiter(
                   child: ListView.builder(
                     padding: EdgeInsets.only(top: 10),
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
                     itemBuilder: (context, index) {
                       myLikes.add(
                         carList[index].wishlisted == 1 ? true : false,
                       );
                       return AnimationConfiguration.staggeredList(
                         position: index,
+                     
                         duration: const Duration(milliseconds: 375),
                         child: SlideAnimation(
                           verticalOffset: 50.0,
-
+    
                           child: FadeInAnimation(
-                            child: CVehicleCard(
+                            child: VAuctionVehicleCard(
                               myId: widget.myId,
                               endTime: carList[index].bidClosingTime,
                               vehicle: carList[index],
@@ -84,7 +87,8 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
                                     AppRoutes.createRoute(
                                       VCarDetailsScreen(
                                         hideBidPrice:
-                                            carList[index].bidStatus != "Open",
+                                            carList[index].bidStatus !=
+                                            "Open",
                                         frontImage: carList[index].frontImage,
                                         inspectionId:
                                             carList[index].inspectionId,
@@ -95,7 +99,7 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
                                       ),
                                     ),
                                   );
-
+    
                                   if (isLiked != null) {
                                     myLikes[index] = isLiked;
                                     setState(() {});
@@ -114,11 +118,9 @@ class _VCarCardBuilderState extends State<VCarCardBuilder> {
             }
           default:
             {
-              return SliverToBoxAdapter(
-                child: SizedBox(
-                  height: h(context) * .7,
-                  child: Center(child: VLoadingIndicator()),
-                ),
+              return SizedBox(
+                height: h(context) * .7,
+                child: Center(child: VLoadingIndicator()),
               );
             }
         }
