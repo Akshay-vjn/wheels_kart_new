@@ -217,6 +217,11 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
                     ),
 
                     // Enhanced Favorite Button
+                    Positioned(
+                      right: 10,
+                      top: 10,
+                      child: _buildFavoriteButton(),
+                    ),
 
                     // Status Badge (if needed)
                     Positioned(
@@ -301,15 +306,17 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
 
   Widget _buildHeader() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(alignment: Alignment.bottomRight, child: _buildFavoriteButton()),
         Text(
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          "${widget.vehicle.manufacturingYear} ${widget.vehicle.modelName}",
+          "${widget.vehicle.manufacturingYear} ${widget.vehicle.brandName}",
           style: VStyle.style(context: context, color: VColors.BLACK, size: 17),
+        ),
+        Text(
+          widget.vehicle.modelName,
+          style: VStyle.style(context: context, color: VColors.BLACK, size: 14),
         ),
         AppSpacer(heightPortion: .01),
         Row(

@@ -15,8 +15,10 @@ class VCarModel {
   DateTime? bidClosingTime;
   int wishlisted;
   String status;
+  String brandName;
 
   VCarModel({
+    required this.brandName,
     required this.inspectionId,
     required this.evaluationId,
     required this.modelName,
@@ -41,6 +43,7 @@ class VCarModel {
       kmDrivern = "0";
     }
     return VCarModel(
+      brandName: json['brandName']??'',
       inspectionId: json["inspectionId"] ?? '',
       evaluationId: json["evaluationId"] ?? '',
       modelName: json["modelName"] ?? '',

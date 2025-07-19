@@ -37,6 +37,7 @@ class VOCBCarBuilder extends StatelessWidget {
                       onFavoriteToggle: () {},
                       onPressCard: () {},
                       vehicle: VCarModel(
+                        brandName: "Maruthi",
                         inspectionId: "1",
                         evaluationId: "ABC123",
                         modelName: "Swift",

@@ -161,6 +161,12 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
               children: [
                 AppSpacer(heightPortion: .02),
                 _buildVideoButton(
+                  state: state,
+                  videoId:
+                      state.isAvailabeWalkaroundVideo
+                          ? walkaroundVideo!.videoId
+                          : "",
+                  videoType: UploadVehicleVideoCubit.WLAKAROUND,
                   duration: "(max 1 min)",
                   icon: CupertinoIcons.car,
                   existingVideoFile:
@@ -183,11 +189,18 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
                 ),
                 AppSpacer(heightPortion: .02),
                 _buildVideoButton(
+                  state: state,
+
+                  videoId:
+                      state.isAvailableEngineVideo
+                          ? engineSideVideo!.videoId
+                          : '',
+                  videoType: UploadVehicleVideoCubit.ENGINESIDE,
                   duration: "(max 1 min)",
                   icon: CupertinoIcons.wrench,
                   existingVideoFile:
                       state.isAvailableEngineVideo
-                          ? engineSideVideo!.videoId
+                          ? engineSideVideo!.video
                           : null,
                   hintText: "Engine Side Video after starting vehicle.",
                   onTap: () {
@@ -213,12 +226,15 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
   }
 
   Widget _buildVideoButton({
+    required UploadVehicleVideoSuccessState state,
     required String duration,
     required IconData icon,
     required String hintText,
     required void Function() onTap,
     required String? existingVideoFile,
     required bool isUploading,
+    required String videoType,
+    required String videoId,
   }) {
     return Column(
       children: [
@@ -230,15 +246,93 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
             border: Border.all(width: .5),
             borderRadius: BorderRadius.circular(AppDimensions.radiusSize15),
           ),
-          child:
+          child: Stack(
+            children: [
               existingVideoFile != null
-                  ? _videoPlayButton(
-                    duration,
-                    icon,
-                    hintText,
-                    existingVideoFile,
-                  )
+                  ? _videoPlayButton(icon, hintText, existingVideoFile)
                   : _buildCardHead(duration, icon, hintText),
+              existingVideoFile != null
+                  ? Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Theme(
+                      data: ThemeData(
+                        colorScheme: ColorScheme(
+                          brightness: Brightness.light,
+                          primary: EvAppColors.kRed.withAlpha(150),
+                          onPrimary: EvAppColors.DARK_SECONDARY,
+                          secondary: EvAppColors.DARK_SECONDARY,
+                          onSecondary: EvAppColors.DARK_SECONDARY,
+                          error: EvAppColors.DARK_SECONDARY,
+                          onError: EvAppColors.DARK_SECONDARY,
+                          surface: EvAppColors.DARK_SECONDARY,
+                          onSurface: EvAppColors.DARK_SECONDARY,
+                        ),
+                      ),
+                      child: IconButton.filled(
+                        color: EvAppColors.white,
+
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: Text(
+                                    "Delete Video ?",
+                                    style: EvAppStyle.style(
+                                      size: 16,
+                                      fontWeight: FontWeight.w600,
+                                      context: context,
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(
+                                        "Cancel",
+                                        style: EvAppStyle.style(
+                                          size: 13,
+                                          context: context,
+                                        ),
+                                      ),
+                                    ),
+                                    state.isWalkAroundUploading ||
+                                            state.isEngineUploading
+                                        ? EVAppLoadingIndicator()
+                                        : TextButton(
+                                          onPressed: () async {
+                                            await context
+                                                .read<UploadVehicleVideoCubit>()
+                                                .deleteVideo(
+                                                  context,
+                                                  videoType,
+                                                  widget.inspectionId,
+                                                  videoId,
+                                                );
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            "Delete",
+                                            style: EvAppStyle.style(
+                                              size: 13,
+                                              context: context,
+                                              color: EvAppColors.kRed,
+                                            ),
+                                          ),
+                                        ),
+                                  ],
+                                ),
+                          );
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                    ),
+                  )
+                  : SizedBox.shrink(),
+            ],
+          ),
         ),
         AppSpacer(heightPortion: .01),
         SizedBox(
@@ -358,12 +452,7 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
     );
   }
 
-  Widget _videoPlayButton(
-    String duration,
-    IconData icon,
-    String hintText,
-    String file,
-  ) {
+  Widget _videoPlayButton(IconData icon, String hintText, String file) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

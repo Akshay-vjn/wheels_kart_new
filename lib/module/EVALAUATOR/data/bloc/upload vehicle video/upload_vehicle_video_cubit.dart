@@ -164,4 +164,23 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
       }
     }
   }
+
+  Future<void> deleteVideo(
+    BuildContext context,
+    String videoType,
+    String inspctionId,
+    String videoId,
+  ) async {
+    final currentState = state;
+    if (currentState is UploadVehicleVideoSuccessState) {
+      emit(
+        currentState.copyWith(
+          isEngineUploading: videoType == ENGINESIDE ? true : null,
+          isWalkAroundUploading: videoType == WLAKAROUND ? true : null,
+        ),
+      );
+      await _deleteVideo(inspctionId, videoId, context);
+      await onFetcUploadVideos(context, inspctionId);
+    }
+  }
 }

@@ -108,9 +108,11 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     }
   }
 
-  bool get _soldToMe => widget.myId == widget.vehicle.soldTo;
-  bool get isColsed => _endTime == "00:00:00";
+  bool get _isSold => widget.vehicle.bidStatus == "Sold";
+  bool get _isOpened => widget.vehicle.bidStatus == "Open";
 
+  bool get _soldToMe => widget.myId == widget.vehicle.soldTo;
+  bool get isColsed => (_endTime == "00:00:00") || _isSold;
   @override
   Widget build(BuildContext context) {
     return AppMargin(
@@ -150,6 +152,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Flexible(child: _buildImageSection()),
                             AppSpacer(widthPortion: .02),
@@ -164,8 +167,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                             children: [
                               _buildDetailsGrid(),
 
-                              if (widget.vehicle.bidStatus == "Open" ||
-                                  widget.vehicle.bidStatus == "Sold") ...[
+                              if (_isOpened || _isSold) ...[
                                 AppSpacer(heightPortion: .01),
                                 Row(
                                   mainAxisAlignment:
@@ -178,7 +180,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                 AppSpacer(heightPortion: .01),
                               ],
 
-                              if (widget.vehicle.bidStatus == "Open") ...[
+                              if (_isOpened) ...[
                                 Column(
                                   children: [
                                     Row(
@@ -195,7 +197,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                               ],
 
                               // _buildOpenBidSection(),
-                              if (widget.vehicle.bidStatus == "Sold") ...[
+                              if (_isSold) ...[
                                 DottedBorder(
                                   options: RoundedRectDottedBorderOptions(
                                     color:
@@ -232,6 +234,11 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                     ),
 
                     // Enhanced Favorite Button
+                    Positioned(
+                      right: 10,
+                      top: 10,
+                      child: _buildFavoriteButton(),
+                    ),
 
                     // Status Badge (if needed)
                     Positioned(
@@ -316,13 +323,17 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
   Widget _buildHeader() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(alignment: Alignment.bottomRight, child: _buildFavoriteButton()),
         Text(
-          "${widget.vehicle.manufacturingYear} ${widget.vehicle.modelName}",
+          "${widget.vehicle.manufacturingYear} ${widget.vehicle.brandName}",
           style: VStyle.style(context: context, color: VColors.BLACK, size: 17),
+        ),
+        Text(
+          widget.vehicle.modelName,
+          style: VStyle.style(context: context, color: VColors.BLACK, size: 14),
         ),
         AppSpacer(heightPortion: .01),
         Row(
