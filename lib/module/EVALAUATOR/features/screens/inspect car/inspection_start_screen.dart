@@ -98,6 +98,10 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       context,
       widget.inspectionId,
     );
+    context.read<UploadVehicleVideoCubit>().onFetcUploadVideos(
+      context,
+      widget.inspectionId,
+    );
     // DOCUMENTS
     context.read<FetchDocumentsCubit>().onFetchDocumets(
       context,
@@ -209,29 +213,15 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   }
 
   _checkCarVideoAllUplaoded() {
-    // PHOTOS
-    final stateOfUploadedPhotos =
+    // Video
+    final stateOfUploadedVideos =
         BlocProvider.of<UploadVehicleVideoCubit>(context).state;
 
-    // final stateOfCarAngles =
-    //     BlocProvider.of<FetchPictureAnglesCubit>(context).state;
-
-    // if (stateOfUploadedPhotos is FetchUploadedVehilcePhotosSuccessSate &&
-    //     stateOfCarAngles is FetchPictureAnglesSuccessState) {
-    //   final angles = stateOfCarAngles.pictureAngles;
-    //   final uploadedPhotos = stateOfUploadedPhotos.vehiclePhtotos;
-
-    //   for (var angle in angles) {
-    //     if (uploadedPhotos.any((element) => element.angleId == angle.angleId)) {
-    //       isPicturedAllUploaded = true;
-    //     } else {
-    //       isPicturedAllUploaded = false;
-    //       break;
-    //     }
-    //   }
-    // } else {
-    //   log("Video Not initialized.");
-    // }
+    if (stateOfUploadedVideos is UploadVehicleVideoSuccessState) {
+      isVideoAllUploaded =
+          stateOfUploadedVideos.isAvailabeWalkaroundVideo &&
+          stateOfUploadedVideos.isAvailableEngineVideo;
+    }
   }
 
   initScreen() async {

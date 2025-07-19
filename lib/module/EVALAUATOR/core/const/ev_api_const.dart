@@ -14,6 +14,9 @@ class EvApiConst {
   static const String uploadDoc = "inspections/uploaddocuments";
   static const String uploadInspection = "inspections/recordresponse";
   static const String uploadVehiclePhoto = "inspections/uploadpictures";
+  static const String deleteVideo = "inspections/deleteVideo";
+  static const String viewVideos = "inspections/viewvideos";
+  static const String uploadVideo = "inspections/uploadvideos";
 
   static const String fetchDahsbord = "login/dashboard";
   static const String fetchProfile = "login/profile";
