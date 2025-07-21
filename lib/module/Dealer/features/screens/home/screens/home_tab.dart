@@ -1,21 +1,14 @@
-import 'dart:developer';
-
-import 'package:animate_do/animate_do.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
-import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
-import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/Auction/auction_car_card_builder.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/v_ocb_car_builder.dart';
-import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VHomeTab extends StatefulWidget {
   const VHomeTab({super.key});
@@ -35,14 +28,16 @@ class _VHomeTabState extends State<VHomeTab> {
   @override
   void initState() {
     super.initState();
-    // WEB SOCKET COONECTION
-    context.read<VDashboardControlllerBloc>().add(ConnectWebSocket());
+    // // WEB SOCKET COONECTION
+    // context.read<VAuctionControlllerBloc>().add(ConnectWebSocket());
 
     //
     context.read<VProfileControllerCubit>().onFetchProfile(context);
-    context.read<VDashboardControlllerBloc>().add(
-      OnFetchVendorDashboardApi(context: context),
+    context.read<VAuctionControlllerBloc>().add(
+      OnFetchVendorAuctionApi(context: context),
     );
+    context.read<VOcbControllerBloc>().add(OnFechOncList(context: context));
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _scrollController.addListener(() {
         if (_scrollController.offset > 0) {
@@ -53,16 +48,7 @@ class _VHomeTabState extends State<VHomeTab> {
         setState(() {});
       });
     });
-    getSoldUserData();
   }
-
-  getSoldUserData() async {
-    final user = await AppAuthController().getUserData;
-    myId = user.userId ?? '';
-    log("Your id is $myId");
-  }
-
-  String myId = "";
 
   @override
   Widget build(BuildContext context) {
@@ -127,10 +113,7 @@ class _VHomeTabState extends State<VHomeTab> {
             ),
             Expanded(
               child: TabBarView(
-                children: [
-                  VAuctionCarBuilder(myId: myId),
-                  VOCBCarBuilder(myId: myId),
-                ],
+                children: [VAuctionCarBuilder(), VOCBCarBuilder()],
               ),
             ),
           ],

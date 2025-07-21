@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/download%20pdf/download_pdf_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20car%20make/fetch_car_make_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20car%20models/fetch_car_model_bloc.dart';
@@ -24,7 +25,7 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehicle%20video
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehilce%20photo/uplaod_vehilce_photo_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 
@@ -67,8 +68,8 @@ blocProviders(Widget child) => MultiBlocProvider(
 
     // Dealer CONTROLLERS
     BlocProvider<VNavControllerCubit>(create: (_) => VNavControllerCubit()),
-    BlocProvider<VDashboardControlllerBloc>(
-      create: (_) => VDashboardControlllerBloc(),
+    BlocProvider<VAuctionControlllerBloc>(
+      create: (_) => VAuctionControlllerBloc(),
     ),
 
     BlocProvider<VProfileControllerCubit>(
@@ -80,9 +81,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     BlocProvider<VDetailsControllerBloc>(
       create: (_) => VDetailsControllerBloc(),
     ),
-    // BlocProvider<LivePriceChangeControllerBloc>(
-    //   create: (_) => LivePriceChangeControllerBloc(),
-    // ),
+    BlocProvider<VOcbControllerBloc>(
+      create: (_) => VOcbControllerBloc(),
+    ),
   ],
   child: child,
 );

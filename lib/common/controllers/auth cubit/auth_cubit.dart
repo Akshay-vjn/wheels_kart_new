@@ -83,7 +83,13 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
           (userData.userType == "EVALUATOR" || userData.userType == "ADMIN")) {
         await loginUser(context, userData.mobileNumber!, userData.password!);
       } else {
-        await loginVendor(context, userData.mobileNumber!, userData.password!);
+        await loginVendor(
+          context,
+          userData.mobileNumber!,
+          userData.password!,
+          id: userData.userId,
+          name: userData.userName,
+        );
       }
     } else {
       emit(AuthCubitUnAuthenticatedState());
@@ -194,8 +200,10 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
   Future<bool> loginVendor(
     BuildContext context,
     String mobileNumber,
-    String password,
-  ) async {
+    String password, {
+    String? name,
+    String? id,
+  }) async {
     emit(AuthLodingState());
     final snapshot = await VLoginRepo.loginVendor(mobileNumber, password);
     if (snapshot.isNotEmpty) {
@@ -206,8 +214,8 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
           mobileNumber: mobileNumber,
           password: password,
           token: snapshot['token'],
-          userName: "",
-          userId: "",
+          userName:name?? "",
+          userId:id?? "",
           userType: "VENDOR",
         );
         await _setLoginPreference(authmodel);

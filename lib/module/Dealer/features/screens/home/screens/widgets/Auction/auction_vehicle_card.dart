@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
@@ -17,19 +22,17 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 class VAuctionVehicleCard extends StatefulWidget {
   final VCarModel vehicle;
   final String myId;
-  final bool isFavorite;
-  final VoidCallback onFavoriteToggle;
-  final VoidCallback onPressCard;
-  final DateTime? endTime;
+  // final bool isFavorite;
+  // final VoidCallback onFavoriteToggle;
+  // final VoidCallback onPressCard;
 
   const VAuctionVehicleCard({
-    super.key,
     required this.myId,
+    super.key,
     required this.vehicle,
-    required this.isFavorite,
-    required this.onFavoriteToggle,
-    required this.onPressCard,
-    required this.endTime,
+    // required this.isFavorite,
+    // required this.onFavoriteToggle,
+    // required this.onPressCard,
   });
 
   @override
@@ -41,9 +44,12 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
+  late bool _isLiked;
   @override
   void initState() {
     _endTime = "00:00:00";
+    _isLiked = widget.vehicle.wishlisted == 1 ? true : false;
+    log(widget.vehicle.wishlisted.toString());
     super.initState();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 150),
@@ -73,7 +79,10 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   void _onTapUp(TapUpDetails details) {
     setState(() => _isPressed = false);
     _animationController.reverse();
-    widget.onPressCard();
+    if (!_isColsed || widget.vehicle.bidStatus == "Not Started") {
+      // widget.onPressCard();
+      onPressCard();
+    }
   }
 
   void _onTapCancel() {
@@ -84,9 +93,9 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   late String _endTime;
 
   void getMinutesToStop() {
-    if (widget.endTime != null) {
+    if (widget.vehicle.bidClosingTime != null) {
       final now = DateTime.now();
-      final difference = widget.endTime!.difference(now);
+      final difference = widget.vehicle.bidClosingTime!.difference(now);
 
       if (difference.isNegative) {
         _endTime = "00:00:00";
@@ -108,11 +117,62 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     }
   }
 
+  void onPressCard() async {
+    _isLiked = await Navigator.of(context).push(
+      AppRoutes.createRoute(
+        VCarDetailsScreen(
+          auctionType: "AUCTION",
+          hideBidPrice: widget.vehicle.bidStatus != "Open",
+          frontImage: widget.vehicle.frontImage,
+          inspectionId: widget.vehicle.inspectionId,
+          isLiked: widget.vehicle.wishlisted == 1 ? true : false,
+        ),
+      ),
+    );
+  }
+
+  void onPressLikeButton() async {
+    await context.read<VWishlistControllerCubit>().onChangeFavState(
+      context,
+      widget.vehicle.inspectionId,
+    );
+    if (_isLiked) {
+      _isLiked = false;
+    } else {
+      _isLiked = true;
+    }
+    setState(() {});
+  }
+
+  // ---- vendors check
+  bool get _haveTheBidders => widget.vehicle.vendorIds.isNotEmpty;
+  List<String> get _bidders => widget.vehicle.vendorIds;
+  List<String> get _getOtherBidders =>
+      _haveTheBidders
+          ? widget.vehicle.vendorIds.sublist(
+            0,
+            widget.vehicle.vendorIds.length - 1,
+          )
+          : [];
+
+  bool get _isIamInThisBid =>
+      _haveTheBidders
+          ? _bidders.any((element) => element == widget.myId)
+          : false;
+  bool get _isHigestBidderIsMe =>
+      _haveTheBidders ? widget.vehicle.vendorIds.last == widget.myId : false;
+
+  bool get isIamLoosingThisBid =>
+      _getOtherBidders.any((element) => widget.myId == element);
+
+  // status Check------
   bool get _isSold => widget.vehicle.bidStatus == "Sold";
   bool get _isOpened => widget.vehicle.bidStatus == "Open";
 
+  bool get _isColsed => (_endTime == "00:00:00") || _isSold;
+
   bool get _soldToMe => widget.myId == widget.vehicle.soldTo;
-  bool get isColsed => (_endTime == "00:00:00") || _isSold;
+
   @override
   Widget build(BuildContext context) {
     return AppMargin(
@@ -180,15 +240,14 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                 AppSpacer(heightPortion: .01),
                               ],
 
-                              if (_isOpened) ...[
+                              if (_isOpened && !_isColsed) ...[
                                 Column(
                                   children: [
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        _buildHighAndLowBid(false),
-                                        AppSpacer(widthPortion: .03),
+                                        _buildHighAndLowBid(),
                                         _buildWhatsAppButton(),
                                       ],
                                     ),
@@ -425,14 +484,14 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         children: [
           Icon(
             Icons.timelapse_sharp,
-            color: isColsed ? VColors.GREY : VColors.BLACK,
+            color: _isColsed ? VColors.GREY : VColors.BLACK,
             size: 16,
           ),
           AppSpacer(widthPortion: .01),
           Text(
-            isColsed ? "Closed" : _endTime,
+            _isColsed ? "Closed" : _endTime,
             style: VStyle.style(
-              color: isColsed ? VColors.GREY : VColors.BLACK,
+              color: _isColsed ? VColors.GREY : VColors.BLACK,
               context: context,
               fontWeight: FontWeight.w600,
               size: 15,
@@ -450,9 +509,9 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            isColsed ? "Closing bid" : "Current bid",
+            _isColsed ? "Closing bid" : "Current bid",
             style: VStyle.style(
-              color: isColsed ? VColors.GREY : VColors.BLACK,
+              color: _isColsed ? VColors.GREY : VColors.BLACK,
               context: context,
               fontWeight: FontWeight.bold,
               size: 14,
@@ -461,7 +520,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           Text(
             " ₹${widget.vehicle.currentBid}",
             style: VStyle.style(
-              color: isColsed ? VColors.GREY : VColors.BLACK,
+              color: _isColsed ? VColors.GREY : VColors.BLACK,
 
               context: context,
 
@@ -474,11 +533,11 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     );
   }
 
-  Widget _buildHighAndLowBid(bool isHeighestBidder) {
+  Widget _buildHighAndLowBid() {
     Color color;
     Icon icon;
     String text;
-    if (isHeighestBidder) {
+    if (_isHigestBidderIsMe) {
       color = VColors.SUCCESS;
       text = "Your bid is leading";
       icon = Icon(Icons.trending_up, color: color);
@@ -487,44 +546,48 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
       icon = Icon(Icons.trending_down, color: color);
       text = "Outbid: Increase your offer";
     }
-    return Flexible(
-      child: Container(
-        padding: EdgeInsets.all(10),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: color.withAlpha(40),
-          border: Border.all(width: .2, color: color),
-          borderRadius: BorderRadius.circular(10),
-        ),
-
-        width: double.infinity,
-        height: 50,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            icon,
-            AppSpacer(widthPortion: .02),
-
-            Flexible(
-              child: Text(
-                text,
-                style: VStyle.style(
-                  context: context,
-                  color: color,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+    return !_isIamInThisBid
+        ? SizedBox.shrink()
+        : Flexible(
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 5),
+            padding: EdgeInsets.all(10),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: color.withAlpha(40),
+              border: Border.all(width: .2, color: color),
+              borderRadius: BorderRadius.circular(10),
             ),
-          ],
-        ),
-      ),
-    );
+
+            width: double.infinity,
+            height: 50,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                icon,
+                AppSpacer(widthPortion: .02),
+
+                Flexible(
+                  child: Text(
+                    text,
+                    style: VStyle.style(
+                      context: context,
+                      color: color,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
   }
 
   Widget _buildWhatsAppButton() {
     return Flexible(
-      child: SizedBox(
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 5),
         height: 50,
         width: double.infinity,
         child: ElevatedButton(
@@ -639,17 +702,17 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: widget.onFavoriteToggle,
+          onTap: onPressLikeButton,
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: Icon(
-                widget.isFavorite
+                _isLiked
                     ? Icons.favorite_rounded
                     : Icons.favorite_border_rounded,
-                key: ValueKey(widget.isFavorite),
-                color: widget.isFavorite ? VColors.ACCENT : VColors.DARK_GREY,
+                key: ValueKey(_isLiked),
+                color: _isLiked ? VColors.ACCENT : VColors.DARK_GREY,
                 size: 20,
               ),
             ),
@@ -666,8 +729,13 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     switch (status) {
       case "Open":
         {
-          title = "OPEN";
-          color = VColors.SUCCESS;
+          if (_isColsed) {
+            title = "OPEN SOON";
+            color = VColors.ACCENT;
+          } else {
+            title = "OPEN";
+            color = VColors.SUCCESS;
+          }
         }
       case "Sold":
         {

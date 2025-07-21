@@ -8,26 +8,18 @@ import 'package:http/http.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 
-class VEditProfileRepo {
-  static Future<Map<String, dynamic>> onEditProfile(
-    BuildContext context,
-    String name,
-    String email,
-    String city,
-  ) async {
+class VFetchOcbListRepo {
+  static Future<Map<String, dynamic>> getOcbList(
+      BuildContext context) async {
     final state = context.read<AppAuthController>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
-        final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.editProfile}');
+        final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.ocbData}');
 
-        Response response = await http.post(
-          url,
-          body: {"vendorName": name, "vendorEmail": email, "vendorCity": city},
-          headers: {
-            // 'Content-Type': 'application/json',
-            'Authorization': state.userModel.token!,
-          },
-        );
+        Response response = await http.post(url, headers: {
+          'Content-Type': 'application/json',
+          'Authorization': state.userModel.token!
+        });
 
         final decodedata = jsonDecode(response.body);
 
@@ -35,16 +27,16 @@ class VEditProfileRepo {
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
-            'data': decodedata['data'],
+            'data': decodedata['data']
           };
         } else {
           return {
             'error': decodedata['error'],
-            'message': decodedata['message'],
+            'message': decodedata['message']
           };
         }
       } catch (e) {
-        log('repo - catch error - Dealer - EDIT PROFILE => ${e.toString()}F');
+        log('repo - catch error - Dealer - DASHBOARD => ${e.toString()}F');
         return {};
       }
     } else {

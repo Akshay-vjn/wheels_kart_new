@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +28,7 @@ class VProfileControllerCubit extends Cubit<VProfileControllerState> {
           context.read<AppAuthController>().updateLoginPreference(
             AuthUserModel(userId: model.vendorId, userName: model.vendorName),
           );
+          log("Dine");
         }
         emit(VProfileControllerSuccessState(profileModel: model));
       } else {

@@ -2,11 +2,13 @@ class VCarDetailModel {
   final CarDetails carDetails;
   final List<CarImage> images;
   final List<Section> sections;
+  final List<String> vendorIds;
 
   VCarDetailModel({
     required this.carDetails,
     required this.images,
     required this.sections,
+    required this.vendorIds,
   });
 
   factory VCarDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -18,12 +20,14 @@ class VCarDetailModel {
         sections: List<Section>.from(
           json["sections"].map((x) => Section.fromJson(x)),
         ),
+        vendorIds: List<String>.from(json["vendorIds"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
     "carDetails": carDetails.toJson(),
     "images": List<dynamic>.from(images.map((x) => x.toJson())),
     "sections": List<dynamic>.from(sections.map((x) => x.toJson())),
+    "vendorIds": List<dynamic>.from(vendorIds.map((x) => x)),
   };
 }
 
@@ -49,7 +53,7 @@ class CarDetails {
   final String manufactureDate;
   final String noOfKeys;
   final String city;
-   String? currentBid;
+  String? currentBid;
   final String evaluationId;
 
   CarDetails({
@@ -183,7 +187,7 @@ class Entry {
       answer: json["answer"] ?? 'N/A',
       comment: json["comment"] ?? 'N/A',
       responseImages: List<String>.from(json["responseImages"].map((x) => x)),
-      options: validOption ?? invalidOptin ,
+      options: validOption ?? invalidOptin,
     );
   }
 

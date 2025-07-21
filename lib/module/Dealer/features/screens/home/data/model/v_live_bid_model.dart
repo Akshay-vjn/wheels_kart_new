@@ -5,6 +5,7 @@ class LiveBidModel {
   final String? soldName;
   final String? bidStatus;
   final DateTime? bidClosingTime;
+  final List<String> vendorIds;
 
   LiveBidModel({
     required this.bidStatus,
@@ -13,6 +14,7 @@ class LiveBidModel {
     required this.currentBid,
     required this.evaluationId,
     required this.bidClosingTime,
+    required this.vendorIds,
   });
 
   factory LiveBidModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class LiveBidModel {
         parsedTime = null;
       }
     }
+    final list = json['vendorIds'] as List?;
 
     return LiveBidModel(
       bidStatus: json['bidStatus'],
@@ -34,6 +37,7 @@ class LiveBidModel {
       soldTo: json["soldTo"],
       bidClosingTime: parsedTime,
       evaluationId: json['evaluationId'],
+      vendorIds: list == null ? [] : list.map((e) => e.toString()).toList(),
     );
   }
 }

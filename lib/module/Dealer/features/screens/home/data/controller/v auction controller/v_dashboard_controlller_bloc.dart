@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_dashboard_repo.dart';
@@ -13,23 +14,21 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_dash
 part 'v_dashboard_controlller_event.dart';
 part 'v_dashboard_controlller_state.dart';
 
-class VDashboardControlllerBloc
-    extends Bloc<VDashboardControlllerEvent, VDashboardControlllerState> {
+class VAuctionControlllerBloc
+    extends Bloc<VAuctionControlllerEvent, VAuctionControlllerState> {
   late WebSocketChannel channel;
   StreamSubscription? _subscription;
-  VDashboardControlllerBloc() : super(VDashboardControlllerInitialState()) {
-    on<OnFetchVendorDashboardApi>((event, emit) async {
-      emit(VDashboardControlllerLoadingState());
+  VAuctionControlllerBloc() : super(VAuctionControlllerInitialState()) {
+    on<OnFetchVendorAuctionApi>((event, emit) async {
+      emit(VAuctionControlllerLoadingState());
       final response = await VDashboardRepo.getDashboardDataF(event.context);
       if (response.isNotEmpty) {
         if (response['error'] == false) {
           final data = response['data'] as List;
           final list = data.map((e) => VCarModel.fromJson(e)).toList();
-          emit(VDashboardControllerSuccessState(listOfCars: list));
+          emit(VAuctionControllerSuccessState(listOfCars: list));
         } else {
-          emit(
-            VDashboardControllerErrorState(errorMesage: response['message']),
-          );
+          emit(VVAuctionControllerErrorState(errorMesage: response['message']));
         }
       }
     });
@@ -41,7 +40,7 @@ class VDashboardControlllerBloc
       final cuuremtSate = state;
       List<VCarModel> updatedList = [];
       log("Started ----------------");
-      if (cuuremtSate is VDashboardControllerSuccessState) {
+      if (cuuremtSate is VAuctionControllerSuccessState) {
         for (var car in cuuremtSate.listOfCars) {
           if (car.evaluationId == event.newBid.evaluationId) {
             final bid = event.newBid;
@@ -51,12 +50,13 @@ class VDashboardControlllerBloc
             car.soldTo = bid.soldTo;
             car.currentBid = bid.currentBid;
             car.bidClosingTime = bid.bidClosingTime;
+            car.vendorIds = bid.vendorIds;
             updatedList.add(car);
           } else {
             updatedList.add(car);
           }
         }
-        emit(VDashboardControllerSuccessState(listOfCars: updatedList));
+        emit(VAuctionControllerSuccessState(listOfCars: updatedList));
       }
       log("Stopped ----------------");
     });
@@ -64,9 +64,9 @@ class VDashboardControlllerBloc
 
   void _connectWebSocket(
     ConnectWebSocket event,
-    Emitter<VDashboardControlllerState> emit,
+    Emitter<VAuctionControlllerState> emit,
   ) {
-    channel = WebSocketChannel.connect(Uri.parse('ws://82.112.238.223:8080'));
+    channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
     _subscription = channel.stream.listen((data) {
       log("triggered ----------------");

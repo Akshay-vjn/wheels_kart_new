@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
@@ -13,10 +16,18 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VWhishlistCard extends StatefulWidget {
   final VCarModel model;
-  const VWhishlistCard({super.key, required this.model});
+  final String myId;
+  final VoidCallback onPressFavoureButton;
+  const VWhishlistCard({
+    required this.myId,
+    super.key,
+    required this.model,
+    required this.onPressFavoureButton,
+  });
 
   @override
   State<VWhishlistCard> createState() => _VWhishlistCardState();
@@ -27,10 +38,13 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
+  late String _endTime;
 
   @override
   void initState() {
     super.initState();
+    _endTime = "00:00:00";
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
@@ -38,11 +52,18 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      getMinutesToStop();
+    });
   }
+
+  Timer? _timer;
 
   @override
   void dispose() {
     _animationController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -60,6 +81,37 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     setState(() => _isPressed = false);
     _animationController.reverse();
   }
+
+  void getMinutesToStop() {
+    if (widget.model.bidClosingTime != null) {
+      final now = DateTime.now();
+      final difference = widget.model.bidClosingTime!.difference(now);
+
+      if (difference.isNegative) {
+        _endTime = "00:00:00";
+      } else {
+        final hour = difference.inHours % 60;
+        final min = difference.inMinutes % 60;
+        final sec = difference.inSeconds % 60;
+
+        // Format with leading zeros if needed
+        final minStr = min.toString().padLeft(2, '0');
+        final secStr = sec.toString().padLeft(2, '0');
+
+        _endTime = "$hour:$minStr:$secStr";
+      }
+
+      setState(() {});
+    } else {
+      _endTime = "00:00:00";
+    }
+  }
+
+  bool get _isSold => widget.model.bidStatus == "Sold";
+  bool get _isOpened => widget.model.bidStatus == "Open";
+  bool get _isColsed => (_endTime == "00:00:00") || _isSold;
+
+  bool get _soldToMe => widget.myId == widget.model.soldTo && _isSold;
 
   @override
   Widget build(BuildContext context) {
@@ -179,6 +231,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
               width: double.infinity,
               height: double.infinity,
               imageUrl: widget.model.frontImage,
+              errorListener: (value) {},
               placeholder:
                   (context, url) => Container(
                     color: Colors.grey.shade100,
@@ -217,7 +270,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.model.modelName,
+          '${widget.model.manufacturingYear} ${widget.model.modelName}',
           style: VStyle.style(
             context: context,
             color: VColors.GREENHARD,
@@ -226,16 +279,6 @@ class _VWhishlistCardState extends State<VWhishlistCard>
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '${widget.model.manufacturingYear}',
-          style: VStyle.style(
-            context: context,
-            color: VColors.GREY,
-            fontWeight: FontWeight.w500,
-            size: AppDimensions.fontSize12(context),
-          ),
         ),
       ],
     );
@@ -266,22 +309,31 @@ class _VWhishlistCardState extends State<VWhishlistCard>
       children: [
         // Location
         Expanded(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.location_on_rounded, size: 14, color: VColors.REDHARD),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  widget.model.city,
-                  style: VStyle.style(
-                    context: context,
-                    size: 12,
-                    color: VColors.REDHARD,
-                    fontWeight: FontWeight.w600,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.location_on_rounded,
+                    size: 14,
+                    color: VColors.BLACK,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      widget.model.city,
+                      style: VStyle.style(
+                        context: context,
+                        size: 12,
+                        color: VColors.BLACK,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -290,14 +342,33 @@ class _VWhishlistCardState extends State<VWhishlistCard>
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              "Current Bid",
-              style: VStyle.style(
-                context: context,
-                size: 10,
-                color: VColors.GREY,
-                fontWeight: FontWeight.w500,
-              ),
+            Row(
+              children: [
+                Text(
+                  widget.model.auctionType == "OCB"
+                      ? "OCB Pirce"
+                      : _isColsed
+                      ? "Closing Bid"
+                      : "Current Bid",
+                  style: VStyle.style(
+                    context: context,
+                    size: 10,
+                    color: VColors.GREY,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                AppSpacer(widthPortion: .01),
+
+                Text(
+                  _isColsed ? "(Closed)" : "(${_endTime})",
+                  style: VStyle.style(
+                    color: _isColsed ? VColors.GREY : VColors.BLACK,
+                    context: context,
+                    fontWeight: FontWeight.w600,
+                    size: 10,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 2),
             Text(
@@ -320,30 +391,78 @@ class _VWhishlistCardState extends State<VWhishlistCard>
       children: [
         // View Details button
         Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () async {
-              await Navigator.of(context).push(
-                AppRoutes.createRoute(
-                  VCarDetailsScreen(
-                    hideBidPrice: widget.model.bidStatus != "Open",
-                    frontImage: widget.model.frontImage,
-                    inspectionId: widget.model.inspectionId,
-                    isLiked: widget.model.wishlisted == 1 ? true : false,
+          child:
+              _soldToMe
+                  ? DottedBorder(
+                    options: RoundedRectDottedBorderOptions(
+                      color: _soldToMe ? VColors.SUCCESS : VColors.GREY,
+                      radius: Radius.circular(10),
+                    ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(5),
+                      width: double.infinity,
+                      color: Colors.white,
+                      child: Text(
+                        _soldToMe
+                            ? "You won this auction"
+                            : "Auction closed – Item sold",
+                        style: VStyle.style(
+                          color: _soldToMe ? VColors.SUCCESS : null,
+                          context: context,
+                          fontWeight: FontWeight.bold,
+                          size: 15,
+                        ),
+                      ),
+                    ),
+                  )
+                  : OutlinedButton.icon(
+                    onPressed:
+                        _isColsed
+                            ? null
+                            : () async {
+                              if (!_isSold) {
+                                final isLiked = await Navigator.of(
+                                  context,
+                                ).push(
+                                  AppRoutes.createRoute(
+                                    VCarDetailsScreen(
+                                      auctionType: widget.model.auctionType,
+                                      hideBidPrice:
+                                          widget.model.bidStatus != "Open",
+                                      frontImage: widget.model.frontImage,
+                                      inspectionId: widget.model.inspectionId,
+                                      isLiked:
+                                          widget.model.wishlisted == 1
+                                              ? true
+                                              : false,
+                                    ),
+                                  ),
+                                );
+                                if (isLiked == false) {
+                                  context
+                                      .read<VWishlistControllerCubit>()
+                                      .onFetchWishList(context);
+                                }
+                              }
+                            },
+                    icon: const Icon(Icons.visibility_rounded, size: 16),
+                    label: const Text("View Details"),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor:
+                          _isSold ? VColors.GREY : VColors.GREENHARD,
+                      side: BorderSide(
+                        color:
+                            _isSold
+                                ? VColors.GREY
+                                : VColors.GREENHARD.withOpacity(0.3),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
                   ),
-                ),
-              );
-            },
-            icon: const Icon(Icons.visibility_rounded, size: 16),
-            label: const Text("View Details"),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: VColors.GREENHARD,
-              side: BorderSide(color: VColors.GREENHARD.withOpacity(0.3)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 8),
-            ),
-          ),
         ),
         const SizedBox(width: 12),
         _buildEnhancedFavoriteButton(widget.model.inspectionId),
@@ -415,15 +534,16 @@ class _VWhishlistCardState extends State<VWhishlistCard>
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () {
-            // Add haptic feedback
-            HapticFeedback.lightImpact();
-            context.read<VWishlistControllerCubit>().onChangeFavState(
-              context,
-              inspectionId,
-              fetch: true,
-            );
-          },
+          onTap: widget.onPressFavoureButton,
+          // onTap: () {
+          //   // Add haptic feedback
+          //   HapticFeedback.lightImpact();
+          //   context.read<VWishlistControllerCubit>().onChangeFavState(
+          //     context,
+          //     inspectionId,
+          //     fetch: true,
+          //   );
+          // },
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: AnimatedContainer(
@@ -446,8 +566,13 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     switch (status) {
       case "Open":
         {
-          title = "OPEN";
-          color = VColors.SUCCESS;
+          if (_isColsed) {
+            title = "OPEN SOON";
+            color = VColors.ACCENT;
+          } else {
+            title = "OPEN";
+            color = VColors.SUCCESS;
+          }
         }
       case "Sold":
         {

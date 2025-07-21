@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
@@ -28,12 +27,14 @@ class VCarDetailsScreen extends StatefulWidget {
   final String frontImage;
   final String inspectionId;
   final bool hideBidPrice;
+  final String auctionType;
   const VCarDetailsScreen({
     super.key,
     required this.hideBidPrice,
     required this.frontImage,
     required this.inspectionId,
     required this.isLiked,
+    required this.auctionType,
   });
 
   @override
@@ -53,8 +54,35 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
   }
 
   bool _isLiked = false;
-
+  bool get isOCB => widget.auctionType == "OCB";
   // ?text=Hello%20there
+
+  // late String _endTime;
+
+  // void getMinutesToStop(VCarDetailModel model) {
+  //   if (model.carDetails.bidClosingTime != null) {
+  //     final now = DateTime.now();
+  //     final difference = widget.vehicle.bidClosingTime!.difference(now);
+
+  //     if (difference.isNegative) {
+  //       _endTime = "00:00:00";
+  //     } else {
+  //       final hour = difference.inHours % 60;
+  //       final min = difference.inMinutes % 60;
+  //       final sec = difference.inSeconds % 60;
+
+  //       // Format with leading zeros if needed
+  //       final minStr = min.toString().padLeft(2, '0');
+  //       final secStr = sec.toString().padLeft(2, '0');
+
+  //       _endTime = "$hour:$minStr:$secStr";
+  //     }
+
+  //     setState(() {});
+  //   } else {
+  //     _endTime = "00:00:00";
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -312,7 +340,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Current Bid",
+                                isOCB ? "OCB Price" : "Current Bid",
                                 style: VStyle.style(
                                   context: context,
                                   color: VColors.GREY,

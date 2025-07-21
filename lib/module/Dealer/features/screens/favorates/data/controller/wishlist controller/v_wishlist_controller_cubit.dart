@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/widget_build_check_box.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/repo/v_add_remove_fav_repo.dart';
@@ -57,7 +58,7 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
   }
 
   void connectWebSocket() {
-    channel = WebSocketChannel.connect(Uri.parse('ws://82.112.238.223:8080'));
+    channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
     _subscription = channel.stream.listen((data) {
       log("triggered ----------------");
