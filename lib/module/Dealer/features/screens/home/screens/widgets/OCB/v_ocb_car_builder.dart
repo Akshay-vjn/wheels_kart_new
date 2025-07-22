@@ -20,6 +20,8 @@ class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
   void initState() {
     // WEB SOCKET COONECTION
     context.read<VOcbControllerBloc>().add(ConnectWebSocket());
+    context.read<VOcbControllerBloc>().add(OnFechOncList(context: context));
+
     _getMyId();
     super.initState();
   }
@@ -49,26 +51,24 @@ class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
                     OnFechOncList(context: context),
                   );
                 },
-                child: AnimationLimiter(
-                  child: ListView.builder(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.only(top: 10),
-                    itemCount: carList.length,
-                    itemBuilder:
-                        (context, index) =>
-                            AnimationConfiguration.staggeredList(
-                              position: index,
-                              duration: const Duration(milliseconds: 375),
-                              child: SlideAnimation(
-                                verticalOffset: 50.0,
-                                child: FadeInAnimation(
-                                  child: VOcbCarCard(
-                                    myId: myId,
-                                    vehicle: carList[index],
-                                  ),
-                                ),
-                              ),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(top: 10),
+                  child: AnimationLimiter(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: AnimationConfiguration.toStaggeredList(
+                        duration: const Duration(milliseconds: 375),
+                        childAnimationBuilder:
+                            (p0) => SlideAnimation(
+                              horizontalOffset: 50.0,
+                              child: FadeInAnimation(child: p0),
                             ),
+                        children:
+                            carList
+                                .map((e) => VOcbCarCard(myId: myId, vehicle: e))
+                                .toList(),
+                      ),
+                    ),
                   ),
                 ),
               );

@@ -11,8 +11,10 @@ import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
@@ -49,7 +51,6 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   void initState() {
     _endTime = "00:00:00";
     _isLiked = widget.vehicle.wishlisted == 1 ? true : false;
-    log(widget.vehicle.wishlisted.toString());
     super.initState();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 150),
@@ -58,6 +59,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       getMinutesToStop();
     });
@@ -349,14 +351,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                     placeholder:
                         (context, url) => Container(
                           color: VColors.LIGHT_GREY,
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation(
-                                VColors.ACCENT,
-                              ),
-                            ),
-                          ),
+                          child: const Center(child: VLoadingIndicator()),
                         ),
                     errorWidget:
                         (context, url, error) => _buildPlaceholderIcon(),
@@ -537,88 +532,117 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     Color color;
     Icon icon;
     String text;
+    String subtitle;
     if (_isHigestBidderIsMe) {
       color = VColors.SUCCESS;
-      text = "Your bid is leading";
+      text = "Winning";
+      subtitle = "Update Bid";
+
       icon = Icon(Icons.trending_up, color: color);
     } else {
       color = VColors.ERROR;
       icon = Icon(Icons.trending_down, color: color);
-      text = "Outbid: Increase your offer";
+      text = "Losing";
+      subtitle = "Increase Bid";
     }
     return !_isIamInThisBid
         ? SizedBox.shrink()
         : Flexible(
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 5),
-            padding: EdgeInsets.all(10),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: color.withAlpha(40),
-              border: Border.all(width: .2, color: color),
-              borderRadius: BorderRadius.circular(10),
-            ),
+          child: InkWell(
+            onTap: () {
+              VDetailsControllerBloc.openWhatsApp(
+                currentBid: widget.vehicle.currentBid ?? "",
+                evaluationId: widget.vehicle.evaluationId,
+                image: widget.vehicle.frontImage,
+                kmDrive: widget.vehicle.kmsDriven,
+                manufactureYear: widget.vehicle.manufacturingYear,
+                model: widget.vehicle.modelName,
+                noOfOwners: '',
+                regNumber: widget.vehicle.regNo,
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 5),
+              padding: EdgeInsets.all(5),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: color.withAlpha(40),
+                border: Border.all(width: .2, color: color),
+                borderRadius: BorderRadius.circular(10),
+              ),
 
-            width: double.infinity,
-            height: 50,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                icon,
-                AppSpacer(widthPortion: .02),
+              width: double.infinity,
+              height: 50,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          text,
+                          style: VStyle.style(
+                            context: context,
+                            color: color,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      AppSpacer(widthPortion: .02),
 
-                Flexible(
-                  child: Text(
-                    text,
-                    style: VStyle.style(
-                      context: context,
-                      color: color,
-                      fontWeight: FontWeight.w800,
+                      icon,
+                    ],
+                  ),
+                  Flexible(
+                    child: Text(
+                      subtitle,
+                      style: VStyle.style(
+                        context: context,
+                        color: color,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
   }
 
   Widget _buildWhatsAppButton() {
-    return Flexible(
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 5),
-        height: 50,
-        width: double.infinity,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadiusGeometry.circular(10),
-            ),
-            backgroundColor: VColors.SECONDARY,
-          ),
-          onPressed: () {
-            VDetailsControllerBloc.openWhatsApp(
-              currentBid: widget.vehicle.currentBid ?? "",
-              evaluationId: widget.vehicle.evaluationId,
-              image: widget.vehicle.frontImage,
-              kmDrive: widget.vehicle.kmsDriven,
-              manufactureYear: widget.vehicle.manufacturingYear,
-              model: widget.vehicle.modelName,
-              noOfOwners: '',
-              regNumber: widget.vehicle.regNo,
-            );
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
+    return _isIamInThisBid
+        ? SizedBox.shrink()
+        : Flexible(
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 5),
+            height: 50,
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadiusGeometry.circular(10),
+                ),
+                backgroundColor: VColors.SECONDARY,
+              ),
+              onPressed: () {
+                VDetailsControllerBloc.openWhatsApp(
+                  currentBid: widget.vehicle.currentBid ?? "",
+                  evaluationId: widget.vehicle.evaluationId,
+                  image: widget.vehicle.frontImage,
+                  kmDrive: widget.vehicle.kmsDriven,
+                  manufactureYear: widget.vehicle.manufacturingYear,
+                  model: widget.vehicle.modelName,
+                  noOfOwners: '',
+                  regNumber: widget.vehicle.regNo,
+                );
+              },
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // if you prefer left align
                 children: [
                   Text(
-                    "Bid",
+                    "Bid your price",
                     style: VStyle.style(
                       context: context,
                       color: VColors.WHITE,
@@ -626,18 +650,13 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    "Bid your price",
-                    style: VStyle.style(context: context, color: VColors.WHITE),
-                  ),
+                  AppSpacer(widthPortion: .03),
+                  Icon(SolarIconsBold.chatRound, color: VColors.WHITE),
                 ],
               ),
-              Icon(SolarIconsBold.chatRound, color: VColors.WHITE),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildEnhancedDetailChip(
@@ -729,28 +748,33 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     switch (status) {
       case "Open":
         {
-          if (_isColsed) {
-            title = "OPEN SOON";
-            color = VColors.ACCENT;
-          } else {
+          if (!_isColsed) {
             title = "OPEN";
             color = VColors.SUCCESS;
+            break;
+          } else {
+            title = "OPEN SOON";
+            color = VColors.ACCENT;
+            break;
           }
         }
       case "Sold":
         {
           title = "SOLD";
           color = VColors.ERROR;
+          break;
         }
       case "Not Started":
         {
           title = "NOT STARTED";
           color = VColors.DARK_GREY;
+          break;
         }
       default:
         {
           title = "";
           color = VColors.SUCCESS;
+          break;
         }
     }
     // You can customize this based on vehicle status

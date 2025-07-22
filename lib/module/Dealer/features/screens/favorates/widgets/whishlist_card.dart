@@ -563,66 +563,68 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   Widget _buildStatusBadge(String status) {
     Color color;
     String title;
+
     switch (status) {
       case "Open":
         {
-          if (_isColsed) {
-            title = "OPEN SOON";
-            color = VColors.ACCENT;
-          } else {
+          if (!_isColsed) {
             title = "OPEN";
             color = VColors.SUCCESS;
+            break;
+          } else {
+            title = "OPEN SOON";
+            color = VColors.ACCENT;
+            break;
           }
         }
       case "Sold":
         {
           title = "SOLD";
           color = VColors.ERROR;
+          break;
         }
       case "Not Started":
         {
           title = "NOT STARTED";
           color = VColors.DARK_GREY;
+          break;
         }
       default:
         {
           title = "";
           color = VColors.SUCCESS;
+          break;
         }
     }
-    // if (widget.model.currentBid.isNotEmpty) {
-    return Positioned(
-      left: 12,
-      top: 12,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: color.withAlpha(40),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+    // You can customize this based on vehicle status
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: color.withAlpha(40),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.circle, size: 6, color: Colors.white),
+          const SizedBox(width: 4),
+          Text(
+            title,
+            style: VStyle.style(
+              context: context,
+              size: 10,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.circle, size: 6, color: Colors.white),
-            const SizedBox(width: 4),
-            Text(
-              title,
-              style: VStyle.style(
-                context: context,
-                size: 10,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

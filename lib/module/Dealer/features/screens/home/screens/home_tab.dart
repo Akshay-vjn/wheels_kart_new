@@ -33,10 +33,6 @@ class _VHomeTabState extends State<VHomeTab> {
 
     //
     context.read<VProfileControllerCubit>().onFetchProfile(context);
-    context.read<VAuctionControlllerBloc>().add(
-      OnFetchVendorAuctionApi(context: context),
-    );
-    context.read<VOcbControllerBloc>().add(OnFechOncList(context: context));
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _scrollController.addListener(() {

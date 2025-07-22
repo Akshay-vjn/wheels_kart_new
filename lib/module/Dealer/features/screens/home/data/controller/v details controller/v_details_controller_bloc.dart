@@ -70,8 +70,10 @@ class VDetailsControllerBloc
     on<OnChangeImageTab>((event, emit) async {
       final currentState = state;
       if (currentState is VDetailsControllerSuccessState) {
+        
         List<Map<String, dynamic>> images = [];
         if (event.imageTabIndex == 0) {
+          
           for (var image in currentState.detail.images) {
             images.add({"image": image.url, "comment": image.name});
           }
@@ -85,6 +87,7 @@ class VDetailsControllerBloc
         }
         emit(
           currentState.coptyWith(
+
             currentImageTabIndex: event.imageTabIndex,
             currentTabImages: images,
           ),

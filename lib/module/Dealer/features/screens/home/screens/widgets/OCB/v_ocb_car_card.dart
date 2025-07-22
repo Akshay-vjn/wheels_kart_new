@@ -8,6 +8,7 @@ import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
@@ -293,17 +294,11 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
                   child: CachedNetworkImage(
                     imageUrl: widget.vehicle.frontImage,
                     fit: BoxFit.cover,
+
                     placeholder:
                         (context, url) => Container(
                           color: VColors.LIGHT_GREY,
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation(
-                                VColors.ACCENT,
-                              ),
-                            ),
-                          ),
+                          child: const Center(child: VLoadingIndicator()),
                         ),
                     errorWidget:
                         (context, url, error) => _buildPlaceholderIcon(),
@@ -607,28 +602,33 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
     switch (status) {
       case "Open":
         {
-          if (_isColsed) {
-            title = "OPEN SOON";
-            color = VColors.ACCENT;
-          } else {
+          if (!_isColsed) {
             title = "OPEN";
             color = VColors.SUCCESS;
+            break;
+          } else {
+            title = "OPEN SOON";
+            color = VColors.ACCENT;
+            break;
           }
         }
       case "Sold":
         {
           title = "SOLD";
           color = VColors.ERROR;
+          break;
         }
       case "Not Started":
         {
           title = "NOT STARTED";
           color = VColors.DARK_GREY;
+          break;
         }
       default:
         {
           title = "";
           color = VColors.SUCCESS;
+          break;
         }
     }
     // You can customize this based on vehicle status

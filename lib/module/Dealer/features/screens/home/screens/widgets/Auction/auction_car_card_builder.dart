@@ -24,6 +24,10 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
   void initState() {
     // WEB SOCKET COONECTION
     context.read<VAuctionControlllerBloc>().add(ConnectWebSocket());
+    context.read<VAuctionControlllerBloc>().add(
+      OnFetchVendorAuctionApi(context: context),
+    );
+
     _getMyId();
     super.initState();
   }
@@ -55,31 +59,29 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                     OnFetchVendorAuctionApi(context: context),
                   );
                 },
-                child: AnimationLimiter(
-                  child: ListView.builder(
-                    padding: EdgeInsets.only(top: 10),
-                    itemBuilder: (context, index) {
-                      // myLikes.add(
-                      //   carList[index].wishlisted == 1 ? true : false,
-                      // );
-                      return AnimationConfiguration.staggeredList(
-                        position: index,
-
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(top: 10),
+                  child: AnimationLimiter(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: AnimationConfiguration.toStaggeredList(
                         duration: const Duration(milliseconds: 375),
-                        child: SlideAnimation(
-                          verticalOffset: 50.0,
-
-                          child: FadeInAnimation(
-                            child: VAuctionVehicleCard(
-                              myId: myId,
-
-                              vehicle: carList[index],
+                        childAnimationBuilder:
+                            (p0) => SlideAnimation(
+                              horizontalOffset: 50.0,
+                              child: FadeInAnimation(child: p0),
                             ),
-                          ),
-                        ),
-                      );
-                    },
-                    itemCount: carList.length,
+                        children:
+                            carList
+                                .map(
+                                  (e) => VAuctionVehicleCard(
+                                    myId: myId,
+                                    vehicle: e,
+                                  ),
+                                )
+                                .toList(),
+                      ),
+                    ),
                   ),
                 ),
               );
