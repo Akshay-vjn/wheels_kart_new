@@ -551,6 +551,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           child: InkWell(
             onTap: () {
               VDetailsControllerBloc.openWhatsApp(
+                context: context,
                 currentBid: widget.vehicle.currentBid ?? "",
                 evaluationId: widget.vehicle.evaluationId,
                 image: widget.vehicle.frontImage,
@@ -628,6 +629,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
               ),
               onPressed: () {
                 VDetailsControllerBloc.openWhatsApp(
+                  context: context,
                   currentBid: widget.vehicle.currentBid ?? "",
                   evaluationId: widget.vehicle.evaluationId,
                   image: widget.vehicle.frontImage,

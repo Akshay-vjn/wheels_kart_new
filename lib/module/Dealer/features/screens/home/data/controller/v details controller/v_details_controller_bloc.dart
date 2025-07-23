@@ -3,14 +3,23 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:wheels_kart/common/components/app_margin.dart';
+import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/dimensions.dart';
+import 'package:wheels_kart/common/utils/responsive_helper.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
+import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_car_detail_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
 
 part 'v_details_controller_event.dart';
 part 'v_details_controller_state.dart';
@@ -70,10 +79,8 @@ class VDetailsControllerBloc
     on<OnChangeImageTab>((event, emit) async {
       final currentState = state;
       if (currentState is VDetailsControllerSuccessState) {
-        
         List<Map<String, dynamic>> images = [];
         if (event.imageTabIndex == 0) {
-          
           for (var image in currentState.detail.images) {
             images.add({"image": image.url, "comment": image.name});
           }
@@ -87,7 +94,6 @@ class VDetailsControllerBloc
         }
         emit(
           currentState.coptyWith(
-
             currentImageTabIndex: event.imageTabIndex,
             currentTabImages: images,
           ),
@@ -143,6 +149,7 @@ class VDetailsControllerBloc
   // VCarDetailModel details,
   // String image,
   {
+    required BuildContext context,
     required String evaluationId,
     required String regNumber,
     required String model,
@@ -152,6 +159,8 @@ class VDetailsControllerBloc
     required String currentBid,
     required String image,
   }) async {
+    HapticFeedback.mediumImpact();
+
     final id = evaluationId;
     final vehicleRegNo = regNumber;
     final vehicleModel = model;
@@ -160,6 +169,7 @@ class VDetailsControllerBloc
     final numberOfOwners = noOfOwners;
     final currentBidAmount = currentBid;
     final frontImage = image; // Assuming this is a URL
+    final yourBid = int.parse(currentBid) + 2000;
 
     final message = '''
 $frontImage
@@ -171,6 +181,7 @@ $frontImage
 • KMs Driven: $kmDriven
 • No. of Owners: $numberOfOwners
 • Current Bid: ₹$currentBidAmount
+• Your Bid: ₹$yourBid
 ''';
 
     final encodedMessage = Uri.encodeComponent(message);
@@ -179,8 +190,82 @@ $frontImage
       'https://wa.me/919964955575?text=$encodedMessage',
     );
 
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch WhatsApp chat';
-    }
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder:
+          (context) => AnimatedPadding(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            ),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                color: VColors.WHITE,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "You want to place your bid ?",
+                      style: VStyle.style(
+                        context: context,
+                        fontWeight: FontWeight.bold,
+                        size: 20,
+                      ),
+                    ),
+                    Text("Cuurent Price : $currentBid"),
+                    Text("Your bid : $yourBid"),
+                    AppSpacer(heightPortion: .02),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              "No",
+                              style: VStyle.style(
+                                context: context,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          child: TextButton(
+                            onPressed: () async {
+                              if (!await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              )) {
+                                throw 'Could not launch WhatsApp chat';
+                              }
+                            },
+                            child: Text("Yes"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+    );
   }
 }

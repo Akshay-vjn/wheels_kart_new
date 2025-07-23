@@ -370,6 +370,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                   is VDetailsControllerSuccessState) {
                                 final details = currentState.detail.carDetails;
                                 await VDetailsControllerBloc.openWhatsApp(
+                                  context: context,
                                   currentBid: details.currentBid ?? '',
                                   evaluationId: details.evaluationId,
                                   image: widget.frontImage,
