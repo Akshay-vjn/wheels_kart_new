@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehicle%20video/upload_vehicle_video_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/document_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/upload_car_legals.dart';
@@ -29,10 +30,12 @@ import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.d
 class InspectionStartScreen extends StatefulWidget {
   final String inspectionId;
   final String? instructionData;
+  final bool hideCompleteButon;
   const InspectionStartScreen({
     super.key,
     required this.inspectionId,
     this.instructionData,
+    this.hideCompleteButon = false,
   });
 
   @override
@@ -291,10 +294,25 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildProgressHeader(),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 15),
+                      widget.hideCompleteButon
+                          ? Center(
+                            child: Text(
+                              textAlign: TextAlign.center,
+                              "You can edit the inspection until it is approved.",
+                              style: VStyle.style(context: context,color: EvAppColors.grey,size: 14),
+                            ),
+                          )
+                          : SizedBox.shrink(),
+
+                      const SizedBox(height: 15),
                       _buildInspectionSteps(),
-                      const SizedBox(height: 40),
-                      _buildSubmitButton(),
+                      const SizedBox(height: 20),
+                      widget.hideCompleteButon
+                          ? SizedBox.shrink()
+                          : _buildSubmitButton(),
+
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),

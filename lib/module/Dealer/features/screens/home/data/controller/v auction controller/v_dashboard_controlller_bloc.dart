@@ -39,7 +39,7 @@ class VAuctionControlllerBloc
     on<UpdatePrice>((event, emit) {
       final cuuremtSate = state;
       List<VCarModel> updatedList = [];
-      log("Started ----------------");
+      log("--------Auction Updated");
       if (cuuremtSate is VAuctionControllerSuccessState) {
         for (var car in cuuremtSate.listOfCars) {
           if (car.evaluationId == event.newBid.evaluationId) {
@@ -58,7 +58,7 @@ class VAuctionControlllerBloc
         }
         emit(VAuctionControllerSuccessState(listOfCars: updatedList));
       }
-      log("Stopped ----------------");
+        log("Updating Done------------");
     });
   }
 

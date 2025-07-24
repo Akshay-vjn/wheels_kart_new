@@ -1,13 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/account/screens/my%20bid/v_mybid_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 
-class LowlistTab extends StatelessWidget {
-  const LowlistTab({super.key});
-
+class BoughtOcbHistoryTab extends StatelessWidget {
+  const BoughtOcbHistoryTab({super.key});
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
@@ -45,16 +46,16 @@ class LowlistTab extends StatelessWidget {
               Padding(
                 padding: EdgeInsetsGeometry.all(10),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Current Bid",
+                          "Bought Price",
                           style: VStyle.style(
                             context: context,
-                            color: VColors.SECONDARY.withAlpha(200),
+                            color: VColors.DARK_GREY,
                           ),
                         ),
                         Text(
@@ -62,51 +63,33 @@ class LowlistTab extends StatelessWidget {
                           style: VStyle.style(
                             context: context,
                             size: 20,
-                            color: VColors.SECONDARY,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 50,
-                      child: VerticalDivider(
-                        color: VColors.DARK_GREY.withAlpha(140),
-                        thickness: .5,
+
+                    TextButton(
+                      // style: ElevatedButton.styleFrom(
+                      //   backgroundColor: VColors.SECONDARY,
+                      //   foregroundColor: VColors.WHITE,
+                      // ),
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          Text(
+                            "Show Details",
+                            style: VStyle.style(
+                              context: context,
+                              fontWeight: FontWeight.w700,
+                              size: 10,
+                            ),
+                          ),
+                          AppSpacer(widthPortion: .01),
+                          Icon(Icons.arrow_forward_ios_rounded,size: 10,),
+                        ],
                       ),
                     ),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Your Bid",
-                          style: VStyle.style(
-                            context: context,
-                            size: 8,
-                            color: VColors.ERROR.withAlpha(200),
-                          ),
-                        ),
-                        Text(
-                          "8000",
-                          style: VStyle.style(
-                            context: context,
-                            size: 14,
-                            color: VColors.ERROR,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    // ElevatedButton(
-                    //   style: ElevatedButton.styleFrom(
-                    //     backgroundColor: VColors.SECONDARY,
-                    //     foregroundColor: VColors.WHITE,
-                    //   ),
-                    //   onPressed: () {},
-                    //   child: Text("View Details"),
-                    // ),
                   ],
                 ),
               ),

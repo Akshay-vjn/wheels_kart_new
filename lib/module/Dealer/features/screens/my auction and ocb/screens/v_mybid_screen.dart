@@ -4,9 +4,8 @@ import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/account/screens/my%20bid/tabs/bought_ocb_tab.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/account/screens/my%20bid/tabs/highlist_tab.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/account/screens/my%20bid/tabs/lowlist_tab.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/tabs/auctionhistoy_tab.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/tabs/bought_ocb_history_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
 
 class VMybidScreen extends StatefulWidget {
@@ -146,9 +145,11 @@ class VMybidScreen extends StatefulWidget {
 class _VMybidScreenState extends State<VMybidScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+
   @override
   void initState() {
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
+
     super.initState();
   }
 
@@ -158,7 +159,7 @@ class _VMybidScreenState extends State<VMybidScreen>
       body: SafeArea(
         bottom: false,
         child: DefaultTabController(
-          length: 3,
+          length: 2,
           child: Column(
             children: [
               Row(
@@ -193,13 +194,13 @@ class _VMybidScreenState extends State<VMybidScreen>
                       ),
                       dividerHeight: 0,
                       tabs: [
+                        // Padding(
+                        //   padding: EdgeInsetsGeometry.only(bottom: 10, top: 10),
+                        //   child: Text("Hightlist"),
+                        // ),
                         Padding(
                           padding: EdgeInsetsGeometry.only(bottom: 10, top: 10),
-                          child: Text("Hightlist"),
-                        ),
-                        Padding(
-                          padding: EdgeInsetsGeometry.only(bottom: 10, top: 10),
-                          child: Text("Lowlist"),
+                          child: Text("Auction"),
                         ),
                         Padding(
                           padding: EdgeInsetsGeometry.only(bottom: 10, top: 10),
@@ -216,7 +217,7 @@ class _VMybidScreenState extends State<VMybidScreen>
                   color: VColors.GREYHARD.withAlpha(50),
                   child: TabBarView(
                     controller: _tabController,
-                    children: [HighlistTab(), LowlistTab(), BoughtOcbTab()],
+                    children: [AuctionHistoryTab(), BoughtOcbHistoryTab()],
                   ),
                 ),
               ),

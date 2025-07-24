@@ -489,16 +489,17 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
               backgroundColor: VColors.SECONDARY,
             ),
             onPressed: () {
-              // VDetailsControllerBloc.openWhatsApp(
-              //   currentBid: widget.vehicle.currentBid ?? "",
-              //   evaluationId: widget.vehicle.evaluationId,
-              //   image: widget.vehicle.frontImage,
-              //   kmDrive: widget.vehicle.kmsDriven,
-              //   manufactureYear: widget.vehicle.manufacturingYear,
-              //   model: widget.vehicle.modelName,
-              //   noOfOwners: '',
-              //   regNumber: widget.vehicle.regNo,
-              // );
+              VDetailsControllerBloc.openWhatsApp(
+                context: context,
+                currentBid: widget.vehicle.currentBid ?? "",
+                evaluationId: widget.vehicle.evaluationId,
+                image: widget.vehicle.frontImage,
+                kmDrive: widget.vehicle.kmsDriven,
+                manufactureYear: widget.vehicle.manufacturingYear,
+                model: widget.vehicle.modelName,
+                noOfOwners: '',
+                regNumber: widget.vehicle.regNo,
+              );
             },
             child: Text(
               "Buy",

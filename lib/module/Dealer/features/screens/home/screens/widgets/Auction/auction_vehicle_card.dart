@@ -241,7 +241,12 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                 ),
                                 AppSpacer(heightPortion: .01),
                               ],
-
+                              // Row(
+                              //   children:
+                              //       widget.vehicle.vendorIds
+                              //           .map((e) => Text("$e ,"))
+                              //           .toList(),
+                              // ),
                               if (_isOpened && !_isColsed) ...[
                                 Column(
                                   children: [

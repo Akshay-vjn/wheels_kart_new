@@ -5,21 +5,15 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:meta/meta.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
-import 'package:wheels_kart/common/dimensions.dart';
-import 'package:wheels_kart/common/utils/responsive_helper.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_car_detail_repo.dart';
-import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
 
 part 'v_details_controller_event.dart';
 part 'v_details_controller_state.dart';
@@ -106,7 +100,7 @@ class VDetailsControllerBloc
     on<UpdatePrice>((event, emit) {
       final cuuremtSate = state;
       if (cuuremtSate is VDetailsControllerSuccessState) {
-        log("Started ----------------");
+        log("--------Auction Updated");
         final carDetailModel = cuuremtSate.detail;
         if (carDetailModel.carDetails.evaluationId ==
             event.newBid.evaluationId) {
@@ -116,7 +110,7 @@ class VDetailsControllerBloc
       }
 
       //000
-      log("Stopped ----------------");
+      log("Updating Done------------");
     });
   }
 
@@ -126,7 +120,7 @@ class VDetailsControllerBloc
     ConnectWebSocket event,
     Emitter<VDetailsControllerState> emit,
   ) {
-    channel = WebSocketChannel.connect(Uri.parse('ws://82.112.238.223:8080'));
+    channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
     _subscription = channel.stream.listen((data) {
       log("triggered ----------------");
@@ -172,7 +166,7 @@ class VDetailsControllerBloc
     final yourBid = int.parse(currentBid) + 2000;
 
     final message = '''
-$frontImage
+ $frontImage
 *Vehicle Details:*
 • Evaluation ID: $id
 • Registration No: $vehicleRegNo
@@ -223,7 +217,7 @@ $frontImage
                       style: VStyle.style(
                         context: context,
                         fontWeight: FontWeight.bold,
-                        size: 20,
+                        size: 15,
                       ),
                     ),
                     Text("Cuurent Price : $currentBid"),
@@ -247,8 +241,8 @@ $frontImage
                           ),
                         ),
                         Flexible(
-                          child: TextButton(
-                            onPressed: () async {
+                          child: InkWell(
+                            onTap: () async {
                               if (!await launchUrl(
                                 url,
                                 mode: LaunchMode.externalApplication,
@@ -256,7 +250,21 @@ $frontImage
                                 throw 'Could not launch WhatsApp chat';
                               }
                             },
-                            child: Text("Yes"),
+                            child: Container(
+                              padding: EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: VColors.GREENHARD,
+                              ),
+                              child: Text(
+                                "Yes, Bid Now",
+                                style: VStyle.style(
+                                  context: context,
+                                  fontWeight: FontWeight.bold,
+                                  color: VColors.WHITE,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ],

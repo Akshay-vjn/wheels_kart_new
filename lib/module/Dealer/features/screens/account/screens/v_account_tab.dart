@@ -13,7 +13,7 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/account/screens/my%20bid/v_mybid_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_edit_profile_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
 import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
@@ -420,8 +420,8 @@ class _VAccountTabState extends State<VAccountTab>
           AppSpacer(heightPortion: .02),
 
           _buildSettingsItem(
-            "My Biddings",
-            "High bids, low bids and OCBs",
+            "Bidding History",
+            "Tap to view your bidding records",
             SolarIconsOutline.list,
             context,
             onTap: () {

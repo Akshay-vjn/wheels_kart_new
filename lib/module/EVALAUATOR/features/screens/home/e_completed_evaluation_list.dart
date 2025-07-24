@@ -230,6 +230,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/repositories/master/fetch_the_instruction_repo.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/inspection_start_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_button.dart';
 
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
@@ -259,13 +263,9 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _refreshAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _refreshController,
-      curve: Curves.easeInOut,
-    ));
+    _refreshAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _refreshController, curve: Curves.easeInOut),
+    );
 
     _fetchInspections();
   }
@@ -301,7 +301,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
       ),
       child: RefreshIndicator.adaptive(
         onRefresh: _onRefresh,
-      color: EvAppColors.DEFAULT_BLUE_DARK,
+        color: EvAppColors.DEFAULT_BLUE_DARK,
         backgroundColor: Colors.white,
         child: MultiBlocListener(
           listeners: [
@@ -316,7 +316,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                   showSnakBar(
                     context,
                     'PDF downloaded successfully!',
-                   isError: false
+                    isError: false,
                   );
                 } else if (state is DowloadPdfErrorState) {
                   setState(() {
@@ -326,7 +326,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                     context,
                     // state.message,
                     'Failed to download PDF. Please try again.',
-                   isError: true
+                    isError: true,
                   );
                 }
               },
@@ -336,7 +336,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
             builder: (context, state) {
               switch (state) {
                 case LoadingFetchInspectionsState():
-                  return  Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -344,24 +344,21 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                         SizedBox(height: 16),
                         Text(
                           'Loading inspections...',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       ],
                     ),
                   );
-        
+
                 case SuccessFetchInspectionsState():
                   if (state.listOfInspection.isEmpty) {
                     return _buildEmptyState(state.message);
                   }
                   return _buildInspectionsList(state.listOfInspection);
-        
+
                 case ErrorFetchInspectionsState():
                   return _buildErrorState(state.errormessage);
-        
+
                 default:
                   return const SizedBox();
               }
@@ -400,12 +397,11 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
           ),
           const SizedBox(height: 8),
           Text(
-            message.isNotEmpty ? message : 'All completed inspections will appear here',
+            message.isNotEmpty
+                ? message
+                : 'All completed inspections will appear here',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade500,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -453,10 +449,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
           Text(
             errorMessage,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.red.shade500,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.red.shade500),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -491,15 +484,17 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
     );
   }
 
-  Widget _buildInspectionCard(BuildContext context, InspectionModel model, int index) {
+  Widget _buildInspectionCard(
+    BuildContext context,
+    InspectionModel model,
+    int index,
+  ) {
     final isDownloading = _downloadingId == model.inspectionId;
-    
+
     return Card(
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -507,10 +502,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              Colors.grey.shade50,
-            ],
+            colors: [Colors.white, Colors.grey.shade50],
           ),
         ),
         child: Column(
@@ -520,20 +512,32 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
               children: [
                 _buildDownloadButton(context, model, isDownloading),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: _buildInspectionDetails(context, model),
-                ),
+                Expanded(child: _buildInspectionDetails(context, model)),
               ],
             ),
-            const SizedBox(height: 16),
-            _buildContactInfo(context, model),
+            const SizedBox(height: 12),
+
+                      _buildContactInfo(context, model),
+
+            const SizedBox(height: 10),
+              _buildActionButton(
+              label: "Edit Inspection",
+              icon: Icons.edit,
+              isCompleted: false,
+              onTap: () => _onClicEditInspection(model),
+              backgroundColor: EvAppColors.DEFAULT_BLUE_GREY,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDownloadButton(BuildContext context, InspectionModel model, bool isDownloading) {
+  Widget _buildDownloadButton(
+    BuildContext context,
+    InspectionModel model,
+    bool isDownloading,
+  ) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       height: 80,
@@ -543,13 +547,18 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: isDownloading
-              ? [Colors.grey.shade400, Colors.grey.shade500]
-              : [EvAppColors.DEFAULT_ORANGE, EvAppColors.DEFAULT_ORANGE.withOpacity(0.8)],
+          colors:
+              isDownloading
+                  ? [Colors.grey.shade400, Colors.grey.shade500]
+                  : [
+                    EvAppColors.DEFAULT_ORANGE,
+                    EvAppColors.DEFAULT_ORANGE.withOpacity(0.8),
+                  ],
         ),
         boxShadow: [
           BoxShadow(
-            color: (isDownloading ? Colors.grey : EvAppColors.DEFAULT_ORANGE).withOpacity(0.3),
+            color: (isDownloading ? Colors.grey : EvAppColors.DEFAULT_ORANGE)
+                .withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -558,32 +567,38 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: isDownloading ? null : () async {
-            HapticFeedback.mediumImpact();
-            setState(() {
-              _downloadingId = model.inspectionId;
-            });
-            await context.read<DownloadPdfCubit>().onDownloadPDF(
-              context,
-              model.inspectionId,
-            );
-          },
+          onTap:
+              isDownloading
+                  ? null
+                  : () async {
+                    HapticFeedback.mediumImpact();
+                    setState(() {
+                      _downloadingId = model.inspectionId;
+                    });
+                    await context.read<DownloadPdfCubit>().onDownloadPDF(
+                      context,
+                      model.inspectionId,
+                    );
+                  },
           borderRadius: BorderRadius.circular(40),
           child: Center(
-            child: isDownloading
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                      strokeWidth: 2.5,
+            child:
+                isDownloading
+                    ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                    : const Icon(
+                      Icons.file_download_outlined,
+                      color: Colors.white,
+                      size: 28,
                     ),
-                  )
-                : const Icon(
-                    Icons.file_download_outlined,
-                    color: Colors.white,
-                    size: 28,
-                  ),
           ),
         ),
       ),
@@ -603,7 +618,9 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    model.regNo.isNotEmpty ? model.regNo : 'Vehicle Registration',
+                    model.regNo.isNotEmpty
+                        ? model.regNo
+                        : 'Vehicle Registration',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -613,10 +630,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                   const SizedBox(height: 4),
                   Text(
                     'Inspection ID: ${model.evaluationId}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -649,130 +663,263 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontSize: 12,
+          fontSize: 8,
         ),
       ),
     );
   }
 
   Widget _buildContactInfo(BuildContext context, InspectionModel model) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+    return ExpansionTile(
+      collapsedBackgroundColor: EvAppColors.grey.withAlpha(30),
+      backgroundColor: EvAppColors.grey.withAlpha(40),
+      collapsedShape: ContinuousRectangleBorder(
+        side: BorderSide(color: Colors.grey.shade200),
+        borderRadius: BorderRadiusGeometry.circular(20),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+
+      shape: ContinuousRectangleBorder(
+        side: BorderSide(color: Colors.grey.shade200),
+        borderRadius: BorderRadiusGeometry.circular(20),
+      ),
+      tilePadding: EdgeInsets.symmetric(horizontal: 16),
+      childrenPadding: EdgeInsets.symmetric(horizontal: 16),
+
+      title: Row(
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.person_outline,
-                size: 16,
-                color: Colors.grey.shade600,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Customer Information',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(left: 12),
-                  height: 1,
-                  color: Colors.grey.shade300,
-                ),
-              ),
-            ],
+          Icon(Icons.person_outline, size: 16, color: Colors.grey.shade600),
+          const SizedBox(width: 8),
+          Text(
+            'Customer Information',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Name',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      model.customer.customerName.isNotEmpty
-                          ? model.customer.customerName
-                          : 'Not available',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(left: 12),
+              height: 1,
+              color: Colors.grey.shade300,
+            ),
+          ),
+        ],
+      ),
+      children: [
+        const SizedBox(height: 2),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Phone',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    'Name',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 2),
-                  InkWell(
-                    onTap: () {
-                      // Add phone call functionality here
-                      HapticFeedback.lightImpact();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: EvAppColors.DARK_SECONDARY.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.phone_outlined,
-                            size: 14,
-                            color: EvAppColors.DARK_SECONDARY,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            model.customer.customerMobileNumber.isNotEmpty
-                                ? model.customer.customerMobileNumber
-                                : 'Not available',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: EvAppColors.DARK_SECONDARY,
-                            ),
-                          ),
-                        ],
-                      ),
+                  Text(
+                    model.customer.customerName.isNotEmpty
+                        ? model.customer.customerName
+                        : 'Not available',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Phone',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 2),
+                InkWell(
+                  onTap: () {
+                    // Add phone call functionality here
+                    HapticFeedback.lightImpact();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: EvAppColors.DARK_SECONDARY.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.phone_outlined,
+                          size: 14,
+                          color: EvAppColors.DARK_SECONDARY,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          model.customer.customerMobileNumber.isNotEmpty
+                              ? model.customer.customerMobileNumber
+                              : 'Not available',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: EvAppColors.DARK_SECONDARY,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required String label,
+    required IconData icon,
+    required bool isCompleted,
+    bool isEnabled = true,
+    required VoidCallback? onTap,
+    required Color backgroundColor,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+        decoration: BoxDecoration(
+          color:
+              isEnabled ? backgroundColor.withOpacity(0.1) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isEnabled ? backgroundColor : Colors.grey[300]!,
+            width: 2,
           ),
-        ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isCompleted ? Icons.check_circle : icon,
+              color: isEnabled ? backgroundColor : Colors.grey[400],
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isEnabled ? backgroundColor : Colors.grey[400],
+                  fontWeight: FontWeight.w600,
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => const Center(
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Loading instructions...'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+    );
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        action: SnackBarAction(
+          label: 'DISMISS',
+          textColor: Colors.white,
+          onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+        ),
+      ),
+    );
+  }
+
+  void _onClicEditInspection(InspectionModel model) async {
+    try {
+      _showLoadingDialog(context);
+
+      if (model.engineTypeId == '1') {
+        final snapshot =
+            await FetchTheInstructionRepo.getTheInstructionForStartEngine(
+              context,
+              model.engineTypeId,
+            );
+
+        Navigator.of(context).pop(); // Close loading dialog
+
+        if (snapshot['error'] == true) {
+          _showErrorSnackBar(context, snapshot['message']);
+        } else if (snapshot.isEmpty) {
+          _showErrorSnackBar(context, 'Instruction page not found!');
+        } else if (snapshot['error'] == false) {
+          Navigator.of(context).push(
+            AppRoutes.createRoute(
+              InspectionStartScreen(
+                hideCompleteButon: true,
+                inspectionId: model.inspectionId,
+                instructionData: snapshot['data'][0]['instructions'],
+              ),
+            ),
+          );
+        }
+      } else {
+        Navigator.of(context).pop(); // Close loading dialog
+        Navigator.of(context).push(
+          AppRoutes.createRoute(
+            InspectionStartScreen(
+              hideCompleteButon: true,
+              instructionData: null,
+              inspectionId: model.inspectionId,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.of(context).pop(); // Close loading dialog
+      _showErrorSnackBar(context, 'An error occurred. Please try again.');
+    }
+  }
 }
