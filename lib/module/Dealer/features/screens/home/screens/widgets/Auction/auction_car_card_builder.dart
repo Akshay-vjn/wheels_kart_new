@@ -7,6 +7,8 @@ import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
+import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/Auction/auction_vehicle_card.dart';
 
@@ -59,30 +61,56 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                     OnFetchVendorAuctionApi(context: context),
                   );
                 },
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(top: 10),
-                  child: AnimationLimiter(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: AnimationConfiguration.toStaggeredList(
-                        duration: const Duration(milliseconds: 375),
-                        childAnimationBuilder:
-                            (p0) => SlideAnimation(
-                              horizontalOffset: 50.0,
-                              child: FadeInAnimation(child: p0),
-                            ),
-                        children:
-                            carList
-                                .map(
-                                  (e) => VAuctionVehicleCard(
-                                    myId: myId,
-                                    vehicle: e,
-                                  ),
-                                )
-                                .toList(),
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    SingleChildScrollView(
+                      padding: EdgeInsets.only(top: 10),
+                      child: AnimationLimiter(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: AnimationConfiguration.toStaggeredList(
+                            duration: const Duration(milliseconds: 375),
+                            childAnimationBuilder:
+                                (p0) => SlideAnimation(
+                                  horizontalOffset: 50.0,
+                                  child: FadeInAnimation(child: p0),
+                                ),
+                            children:
+                                carList
+                                    .map(
+                                      (e) => VAuctionVehicleCard(
+                                        myId: myId,
+                                        vehicle: e,
+                                      ),
+                                    )
+                                    .toList(),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    state.enableRefreshButton
+                        ? ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: VColors.SECONDARY,
+                          ),
+                          label: Text(
+                            'New Live Auctions',
+                            style: VStyle.style(
+                              context: context,
+                              fontWeight: FontWeight.bold,
+                              size: 15,
+                            ),
+                          ),
+                          icon: Icon(Icons.keyboard_double_arrow_up_rounded),
+                          onPressed: () {
+                            return context.read<VAuctionControlllerBloc>().add(
+                              OnFetchVendorAuctionApi(context: context),
+                            );
+                          },
+                        )
+                        : SizedBox.shrink(),
+                  ],
                 ),
               );
             }

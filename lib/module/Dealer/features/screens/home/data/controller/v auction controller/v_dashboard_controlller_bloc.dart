@@ -26,7 +26,12 @@ class VAuctionControlllerBloc
         if (response['error'] == false) {
           final data = response['data'] as List;
           final list = data.map((e) => VCarModel.fromJson(e)).toList();
-          emit(VAuctionControllerSuccessState(listOfCars: list));
+          emit(
+            VAuctionControllerSuccessState(
+              listOfCars: list,
+              enableRefreshButton: false,
+            ),
+          );
         } else {
           emit(VVAuctionControllerErrorState(errorMesage: response['message']));
         }
@@ -39,26 +44,42 @@ class VAuctionControlllerBloc
     on<UpdatePrice>((event, emit) {
       final cuuremtSate = state;
       List<VCarModel> updatedList = [];
-      log("--------Auction Updated");
-      if (cuuremtSate is VAuctionControllerSuccessState) {
-        for (var car in cuuremtSate.listOfCars) {
-          if (car.evaluationId == event.newBid.evaluationId) {
-            final bid = event.newBid;
 
-            car.bidStatus = bid.bidStatus;
-            car.soldName = bid.soldName;
-            car.soldTo = bid.soldTo;
-            car.currentBid = bid.currentBid;
-            car.bidClosingTime = bid.bidClosingTime;
-            car.vendorIds = bid.vendorIds;
-            updatedList.add(car);
-          } else {
-            updatedList.add(car);
+      if (cuuremtSate is VAuctionControllerSuccessState) {
+        if (event.newBid.trigger != null && event.newBid.trigger == "new") {
+          log("--------New Auction Listed");
+          emit(
+            VAuctionControllerSuccessState(
+              listOfCars: cuuremtSate.listOfCars,
+              enableRefreshButton: true,
+            ),
+          );
+        } else {
+          log("--------Auction Updated");
+          for (var car in cuuremtSate.listOfCars) {
+            if (car.evaluationId == event.newBid.evaluationId) {
+              final bid = event.newBid;
+
+              car.bidStatus = bid.bidStatus;
+              car.soldName = bid.soldName;
+              car.soldTo = bid.soldTo;
+              car.currentBid = bid.currentBid;
+              car.bidClosingTime = bid.bidClosingTime;
+              car.vendorIds = bid.vendorIds;
+              updatedList.add(car);
+            } else {
+              updatedList.add(car);
+            }
           }
+          emit(
+            VAuctionControllerSuccessState(
+              listOfCars: updatedList,
+              enableRefreshButton: cuuremtSate.enableRefreshButton,
+            ),
+          );
+          log("Updating Done------------");
         }
-        emit(VAuctionControllerSuccessState(listOfCars: updatedList));
       }
-        log("Updating Done------------");
     });
   }
 

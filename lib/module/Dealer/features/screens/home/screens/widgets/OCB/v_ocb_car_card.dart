@@ -11,6 +11,7 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
@@ -489,17 +490,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
               backgroundColor: VColors.SECONDARY,
             ),
             onPressed: () {
-              VDetailsControllerBloc.openWhatsApp(
-                context: context,
-                currentBid: widget.vehicle.currentBid ?? "",
-                evaluationId: widget.vehicle.evaluationId,
-                image: widget.vehicle.frontImage,
-                kmDrive: widget.vehicle.kmsDriven,
-                manufactureYear: widget.vehicle.manufacturingYear,
-                model: widget.vehicle.modelName,
-                noOfOwners: '',
-                regNumber: widget.vehicle.regNo,
-              );
+              _showBuySheet(widget.vehicle.currentBid ?? '');
             },
             child: Text(
               "Buy",
@@ -706,5 +697,110 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
       default:
         return 'Not Specified';
     }
+  }
+
+  void _showBuySheet(String currentBid) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder:
+          (context) => AnimatedPadding(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            ),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                color: VColors.WHITE,
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "You want to buy this vehicle",
+                      style: VStyle.style(
+                        context: context,
+                        fontWeight: FontWeight.bold,
+                        size: 15,
+                      ),
+                    ),
+                    Text("Cuurent Price : $currentBid"),
+                    AppSpacer(heightPortion: .02),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              "No",
+                              style: VStyle.style(
+                                context: context,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          child: InkWell(
+                            onTap: () async {
+                              context.read<VOcbControllerBloc>().add(
+                                OnBuyOCB(
+                                  inspectionId: widget.vehicle.inspectionId,
+                                  context: context,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 200,
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: VColors.GREENHARD,
+                              ),
+                              child: BlocBuilder<
+                                VOcbControllerBloc,
+                                VOcbControllerState
+                              >(
+                                builder: (context, state) {
+                                  return state is VOcbControllerSuccessState &&
+                                          state.loadingTheOCBButton
+                                      ? VLoadingIndicator()
+                                      : Text(
+                                        "Yes, Buy Now",
+                                        style: VStyle.style(
+                                          context: context,
+                                          fontWeight: FontWeight.bold,
+                                          color: VColors.WHITE,
+                                        ),
+                                      );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+    );
   }
 }

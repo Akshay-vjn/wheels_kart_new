@@ -463,17 +463,19 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           VColors.SECONDARY,
         ),
         AppSpacer(widthPortion: .01),
-        _buildEnhancedDetailChip(
-          Icons.confirmation_number_rounded,
-          widget.vehicle.regNo.replaceRange(
-            6,
-            widget.vehicle.regNo.length,
-            // '●●●●●●',
-            "",
-          ),
-          const Color.fromARGB(255, 32, 138, 164),
-          isFullWidth: false,
-        ),
+        widget.vehicle.regNo.isNotEmpty
+            ? _buildEnhancedDetailChip(
+              Icons.confirmation_number_rounded,
+              widget.vehicle.regNo.replaceRange(
+                6,
+                widget.vehicle.regNo.length,
+                // '●●●●●●',
+                "",
+              ),
+              const Color.fromARGB(255, 32, 138, 164),
+              isFullWidth: false,
+            )
+            : SizedBox.shrink(),
       ],
     );
   }

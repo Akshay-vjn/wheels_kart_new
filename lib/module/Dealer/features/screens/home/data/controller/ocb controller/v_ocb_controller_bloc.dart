@@ -6,9 +6,11 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_buy_ocb_auction_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_ocb_list_repo.dart';
 
 part 'v_ocb_controller_event.dart';
@@ -26,7 +28,12 @@ class VOcbControllerBloc
         if (response['error'] == false) {
           final data = response['data'] as List;
           final list = data.map((e) => VCarModel.fromJson(e)).toList();
-          emit(VOcbControllerSuccessState(listOfCars: list));
+          emit(
+            VOcbControllerSuccessState(
+              listOfCars: list,
+              enableRefreshButton: false,
+            ),
+          );
         } else {
           emit(VOcbControllerErrorState(errorMesage: response['message']));
         }
@@ -38,27 +45,45 @@ class VOcbControllerBloc
     on<UpdatePrice>((event, emit) {
       final cuuremtSate = state;
       List<VCarModel> updatedList = [];
-      log("Started ----------------");
-      if (cuuremtSate is VOcbControllerSuccessState) {
-        for (var car in cuuremtSate.listOfCars) {
-          if (car.evaluationId == event.newBid.evaluationId) {
-            final bid = event.newBid;
 
-            car.bidStatus = bid.bidStatus;
-            car.soldName = bid.soldName;
-            car.soldTo = bid.soldTo;
-            car.currentBid = bid.currentBid;
-            car.bidClosingTime = bid.bidClosingTime;
-            car.vendorIds = bid.vendorIds;
-            updatedList.add(car);
-          } else {
-            updatedList.add(car);
+      if (cuuremtSate is VOcbControllerSuccessState) {
+        if (event.newBid.trigger != null && event.newBid.trigger == "ocb new") {
+          log("--------New OCB Listed");
+          emit(
+            VOcbControllerSuccessState(
+              listOfCars: cuuremtSate.listOfCars,
+              enableRefreshButton: true,
+            ),
+          );
+        } else {
+          log("--------Auction Updated");
+          for (var car in cuuremtSate.listOfCars) {
+            if (car.evaluationId == event.newBid.evaluationId) {
+              final bid = event.newBid;
+
+              car.bidStatus = bid.bidStatus;
+              car.soldName = bid.soldName;
+              car.soldTo = bid.soldTo;
+              car.currentBid = bid.currentBid;
+              car.bidClosingTime = bid.bidClosingTime;
+              car.vendorIds = bid.vendorIds;
+              updatedList.add(car);
+            } else {
+              updatedList.add(car);
+            }
           }
+          emit(
+            VOcbControllerSuccessState(
+              listOfCars: updatedList,
+              enableRefreshButton: cuuremtSate.enableRefreshButton,
+            ),
+          );
+          log("Stopped ----------------");
         }
-        emit(VOcbControllerSuccessState(listOfCars: updatedList));
       }
-      log("Stopped ----------------");
     });
+
+    on<OnBuyOCB>(_onBuyOcb);
   }
 
   void _connectWebSocket(
@@ -75,6 +100,26 @@ class VOcbControllerBloc
 
       add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
     });
+  }
+
+  Future<void> _onBuyOcb(
+    OnBuyOCB event,
+    Emitter<VOcbControllerState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is VOcbControllerSuccessState) {
+      emit(currentState.copyWith(loadingTheOCBButton: true));
+      final response = await VBuyOcbAuctionRepo.buyOCB(
+        event.context,
+        event.inspectionId,
+      );
+      emit(currentState.copyWith(loadingTheOCBButton: false));
+      if (response['error'] == false) {
+        add(OnFechOncList(context: event.context));
+        Navigator.of(event.context).pop();
+        showToastMessage(event.context, response['message']);
+      }
+    }
   }
 
   @override

@@ -1,20 +1,22 @@
+import 'dart:developer';
+
 class VMyAuctionModel {
-  final String inspectionId;
-  final String evaluationId;
-  final String brandName;
-  final String modelName;
-  final String frontImage;
-  final String manufacturingYear;
-  final String fuelType;
-  final String kmsDriven;
-  final String regNo;
-  final String city;
-  final String bidAmount;
-  final BidTime bidTime;
-  final String bidStatus;
-  final String soldTo;
-  final String soldName;
-  final String yourBid;
+  String inspectionId;
+  String evaluationId;
+  String brandName;
+  String modelName;
+  String frontImage;
+  String manufacturingYear;
+  String fuelType;
+  String kmsDriven;
+  String regNo;
+  String city;
+  String? bidAmount;
+  DateTime? bidTime;
+  String? bidStatus;
+  String? soldTo;
+  String? soldName;
+  String yourBid;
 
   VMyAuctionModel({
     required this.inspectionId,
@@ -35,25 +37,26 @@ class VMyAuctionModel {
     required this.yourBid,
   });
 
-  factory VMyAuctionModel.fromJson(Map<String, dynamic> json) =>
-      VMyAuctionModel(
-        inspectionId: json["inspectionId"] ?? '',
-        evaluationId: json["evaluationId"] ?? '',
-        brandName: json["brandName"] ?? '',
-        modelName: json["modelName"] ?? '',
-        frontImage: json["frontImage"] ?? '' ?? "",
-        manufacturingYear: json["manufacturingYear"] ?? "",
-        fuelType: json["fuel_type"] ?? "",
-        kmsDriven: json["kmsDriven"] ?? "",
-        regNo: json["regNo"] ?? "",
-        city: json["City"] ?? "",
-        bidAmount: json["bidAmount"] ?? '',
-        bidTime: BidTime.fromJson(json["bidTime"]),
-        bidStatus: json["bidStatus"] ?? "",
-        soldTo: json["soldTo"] ?? "",
-        soldName: json["soldName"] ?? "",
-        yourBid: json["yourBid"] ?? "",
-      );
+  factory VMyAuctionModel.fromJson(Map<String, dynamic> json) {
+    return VMyAuctionModel(
+      inspectionId: json["inspectionId"] ?? '',
+      evaluationId: json["evaluationId"] ?? '',
+      brandName: json["brandName"] ?? '',
+      modelName: json["modelName"] ?? '',
+      frontImage: json["frontImage"] ?? '' ?? "",
+      manufacturingYear: json["manufacturingYear"] ?? "",
+      fuelType: json["fuel_type"] ?? "",
+      kmsDriven: json["kmsDriven"] ?? "",
+      regNo: json["regNo"] ?? "",
+      city: json["City"] ?? "",
+      bidAmount: json["bidAmount"] ?? '',
+      bidTime:  DateTime.parse(json["bidTime"]),
+      bidStatus: json["bidStatus"] ?? "",
+      soldTo: json["soldTo"] ?? "",
+      soldName: json["soldName"] ?? "",
+      yourBid: json["yourBid"] ?? "",
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "inspectionId": inspectionId,
@@ -67,7 +70,7 @@ class VMyAuctionModel {
     "regNo": regNo,
     "City": city,
     "bidAmount": bidAmount,
-    "bidTime": bidTime.toJson(),
+    "bidTime": bidTime,
     "bidStatus": bidStatus,
     "soldTo": soldTo,
     "soldName": soldName,

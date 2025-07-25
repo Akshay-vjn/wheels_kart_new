@@ -13,5 +13,8 @@ class VApiConst {
   static const addOrRemoveFromWisglist = "vendorlogin/wishlist";
   static const whishList = "vendorlogin/mywishlist";
 
-  static const myAuctions="vendorlogin/bidhistory";
+  static const myAuctions = "vendorlogin/bidhistory";
+  static const myOCB = "vendorlogin/ocbhistory";
+
+  static const buyOCB = "vendorlogin/buynow";
 }
