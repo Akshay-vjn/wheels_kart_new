@@ -16,6 +16,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VWhishlistCard extends StatefulWidget {
@@ -107,11 +108,16 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     }
   }
 
+  bool get _haveTheBidders => widget.model.vendorIds.isNotEmpty;
+
   bool get _isSold => widget.model.bidStatus == "Sold";
   bool get _isOpened => widget.model.bidStatus == "Open";
   bool get _isColsed => (_endTime == "00:00:00") || _isSold;
 
   bool get _soldToMe => widget.myId == widget.model.soldTo && _isSold;
+
+  bool get _isHigestBidderIsMe =>
+      _haveTheBidders ? widget.model.vendorIds.last == widget.myId : false;
 
   @override
   Widget build(BuildContext context) {
@@ -203,6 +209,8 @@ class _VWhishlistCardState extends State<VWhishlistCard>
           const SizedBox(height: 10),
           // Action buttons row
           _buildActionButtons(),
+
+          if (_isHigestBidderIsMe && _isColsed) ...[_buildMyAuctionMessage()],
         ],
       ),
     );
@@ -572,8 +580,8 @@ class _VWhishlistCardState extends State<VWhishlistCard>
             color = VColors.SUCCESS;
             break;
           } else {
-            title = "OPEN SOON";
-            color = VColors.ACCENT;
+            title = "CLOSED";
+            color = EvAppColors.DARK_SECONDARY;
             break;
           }
         }
@@ -626,6 +634,36 @@ class _VWhishlistCardState extends State<VWhishlistCard>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMyAuctionMessage() {
+    return Column(
+      children: [
+        AppSpacer(heightPortion: .01),
+       
+        InkWell(
+          onTap: () {
+            Navigator.of(context).push(AppRoutes.createRoute(VMybidScreen()));
+          },
+          child: RichText(
+            text: TextSpan(
+              text:
+                  "Auction closed. You are the highest bidder. Our team will be in touch shortly.",
+              style: VStyle.style(context: context, color: VColors.DARK_GREY),
+              children: [
+                TextSpan(
+                  text: " See History",
+                  style: VStyle.style(
+                    context: context,
+                    color: EvAppColors.DARK_SECONDARY,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

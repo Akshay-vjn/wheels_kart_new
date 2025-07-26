@@ -28,6 +28,7 @@ class VCarDetailsScreen extends StatefulWidget {
   final String inspectionId;
   final bool hideBidPrice;
   final String auctionType;
+  final bool isShowingInHistoryScreen;
   const VCarDetailsScreen({
     super.key,
     required this.hideBidPrice,
@@ -35,6 +36,7 @@ class VCarDetailsScreen extends StatefulWidget {
     required this.inspectionId,
     required this.isLiked,
     required this.auctionType,
+    this.isShowingInHistoryScreen = false,
   });
 
   @override
@@ -55,34 +57,6 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
 
   bool _isLiked = false;
   bool get isOCB => widget.auctionType == "OCB";
-  // ?text=Hello%20there
-
-  // late String _endTime;
-
-  // void getMinutesToStop(VCarDetailModel model) {
-  //   if (model.carDetails.bidClosingTime != null) {
-  //     final now = DateTime.now();
-  //     final difference = widget.vehicle.bidClosingTime!.difference(now);
-
-  //     if (difference.isNegative) {
-  //       _endTime = "00:00:00";
-  //     } else {
-  //       final hour = difference.inHours % 60;
-  //       final min = difference.inMinutes % 60;
-  //       final sec = difference.inSeconds % 60;
-
-  //       // Format with leading zeros if needed
-  //       final minStr = min.toString().padLeft(2, '0');
-  //       final secStr = sec.toString().padLeft(2, '0');
-
-  //       _endTime = "$hour:$minStr:$secStr";
-  //     }
-
-  //     setState(() {});
-  //   } else {
-  //     _endTime = "00:00:00";
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -359,35 +333,83 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                               ),
                             ],
                           ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: VColors.GREENHARD,
-                            ),
-                            onPressed: () async {
-                              final currentState =
-                                  context.read<VDetailsControllerBloc>().state;
-                              if (currentState
-                                  is VDetailsControllerSuccessState) {
-                                final details = currentState.detail.carDetails;
-                                await VDetailsControllerBloc.openWhatsApp(
+                          if (!isOCB)
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: VColors.GREENHARD,
+                              ),
+                              onPressed: () async {
+                                final currentState =
+                                    context
+                                        .read<VDetailsControllerBloc>()
+                                        .state;
+                                if (currentState
+                                    is VDetailsControllerSuccessState) {
+                                  final details =
+                                      currentState.detail.carDetails;
+                                  await VDetailsControllerBloc.showDiologueForBidWhatsapp(
+                                    context: context,
+                                    currentBid: details.currentBid ?? '',
+                                    evaluationId: details.evaluationId,
+                                    image: widget.frontImage,
+                                    kmDrive: details.kmsDriven,
+                                    manufactureYear: details.yearOfManufacture,
+                                    model: details.model,
+                                    noOfOwners: details.noOfOwners,
+                                    regNumber: details.registrationNumber,
+                                  );
+                                }
+                              },
+                              label: Text(
+                                "Bid Now",
+                                style: VStyle.style(
                                   context: context,
-                                  currentBid: details.currentBid ?? '',
-                                  evaluationId: details.evaluationId,
-                                  image: widget.frontImage,
-                                  kmDrive: details.kmsDriven,
-                                  manufactureYear: details.yearOfManufacture,
-                                  model: details.model,
-                                  noOfOwners: details.noOfOwners,
-                                  regNumber: details.registrationNumber,
-                                );
-                              }
-                            },
-
-                            child: Icon(
-                              SolarIconsBold.chatRound,
-                              color: VColors.WHITE,
+                                  color: VColors.WHITE,
+                                  size: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              icon: Icon(
+                                SolarIconsBold.chatRound,
+                                color: VColors.WHITE,
+                              ),
                             ),
-                          ),
+
+                          if (isOCB)
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: VColors.GREENHARD,
+                              ),
+                              onPressed: () async {
+                                final currentState =
+                                    context
+                                        .read<VDetailsControllerBloc>()
+                                        .state;
+                                if (currentState
+                                    is VDetailsControllerSuccessState) {
+                                  final details =
+                                      currentState.detail.carDetails;
+                                  VDetailsControllerBloc.showBuySheet(
+                                    context,
+                                    details.currentBid ?? '0',
+                                    widget.inspectionId,
+                                  );
+                                }
+                              },
+                              label: Text(
+                                "Buy Now",
+                                style: VStyle.style(
+                                  context: context,
+                                  color: VColors.WHITE,
+                                  size: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              icon: Icon(
+                                SolarIconsBold.chatRound,
+                                color: VColors.WHITE,
+                              ),
+                            ),
                         ],
                       ),
                     );
@@ -552,48 +574,48 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                   size: 20,
                 ),
               ),
-
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
+              if (!widget.isShowingInHistoryScreen)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      _isLiked = !_isLiked;
-                      setState(() {});
-                      context.read<VWishlistControllerCubit>().onChangeFavState(
-                        context,
-                        widget.inspectionId,
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: Icon(
-                          _isLiked
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          // key: ValueKey(widget.isFavorite),
-                          color: _isLiked ? VColors.ACCENT : VColors.DARK_GREY,
-                          size: 20,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        _isLiked = !_isLiked;
+                        setState(() {});
+                        context
+                            .read<VWishlistControllerCubit>()
+                            .onChangeFavState(context, widget.inspectionId);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: Icon(
+                            _isLiked
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            // key: ValueKey(widget.isFavorite),
+                            color:
+                                _isLiked ? VColors.ACCENT : VColors.DARK_GREY,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
           AppSpacer(heightPortion: .01),

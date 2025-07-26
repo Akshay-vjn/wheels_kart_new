@@ -19,6 +19,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VAuctionVehicleCard extends StatefulWidget {
@@ -50,6 +51,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   @override
   void initState() {
     _endTime = "00:00:00";
+
     _isLiked = widget.vehicle.wishlisted == 1 ? true : false;
     super.initState();
     _animationController = AnimationController(
@@ -241,12 +243,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                 ),
                                 AppSpacer(heightPortion: .01),
                               ],
-                              // Row(
-                              //   children:
-                              //       widget.vehicle.vendorIds
-                              //           .map((e) => Text("$e ,"))
-                              //           .toList(),
-                              // ),
+
                               if (_isOpened && !_isColsed) ...[
                                 Column(
                                   children: [
@@ -291,6 +288,9 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                     ),
                                   ),
                                 ),
+                              ],
+                              if (_isHigestBidderIsMe && _isColsed) ...[
+                                _buildMyAuctionMessage(),
                               ],
                               // bidSoldSecion(),
                             ],
@@ -557,7 +557,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         : Flexible(
           child: InkWell(
             onTap: () {
-              VDetailsControllerBloc.openWhatsApp(
+              VDetailsControllerBloc.showDiologueForBidWhatsapp(
                 context: context,
                 currentBid: widget.vehicle.currentBid ?? "",
                 evaluationId: widget.vehicle.evaluationId,
@@ -635,7 +635,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                 backgroundColor: VColors.SECONDARY,
               ),
               onPressed: () {
-                VDetailsControllerBloc.openWhatsApp(
+                VDetailsControllerBloc.showDiologueForBidWhatsapp(
                   context: context,
                   currentBid: widget.vehicle.currentBid ?? "",
                   evaluationId: widget.vehicle.evaluationId,
@@ -762,8 +762,8 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
             color = VColors.SUCCESS;
             break;
           } else {
-            title = "OPEN SOON";
-            color = VColors.ACCENT;
+            title = "CLOSED";
+            color = EvAppColors.DARK_SECONDARY;
             break;
           }
         }
@@ -860,5 +860,35 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
       default:
         return 'Not Specified';
     }
+  }
+
+  Widget _buildMyAuctionMessage() {
+    return Column(
+      children: [
+        AppSpacer(heightPortion: .01),
+       
+        InkWell(
+          onTap: () {
+            Navigator.of(context).push(AppRoutes.createRoute(VMybidScreen()));
+          },
+          child: RichText(
+            text: TextSpan(
+              text:
+                  "Auction closed. You are the highest bidder. Our team will be in touch shortly.",
+              style: VStyle.style(context: context, color: VColors.DARK_GREY),
+              children: [
+                TextSpan(
+                  text: " See History",
+                  style: VStyle.style(
+                    context: context,
+                    color: EvAppColors.DARK_SECONDARY,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

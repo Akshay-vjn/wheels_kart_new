@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/ocb%20controller/my_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/widgets/ocb_tile.dart';
 
 class BoughtOcbHistoryTab extends StatefulWidget {
   const BoughtOcbHistoryTab({super.key});
@@ -45,99 +48,7 @@ class _BoughtOcbHistoryTabState extends State<BoughtOcbHistoryTab> {
                     padding: EdgeInsets.only(top: 10, left: 10, right: 10),
                     itemBuilder: (context, index) {
                       final ocb = list[index];
-                      return Container(
-                        // padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: VColors.WHITE,
-                          border: Border.all(
-                            width: .5,
-                            color: VColors.GREENHARD,
-                          ),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Flexible(
-                                  child: VMybidScreen.buildImageSection(
-                                    ocb.frontImage,
-                                    ocb.evaluationId,
-                                  ),
-                                ),
-                                AppSpacer(widthPortion: .02),
-                                Flexible(
-                                  child: VMybidScreen.buildHeader(
-                                    context,
-                                    ocb.manufacturingYear,
-                                    ocb.brandName,
-                                    ocb.modelName,
-                                    ocb.city,
-                                    ocb.evaluationId,
-                                  ),
-                                ),
-                                AppSpacer(widthPortion: .02),
-                              ],
-                            ),
-                            Padding(
-                              padding: EdgeInsetsGeometry.all(10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Bought Price",
-                                        style: VStyle.style(
-                                          context: context,
-                                          color: VColors.DARK_GREY,
-                                        ),
-                                      ),
-                                      Text(
-                                        "₹10000",
-                                        style: VStyle.style(
-                                          context: context,
-                                          size: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  TextButton(
-                                    // style: ElevatedButton.styleFrom(
-                                    //   backgroundColor: VColors.SECONDARY,
-                                    //   foregroundColor: VColors.WHITE,
-                                    // ),
-                                    onPressed: () {},
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "Show Details",
-                                          style: VStyle.style(
-                                            context: context,
-                                            fontWeight: FontWeight.w700,
-                                            size: 10,
-                                          ),
-                                        ),
-                                        AppSpacer(widthPortion: .01),
-                                        Icon(
-                                          Icons.arrow_forward_ios_rounded,
-                                          size: 10,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
+                      return OcbTile( ocb:ocb);
                     },
                   );
             }

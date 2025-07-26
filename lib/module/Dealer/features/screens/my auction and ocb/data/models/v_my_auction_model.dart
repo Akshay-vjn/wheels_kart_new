@@ -1,11 +1,9 @@
-import 'dart:developer';
-
 class VMyAuctionModel {
   String inspectionId;
   String evaluationId;
   String brandName;
   String modelName;
-  String frontImage;
+  dynamic frontImage;
   String manufacturingYear;
   String fuelType;
   String kmsDriven;
@@ -13,10 +11,11 @@ class VMyAuctionModel {
   String city;
   String? bidAmount;
   DateTime? bidTime;
+  DateTime? bidClosingTime;
   String? bidStatus;
   String? soldTo;
   String? soldName;
-  String yourBid;
+  List<YourBid> yourBids;
 
   VMyAuctionModel({
     required this.inspectionId,
@@ -31,32 +30,36 @@ class VMyAuctionModel {
     required this.city,
     required this.bidAmount,
     required this.bidTime,
+    required this.bidClosingTime,
     required this.bidStatus,
     required this.soldTo,
     required this.soldName,
-    required this.yourBid,
+    required this.yourBids,
   });
 
-  factory VMyAuctionModel.fromJson(Map<String, dynamic> json) {
-    return VMyAuctionModel(
-      inspectionId: json["inspectionId"] ?? '',
-      evaluationId: json["evaluationId"] ?? '',
-      brandName: json["brandName"] ?? '',
-      modelName: json["modelName"] ?? '',
-      frontImage: json["frontImage"] ?? '' ?? "",
-      manufacturingYear: json["manufacturingYear"] ?? "",
-      fuelType: json["fuel_type"] ?? "",
-      kmsDriven: json["kmsDriven"] ?? "",
-      regNo: json["regNo"] ?? "",
-      city: json["City"] ?? "",
-      bidAmount: json["bidAmount"] ?? '',
-      bidTime:  DateTime.parse(json["bidTime"]),
-      bidStatus: json["bidStatus"] ?? "",
-      soldTo: json["soldTo"] ?? "",
-      soldName: json["soldName"] ?? "",
-      yourBid: json["yourBid"] ?? "",
-    );
-  }
+  factory VMyAuctionModel.fromJson(Map<String, dynamic> json) =>
+      VMyAuctionModel(
+        inspectionId: json["inspectionId"] ?? '',
+        evaluationId: json["evaluationId"] ?? '',
+        brandName: json["brandName"] ?? '',
+        modelName: json["modelName"] ?? '',
+        frontImage: json["frontImage"] ?? '',
+        manufacturingYear: json["manufacturingYear"] ?? '',
+        fuelType: json["fuel_type"] ?? '',
+        kmsDriven: json["kmsDriven"] ?? '',
+        regNo: json["regNo"] ?? '',
+        city: json["City"] ?? '',
+        bidAmount: json["bidAmount"] ?? '',
+        bidTime:
+            json["bidTime"] == null ? null : DateTime.parse(json["bidTime"]),
+        bidClosingTime:json["bidClosingTime"]==null?null: DateTime.parse(json["bidClosingTime"]),
+        bidStatus: json["bidStatus"] ?? '',
+        soldTo: json["soldTo"] ?? '',
+        soldName: json["soldName"] ?? '',
+        yourBids: List<YourBid>.from(
+          json["yourBids"].map((x) => YourBid.fromJson(x)),
+        ),
+      );
 
   Map<String, dynamic> toJson() => {
     "inspectionId": inspectionId,
@@ -70,34 +73,31 @@ class VMyAuctionModel {
     "regNo": regNo,
     "City": city,
     "bidAmount": bidAmount,
-    "bidTime": bidTime,
+    "bidTime": bidTime!.toIso8601String(),
+    "bidClosingTime": bidClosingTime!.toIso8601String(),
     "bidStatus": bidStatus,
     "soldTo": soldTo,
     "soldName": soldName,
-    "yourBid": yourBid,
+    "yourBids": List<dynamic>.from(yourBids.map((x) => x.toJson())),
   };
 }
 
-class BidTime {
-  final DateTime date;
-  final int timezoneType;
-  final String timezone;
+class YourBid {
+  final int amount;
+  final DateTime time;
+  final String status;
 
-  BidTime({
-    required this.date,
-    required this.timezoneType,
-    required this.timezone,
-  });
+  YourBid({required this.amount, required this.time, required this.status});
 
-  factory BidTime.fromJson(Map<String, dynamic> json) => BidTime(
-    date: DateTime.parse(json["date"]),
-    timezoneType: json["timezone_type"],
-    timezone: json["timezone"],
+  factory YourBid.fromJson(Map<String, dynamic> json) => YourBid(
+    amount: json["amount"],
+    time: DateTime.parse(json["time"]),
+    status: json["status"] ?? '',
   );
 
   Map<String, dynamic> toJson() => {
-    "date": date.toIso8601String(),
-    "timezone_type": timezoneType,
-    "timezone": timezone,
+    "amount": amount,
+    "time": time.toIso8601String(),
+    "status": status,
   };
 }

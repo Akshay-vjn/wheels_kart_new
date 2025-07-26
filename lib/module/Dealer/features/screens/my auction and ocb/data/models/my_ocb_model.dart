@@ -34,21 +34,21 @@ class MyOcbModel {
     });
 
     factory MyOcbModel.fromJson(Map<String, dynamic> json) => MyOcbModel(
-        inspectionId: json["inspectionId"],
-        evaluationId: json["evaluationId"],
-        brandName: json["brandName"],
-        modelName: json["modelName"],
-        frontImage: json["frontImage"],
-        manufacturingYear: json["manufacturingYear"],
-        fuelType: json["fuel_type"],
-        kmsDriven: json["kmsDriven"],
-        regNo: json["regNo"],
-        city: json["City"],
-        bidAmount: json["bidAmount"],
-        bidTime: json["bidTime"],
-        bidStatus: json["bidStatus"],
-        soldTo: json["soldTo"],
-        soldName: json["soldName"],
+        inspectionId: json["inspectionId"]??'',
+        evaluationId: json["evaluationId"]??'',
+        brandName: json["brandName"]??'',
+        modelName: json["modelName"]??'',
+        frontImage: json["frontImage"]??'',
+        manufacturingYear: json["manufacturingYear"]??'',
+        fuelType: json["fuel_type"]??'',
+        kmsDriven: json["kmsDriven"]??'',
+        regNo: json["regNo"]??'',
+        city: json["City"]??'',
+        bidAmount: json["bidAmount"]??'',
+        bidTime: json["bidTime"]??'',
+        bidStatus: json["bidStatus"]??'',
+        soldTo: json["soldTo"]??'',
+        soldName: json["soldName"]??'',
     );
 
     Map<String, dynamic> toJson() => {

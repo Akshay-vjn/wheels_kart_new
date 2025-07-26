@@ -490,7 +490,11 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
               backgroundColor: VColors.SECONDARY,
             ),
             onPressed: () {
-              _showBuySheet(widget.vehicle.currentBid ?? '');
+              VDetailsControllerBloc.showBuySheet(
+                context,
+                widget.vehicle.currentBid ?? '',
+                widget.vehicle.inspectionId,
+              );
             },
             child: Text(
               "Buy",
@@ -697,110 +701,5 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
       default:
         return 'Not Specified';
     }
-  }
-
-  void _showBuySheet(String currentBid) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withOpacity(0.5),
-      builder:
-          (context) => AnimatedPadding(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            ),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(28),
-                color: VColors.WHITE,
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.1),
-                  width: 1,
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "You want to buy this vehicle",
-                      style: VStyle.style(
-                        context: context,
-                        fontWeight: FontWeight.bold,
-                        size: 15,
-                      ),
-                    ),
-                    Text("Cuurent Price : $currentBid"),
-                    AppSpacer(heightPortion: .02),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text(
-                              "No",
-                              style: VStyle.style(
-                                context: context,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Flexible(
-                          child: InkWell(
-                            onTap: () async {
-                              context.read<VOcbControllerBloc>().add(
-                                OnBuyOCB(
-                                  inspectionId: widget.vehicle.inspectionId,
-                                  context: context,
-                                ),
-                              );
-                            },
-                            child: Container(
-                              width: 200,
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: VColors.GREENHARD,
-                              ),
-                              child: BlocBuilder<
-                                VOcbControllerBloc,
-                                VOcbControllerState
-                              >(
-                                builder: (context, state) {
-                                  return state is VOcbControllerSuccessState &&
-                                          state.loadingTheOCBButton
-                                      ? VLoadingIndicator()
-                                      : Text(
-                                        "Yes, Buy Now",
-                                        style: VStyle.style(
-                                          context: context,
-                                          fontWeight: FontWeight.bold,
-                                          color: VColors.WHITE,
-                                        ),
-                                      );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-    );
   }
 }

@@ -32,6 +32,8 @@ class VMyAuctionControllerBloc
       log("--------Auction Updated");
       if (cuuremtSate is VMyAuctionControllerSuccessState) {
         for (var car in cuuremtSate.listOfMyAuctions) {
+          // log("New Price");
+          // log(event.newBid.bidClosingTime.toString());
           if (car.evaluationId == event.newBid.evaluationId) {
             final bid = event.newBid;
 
