@@ -166,14 +166,7 @@ class _VMybidScreenState extends State<VMybidScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   VCustomBackbutton(blendColor: VColors.GREY),
-                  // Text(
-                  //   "Bid History",
-                  //   style: VStyle.style(
-                  //     context: context,
-                  //     fontWeight: FontWeight.bold,
-                  //     size: 13
-                  //   ),
-                  // ),
+
                   AppSpacer(widthPortion: .02),
                   Flexible(
                     child: TabBar(

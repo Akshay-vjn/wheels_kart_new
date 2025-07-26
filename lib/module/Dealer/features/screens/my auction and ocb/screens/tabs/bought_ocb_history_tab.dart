@@ -34,13 +34,13 @@ class _BoughtOcbHistoryTabState extends State<BoughtOcbHistoryTab> {
         switch (state) {
           case MyOcbControllerErrorState():
             {
-              return AppEmptyText(text: state.error);
+              return Center(child: AppEmptyText(text: state.error));
             }
           case MyOncControllerSuccessState():
             {
               final list = state.myOcbList;
               return list.isEmpty
-                  ? AppEmptyText(text: "No OCB Purchase found!")
+                  ? Center(child: AppEmptyText(text: "No OCB Purchase found!"))
                   : ListView.separated(
                     itemCount: list.length,
                     separatorBuilder:
@@ -54,7 +54,7 @@ class _BoughtOcbHistoryTabState extends State<BoughtOcbHistoryTab> {
             }
           default:
             {
-              return VLoadingIndicator();
+              return Center(child: VLoadingIndicator());
             }
         }
       },

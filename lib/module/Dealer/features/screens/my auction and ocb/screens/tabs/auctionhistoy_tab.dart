@@ -163,11 +163,11 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab> {
             }
           case VMyAuctionControllerErrorState():
             {
-              return AppEmptyText(text: state.error);
+              return Center(child: AppEmptyText(text: state.error));
             }
           default:
             {
-              return VLoadingIndicator();
+              return Center(child: VLoadingIndicator());
             }
         }
       },
@@ -176,7 +176,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab> {
 
   Widget _buildLiveWinningAuction(List<VMyAuctionModel> list) {
     return list.isEmpty
-        ? AppEmptyText(text: "No Auctions found!")
+        ? Center(child: AppEmptyText(text: "No Auctions found!"))
         : SingleChildScrollView(
           child: Column(
             children:
@@ -187,7 +187,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab> {
 
   Widget _buildLiveLosingAuction(List<VMyAuctionModel> list) {
     return list.isEmpty
-        ? AppEmptyText(text: "No Auctions found!")
+        ? Center(child: AppEmptyText(text: "No Auctions found!"))
         : SingleChildScrollView(
           child: Column(
             children:
@@ -198,7 +198,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab> {
 
   Widget _buildSoldAuction(List<VMyAuctionModel> list) {
     return list.isEmpty
-        ? AppEmptyText(text: "No Auctions found!")
+        ? Center(child: AppEmptyText(text: "No Auctions found!"))
         : SingleChildScrollView(
           child: Column(
             children:
