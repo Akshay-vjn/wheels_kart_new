@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:animate_do/animate_do.dart';
@@ -46,6 +48,7 @@ class VCarDetailsScreen extends StatefulWidget {
 class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
   @override
   void initState() {
+    // _endTime = "00:00:00";
     context.read<VDetailsControllerBloc>().add(
       OnFetchDetails(context: context, inspectionId: widget.inspectionId),
     );
@@ -53,10 +56,56 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
     _isLiked = widget.isLiked;
     setState(() {});
     super.initState();
+    log(widget.inspectionId);
+
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   context.read<VDetailsControllerBloc>().stream.listen((event) {
+    //     if (event is VDetailsControllerSuccessState) {
+    //       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    //         getMinutesToStop(event.detail.carDetails.bidClosingTime);
+    //       });
+    //     }
+    //   });
+    // });
   }
+
+  // late String _endTime;
+
+  // void getMinutesToStop(DateTime? bidClosingTime) {
+  //   if (bidClosingTime != null) {
+  //     final now = DateTime.now();
+  //     final difference = bidClosingTime.difference(now);
+
+  //     if (difference.isNegative) {
+  //       _endTime = "00:00:00";
+  //     } else {
+  //       final hour = difference.inHours % 60;
+  //       final min = difference.inMinutes % 60;
+  //       final sec = difference.inSeconds % 60;
+
+  //       // Format with leading zeros if needed
+  //       final minStr = min.toString().padLeft(2, '0');
+  //       final secStr = sec.toString().padLeft(2, '0');
+
+  //       _endTime = "$hour:$minStr:$secStr";
+  //     }
+
+  //     setState(() {});
+  //   } else {
+  //     _endTime = "00:00:00";
+  //   }
+  // }
 
   bool _isLiked = false;
   bool get isOCB => widget.auctionType == "OCB";
+
+  Timer? _timer;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -333,83 +382,90 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                               ),
                             ],
                           ),
-                          if (!isOCB)
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: VColors.GREENHARD,
-                              ),
-                              onPressed: () async {
-                                final currentState =
-                                    context
-                                        .read<VDetailsControllerBloc>()
-                                        .state;
-                                if (currentState
-                                    is VDetailsControllerSuccessState) {
-                                  final details =
-                                      currentState.detail.carDetails;
-                                  await VDetailsControllerBloc.showDiologueForBidWhatsapp(
-                                    context: context,
-                                    currentBid: details.currentBid ?? '',
-                                    evaluationId: details.evaluationId,
-                                    image: widget.frontImage,
-                                    kmDrive: details.kmsDriven,
-                                    manufactureYear: details.yearOfManufacture,
-                                    model: details.model,
-                                    noOfOwners: details.noOfOwners,
-                                    regNumber: details.registrationNumber,
-                                  );
-                                }
-                              },
-                              label: Text(
-                                "Bid Now",
-                                style: VStyle.style(
-                                  context: context,
-                                  color: VColors.WHITE,
-                                  size: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              icon: Icon(
-                                SolarIconsBold.chatRound,
-                                color: VColors.WHITE,
-                              ),
-                            ),
 
-                          if (isOCB)
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: VColors.GREENHARD,
-                              ),
-                              onPressed: () async {
-                                final currentState =
-                                    context
-                                        .read<VDetailsControllerBloc>()
-                                        .state;
-                                if (currentState
-                                    is VDetailsControllerSuccessState) {
-                                  final details =
-                                      currentState.detail.carDetails;
-                                  VDetailsControllerBloc.showBuySheet(
-                                    context,
-                                    details.currentBid ?? '0',
-                                    widget.inspectionId,
-                                  );
-                                }
-                              },
-                              label: Text(
-                                "Buy Now",
-                                style: VStyle.style(
-                                  context: context,
-                                  color: VColors.WHITE,
-                                  size: 13,
-                                  fontWeight: FontWeight.bold,
+                          Column(
+                            children: [
+                              if (!isOCB)
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: VColors.GREENHARD,
+                                  ),
+                                  onPressed: () async {
+                                    final currentState =
+                                        context
+                                            .read<VDetailsControllerBloc>()
+                                            .state;
+                                    if (currentState
+                                        is VDetailsControllerSuccessState) {
+                                      final details =
+                                          currentState.detail.carDetails;
+                                      await VDetailsControllerBloc.showDiologueForBidWhatsapp(
+                                        context: context,
+                                        currentBid: details.currentBid ?? '',
+                                        evaluationId: details.evaluationId,
+                                        image: widget.frontImage,
+                                        kmDrive: details.kmsDriven,
+                                        manufactureYear:
+                                            details.yearOfManufacture,
+                                        model: details.model,
+                                        noOfOwners: details.noOfOwners,
+                                        regNumber: details.registrationNumber,
+                                      );
+                                    }
+                                  },
+                                  label: Text(
+                                    "Bid Now",
+                                    style: VStyle.style(
+                                      context: context,
+                                      color: VColors.WHITE,
+                                      size: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  icon: Icon(
+                                    SolarIconsBold.chatRound,
+                                    color: VColors.WHITE,
+                                  ),
                                 ),
-                              ),
-                              icon: Icon(
-                                SolarIconsBold.chatRound,
-                                color: VColors.WHITE,
-                              ),
-                            ),
+
+                              if (isOCB)
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: VColors.GREENHARD,
+                                  ),
+                                  onPressed: () async {
+                                    final currentState =
+                                        context
+                                            .read<VDetailsControllerBloc>()
+                                            .state;
+                                    if (currentState
+                                        is VDetailsControllerSuccessState) {
+                                      final details =
+                                          currentState.detail.carDetails;
+                                      VDetailsControllerBloc.showBuySheet(
+                                        context,
+                                        details.currentBid ?? '0',
+                                        widget.inspectionId,
+                                      );
+                                    }
+                                  },
+                                  label: Text(
+                                    "Buy Now",
+                                    style: VStyle.style(
+                                      context: context,
+                                      color: VColors.WHITE,
+                                      size: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  icon: Icon(
+                                    SolarIconsBold.chatRound,
+                                    color: VColors.WHITE,
+                                  ),
+                                ),
+                              // Text(_endTime),
+                            ],
+                          ),
                         ],
                       ),
                     );

@@ -267,6 +267,7 @@ $image
                               )) {
                                 throw 'Could not launch WhatsApp chat';
                               }
+                              Navigator.of(context).pop();
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(

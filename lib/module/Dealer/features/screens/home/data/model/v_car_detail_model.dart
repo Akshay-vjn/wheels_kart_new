@@ -53,10 +53,12 @@ class CarDetails {
   final String manufactureDate;
   final String noOfKeys;
   final String city;
+  final DateTime? bidClosingTime;
   String? currentBid;
   final String evaluationId;
 
   CarDetails({
+    required this.bidClosingTime,
     required this.evaluationId,
     required this.brand,
     required this.yearOfManufacture,
@@ -83,6 +85,10 @@ class CarDetails {
   });
 
   factory CarDetails.fromJson(Map<String, dynamic> json) => CarDetails(
+    bidClosingTime:
+        json['bidClosingTime'] == null
+            ? null
+            : DateTime.parse(json['bidClosingTime']),
     evaluationId: json['evaluationId'] ?? 'N/A',
     brand: json["Brand"] ?? 'N/A',
     yearOfManufacture: json["Year of Manufacture"] ?? 'N/A',

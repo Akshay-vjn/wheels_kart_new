@@ -87,6 +87,8 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
       // widget.onPressCard();
       onPressCard();
     }
+          onPressCard();
+
   }
 
   void _onTapCancel() {
@@ -245,18 +247,18 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                               ],
 
                               if (_isOpened && !_isColsed) ...[
-                                Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        _buildHighAndLowBid(),
-                                        _buildWhatsAppButton(),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                              Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      _buildHighAndLowBid(),
+                                      _buildWhatsAppButton(),
+                                    ],
+                                  ),
+                                ],
+                              ),
                               ],
 
                               // _buildOpenBidSection(),
@@ -538,24 +540,26 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   Widget _buildHighAndLowBid() {
     Color color;
     Icon icon;
-    String text;
-    String subtitle;
+    String titleText;
+    String subtitleText;
+
     if (_isHigestBidderIsMe) {
       color = VColors.SUCCESS;
-      text = "Winning";
-      subtitle = "Update Bid";
-
-      icon = Icon(Icons.trending_up, color: color);
+      icon = Icon(Icons.trending_up, color: color, size: 30);
+      titleText = "Winning";
+      subtitleText = "Update Bid";
     } else {
       color = VColors.ERROR;
-      icon = Icon(Icons.trending_down, color: color);
-      text = "Losing";
-      subtitle = "Increase Bid";
+      icon = Icon(Icons.trending_down, color: color, size: 30);
+      titleText = "Losing";
+      subtitleText = "Increase Bid";
     }
+
     return !_isIamInThisBid
         ? SizedBox.shrink()
         : Flexible(
           child: InkWell(
+            borderRadius: BorderRadius.circular(12),
             onTap: () {
               VDetailsControllerBloc.showDiologueForBidWhatsapp(
                 context: context,
@@ -570,48 +574,53 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
               );
             },
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 5),
-              padding: EdgeInsets.all(5),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: color.withAlpha(40),
-                border: Border.all(width: .2, color: color),
-                borderRadius: BorderRadius.circular(10),
-              ),
-
               width: double.infinity,
-              height: 50,
-              child: Column(
+              height: 60,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.05),
+                border: Border.all(color: color.withOpacity(0.6), width: 0.6),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(0.08),
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Text(
-                          text,
-                          style: VStyle.style(
-                            context: context,
-                            color: color,
-                            fontWeight: FontWeight.w800,
-                          ),
+                      Text(
+                        titleText,
+                        style: VStyle.style(
+                          context: context,
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          size: 16,
                         ),
                       ),
-                      AppSpacer(widthPortion: .02),
-
-                      icon,
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitleText,
+                        style: VStyle.style(
+                          context: context,
+                          color: color.withOpacity(0.8),
+                          fontWeight: FontWeight.w400,
+                          size: 12,
+                        ),
+                      ),
                     ],
                   ),
-                  Flexible(
-                    child: Text(
-                      subtitle,
-                      style: VStyle.style(
-                        context: context,
-                        color: color,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
+ const SizedBox(width: 20),
+                  icon,
+                 
                 ],
               ),
             ),
@@ -866,7 +875,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     return Column(
       children: [
         AppSpacer(heightPortion: .01),
-       
+
         InkWell(
           onTap: () {
             Navigator.of(context).push(AppRoutes.createRoute(VMybidScreen()));
