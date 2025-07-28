@@ -1,0 +1,23 @@
+part of 'v_ocb_controller_bloc.dart';
+
+@immutable
+sealed class VOcbControllerEvent {}
+
+class OnFechOncList extends VOcbControllerEvent {
+  final BuildContext context;
+
+  OnFechOncList({required this.context});
+}
+
+class ConnectWebSocket extends VOcbControllerEvent {}
+
+class UpdatePrice extends VOcbControllerEvent {
+  final LiveBidModel newBid;
+  UpdatePrice({required this.newBid});
+}
+
+class OnBuyOCB extends VOcbControllerEvent {
+  final String inspectionId;
+  final BuildContext context;
+  OnBuyOCB({required this.inspectionId, required this.context});
+}

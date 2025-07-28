@@ -46,9 +46,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
     context.read<EvFetchCarMakeBloc>().add(
       InitalFetchCarMakeEvent(context: context),
     );
-    context.read<FetchInspectionsBloc>().add(
-      OnGetInspectionList(context: context, inspetionListType: 'ASSIGNED'),
-    );
+   _loadInspections();
 
     _animationController.forward();
   }
@@ -59,7 +57,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
     super.dispose();
   }
 
-  Future<void> load() async {
+  Future<void> _loadInspections() async {
     context.read<FetchInspectionsBloc>().add(
       OnGetInspectionList(context: context, inspetionListType: 'ASSIGNED'),
     );
@@ -77,7 +75,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
       ),
       child: RefreshIndicator.adaptive(
         onRefresh: () async {
-          await load();
+          await _loadInspections();
           _animationController.reset();
           _animationController.forward();
         },
@@ -173,7 +171,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: load,
+            onPressed: _loadInspections,
             icon: const Icon(Icons.refresh),
             label: const Text('Try Again'),
             style: ElevatedButton.styleFrom(

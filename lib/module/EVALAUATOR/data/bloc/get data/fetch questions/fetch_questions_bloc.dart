@@ -41,6 +41,9 @@ class FetchQuestionsBloc
           data = datas as List;
           List<QuestionModelData> questionsList =
               data.map((e) => QuestionModelData.fromJson(e)).toList();
+          questionsList.sort(
+            (a, b) => int.parse(a.position).compareTo(int.parse(b.position)),
+          );
           emit(
             SuccessFetchQuestionsState(
               listOfQuestions: questionsList,

@@ -23,7 +23,7 @@ class UploadInspectionRepo {
         Response response = await http.post(url,
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': state.userModel.token
+              'Authorization': state.userModel.token!
             },
             body: body);
 

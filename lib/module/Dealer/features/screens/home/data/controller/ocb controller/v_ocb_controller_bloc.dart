@@ -1,0 +1,131 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:wheels_kart/common/utils/custome_show_messages.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_buy_ocb_auction_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_ocb_list_repo.dart';
+
+part 'v_ocb_controller_event.dart';
+part 'v_ocb_controller_state.dart';
+
+class VOcbControllerBloc
+    extends Bloc<VOcbControllerEvent, VOcbControllerState> {
+  late WebSocketChannel channel;
+  StreamSubscription? _subscription;
+  VOcbControllerBloc() : super(VOcbControlllerInitialState()) {
+    on<OnFechOncList>((event, emit) async {
+      emit(VOcbControlllerLoadingState());
+      final response = await VFetchOcbListRepo.getOcbList(event.context);
+      if (response.isNotEmpty) {
+        if (response['error'] == false) {
+          final data = response['data'] as List;
+          final list = data.map((e) => VCarModel.fromJson(e)).toList();
+          emit(
+            VOcbControllerSuccessState(
+              listOfCars: list,
+              enableRefreshButton: false,
+            ),
+          );
+        } else {
+          emit(VOcbControllerErrorState(errorMesage: response['message']));
+        }
+      }
+    });
+
+    on<ConnectWebSocket>(_connectWebSocket);
+
+    on<UpdatePrice>((event, emit) {
+      final cuuremtSate = state;
+      List<VCarModel> updatedList = [];
+
+      if (cuuremtSate is VOcbControllerSuccessState) {
+        if (event.newBid.trigger != null && event.newBid.trigger == "ocb new") {
+          log("--------New OCB Listed");
+          emit(
+            VOcbControllerSuccessState(
+              listOfCars: cuuremtSate.listOfCars,
+              enableRefreshButton: true,
+            ),
+          );
+        } else {
+          log("--------Auction Updated");
+          for (var car in cuuremtSate.listOfCars) {
+            if (car.evaluationId == event.newBid.evaluationId) {
+              final bid = event.newBid;
+
+              car.bidStatus = bid.bidStatus;
+              car.soldName = bid.soldName;
+              car.soldTo = bid.soldTo;
+              car.currentBid = bid.currentBid;
+              car.bidClosingTime = bid.bidClosingTime;
+              car.vendorIds = bid.vendorIds;
+              updatedList.add(car);
+            } else {
+              updatedList.add(car);
+            }
+          }
+          emit(
+            VOcbControllerSuccessState(
+              listOfCars: updatedList,
+              enableRefreshButton: cuuremtSate.enableRefreshButton,
+            ),
+          );
+          log("Stopped ----------------");
+        }
+      }
+    });
+
+    on<OnBuyOCB>(_onBuyOcb);
+  }
+
+  void _connectWebSocket(
+    ConnectWebSocket event,
+    Emitter<VOcbControllerState> emit,
+  ) {
+    channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
+
+    _subscription = channel.stream.listen((data) {
+      log("triggered ----------------");
+      String decoded = utf8.decode(data);
+      final jsonData = jsonDecode(decoded);
+      log("Converted ----------------");
+
+      add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
+    });
+  }
+
+  Future<void> _onBuyOcb(
+    OnBuyOCB event,
+    Emitter<VOcbControllerState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is VOcbControllerSuccessState) {
+      emit(currentState.copyWith(loadingTheOCBButton: true));
+      final response = await VBuyOcbAuctionRepo.buyOCB(
+        event.context,
+        event.inspectionId,
+      );
+      emit(currentState.copyWith(loadingTheOCBButton: false));
+      if (response['error'] == false) {
+        add(OnFechOncList(context: event.context));
+        Navigator.of(event.context).pop();
+        showToastMessage(event.context, response['message']);
+      }
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _subscription?.cancel();
+    channel.sink.close();
+    return super.close();
+  }
+}

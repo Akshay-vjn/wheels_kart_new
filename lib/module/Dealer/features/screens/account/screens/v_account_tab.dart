@@ -13,6 +13,7 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_edit_profile_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
 import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
@@ -99,15 +100,15 @@ class _VAccountTabState extends State<VAccountTab>
                                   // Account Info Section
                                   _buildAccountInfoSection(context, model),
 
-                                  AppSpacer(heightPortion: .03),
+                                  AppSpacer(heightPortion: .02),
 
                                   // Quick Actions Section
                                   _buildQuickActionsSection(context, model),
 
-                                  AppSpacer(heightPortion: .04),
+                                  AppSpacer(heightPortion: .02),
 
                                   // Settings Section
-                                  // _buildSettingsSection(context),
+                                  _buildSettingsSection(context),
 
                                   AppSpacer(heightPortion: .04),
 
@@ -359,7 +360,7 @@ class _VAccountTabState extends State<VAccountTab>
                   },
                 ),
               ),
-              const SizedBox(width: 12),
+              // const SizedBox(width: 12),
               // Expanded(
               //   child: _buildActionCard(
               //     "Change Password",
@@ -419,30 +420,41 @@ class _VAccountTabState extends State<VAccountTab>
           AppSpacer(heightPortion: .02),
 
           _buildSettingsItem(
-            "Notifications",
-            "Manage your notification preferences",
-            SolarIconsOutline.bell,
+            "Bidding History",
+            "Tap to view your bidding records",
+            SolarIconsOutline.list,
             context,
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(AppRoutes.createRoute(VMybidScreen()));
+            },
             isFirst: true,
           ),
 
-          _buildSettingsItem(
-            "Privacy & Security",
-            "Control your privacy settings",
-            SolarIconsOutline.shieldCheck,
-            context,
-            onTap: () {},
-          ),
+          // _buildSettingsItem(
+          //   "Notifications",
+          //   "Manage your notification preferences",
+          //   SolarIconsOutline.bell,
+          //   context,
+          //   onTap: () {},
+          //   isFirst: true,
+          // ),
 
-          _buildSettingsItem(
-            "Help & Support",
-            "Get help or contact support",
-            SolarIconsOutline.questionCircle,
-            context,
-            onTap: () {},
-            isLast: true,
-          ),
+          // _buildSettingsItem(
+          //   "Privacy & Security",
+          //   "Control your privacy settings",
+          //   SolarIconsOutline.shieldCheck,
+          //   context,
+          //   onTap: () {},
+          // ),
+
+          // _buildSettingsItem(
+          //   "Help & Support",
+          //   "Get help or contact support",
+          //   SolarIconsOutline.questionCircle,
+          //   context,
+          //   onTap: () {},
+          //   isLast: true,
+          // ),
         ],
       ),
     );

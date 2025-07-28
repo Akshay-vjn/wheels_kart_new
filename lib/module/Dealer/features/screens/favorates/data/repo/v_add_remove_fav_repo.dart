@@ -23,7 +23,7 @@ class VAddRemoveFavRepo {
         Response response = await http.post(
           url,
           body: {"inspectionId": inspectionId},
-          headers: {'Authorization': state.userModel.token},
+          headers: {'Authorization': state.userModel.token!},
         );
 
         final decodedata = jsonDecode(response.body);

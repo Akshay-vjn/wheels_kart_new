@@ -22,10 +22,10 @@ class VEditProfileRepo {
 
         Response response = await http.post(
           url,
-          body: {"DealerName": name, "DealerEmail": email, "DealerCity": city},
+          body: {"vendorName": name, "vendorEmail": email, "vendorCity": city},
           headers: {
             // 'Content-Type': 'application/json',
-            'Authorization': state.userModel.token,
+            'Authorization': state.userModel.token!,
           },
         );
 

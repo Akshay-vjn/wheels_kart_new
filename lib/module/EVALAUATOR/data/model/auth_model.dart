@@ -1,19 +1,19 @@
 class AuthUserModel {
-  String mobileNumber;
-  String password;
-  String token;
-  String userName;
-  String userId;
-  String userType;
+  String? mobileNumber;
+  String? password;
+  String? token;
+  String? userName;
+  String? userId;
+  String? userType;
   // String tokenExpireMessage;
 
   AuthUserModel({
-    required this.mobileNumber,
-    required this.password,
-    required this.token,
-    required this.userId,
-    required this.userName,
-    required this.userType
+    this.mobileNumber,
+    this.password,
+    this.token,
+    this.userId,
+    this.userName,
+    this.userType,
     // required this.tokenExpireMessage
   });
 }

@@ -15,8 +15,13 @@ class VCarModel {
   DateTime? bidClosingTime;
   int wishlisted;
   String status;
+  String brandName;
+  List<String> vendorIds;
+  String auctionType;
 
   VCarModel({
+    required this.auctionType,
+    required this.brandName,
     required this.inspectionId,
     required this.evaluationId,
     required this.modelName,
@@ -33,6 +38,7 @@ class VCarModel {
     required this.bidClosingTime,
     required this.wishlisted,
     required this.status,
+    required this.vendorIds,
   });
 
   factory VCarModel.fromJson(Map<String, dynamic> json) {
@@ -40,7 +46,10 @@ class VCarModel {
     if (kmDrivern == null || kmDrivern.isEmpty) {
       kmDrivern = "0";
     }
+    final list = json['vendorIds'] as List?;
     return VCarModel(
+      auctionType: json["auctionType"] ?? '',
+      brandName: json['brandName'] ?? '',
       inspectionId: json["inspectionId"] ?? '',
       evaluationId: json["evaluationId"] ?? '',
       modelName: json["modelName"] ?? '',
@@ -52,15 +61,16 @@ class VCarModel {
       city: json["City"] ?? '',
       soldTo: json["soldTo"] ?? '',
       soldName: json["soldName"] ?? '',
-      currentBid:
-          json["currentBid"].isEmpty ? "0.00" : json["currentBid"] ?? '0.00',
+      currentBid: json["currentBid"] ?? "0.00",
+      // json["currentBid"].isEmpty ? "0.00" : json["currentBid"] ?? '0.00',
       bidStatus: json["bidStatus"] ?? '',
       bidClosingTime:
           json["bidClosingTime"] == null
               ? null
               : DateTime.parse(json["bidClosingTime"]),
-      wishlisted: json["wishlisted"] ?? '',
+      wishlisted: json["wishlisted"] ?? 0,
       status: json["status"] ?? '',
+      vendorIds: list == null ? [] : list.map((e) => e.toString()).toList(),
     );
   }
 
@@ -81,5 +91,6 @@ class VCarModel {
     "bidClosingTime": bidClosingTime,
     "wishlisted": wishlisted,
     "status": status,
+    "vendorIds": vendorIds.map((e) => e).toList(),
   };
 }

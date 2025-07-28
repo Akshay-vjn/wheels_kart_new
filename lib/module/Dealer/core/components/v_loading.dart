@@ -5,7 +5,7 @@ class VLoadingIndicator extends StatelessWidget {
   const VLoadingIndicator({super.key});
   @override
   Widget build(BuildContext context) {
-    return CircularProgressIndicator(
+    return CircularProgressIndicator.adaptive(
       backgroundColor: VColors.SECONDARY.withAlpha(50),
       valueColor: AlwaysStoppedAnimation<Color>(VColors.WHITE),
 

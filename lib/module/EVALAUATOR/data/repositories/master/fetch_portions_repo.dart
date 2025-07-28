@@ -24,7 +24,7 @@ class FetchPortionsRepo {
           body: jsonEncode({"inspectionId": inspectionId}),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': state.userModel.token,
+            'Authorization': state.userModel.token!,
           },
         );
 

@@ -1,14 +1,14 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
-import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20dashboard%20controller/v_dashboard_controlller_bloc.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/car_card_builder.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/Auction/auction_car_card_builder.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/v_ocb_car_builder.dart';
 
 class VHomeTab extends StatefulWidget {
   const VHomeTab({super.key});
@@ -28,14 +28,12 @@ class _VHomeTabState extends State<VHomeTab> {
   @override
   void initState() {
     super.initState();
-    // WEB SOCKET COONECTION
-    context.read<VDashboardControlllerBloc>().add(ConnectWebSocket());
+    // // WEB SOCKET COONECTION
+    // context.read<VAuctionControlllerBloc>().add(ConnectWebSocket());
 
     //
     context.read<VProfileControllerCubit>().onFetchProfile(context);
-    context.read<VDashboardControlllerBloc>().add(
-      OnFetchVendorDashboardApi(context: context),
-    );
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _scrollController.addListener(() {
         if (_scrollController.offset > 0) {
@@ -52,129 +50,68 @@ class _VHomeTabState extends State<VHomeTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: VColors.WHITEBGCOLOR,
-      body: RefreshIndicator.adaptive(
-        onRefresh: () async {
-          return context.read<VDashboardControlllerBloc>().add(
-            OnFetchVendorDashboardApi(context: context),
-          );
-        },
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            SliverAppBar(
-              surfaceTintColor: VColors.WHITE,
-              automaticallyImplyLeading: false,
-              // expandedHeight: h(context) * .15,
-              toolbarHeight: h(context) * .08,
-              floating: false,
-              pinned: true,
-              elevation: 5,
-              backgroundColor: VColors.WHITE,
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Welcome back,",
-                        style: VStyle.style(
-                          context: context,
-                          color: VColors.GREY,
-                          fontWeight: FontWeight.w300,
-                          size: AppDimensions.fontSize15(context),
-                        ),
-                      ),
-                      AppSpacer(heightPortion: .005),
-                      BlocBuilder<
-                        VProfileControllerCubit,
-                        VProfileControllerState
-                      >(
-                        builder: (context, state) {
-                          return Text(
-                            state is VProfileControllerSuccessState
-                                ? state.profileModel.vendorName
-                                : "",
-                            style: VStyle.style(
-                              context: context,
-                              color: VColors.REDHARD,
-                              fontWeight: FontWeight.bold,
-                              size: AppDimensions.fontSize24(context),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-
-                  // isScrolled
-                  //     ? Padding(
-                  //       padding: const EdgeInsets.symmetric(horizontal: 5),
-                  //       child: FadeIn(child: _buildNotificationButton()),
-                  //     )
-                  //     : SizedBox(),
-                ],
+      appBar: AppBar(
+        centerTitle: false,
+        backgroundColor: VColors.WHITE,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Welcome back,",
+              style: VStyle.style(
+                context: context,
+                color: VColors.GREY,
+                fontWeight: FontWeight.w300,
+                size: AppDimensions.fontSize15(context),
               ),
-              // flexibleSpace: FlexibleSpaceBar(
-              //   // collapseMode: CollapseMode.parallax,
-              //   centerTitle: false,
-              //   titlePadding: EdgeInsets.all(20),
-
-              //   background: SafeArea(
-              //     child: Padding(
-              //       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              //       child: Row(
-              //         crossAxisAlignment: CrossAxisAlignment.end,
-              //         children: [
-              //           Expanded(
-              //             child: Container(
-              //               height: 50,
-              //               decoration: BoxDecoration(
-              //                 color: VColors.WHITE,
-              //                 borderRadius: BorderRadius.circular(25),
-              //                 boxShadow: [
-              //                   BoxShadow(
-              //                     color: VColors.GREENHARD.withAlpha(50),
-              //                     blurRadius: 8,
-              //                     offset: const Offset(0, 2),
-              //                   ),
-              //                 ],
-              //               ),
-              //               child: TextField(
-              //                 controller: _searchController,
-              //                 decoration: const InputDecoration(
-              //                   hintText: 'Search vehicles...',
-              //                   prefixIcon: Icon(
-              //                     Icons.search,
-              //                     color: VColors.DARK_GREY,
-              //                   ),
-              //                   border: InputBorder.none,
-              //                   contentPadding: EdgeInsets.symmetric(
-              //                     horizontal: 20,
-              //                     vertical: 15,
-              //                   ),
-              //                 ),
-              //               ),
-              //             ),
-              //           ),
-              //           const SizedBox(width: 12),
-              //           _buildNotificationButton(),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
             ),
-
-            // Vehicle List
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-
-              sliver: VCarCardBuilder(),
+            AppSpacer(heightPortion: .005),
+            BlocBuilder<VProfileControllerCubit, VProfileControllerState>(
+              builder: (context, state) {
+                return Text(
+                  state is VProfileControllerSuccessState
+                      ? state.profileModel.vendorName
+                      : "",
+                  style: VStyle.style(
+                    context: context,
+                    color: VColors.REDHARD,
+                    fontWeight: FontWeight.bold,
+                    size: AppDimensions.fontSize24(context),
+                  ),
+                );
+              },
             ),
+          ],
+        ),
+      ),
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(color: VColors.WHITE),
+              child: TabBar(
+                labelStyle: VStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.bold,
+                  size: 15,
+                  color: VColors.SECONDARY,
+                ),
+                unselectedLabelStyle: VStyle.style(context: context, size: 15),
+                dividerHeight: 2,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicatorWeight: 3,
 
-            // Bottom padding
-            // const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                indicatorColor: VColors.SECONDARY,
+                overlayColor: WidgetStatePropertyAll(VColors.WHITE),
+                tabs: [Tab(text: "Auctions"), Tab(text: "OCB")],
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [VAuctionCarBuilder(), VOCBCarBuilder()],
+              ),
+            ),
           ],
         ),
       ),

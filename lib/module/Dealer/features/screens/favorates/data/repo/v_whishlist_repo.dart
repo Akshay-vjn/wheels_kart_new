@@ -19,7 +19,7 @@ class VWhishlistRepo {
 
         Response response = await http.post(
           url,
-          headers: {'Authorization': state.userModel.token},
+          headers: {'Authorization': state.userModel.token!},
         );
 
         final decodedata = jsonDecode(response.body);

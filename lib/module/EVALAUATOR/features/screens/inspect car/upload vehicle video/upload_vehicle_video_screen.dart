@@ -6,9 +6,12 @@ import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehicle%20video/upload_vehicle_video_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/video_model.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20vehicle%20video/video_player_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_button.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
@@ -50,7 +53,10 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
 
     // Bloc initialization
 
-    context.read<UploadVehicleVideoCubit>().onFetcUploadVideos();
+    context.read<UploadVehicleVideoCubit>().onFetcUploadVideos(
+      context,
+      widget.inspectionId,
+    );
 
     _animationController.forward();
   }
@@ -75,7 +81,7 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
               }
             case UploadVehicleVideoSuccessState():
               {
-                return _buildSuccessState();
+                return _buildSuccessState(state);
               }
             default:
               {
@@ -130,7 +136,21 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
     );
   }
 
-  Widget _buildSuccessState() {
+  Widget _buildSuccessState(UploadVehicleVideoSuccessState state) {
+    VideoModel? engineSideVideo;
+    VideoModel? walkaroundVideo;
+    if (state.isAvailableEngineVideo) {
+      engineSideVideo = state.videos.firstWhere(
+        (element) => element.videoType == UploadVehicleVideoCubit.ENGINESIDE,
+      );
+    }
+
+    if (state.isAvailabeWalkaroundVideo) {
+      walkaroundVideo = state.videos.firstWhere(
+        (element) => element.videoType == UploadVehicleVideoCubit.WLAKAROUND,
+      );
+    }
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
@@ -141,29 +161,60 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
               children: [
                 AppSpacer(heightPortion: .02),
                 _buildVideoButton(
+                  state: state,
+                  videoId:
+                      state.isAvailabeWalkaroundVideo
+                          ? walkaroundVideo!.videoId
+                          : "",
+                  videoType: UploadVehicleVideoCubit.WLAKAROUND,
                   duration: "(max 1 min)",
                   icon: CupertinoIcons.car,
-                  existingVideoFile: "",
+                  existingVideoFile:
+                      state.isAvailabeWalkaroundVideo
+                          ? walkaroundVideo!.video
+                          : null,
                   hintText: "Full Walkaround Video.",
                   onTap: () {
                     context
                         .read<UploadVehicleVideoCubit>()
-                        .onClickFullWalkaroundVideo(false, "1");
+                        .onClickFullWalkaroundVideo(
+                          state.isAvailabeWalkaroundVideo
+                              ? walkaroundVideo!.videoId
+                              : null,
+                          widget.inspectionId,
+                          context,
+                        );
                   },
-                  isUploading: false,
+                  isUploading: state.isWalkAroundUploading,
                 ),
                 AppSpacer(heightPortion: .02),
                 _buildVideoButton(
+                  state: state,
+
+                  videoId:
+                      state.isAvailableEngineVideo
+                          ? engineSideVideo!.videoId
+                          : '',
+                  videoType: UploadVehicleVideoCubit.ENGINESIDE,
                   duration: "(max 1 min)",
                   icon: CupertinoIcons.wrench,
-                  existingVideoFile: null,
+                  existingVideoFile:
+                      state.isAvailableEngineVideo
+                          ? engineSideVideo!.video
+                          : null,
                   hintText: "Engine Side Video after starting vehicle.",
                   onTap: () {
                     context
                         .read<UploadVehicleVideoCubit>()
-                        .onClickFullEngineVideo(false, "2");
+                        .onClickFullEngineVideo(
+                          state.isAvailableEngineVideo
+                              ? engineSideVideo!.video
+                              : null,
+                          widget.inspectionId,
+                          context,
+                        );
                   },
-                  isUploading: false,
+                  isUploading: state.isEngineUploading,
                 ),
                 AppSpacer(heightPortion: .02),
               ],
@@ -175,39 +226,111 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
   }
 
   Widget _buildVideoButton({
+    required UploadVehicleVideoSuccessState state,
     required String duration,
     required IconData icon,
     required String hintText,
     required void Function() onTap,
     required String? existingVideoFile,
     required bool isUploading,
+    required String videoType,
+    required String videoId,
   }) {
     return Column(
       children: [
         Container(
+          alignment: Alignment.center,
           width: w(context),
           height: h(context) * .3,
           decoration: BoxDecoration(
             border: Border.all(width: .5),
             borderRadius: BorderRadius.circular(AppDimensions.radiusSize15),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              Icon(icon, size: 40),
-              AppSpacer(heightPortion: .02),
-              Text(
-                hintText,
-                style: EvAppStyle.poppins(context: context, size: 14),
-              ),
-              AppSpacer(heightPortion: .01),
-              Text(
-                duration,
-                style: EvAppStyle.poppins(
-                  context: context,
-                  color: EvAppColors.black2,
-                ),
-              ),
+              existingVideoFile != null
+                  ? _videoPlayButton(icon, hintText, existingVideoFile)
+                  : _buildCardHead(duration, icon, hintText),
+              existingVideoFile != null
+                  ? Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Theme(
+                      data: ThemeData(
+                        colorScheme: ColorScheme(
+                          brightness: Brightness.light,
+                          primary: EvAppColors.kRed.withAlpha(150),
+                          onPrimary: EvAppColors.DARK_SECONDARY,
+                          secondary: EvAppColors.DARK_SECONDARY,
+                          onSecondary: EvAppColors.DARK_SECONDARY,
+                          error: EvAppColors.DARK_SECONDARY,
+                          onError: EvAppColors.DARK_SECONDARY,
+                          surface: EvAppColors.DARK_SECONDARY,
+                          onSurface: EvAppColors.DARK_SECONDARY,
+                        ),
+                      ),
+                      child: IconButton.filled(
+                        color: EvAppColors.white,
+
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: Text(
+                                    "Delete Video ?",
+                                    style: EvAppStyle.style(
+                                      size: 16,
+                                      fontWeight: FontWeight.w600,
+                                      context: context,
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(
+                                        "Cancel",
+                                        style: EvAppStyle.style(
+                                          size: 13,
+                                          context: context,
+                                        ),
+                                      ),
+                                    ),
+                                    state.isWalkAroundUploading ||
+                                            state.isEngineUploading
+                                        ? EVAppLoadingIndicator()
+                                        : TextButton(
+                                          onPressed: () async {
+                                            await context
+                                                .read<UploadVehicleVideoCubit>()
+                                                .deleteVideo(
+                                                  context,
+                                                  videoType,
+                                                  widget.inspectionId,
+                                                  videoId,
+                                                );
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            "Delete",
+                                            style: EvAppStyle.style(
+                                              size: 13,
+                                              context: context,
+                                              color: EvAppColors.kRed,
+                                            ),
+                                          ),
+                                        ),
+                                  ],
+                                ),
+                          );
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                    ),
+                  )
+                  : SizedBox.shrink(),
             ],
           ),
         ),
@@ -317,7 +440,7 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
           EVAppLoadingIndicator(),
           const SizedBox(height: 16),
           Text(
-            "Loading uploaed Files...",
+            "Loading uploaded Files...",
             style: EvAppStyle.style(
               context: context,
               color: Colors.grey[600],
@@ -326,6 +449,67 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _videoPlayButton(IconData icon, String hintText, String file) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AppSpacer(heightPortion: .04),
+        IconButton(
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).push(AppRoutes.createRoute(VideoPlayerScreen(file: file)));
+          },
+          icon: Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              border: Border.all(width: 2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.play_arrow),
+          ),
+        ),
+
+        AppSpacer(heightPortion: .04),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 14, color: EvAppColors.grey),
+            AppSpacer(widthPortion: .01),
+            Text(
+              hintText,
+              style: EvAppStyle.poppins(
+                context: context,
+                size: 14,
+                color: EvAppColors.grey,
+              ),
+            ),
+          ],
+        ),
+        AppSpacer(heightPortion: .01),
+      ],
+    );
+  }
+
+  Widget _buildCardHead(String duration, IconData icon, String hintText) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 40),
+        AppSpacer(heightPortion: .02),
+        Text(hintText, style: EvAppStyle.poppins(context: context, size: 14)),
+        AppSpacer(heightPortion: .01),
+        Text(
+          duration,
+          style: EvAppStyle.poppins(
+            context: context,
+            color: EvAppColors.black2,
+          ),
+        ),
+      ],
     );
   }
 }

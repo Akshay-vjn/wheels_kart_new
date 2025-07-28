@@ -25,11 +25,11 @@ class FetchPortionsBloc extends Bloc<FetchPortionsEvent, FetchPortionsState> {
 
     if (snapshot['error'] == false) {
       List data = snapshot['data'];
-      emit(
-        SuccessFetchPortionsState(
-          listOfPortios: data.map((e) => PortionModel.fromJson(e)).toList(),
-        ),
+      final list = data.map((e) => PortionModel.fromJson(e)).toList();
+      list.sort(
+        (a, b) => int.parse(a.position).compareTo(int.parse(b.position)),
       );
+      emit(SuccessFetchPortionsState(listOfPortios: list));
     } else if (snapshot['error'] == true) {
       emit(ErrorFetchPortionsState(errorMessage: snapshot['message']));
     } else {
