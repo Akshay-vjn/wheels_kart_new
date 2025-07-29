@@ -8,13 +8,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
-import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
@@ -25,17 +23,11 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 class VAuctionVehicleCard extends StatefulWidget {
   final VCarModel vehicle;
   final String myId;
-  // final bool isFavorite;
-  // final VoidCallback onFavoriteToggle;
-  // final VoidCallback onPressCard;
 
   const VAuctionVehicleCard({
     required this.myId,
     super.key,
     required this.vehicle,
-    // required this.isFavorite,
-    // required this.onFavoriteToggle,
-    // required this.onPressCard,
   });
 
   @override
@@ -83,12 +75,10 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   void _onTapUp(TapUpDetails details) {
     setState(() => _isPressed = false);
     _animationController.reverse();
-    if (!_isColsed || widget.vehicle.bidStatus == "Not Started") {
-      // widget.onPressCard();
+    // log(widget.vehicle.soldTo.toString());
+    if ((!_isColsed || _isNotStarted) && !_isCancelled) {
       onPressCard();
     }
-          onPressCard();
-
   }
 
   void _onTapCancel() {
@@ -173,7 +163,10 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
   // status Check------
   bool get _isSold => widget.vehicle.bidStatus == "Sold";
-  bool get _isOpened => widget.vehicle.bidStatus == "Open";
+  bool get _isCancelled => widget.vehicle.bidStatus == "Cancelled";
+  bool get _isOpened =>
+      (widget.vehicle.bidStatus == "Open") && (_endTime != "00:00:00");
+  bool get _isNotStarted => widget.vehicle.bidStatus == "Not Started";
 
   bool get _isColsed => (_endTime == "00:00:00") || _isSold;
 
@@ -247,18 +240,18 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                               ],
 
                               if (_isOpened && !_isColsed) ...[
-                              Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      _buildHighAndLowBid(),
-                                      _buildWhatsAppButton(),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        _buildHighAndLowBid(),
+                                        _buildWhatsAppButton(),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ],
 
                               // _buildOpenBidSection(),
@@ -291,7 +284,8 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                   ),
                                 ),
                               ],
-                              if (_isHigestBidderIsMe && _isColsed) ...[
+                              if ((_isHigestBidderIsMe && _isColsed) ||
+                                  (_isSold && _soldToMe)) ...[
                                 _buildMyAuctionMessage(),
                               ],
                               // bidSoldSecion(),
@@ -539,19 +533,16 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
   Widget _buildHighAndLowBid() {
     Color color;
-    Icon icon;
     String titleText;
     String subtitleText;
 
     if (_isHigestBidderIsMe) {
       color = VColors.SUCCESS;
-      icon = Icon(Icons.trending_up, color: color, size: 30);
-      titleText = "Winning";
-      subtitleText = "Update Bid";
+      titleText = "WINNING";
+      subtitleText = "";
     } else {
       color = VColors.ERROR;
-      icon = Icon(Icons.trending_down, color: color, size: 30);
-      titleText = "Losing";
+      titleText = "LOSING";
       subtitleText = "Increase Bid";
     }
 
@@ -575,16 +566,16 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
             },
             child: Container(
               width: double.infinity,
-              height: 60,
+              // height: 60,
               margin: const EdgeInsets.symmetric(horizontal: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.05),
+                color: color,
                 border: Border.all(color: color.withOpacity(0.6), width: 0.6),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.08),
+                    color: color.withAlpha(21),
                     blurRadius: 6,
                     offset: Offset(0, 2),
                   ),
@@ -601,26 +592,25 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                         titleText,
                         style: VStyle.style(
                           context: context,
-                          color: color,
-                          fontWeight: FontWeight.bold,
-                          size: 16,
+                          color: VColors.WHITE,
+                          fontWeight: FontWeight.w900,
+                          size: 18,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitleText,
-                        style: VStyle.style(
-                          context: context,
-                          color: color.withOpacity(0.8),
-                          fontWeight: FontWeight.w400,
-                          size: 12,
+                      if (subtitleText.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitleText,
+                          style: VStyle.style(
+                            context: context,
+                            color: VColors.WHITE,
+                            fontWeight: FontWeight.w400,
+                            size: 12,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
- const SizedBox(width: 20),
-                  icon,
-                 
                 ],
               ),
             ),
@@ -788,10 +778,16 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           color = VColors.DARK_GREY;
           break;
         }
+      case "Cancelled":
+        {
+          title = "CANCELLED";
+          color = VColors.REDHARD;
+          break;
+        }
       default:
         {
           title = "";
-          color = VColors.SUCCESS;
+          color = VColors.DARK_GREY;
           break;
         }
     }

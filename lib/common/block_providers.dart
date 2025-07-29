@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v_car_video_controller/v_carvideo_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/ocb%20controller/my_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/download%20pdf/download_pdf_cubit.dart';
@@ -91,6 +92,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     ),
     BlocProvider<MyOcbControllerBloc>(
       create: (_) => MyOcbControllerBloc(),
+    ),
+     BlocProvider<VCarvideoControllerCubit>(
+      create: (_) => VCarvideoControllerCubit(),
     ),
   ],
   child: child,

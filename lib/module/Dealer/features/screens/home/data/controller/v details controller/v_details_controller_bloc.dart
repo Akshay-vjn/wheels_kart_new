@@ -33,6 +33,7 @@ class VDetailsControllerBloc
 
       final response = await VFetchCarDetailRepo.onGetCarDetails(
         event.context,
+        // "55"
         event.inspectionId,
       );
 

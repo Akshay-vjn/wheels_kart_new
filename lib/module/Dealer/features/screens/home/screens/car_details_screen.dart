@@ -20,8 +20,10 @@ import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v_car_video_controller/v_carvideo_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_photo_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_video_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
 
 class VCarDetailsScreen extends StatefulWidget {
@@ -48,8 +50,6 @@ class VCarDetailsScreen extends StatefulWidget {
 class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
   @override
   void initState() {
-    // _endTime = "00:00:00";
-
     _isLiked = widget.isLiked;
     setState(() {});
 
@@ -106,6 +106,8 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate.fixed([
                           _buildImageListButton(detail.images),
+
+                          _buildVideoButton(detail.carVideos),
 
                           _buildCarHead(
                             "${detail.carDetails.brand} ${detail.carDetails.model}",
@@ -293,146 +295,160 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
       ),
       bottomNavigationBar:
           widget.hideBidPrice == true
-              ? SizedBox.shrink()
+              ? null
               : BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
                 builder: (context, state) {
                   if (state is VDetailsControllerSuccessState) {
-                    return Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 15,
-                      ),
-                      height:
-                          Platform.isIOS ? h(context) * .13 : h(context) * .12,
-                      decoration: BoxDecoration(
-                        color: VColors.WHITE,
-                        boxShadow: [
-                          BoxShadow(
-                            color: VColors.DARK_GREY.withAlpha(50),
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                isOCB ? "OCB Price" : "Current Bid",
-                                style: VStyle.style(
-                                  context: context,
-                                  color: VColors.GREY,
-                                  fontWeight: FontWeight.w600,
-                                  size: 15,
+                    return state.endTime == "00:00:00"
+                        ? SizedBox.shrink()
+                        : SlideInUp(
+                          // duration: Duration(milliseconds: 800),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 30,
+                              vertical: 15,
+                            ),
+                            height:
+                                Platform.isIOS
+                                    ? h(context) * .13
+                                    : h(context) * .12,
+                            decoration: BoxDecoration(
+                              color: VColors.WHITE,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: VColors.DARK_GREY.withAlpha(50),
+                                  blurRadius: 10,
                                 ),
-                              ),
-                              Text(
-                                "₹${state.detail.carDetails.currentBid}",
-                                style: VStyle.style(
-                                  context: context,
-                                  color: VColors.GREENHARD,
-                                  fontWeight: FontWeight.w900,
-                                  size: 27,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          Column(
-                            children: [
-                              if (!isOCB)
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: VColors.GREENHARD,
-                                  ),
-                                  onPressed: () async {
-                                    final currentState =
-                                        context
-                                            .read<VDetailsControllerBloc>()
-                                            .state;
-                                    if (currentState
-                                        is VDetailsControllerSuccessState) {
-                                      final details =
-                                          currentState.detail.carDetails;
-                                      await VDetailsControllerBloc.showDiologueForBidWhatsapp(
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isOCB ? "OCB Price" : "Current Bid",
+                                      style: VStyle.style(
                                         context: context,
-                                        currentBid: details.currentBid ?? '',
-                                        evaluationId: details.evaluationId,
-                                        image: widget.frontImage,
-                                        kmDrive: details.kmsDriven,
-                                        manufactureYear:
-                                            details.yearOfManufacture,
-                                        model: details.model,
-                                        noOfOwners: details.noOfOwners,
-                                        regNumber: details.registrationNumber,
-                                      );
-                                    }
-                                  },
-                                  label: Text(
-                                    "Bid Now",
-                                    style: VStyle.style(
-                                      context: context,
-                                      color: VColors.WHITE,
-                                      size: 13,
-                                      fontWeight: FontWeight.bold,
+                                        color: VColors.GREY,
+                                        fontWeight: FontWeight.w600,
+                                        size: 15,
+                                      ),
                                     ),
-                                  ),
-                                  icon: Icon(
-                                    SolarIconsBold.chatRound,
-                                    color: VColors.WHITE,
-                                  ),
+                                    Text(
+                                      "₹${state.detail.carDetails.currentBid}",
+                                      style: VStyle.style(
+                                        context: context,
+                                        color: VColors.GREENHARD,
+                                        fontWeight: FontWeight.w900,
+                                        size: 27,
+                                      ),
+                                    ),
+                                  ],
                                 ),
 
-                              if (isOCB)
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: VColors.GREENHARD,
-                                  ),
-                                  onPressed: () async {
-                                    final currentState =
-                                        context
-                                            .read<VDetailsControllerBloc>()
-                                            .state;
-                                    if (currentState
-                                        is VDetailsControllerSuccessState) {
-                                      final details =
-                                          currentState.detail.carDetails;
-                                      VDetailsControllerBloc.showBuySheet(
-                                        context,
-                                        details.currentBid ?? '0',
-                                        widget.inspectionId,
-                                      );
-                                    }
-                                  },
-                                  label: Text(
-                                    "Buy Now",
-                                    style: VStyle.style(
-                                      context: context,
-                                      color: VColors.WHITE,
-                                      size: 13,
-                                      fontWeight: FontWeight.bold,
+                                Column(
+                                  children: [
+                                    if (!isOCB)
+                                      ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: VColors.GREENHARD,
+                                        ),
+                                        onPressed: () async {
+                                          final currentState =
+                                              context
+                                                  .read<
+                                                    VDetailsControllerBloc
+                                                  >()
+                                                  .state;
+                                          if (currentState
+                                              is VDetailsControllerSuccessState) {
+                                            final details =
+                                                currentState.detail.carDetails;
+                                            await VDetailsControllerBloc.showDiologueForBidWhatsapp(
+                                              context: context,
+                                              currentBid:
+                                                  details.currentBid ?? '',
+                                              evaluationId:
+                                                  details.evaluationId,
+                                              image: widget.frontImage,
+                                              kmDrive: details.kmsDriven,
+                                              manufactureYear:
+                                                  details.yearOfManufacture,
+                                              model: details.model,
+                                              noOfOwners: details.noOfOwners,
+                                              regNumber:
+                                                  details.registrationNumber,
+                                            );
+                                          }
+                                        },
+                                        label: Text(
+                                          "Bid Now",
+                                          style: VStyle.style(
+                                            context: context,
+                                            color: VColors.WHITE,
+                                            size: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        icon: Icon(
+                                          SolarIconsBold.chatRound,
+                                          color: VColors.WHITE,
+                                        ),
+                                      ),
+
+                                    if (isOCB)
+                                      ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: VColors.GREENHARD,
+                                        ),
+                                        onPressed: () async {
+                                          final currentState =
+                                              context
+                                                  .read<
+                                                    VDetailsControllerBloc
+                                                  >()
+                                                  .state;
+                                          if (currentState
+                                              is VDetailsControllerSuccessState) {
+                                            final details =
+                                                currentState.detail.carDetails;
+                                            VDetailsControllerBloc.showBuySheet(
+                                              context,
+                                              details.currentBid ?? '0',
+                                              widget.inspectionId,
+                                            );
+                                          }
+                                        },
+                                        label: Text(
+                                          "Buy Now",
+                                          style: VStyle.style(
+                                            context: context,
+                                            color: VColors.WHITE,
+                                            size: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        icon: Icon(
+                                          SolarIconsBold.chatRound,
+                                          color: VColors.WHITE,
+                                        ),
+                                      ),
+                                    Text(
+                                      state.endTime,
+                                      style: VStyle.style(
+                                        context: context,
+                                        fontWeight: FontWeight.bold,
+                                        color: VColors.DARK_GREY,
+                                      ),
                                     ),
-                                  ),
-                                  icon: Icon(
-                                    SolarIconsBold.chatRound,
-                                    color: VColors.WHITE,
-                                  ),
+                                  ],
                                 ),
-                              Text(
-                                state.endTime,
-                                style: VStyle.style(
-                                  context: context,
-                                  fontWeight: FontWeight.bold,
-                                  color: VColors.DARK_GREY,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                    );
+                        );
                   } else {
                     return SizedBox.shrink();
                   }
@@ -507,54 +523,58 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
               if (state.detail.images.isEmpty)
                 SizedBox.shrink()
               else
-                SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(
-                      images.length,
-                      (index) => GestureDetector(
-                        onTap: () {
-                          context.read<VDetailsControllerBloc>().add(
-                            OnChangeImageIndex(newIndex: index),
-                          );
-                        },
-                        child: Container(
-                          height: 56,
-                          padding: EdgeInsets.all(2),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(
+                        images.length,
+                        (index) => GestureDetector(
+                          onTap: () {
+                            context.read<VDetailsControllerBloc>().add(
+                              OnChangeImageIndex(newIndex: index),
+                            );
+                          },
+                          child: Container(
+                            height: 56,
+                            padding: EdgeInsets.all(2),
 
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          margin: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              width: state.currentImageIndex == index ? 1 : .5,
-                              color:
-                                  state.currentImageIndex == index
-                                      ? VColors.GREENHARD
-                                      : VColors.DARK_GREY,
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            margin: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                width:
+                                    state.currentImageIndex == index ? 1 : .5,
+                                color:
+                                    state.currentImageIndex == index
+                                        ? VColors.GREENHARD
+                                        : VColors.DARK_GREY,
+                              ),
                             ),
-                          ),
-                          // height: 60,
-                          width: w(context) / 4,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: CachedNetworkImage(
-                              errorWidget:
-                                  (context, url, error) => Center(
-                                    child: Text(
-                                      "Image not found",
-                                      style: VStyle.style(
-                                        context: context,
-                                        color: VColors.DARK_GREY,
+                            // height: 60,
+                            width: w(context) / 4,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: CachedNetworkImage(
+                                errorWidget:
+                                    (context, url, error) => Center(
+                                      child: Text(
+                                        "Image not found",
+                                        style: VStyle.style(
+                                          context: context,
+                                          color: VColors.DARK_GREY,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              placeholder:
-                                  (context, url) =>
-                                      Center(child: VLoadingIndicator()),
-                              fit: BoxFit.cover,
-                              imageUrl: images[index].url,
+                                placeholder:
+                                    (context, url) =>
+                                        Center(child: VLoadingIndicator()),
+                                fit: BoxFit.cover,
+                                imageUrl: images[index].url,
+                              ),
                             ),
                           ),
                         ),
@@ -581,7 +601,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppSpacer(heightPortion: .02),
+          AppSpacer(heightPortion: .01),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -960,5 +980,89 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
 
   Widget _buildDevider() {
     return Divider(thickness: .3, color: VColors.GREY);
+  }
+
+  Widget _buildVideoButton(List<CarVideos> carVideos) {
+    return carVideos.isEmpty
+        ? SizedBox.shrink()
+        : Row(
+          children: [
+            Flexible(
+              child: InkWell(
+                onTap: () {
+                  context.read<VCarvideoControllerCubit>().onSelectVideo(
+                    carVideos.first,
+                    0,
+                  );
+                  Navigator.of(context).push(
+                    AppRoutes.createRoute(CarVideoScreen(carVideos: carVideos)),
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.only(top: 5),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: VColors.GREENHARD.withAlpha(100),
+                  ),
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(CupertinoIcons.wrench, color: VColors.WHITE),
+                      AppSpacer(widthPortion: .02),
+                      Text(
+                        carVideos.first.type,
+                        style: VStyle.style(
+                          size: 15,
+                          context: context,
+                          fontWeight: FontWeight.bold,
+                          color: VColors.WHITE,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 2),
+            Flexible(
+              child: InkWell(
+                onTap: () {
+                  context.read<VCarvideoControllerCubit>().onSelectVideo(
+                    carVideos.last,
+                    1,
+                  );
+                  Navigator.of(context).push(
+                    AppRoutes.createRoute(CarVideoScreen(carVideos: carVideos)),
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.only(top: 5),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: VColors.GREENHARD.withAlpha(100),
+                  ),
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(CupertinoIcons.car, color: VColors.WHITE),
+                      AppSpacer(widthPortion: .02),
+                      Text(
+                        carVideos.last.type,
+                        style: VStyle.style(
+                          context: context,
+                          size: 15,
+                          fontWeight: FontWeight.bold,
+                          color: VColors.WHITE,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
   }
 }

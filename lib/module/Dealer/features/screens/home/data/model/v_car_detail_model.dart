@@ -3,16 +3,21 @@ class VCarDetailModel {
   final List<CarImage> images;
   final List<Section> sections;
   final List<String> vendorIds;
+  final List<CarVideos> carVideos;
 
   VCarDetailModel({
     required this.carDetails,
     required this.images,
     required this.sections,
     required this.vendorIds,
+    required this.carVideos,
   });
 
   factory VCarDetailModel.fromJson(Map<String, dynamic> json) =>
       VCarDetailModel(
+        carVideos: List<CarVideos>.from(
+          json["videos"].map((x) => CarVideos.fromJson(x)),
+        ),
         carDetails: CarDetails.fromJson(json["carDetails"]),
         images: List<CarImage>.from(
           json["images"].map((x) => CarImage.fromJson(x)),
@@ -24,6 +29,7 @@ class VCarDetailModel {
       );
 
   Map<String, dynamic> toJson() => {
+    "videos": List<dynamic>.from(carVideos.map((x) => x.toJson())),
     "carDetails": carDetails.toJson(),
     "images": List<dynamic>.from(images.map((x) => x.toJson())),
     "sections": List<dynamic>.from(sections.map((x) => x.toJson())),
@@ -53,7 +59,7 @@ class CarDetails {
   final String manufactureDate;
   final String noOfKeys;
   final String city;
-   DateTime? bidClosingTime;
+  DateTime? bidClosingTime;
   String? currentBid;
   final String evaluationId;
 
@@ -111,7 +117,7 @@ class CarDetails {
     manufactureDate: json["Manufacture Date"] ?? 'N/A',
     noOfKeys: json["No Of Keys"] ?? 'N/A',
     city: json["City"] ?? 'N/A',
-    currentBid: json["currentBid"]??"N/A",
+    currentBid: json["currentBid"] ?? "N/A",
   );
 
   Map<String, dynamic> toJson() => {
@@ -168,6 +174,18 @@ class CarImage {
       CarImage(url: json["url"], name: json["name"]);
 
   Map<String, dynamic> toJson() => {"url": url, "name": name};
+}
+
+class CarVideos {
+  final String url;
+  final String type;
+
+  CarVideos({required this.url, required this.type});
+
+  factory CarVideos.fromJson(Map<String, dynamic> json) =>
+      CarVideos(url: json["url"], type: json["type"]);
+
+  Map<String, dynamic> toJson() => {"url": url, "type": type};
 }
 
 class Entry {

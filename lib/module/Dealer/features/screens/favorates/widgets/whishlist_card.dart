@@ -111,14 +111,16 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   bool get _haveTheBidders => widget.model.vendorIds.isNotEmpty;
 
   bool get _isSold => widget.model.bidStatus == "Sold";
-  bool get _isOpened => widget.model.bidStatus == "Open";
+  bool get _isOpened =>
+      (widget.model.bidStatus == "Open") && (_endTime != "00:00:00");
+  bool get _isNotStarted => widget.model.bidStatus == "Not Started";
+
   bool get _isColsed => (_endTime == "00:00:00") || _isSold;
 
   bool get _soldToMe => widget.myId == widget.model.soldTo && _isSold;
-
   bool get _isHigestBidderIsMe =>
       _haveTheBidders ? widget.model.vendorIds.last == widget.myId : false;
-
+  bool get _enableViewButton => _soldToMe || _isOpened || _isNotStarted;
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -210,7 +212,9 @@ class _VWhishlistCardState extends State<VWhishlistCard>
           // Action buttons row
           _buildActionButtons(),
 
-          if (_isHigestBidderIsMe && _isColsed) ...[_buildMyAuctionMessage()],
+          if ((_isHigestBidderIsMe && _isColsed) || (_isSold && _soldToMe)) ...[
+            _buildMyAuctionMessage(),
+          ],
         ],
       ),
     );
@@ -426,42 +430,38 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                   )
                   : OutlinedButton.icon(
                     onPressed:
-                        _isColsed
-                            ? null
-                            : () async {
-                              if (!_isSold) {
-                                final isLiked = await Navigator.of(
-                                  context,
-                                ).push(
-                                  AppRoutes.createRoute(
-                                    VCarDetailsScreen(
-                                      auctionType: widget.model.auctionType,
-                                      hideBidPrice:
-                                          widget.model.bidStatus != "Open",
-                                      frontImage: widget.model.frontImage,
-                                      inspectionId: widget.model.inspectionId,
-                                      isLiked:
-                                          widget.model.wishlisted == 1
-                                              ? true
-                                              : false,
-                                    ),
-                                  ),
-                                );
-                                if (isLiked == false) {
-                                  context
-                                      .read<VWishlistControllerCubit>()
-                                      .onFetchWishList(context);
-                                }
-                              }
-                            },
+                    // _isColsed
+                    //     ? null
+                    //     :
+                    () async {
+                      if (_enableViewButton) {
+                        final isLiked = await Navigator.of(context).push(
+                          AppRoutes.createRoute(
+                            VCarDetailsScreen(
+                              auctionType: widget.model.auctionType,
+                              hideBidPrice: widget.model.bidStatus != "Open",
+                              frontImage: widget.model.frontImage,
+                              inspectionId: widget.model.inspectionId,
+                              isLiked:
+                                  widget.model.wishlisted == 1 ? true : false,
+                            ),
+                          ),
+                        );
+                        if (isLiked == false) {
+                          context
+                              .read<VWishlistControllerCubit>()
+                              .onFetchWishList(context);
+                        }
+                      }
+                    },
                     icon: const Icon(Icons.visibility_rounded, size: 16),
                     label: const Text("View Details"),
                     style: OutlinedButton.styleFrom(
                       foregroundColor:
-                          _isSold ? VColors.GREY : VColors.GREENHARD,
+                          !_enableViewButton ? VColors.GREY : VColors.GREENHARD,
                       side: BorderSide(
                         color:
-                            _isSold
+                            !_enableViewButton
                                 ? VColors.GREY
                                 : VColors.GREENHARD.withOpacity(0.3),
                       ),
@@ -597,15 +597,22 @@ class _VWhishlistCardState extends State<VWhishlistCard>
           color = VColors.DARK_GREY;
           break;
         }
+      case "Cancelled":
+        {
+          title = "CANCELLED";
+          color = VColors.REDHARD;
+          break;
+        }
       default:
         {
           title = "";
-          color = VColors.SUCCESS;
+          color = VColors.DARK_GREY;
           break;
         }
     }
     // You can customize this based on vehicle status
     return Container(
+      margin: EdgeInsets.all(15),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color,
@@ -641,7 +648,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     return Column(
       children: [
         AppSpacer(heightPortion: .01),
-       
+
         InkWell(
           onTap: () {
             Navigator.of(context).push(AppRoutes.createRoute(VMybidScreen()));

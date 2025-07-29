@@ -16,6 +16,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VOcbCarCard extends StatefulWidget {
   final String myId;
@@ -102,7 +103,8 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
   }
 
   bool get _isSold => widget.vehicle.bidStatus == "Sold";
-  bool get _isOpened => widget.vehicle.bidStatus == "Open";
+  bool get _isOpened =>
+      (widget.vehicle.bidStatus == "Open") && (_endTime != "00:00:00");
   bool get _soldToMe => widget.myId == widget.vehicle.soldTo;
   bool get _isColsed => _endTime == "00:00:00" || _isSold;
   late bool _isLiked;
@@ -603,8 +605,8 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
             color = VColors.SUCCESS;
             break;
           } else {
-            title = "OPEN SOON";
-            color = VColors.ACCENT;
+            title = "CLOSED";
+            color = EvAppColors.DARK_SECONDARY;
             break;
           }
         }
@@ -620,10 +622,16 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
           color = VColors.DARK_GREY;
           break;
         }
+      case "Cancelled":
+        {
+          title = "CANCELLED";
+          color = VColors.REDHARD;
+          break;
+        }
       default:
         {
           title = "";
-          color = VColors.SUCCESS;
+          color = VColors.DARK_GREY;
           break;
         }
     }
