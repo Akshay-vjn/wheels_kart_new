@@ -420,7 +420,14 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                     color: VColors.WHITE,
                                   ),
                                 ),
-                              Text(state.endTime),
+                              Text(
+                                state.endTime,
+                                style: VStyle.style(
+                                  context: context,
+                                  fontWeight: FontWeight.bold,
+                                  color: VColors.DARK_GREY,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -469,9 +476,9 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                           ),
                         ),
                         child: FadeIn(
-                          key: GlobalObjectKey(
-                            images[state.currentImageIndex].toString(),
-                          ),
+                          // key: GlobalObjectKey(
+                          //   images[state.currentImageIndex].toString(),
+                          // ),
                           child: Hero(
                             tag: state.detail.carDetails.evaluationId,
                             child: CachedNetworkImage(

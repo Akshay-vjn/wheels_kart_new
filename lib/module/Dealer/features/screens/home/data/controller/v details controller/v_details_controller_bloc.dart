@@ -114,6 +114,10 @@ class VDetailsControllerBloc
         if (carDetailModel.carDetails.evaluationId ==
             event.newBid.evaluationId) {
           carDetailModel.carDetails.currentBid = event.newBid.currentBid;
+          carDetailModel.carDetails.bidClosingTime =
+              event.newBid.bidClosingTime;
+        
+        
           emit(cuuremtSate.coptyWith(detail: carDetailModel));
         }
       }
