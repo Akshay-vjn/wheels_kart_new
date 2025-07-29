@@ -25,6 +25,8 @@ class VDetailsControllerBloc
     extends Bloc<VDetailsControllerEvent, VDetailsControllerState> {
   late WebSocketChannel channel;
   StreamSubscription? _subscription;
+  Timer? _timer;
+
   VDetailsControllerBloc() : super(VDetailsControllerInitialState()) {
     on<OnFetchDetails>((event, emit) async {
       emit(VDetailsControllerLoadingState());
@@ -46,6 +48,10 @@ class VDetailsControllerBloc
               detail: datas,
             ),
           );
+          _timer?.cancel(); // Cancel any existing timer
+          _timer = Timer.periodic(Duration(seconds: 1), (_) {
+            add(RunTimer());
+          });
         } else {
           emit(VDetailsControllerErrorState(error: response['message']));
         }
@@ -114,6 +120,33 @@ class VDetailsControllerBloc
 
       //000
       log("Updating Done------------");
+    });
+    on<RunTimer>((event, emit) {
+      final currentState = state;
+      if (currentState is VDetailsControllerSuccessState) {
+        final closingTIme = currentState.detail.carDetails.bidClosingTime;
+        final now = DateTime.now();
+        if (closingTIme != null) {
+          final difference = closingTIme.difference(now);
+
+          if (difference.isNegative) {
+            _timer?.cancel();
+            emit(currentState.coptyWith(endTime: "00:00:00"));
+          } else {
+            final hour = difference.inHours % 60;
+            final min = difference.inMinutes % 60;
+            final sec = difference.inSeconds % 60;
+
+            // Format with leading zeros if needed
+            final minStr = min.toString().padLeft(2, '0');
+            final secStr = sec.toString().padLeft(2, '0');
+            emit(currentState.coptyWith(endTime: "$hour:$minStr:$secStr"));
+          }
+        } else {
+          _timer?.cancel();
+          emit(currentState.coptyWith(endTime: "00:00:00"));
+        }
+      }
     });
   }
 

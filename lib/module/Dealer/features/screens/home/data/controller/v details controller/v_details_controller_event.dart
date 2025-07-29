@@ -40,3 +40,7 @@ class UpdatePrice extends VDetailsControllerEvent {
   final LiveBidModel newBid;
   UpdatePrice({required this.newBid});
 }
+
+class RunTimer extends VDetailsControllerEvent {
+  
+}

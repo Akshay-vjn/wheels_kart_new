@@ -19,6 +19,7 @@ final class VDetailsControllerSuccessState extends VDetailsControllerState {
   final List<bool> enables;
   final int currentImageTabIndex;
   final List<Map<String, dynamic>> currentTabImages;
+  final String endTime;
 
   VDetailsControllerSuccessState({
     required this.detail,
@@ -26,6 +27,7 @@ final class VDetailsControllerSuccessState extends VDetailsControllerState {
     required this.enables,
     this.currentImageTabIndex = 0,
     this.currentTabImages = const [],
+    this.endTime = "00:00:00",
   });
 
   VDetailsControllerSuccessState coptyWith({
@@ -34,6 +36,7 @@ final class VDetailsControllerSuccessState extends VDetailsControllerState {
     List<bool>? enables,
     int? currentImageTabIndex,
     List<Map<String, dynamic>>? currentTabImages,
+    String? endTime,
   }) {
     return VDetailsControllerSuccessState(
       enables: enables ?? this.enables,
@@ -41,6 +44,7 @@ final class VDetailsControllerSuccessState extends VDetailsControllerState {
       currentTabImages: currentTabImages ?? this.currentTabImages,
       currentImageTabIndex: currentImageTabIndex ?? this.currentImageTabIndex,
       currentImageIndex: currentImageIndex ?? this.currentImageIndex,
+      endTime:endTime??this.endTime
     );
   }
 }

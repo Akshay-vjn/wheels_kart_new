@@ -49,63 +49,20 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
   @override
   void initState() {
     // _endTime = "00:00:00";
+
+    _isLiked = widget.isLiked;
+    setState(() {});
+
     context.read<VDetailsControllerBloc>().add(
       OnFetchDetails(context: context, inspectionId: widget.inspectionId),
     );
     context.read<VDetailsControllerBloc>().add(ConnectWebSocket());
-    _isLiked = widget.isLiked;
-    setState(() {});
     super.initState();
     log(widget.inspectionId);
-
-    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    //   context.read<VDetailsControllerBloc>().stream.listen((event) {
-    //     if (event is VDetailsControllerSuccessState) {
-    //       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-    //         getMinutesToStop(event.detail.carDetails.bidClosingTime);
-    //       });
-    //     }
-    //   });
-    // });
   }
-
-  // late String _endTime;
-
-  // void getMinutesToStop(DateTime? bidClosingTime) {
-  //   if (bidClosingTime != null) {
-  //     final now = DateTime.now();
-  //     final difference = bidClosingTime.difference(now);
-
-  //     if (difference.isNegative) {
-  //       _endTime = "00:00:00";
-  //     } else {
-  //       final hour = difference.inHours % 60;
-  //       final min = difference.inMinutes % 60;
-  //       final sec = difference.inSeconds % 60;
-
-  //       // Format with leading zeros if needed
-  //       final minStr = min.toString().padLeft(2, '0');
-  //       final secStr = sec.toString().padLeft(2, '0');
-
-  //       _endTime = "$hour:$minStr:$secStr";
-  //     }
-
-  //     setState(() {});
-  //   } else {
-  //     _endTime = "00:00:00";
-  //   }
-  // }
 
   bool _isLiked = false;
   bool get isOCB => widget.auctionType == "OCB";
-
-  Timer? _timer;
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +303,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                         vertical: 15,
                       ),
                       height:
-                          Platform.isIOS ? h(context) * .13 : h(context) * .1,
+                          Platform.isIOS ? h(context) * .13 : h(context) * .12,
                       decoration: BoxDecoration(
                         color: VColors.WHITE,
                         boxShadow: [
@@ -463,7 +420,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                     color: VColors.WHITE,
                                   ),
                                 ),
-                              // Text(_endTime),
+                              Text(state.endTime),
                             ],
                           ),
                         ],

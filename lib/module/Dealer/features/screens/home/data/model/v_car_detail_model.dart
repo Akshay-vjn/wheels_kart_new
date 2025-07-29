@@ -111,7 +111,7 @@ class CarDetails {
     manufactureDate: json["Manufacture Date"] ?? 'N/A',
     noOfKeys: json["No Of Keys"] ?? 'N/A',
     city: json["City"] ?? 'N/A',
-    currentBid: json["Current Bid"] ?? 'N/A',
+    currentBid: json["currentBid"] ?? 'N/A',
   );
 
   Map<String, dynamic> toJson() => {
