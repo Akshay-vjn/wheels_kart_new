@@ -174,6 +174,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
   @override
   Widget build(BuildContext context) {
+
     return AppMargin(
       child: GestureDetector(
         onTapDown: _onTapDown,

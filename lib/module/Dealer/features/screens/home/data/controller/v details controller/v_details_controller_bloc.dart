@@ -195,7 +195,7 @@ class VDetailsControllerBloc
   }) async {
     HapticFeedback.mediumImpact();
 
-    final yourBid = int.parse(currentBid) + 2000;
+    final yourBid = int.parse(currentBid.isEmpty?"0":currentBid) + 2000;
 
     final message = '''
 $image

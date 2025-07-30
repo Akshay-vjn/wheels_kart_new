@@ -279,6 +279,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                   );
                                 }).toList(),
                           ),
+                          AppSpacer(heightPortion: .03,)
                         ]),
                       ),
                     ),
