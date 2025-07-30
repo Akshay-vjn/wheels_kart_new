@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
@@ -986,83 +985,61 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
     return carVideos.isEmpty
         ? SizedBox.shrink()
         : Row(
-          children: [
-            Flexible(
-              child: InkWell(
-                onTap: () {
-                  context.read<VCarvideoControllerCubit>().onSelectVideo(
-                    carVideos.first,
-                    0,
-                  );
-                  Navigator.of(context).push(
-                    AppRoutes.createRoute(CarVideoScreen(carVideos: carVideos)),
-                  );
-                },
-                child: Container(
-                  margin: EdgeInsets.only(top: 5),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: VColors.GREENHARD.withAlpha(100),
-                  ),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(CupertinoIcons.wrench, color: VColors.WHITE),
-                      AppSpacer(widthPortion: .02),
-                      Text(
-                        carVideos.first.type,
-                        style: VStyle.style(
-                          size: 15,
-                          context: context,
-                          fontWeight: FontWeight.bold,
-                          color: VColors.WHITE,
+          // runAlignment: WrapAlignment.spaceBetween,
+          children:
+              carVideos
+                  .asMap()
+                  .entries
+                  .map(
+                    (e) => Flexible(
+                      child: InkWell(
+                        onTap: () {
+                          context
+                              .read<VCarvideoControllerCubit>()
+                              .onSelectVideo(e.value, e.key);
+                          Navigator.of(context).push(
+                            AppRoutes.createRoute(
+                              CarVideoScreen(carVideos: carVideos),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(top: 5, right: 2, left: 2),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: VColors.GREENHARD.withAlpha(100),
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                e.value.type == "Engine Side"
+                                    ? CupertinoIcons.wrench
+                                    : CupertinoIcons.car,
+                                color: VColors.WHITE,
+                              ),
+                              AppSpacer(widthPortion: .02),
+                              Text(
+                                e.value.type,
+                                style: VStyle.style(
+                                  context: context,
+                                  size: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: VColors.WHITE,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 2),
-            Flexible(
-              child: InkWell(
-                onTap: () {
-                  context.read<VCarvideoControllerCubit>().onSelectVideo(
-                    carVideos.last,
-                    1,
-                  );
-                  Navigator.of(context).push(
-                    AppRoutes.createRoute(CarVideoScreen(carVideos: carVideos)),
-                  );
-                },
-                child: Container(
-                  margin: EdgeInsets.only(top: 5),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: VColors.GREENHARD.withAlpha(100),
-                  ),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(CupertinoIcons.car, color: VColors.WHITE),
-                      AppSpacer(widthPortion: .02),
-                      Text(
-                        carVideos.last.type,
-                        style: VStyle.style(
-                          context: context,
-                          size: 15,
-                          fontWeight: FontWeight.bold,
-                          color: VColors.WHITE,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+                    ),
+                  )
+                  .toList(),
         );
   }
 }
