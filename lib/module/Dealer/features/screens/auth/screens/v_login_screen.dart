@@ -1,24 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
-import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
-import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/common/utils/validator.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
-import 'package:wheels_kart/module/Dealer/core/const/v_image_const.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_registration_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
-import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
-import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_texfield.dart';
 
 class VLoginScreen extends StatefulWidget {
   VLoginScreen({super.key});
