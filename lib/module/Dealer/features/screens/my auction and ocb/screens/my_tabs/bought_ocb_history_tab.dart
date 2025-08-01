@@ -11,7 +11,7 @@ import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/ocb%20controller/my_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/widgets/ocb_tile.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/widgets/ocb_tile.dart';
 
 class BoughtOcbHistoryTab extends StatefulWidget {
   const BoughtOcbHistoryTab({super.key});

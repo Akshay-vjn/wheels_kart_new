@@ -9,9 +9,14 @@ class OnGetMyAuctions extends VMyAuctionControllerEvent {
   OnGetMyAuctions({required this.context});
 }
 
-class ConnectWebSocket extends VMyAuctionControllerEvent {}
+class ConnectWebSocket extends VMyAuctionControllerEvent {
+  final String myId;
+
+  ConnectWebSocket({required this.myId});
+}
 
 class UpdatePrice extends VMyAuctionControllerEvent {
   final LiveBidModel newBid;
-  UpdatePrice({required this.newBid});
+  final String myId;
+  UpdatePrice({required this.newBid, required this.myId});
 }

@@ -58,27 +58,36 @@ class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
 
                   children: [
                     SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
                       padding: EdgeInsets.only(top: 10),
-                      child: AnimationLimiter(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: AnimationConfiguration.toStaggeredList(
-                            duration: const Duration(milliseconds: 375),
-                            childAnimationBuilder:
-                                (p0) => SlideAnimation(
-                                  horizontalOffset: 50.0,
-                                  child: FadeInAnimation(child: p0),
+                      child:
+                          carList.isEmpty
+                              ? AppEmptyText(text: "No OCB cars found!")
+                              : AnimationLimiter(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children:
+                                      AnimationConfiguration.toStaggeredList(
+                                        duration: const Duration(
+                                          milliseconds: 375,
+                                        ),
+                                        childAnimationBuilder:
+                                            (p0) => SlideAnimation(
+                                              horizontalOffset: 50.0,
+                                              child: FadeInAnimation(child: p0),
+                                            ),
+                                        children:
+                                            carList
+                                                .map(
+                                                  (e) => VOcbCarCard(
+                                                    myId: myId,
+                                                    vehicle: e,
+                                                  ),
+                                                )
+                                                .toList(),
+                                      ),
                                 ),
-                            children:
-                                carList
-                                    .map(
-                                      (e) =>
-                                          VOcbCarCard(myId: myId, vehicle: e),
-                                    )
-                                    .toList(),
-                          ),
-                        ),
-                      ),
+                              ),
                     ),
                     state.enableRefreshButton
                         ? ElevatedButton.icon(

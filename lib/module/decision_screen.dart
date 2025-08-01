@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,12 +25,29 @@ class _DecisionScreenState extends State<DecisionScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeAnimationController;
   late AnimationController _slideAnimationController;
+  late AnimationController _backgroundController;
+  late AnimationController _particleController;
+
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  late Animation<double> _backgroundAnimation;
+  late Animation<double> _particleAnimation;
 
   @override
   void initState() {
     super.initState();
+
+    _backgroundController = AnimationController(
+      duration: const Duration(milliseconds: 3000),
+      vsync: this,
+    );
+
+    // Particle animation controller
+    _particleController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
 
     // Initialize animations
     _fadeAnimationController = AnimationController(
@@ -42,6 +60,16 @@ class _DecisionScreenState extends State<DecisionScreen>
       vsync: this,
     );
 
+    //
+
+    _backgroundAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _backgroundController, curve: Curves.easeInOut),
+    );
+
+    // Particle animation
+    _particleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _particleController, curve: Curves.easeInOut),
+    );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _fadeAnimationController,
@@ -64,131 +92,183 @@ class _DecisionScreenState extends State<DecisionScreen>
     Future.delayed(const Duration(milliseconds: 300), () {
       _slideAnimationController.forward();
     });
+
+    _backgroundController.forward();
+    _particleController.repeat();
   }
 
   @override
   void dispose() {
     _fadeAnimationController.dispose();
     _slideAnimationController.dispose();
+    _backgroundController.dispose();
+    _particleController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              EvAppColors.white,
-              EvAppColors.kAppSecondaryColor.withOpacity(0.05),
-              EvAppColors.white,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: AppMargin(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
+      body: AnimatedBuilder(
+        animation: _backgroundAnimation,
+        builder:
+            (context, child) => Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    const Color(0xFF1A1A2E),
+                    const Color(0xFF16213E),
+                    const Color(0xFF0F3460),
+                    const Color(0xFF16213E).withOpacity(0.9),
+                  ],
+                  stops: [
+                    0.0,
+                    0.3 + (_backgroundAnimation.value * 0.2),
+                    0.7 + (_backgroundAnimation.value * 0.1),
+                    1.0,
+                  ],
+                ),
+              ),
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  AppSpacer(heightPortion: .08),
+                  ...List.generate(6, (index) {
+                    return AnimatedBuilder(
+                      animation: _particleAnimation,
+                      builder: (context, child) {
+                        final offset = _particleAnimation.value * 2 * 3.14159;
+                        return Positioned(
+                          left:
+                              50 +
+                              (index * 60) +
+                              (30 * math.sin(offset + index)),
+                          top:
+                              100 +
+                              (index * 80) +
+                              (40 * math.cos(offset + index * 0.5)),
+                          child: Opacity(
+                            opacity: 0.1,
+                            child: Container(
+                              width: 20 + (index * 5),
+                              height: 20 + (index * 5),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }),
+                  SafeArea(
+                    child: AppMargin(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          children: [
+                            AppSpacer(heightPortion: .08),
 
-                  // Animated Logo
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Container(
-                      width: w(context) * .6,
-                      padding: EdgeInsets.all(AppDimensions.paddingSize20),
-                      decoration: BoxDecoration(),
-                      child: Hero(
-                        tag: "app_logo",
-                        child: Image.asset(EvConstImages.appLogoHr),
+                            // Animated Logo
+                            FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: Container(
+                                width: w(context) * .6,
+                                padding: EdgeInsets.all(
+                                  AppDimensions.paddingSize20,
+                                ),
+                                decoration: BoxDecoration(),
+                                child: Hero(
+                                  tag: "app_logo",
+                                  child: Image.asset(EvConstImages.logoWhitePng),
+                                ),
+                              ),
+                            ),
+
+                            AppSpacer(heightPortion: .06),
+
+                            // Animated Welcome Text
+                            SlideTransition(
+                              position: _slideAnimation,
+                              child: FadeTransition(
+                                opacity: _fadeAnimation,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Welcome Back!',
+                                      textAlign: TextAlign.center,
+                                      style: EvAppStyle.poppins(
+                                        fontWeight: FontWeight.w600,
+                                        size: AppDimensions.fontSize24(context),
+                                        context: context,
+                                        color: EvAppColors.white,
+                                      ),
+                                    ),
+                                    // AppSpacer(heightPortion: .01),
+                                    Text(
+                                      'Choose your profile to continue',
+                                      textAlign: TextAlign.center,
+                                      style: EvAppStyle.poppins(
+                                        fontWeight: FontWeight.w400,
+                                        size: AppDimensions.fontSize16(context),
+                                        context: context,
+                                        color: EvAppColors.white.withAlpha(190)
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            AppSpacer(heightPortion: .1),
+
+                            // Animated Decision Buttons
+                            SlideTransition(
+                              position: _slideAnimation,
+                              child: Column(
+                                children: [
+                                  _buildEnhancedDecisionButton(
+                                    context,
+                                    'Evaluator',
+                                    'Login as Wheels Kart Evaluator',
+                                    'Assess and evaluate vehicles',
+                                    EvConstImages.evaluatorImage,
+                                    Icons.assessment_outlined,
+                                    const Color(0xFF2E7D32),
+                                    () {
+                                      _navigateWithAnimation(EvLoginScreen());
+                                    },
+                                  ),
+
+                                  AppSpacer(heightPortion: .03),
+
+                                  _buildEnhancedDecisionButton(
+                                    context,
+                                    'Dealer',
+                                    'Login as Dealer',
+                                    'Manage your vehicle inventory',
+                                    EvConstImages.vendorImage,
+                                    Icons.store_outlined,
+                                    const Color(0xFF1565C0),
+                                    () {
+                                      _navigateWithAnimation(VLoginScreen());
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            AppSpacer(heightPortion: .05),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-
-                  AppSpacer(heightPortion: .06),
-
-                  // Animated Welcome Text
-                  SlideTransition(
-                    position: _slideAnimation,
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        children: [
-                          Text(
-                            'Welcome Back!',
-                            textAlign: TextAlign.center,
-                            style: EvAppStyle.style(
-                              fontWeight: FontWeight.w700,
-                              size: AppDimensions.fontSize30(context),
-                              context: context,
-                              color: EvAppColors.kAppSecondaryColor,
-                            ),
-                          ),
-                          // AppSpacer(heightPortion: .01),
-                          Text(
-                            'Choose your profile to continue',
-                            textAlign: TextAlign.center,
-                            style: EvAppStyle.style(
-                              fontWeight: FontWeight.w400,
-                              size: AppDimensions.fontSize16(context),
-                              context: context,
-                              color: EvAppColors.black.withOpacity(0.7),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  AppSpacer(heightPortion: .05),
-
-                  // Animated Decision Buttons
-                  SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      children: [
-                        _buildEnhancedDecisionButton(
-                          context,
-                          'Evaluator',
-                          'Login as Wheels Kart Evaluator',
-                          'Assess and evaluate vehicles',
-                          EvConstImages.evaluatorImage,
-                          Icons.assessment_outlined,
-                          const Color(0xFF2E7D32),
-                          () {
-                            _navigateWithAnimation(EvLoginScreen());
-                          },
-                        ),
-
-                        AppSpacer(heightPortion: .03),
-
-                        _buildEnhancedDecisionButton(
-                          context,
-                          'Dealer',
-                          'Login as Dealer',
-                          'Manage your vehicle inventory',
-                          EvConstImages.vendorImage,
-                          Icons.store_outlined,
-                          const Color(0xFF1565C0),
-                          () {
-                           _navigateWithAnimation(VLoginScreen());
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  AppSpacer(heightPortion: .05),
                 ],
               ),
             ),
-          ),
-        ),
       ),
     );
   }

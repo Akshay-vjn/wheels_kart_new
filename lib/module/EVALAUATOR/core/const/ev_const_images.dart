@@ -10,4 +10,8 @@ class EvConstImages {
   static const String vendorImage = 'assets/vendor.png';
   static const String appLogo = 'assets/app_logo.jpg';
   static const String appLogoHr = 'assets/app_logo_hr.png';
+
+  static const logoWhitePngUrl = "https://wheelskart.in/assets/images/logo.png";
+
+  static const logoWhitePng = "assets/logoWhite.png";
 }

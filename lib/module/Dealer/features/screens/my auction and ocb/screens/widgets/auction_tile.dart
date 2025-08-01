@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/utils/intl_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
@@ -14,8 +16,9 @@ import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20
 
 class AuctionTile extends StatefulWidget {
   final VMyAuctionModel auction;
+  final int index;
 
-  const AuctionTile({super.key, required this.auction});
+  const AuctionTile({super.key, required this.auction, required this.index});
 
   @override
   State<AuctionTile> createState() => _AuctionTileState();
@@ -82,8 +85,17 @@ class _AuctionTileState extends State<AuctionTile>
   late String _endTime;
 
   void getMinutesToStop() {
-    final bidTime = widget.auction.bidClosingTime;
+    DateTime? bidTime = widget.auction.bidClosingTime;
+    // final state = context.read<VMyAuctionControllerBloc>().state;
+    // if (state is VMyAuctionControllerSuccessState) {
+    //   log("message");
+    //   bidTime = state.listOfMyAuctions[widget.index].bidClosingTime;
+    // }
     if (bidTime != null) {
+      if (widget.auction.evaluationId == "WK20023") {
+        log("----------->$bidTime<-------------");
+      }
+
       final now = DateTime.now();
       final difference = bidTime.difference(now);
 
@@ -324,14 +336,13 @@ class _AuctionTileState extends State<AuctionTile>
                 _buildActionButton(),
               ],
             ),
-           
 
             _showAllBids(),
-             if (isMeHighBidder && _timeOut) ...[
+            if (isMeHighBidder && _timeOut) ...[
               AppSpacer(heightPortion: .01),
               Text(
                 "Auction closed. You are the highest bidder. Our team will be in touch shortly.",
-                style: VStyle.style(context: context,color: VColors.DARK_GREY),
+                style: VStyle.style(context: context, color: VColors.DARK_GREY),
               ),
             ],
           ],

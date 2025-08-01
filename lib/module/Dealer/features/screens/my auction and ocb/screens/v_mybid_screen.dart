@@ -1,11 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/tabs/auctionhistoy_tab.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/tabs/bought_ocb_history_tab.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auctionhistoy_tab.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/bought_ocb_history_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
 
 class VMybidScreen extends StatefulWidget {
@@ -145,11 +148,16 @@ class VMybidScreen extends StatefulWidget {
 class _VMybidScreenState extends State<VMybidScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
-
+  late String myId;
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this);
-
+    final state = context.read<AppAuthController>().state;
+    if (state is AuthCubitAuthenticateState) {
+      myId = state.userModel.userId ?? "";
+    } else {
+      myId = '';
+    }
     super.initState();
   }
 
@@ -210,7 +218,10 @@ class _VMybidScreenState extends State<VMybidScreen>
                   color: VColors.GREYHARD.withAlpha(50),
                   child: TabBarView(
                     controller: _tabController,
-                    children: [AuctionHistoryTab(), BoughtOcbHistoryTab()],
+                    children: [
+                      AuctionHistoryTab(myId: myId),
+                      BoughtOcbHistoryTab(),
+                    ],
                   ),
                 ),
               ),

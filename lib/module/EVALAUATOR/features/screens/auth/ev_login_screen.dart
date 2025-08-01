@@ -28,15 +28,15 @@ class _EvLoginScreenState extends State<EvLoginScreen>
   final _mobileNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  
+
   late AnimationController _slideAnimationController;
   late AnimationController _fadeAnimationController;
   late AnimationController _scaleAnimationController;
-  
+
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
-  
+
   bool _isFormValid = false;
   bool _isKeyboardVisible = false;
 
@@ -53,12 +53,12 @@ class _EvLoginScreenState extends State<EvLoginScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _fadeAnimationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _scaleAnimationController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
@@ -67,26 +67,26 @@ class _EvLoginScreenState extends State<EvLoginScreen>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideAnimationController,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _slideAnimationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeAnimationController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fadeAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _scaleAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
     // Start animations
     _fadeAnimationController.forward();
@@ -113,7 +113,8 @@ class _EvLoginScreenState extends State<EvLoginScreen>
   }
 
   void _validateForm() {
-    final isValid = _mobileNumberController.text.length == 10 &&
+    final isValid =
+        _mobileNumberController.text.length == 10 &&
         _passwordController.text.length >= 6;
     if (isValid != _isFormValid) {
       setState(() {
@@ -142,7 +143,12 @@ class _EvLoginScreenState extends State<EvLoginScreen>
             case AuthErrorState():
               {
                 HapticFeedback.heavyImpact();
-                showSnakBar(context, state.errorMessage, isError: true, enablePop: true);
+                showSnakBar(
+                  context,
+                  state.errorMessage,
+                  isError: true,
+                  enablePop: true,
+                );
               }
             case AuthCubitAuthenticateState():
               {
@@ -162,11 +168,13 @@ class _EvLoginScreenState extends State<EvLoginScreen>
           }
         },
         child: SafeArea(
+          bottom: false,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: SizedBox(
-              height: MediaQuery.of(context).size.height - 
-                     MediaQuery.of(context).padding.top,
+              height:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top,
               child: AppMargin(
                 child: Form(
                   key: _formKey,
@@ -174,7 +182,11 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                     children: [
                       Align(
                         alignment: Alignment.topLeft,
-                        child: evCustomBackButton(context,color: EvAppColors.black)),
+                        child: evCustomBackButton(
+                          context,
+                          color: EvAppColors.black,
+                        ),
+                      ),
 
                       // Header Section
                       Expanded(
@@ -184,7 +196,6 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-
                               // App Icon/Logo placeholder
                               ScaleTransition(
                                 scale: _scaleAnimation,
@@ -196,7 +207,8 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: EvAppColors.kAppSecondaryColor.withOpacity(0.3),
+                                        color: EvAppColors.kAppSecondaryColor
+                                            .withOpacity(0.3),
                                         blurRadius: 20,
                                         spreadRadius: 5,
                                         offset: const Offset(0, 10),
@@ -210,9 +222,9 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                   ),
                                 ),
                               ),
-                              
+
                               const SizedBox(height: 24),
-                              
+
                               // Welcome Text
                               SlideTransition(
                                 position: _slideAnimation,
@@ -236,17 +248,24 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                             style: EvAppStyle.style(
                                               context: context,
                                               fontWeight: FontWeight.w400,
-                                              size: AppDimensions.fontSize16(context),
-                                              color: EvAppColors.black.withOpacity(0.7),
+                                              size: AppDimensions.fontSize16(
+                                                context,
+                                              ),
+                                              color: EvAppColors.black
+                                                  .withOpacity(0.7),
                                             ),
                                           ),
                                           TextSpan(
                                             text: 'Evaluator Account',
                                             style: EvAppStyle.style(
-                                              size: AppDimensions.fontSize16(context),
+                                              size: AppDimensions.fontSize16(
+                                                context,
+                                              ),
                                               fontWeight: FontWeight.w600,
                                               context: context,
-                                              color: EvAppColors.kAppSecondaryColor,
+                                              color:
+                                                  EvAppColors
+                                                      .kAppSecondaryColor,
                                             ),
                                           ),
                                         ],
@@ -260,19 +279,25 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                           ),
                         ),
                       ),
-                      
+
                       // Form Section
                       Expanded(
                         flex: 3,
                         child: SlideTransition(
                           position: _slideAnimation,
                           child: Container(
-                            padding: EdgeInsets.all(AppDimensions.paddingSize25),
+                            padding: EdgeInsets.all(
+                              AppDimensions.paddingSize25,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(AppDimensions.radiusSize18),
-                                topRight: Radius.circular(AppDimensions.radiusSize18),
+                                topLeft: Radius.circular(
+                                  AppDimensions.radiusSize18,
+                                ),
+                                topRight: Radius.circular(
+                                  AppDimensions.radiusSize18,
+                                ),
                               ),
                               boxShadow: [
                                 BoxShadow(
@@ -301,7 +326,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 // Mobile Number Field
                                 _buildEnhancedTextField(
                                   controller: _mobileNumberController,
@@ -320,47 +345,58 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                     return null;
                                   },
                                 ),
-                                
+
                                 const SizedBox(height: 20),
-                                
+
                                 // Password Field
                                 BlocBuilder<EvLoginBlocBloc, EvLoginBlocState>(
-                                  builder: (context, state) => _buildEnhancedTextField(
-                                    controller: _passwordController,
-                                    label: 'Password',
-                                    hint: 'Enter your password',
-                                    prefixIcon: Iconsax.lock,
-                                    isPassword: true,
-                                    obscureText: state.isPasswordHide,
-                                    suffixIcon: InkWell(
-                                      onTap: () {
-                                        HapticFeedback.lightImpact();
-                                        if (state.isPasswordHide) {
-                                          context.read<EvLoginBlocBloc>().add(HidePassword());
-                                        } else {
-                                          context.read<EvLoginBlocBloc>().add(ShowPassword());
-                                        }
-                                      },
-                                      child: Icon(
-                                        state.isPasswordHide ? Iconsax.eye : Iconsax.eye_slash,
-                                        color: EvAppColors.kAppSecondaryColor,
-                                        size: 20,
+                                  builder:
+                                      (
+                                        context,
+                                        state,
+                                      ) => _buildEnhancedTextField(
+                                        controller: _passwordController,
+                                        label: 'Password',
+                                        hint: 'Enter your password',
+                                        prefixIcon: Iconsax.lock,
+                                        isPassword: true,
+                                        obscureText: state.isPasswordHide,
+                                        suffixIcon: InkWell(
+                                          onTap: () {
+                                            HapticFeedback.lightImpact();
+                                            if (state.isPasswordHide) {
+                                              context
+                                                  .read<EvLoginBlocBloc>()
+                                                  .add(HidePassword());
+                                            } else {
+                                              context
+                                                  .read<EvLoginBlocBloc>()
+                                                  .add(ShowPassword());
+                                            }
+                                          },
+                                          child: Icon(
+                                            state.isPasswordHide
+                                                ? Iconsax.eye
+                                                : Iconsax.eye_slash,
+                                            color:
+                                                EvAppColors.kAppSecondaryColor,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value?.isEmpty ?? true) {
+                                            return 'Please enter your password';
+                                          }
+                                          if (value!.length < 6) {
+                                            return 'Password must be at least 6 characters';
+                                          }
+                                          return null;
+                                        },
                                       ),
-                                    ),
-                                    validator: (value) {
-                                      if (value?.isEmpty ?? true) {
-                                        return 'Please enter your password';
-                                      }
-                                      if (value!.length < 6) {
-                                        return 'Password must be at least 6 characters';
-                                      }
-                                      return null;
-                                    },
-                                  ),
                                 ),
-                                
-                              AppSpacer(heightPortion: .05,),
-                                
+
+                                AppSpacer(heightPortion: .05),
+
                                 // Forgot Password
                                 // Align(
                                 //   alignment: Alignment.centerRight,
@@ -380,31 +416,35 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                 //     ),
                                 //   ),
                                 // ),
-                                
+
                                 // const Spacer(),
-                                
+
                                 // Login Button
                                 _buildEnhancedButton(
                                   onTap: () async {
                                     if (_formKey.currentState!.validate()) {
                                       HapticFeedback.mediumImpact();
-                                                         context.read<EvAppNavigationCubit>().handleBottomnavigation(0);
+                                      context
+                                          .read<EvAppNavigationCubit>()
+                                          .handleBottomnavigation(0);
 
-                                      await context.read<AppAuthController>().loginUser(
-                                        context,
-                                        _mobileNumberController.text,
-                                        _passwordController.text,
-                                      );
+                                      await context
+                                          .read<AppAuthController>()
+                                          .loginUser(
+                                            context,
+                                            _mobileNumberController.text,
+                                            _passwordController.text,
+                                          );
                                     } else {
                                       HapticFeedback.heavyImpact();
                                     }
                                   },
-                                  title: 'Sign In',
+                                  title: 'SIGN IN',
                                   isEnabled: _isFormValid,
                                 ),
-                                
+
                                 const SizedBox(height: 20),
-                                
+
                                 // Additional Options
                                 // Row(
                                 //   mainAxisAlignment: MainAxisAlignment.center,
@@ -501,7 +541,10 @@ class _EvLoginScreenState extends State<EvLoginScreen>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
-              borderSide: BorderSide(color: EvAppColors.kAppSecondaryColor, width: 2),
+              borderSide: BorderSide(
+                color: EvAppColors.kAppSecondaryColor,
+                width: 2,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
@@ -539,9 +582,8 @@ class _EvLoginScreenState extends State<EvLoginScreen>
       child: ElevatedButton(
         onPressed: isEnabled ? onTap : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isEnabled 
-              ? EvAppColors.kAppSecondaryColor 
-              : Colors.grey[300],
+          backgroundColor:
+              isEnabled ? EvAppColors.kAppSecondaryColor : Colors.grey[300],
           foregroundColor: Colors.white,
           elevation: isEnabled ? 8 : 0,
           shadowColor: EvAppColors.kAppSecondaryColor.withOpacity(0.3),

@@ -28,6 +28,7 @@ class VOcbControllerBloc
         if (response['error'] == false) {
           final data = response['data'] as List;
           final list = data.map((e) => VCarModel.fromJson(e)).toList();
+
           emit(
             VOcbControllerSuccessState(
               listOfCars: list,
@@ -61,12 +62,14 @@ class VOcbControllerBloc
             if (car.evaluationId == event.newBid.evaluationId) {
               final bid = event.newBid;
 
+              final reversed = bid.vendorBids.toList();
+
               car.bidStatus = bid.bidStatus;
               car.soldName = bid.soldName;
               car.soldTo = bid.soldTo;
               car.currentBid = bid.currentBid;
               car.bidClosingTime = bid.bidClosingTime;
-              car.vendorIds = bid.vendorIds;
+              car.vendorIds = reversed.map((e) => e.vendorId).toList();
               updatedList.add(car);
             } else {
               updatedList.add(car);

@@ -4,8 +4,10 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
@@ -36,12 +38,27 @@ class VMyAuctionControllerBloc
           // log(event.newBid.bidClosingTime.toString());
           if (car.evaluationId == event.newBid.evaluationId) {
             final bid = event.newBid;
+            final myBids =
+                bid.vendorBids
+                    .where((element) => element.vendorId == event.myId)
+                    .toList();
 
+            final reversed = myBids.reversed.toList();
             car.bidStatus = bid.bidStatus;
             car.soldName = bid.soldName;
             car.soldTo = bid.soldTo;
             car.bidAmount = bid.currentBid;
-            car.bidTime = bid.bidClosingTime;
+            car.bidClosingTime = bid.bidClosingTime;
+            car.yourBids =
+                reversed
+                    .map(
+                      (e) => YourBid(
+                        amount: int.parse(e.currentBid),
+                        time: e.createdAt,
+                        status: '',
+                      ),
+                    )
+                    .toList();
 
             updatedList.add(car);
           } else {
@@ -86,7 +103,9 @@ class VMyAuctionControllerBloc
       final jsonData = jsonDecode(decoded);
       log("Converted ----------------");
 
-      add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
+      add(
+        UpdatePrice(newBid: LiveBidModel.fromJson(jsonData), myId: event.myId),
+      );
     });
   }
 
