@@ -1,5 +1,3 @@
-
-
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -37,7 +35,9 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen>
   @override
   void initState() {
     super.initState();
-    context.read<EvFetchCityBloc>().add(OnFetchCityDataEvent(context: context));
+    context.read<EvFetchCityBloc>().add(
+      OnFetchCityDataEvent(context: context, lastCitySelected: null),
+    );
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -82,19 +82,19 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar:AppBar(
-      leading:evCustomBackButton(context),
-      title: Text(
-        "Create new lead",
-        style: EvAppStyle.style(
-          fontWeight: FontWeight.w600,
-          size: AppDimensions.paddingSize15,
-          context: context,
-          color: EvAppColors.white,
+      appBar: AppBar(
+        leading: evCustomBackButton(context),
+        title: Text(
+          "Create new lead",
+          style: EvAppStyle.style(
+            fontWeight: FontWeight.w600,
+            size: AppDimensions.paddingSize15,
+            context: context,
+            color: EvAppColors.white,
+          ),
         ),
+        backgroundColor: EvAppColors.DEFAULT_BLUE_DARK,
       ),
-      backgroundColor: EvAppColors.DEFAULT_BLUE_DARK,
-    ),
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: SlideTransition(
@@ -832,6 +832,7 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen>
       Navigator.of(context).push(
         AppRoutes.createRoute(
           EvSelectAndSearchCarMakes(
+            prefillInspection: null,
             inspectuionId: inspectionId.toString(),
             listofCarMake: state.carMakeData,
           ),

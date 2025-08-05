@@ -8,6 +8,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/evaluation_data_model.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/3_select_and_search_car_model_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_selection_button.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
@@ -17,8 +18,11 @@ import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_search_fie
 
 class EvSelectAndSeachManufacturingYear extends StatefulWidget {
   EvaluationDataEntryModel evaluationDataEntryModel;
+  final InspectionModel? prefillInspection;
+
   EvSelectAndSeachManufacturingYear({
     super.key,
+    required this.prefillInspection,
     required this.evaluationDataEntryModel,
   });
 
@@ -34,8 +38,19 @@ class _EvSelectAndSeachManufacturingYearState
   void initState() {
     super.initState();
     final _year = _getLast20Years();
+
     for (var i in _year) {
       years.add(i.toString());
+    }
+
+    if (widget.prefillInspection != null) {
+      selectedYear =
+          widget.prefillInspection!.manufacturingYear.isNotEmpty
+              ? widget.prefillInspection!.manufacturingYear
+              : null;
+      if (selectedYear != null) {
+        selectedYearIndex = _year.indexOf(int.parse(selectedYear!));
+      }
     }
   }
 
@@ -144,6 +159,7 @@ class _EvSelectAndSeachManufacturingYearState
                               Navigator.of(context).push(
                                 AppRoutes.createRoute(
                                   EvSelectAndSearchCarModelScreen(
+                                    prefillInspection: widget.prefillInspection,
                                     evaluationDataEntryModel:
                                         EvaluationDataEntryModel(
                                           inspectionId:

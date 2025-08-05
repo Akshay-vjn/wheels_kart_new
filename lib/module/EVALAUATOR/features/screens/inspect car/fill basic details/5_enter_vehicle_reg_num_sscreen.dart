@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
@@ -5,6 +7,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/evaluation_data_model.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/6_select_total_kms_driven_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_button.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_textfield.dart';
@@ -13,13 +16,42 @@ import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_cutom_eval
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 
-class EvEnterVehicleRegNumSscreen extends StatelessWidget {
+class EvEnterVehicleRegNumSscreen extends StatefulWidget {
   final EvaluationDataEntryModel evaluationDataModel;
-  EvEnterVehicleRegNumSscreen({super.key, required this.evaluationDataModel});
+  final InspectionModel? prefillInspection;
 
-  final regNumberController = TextEditingController();
-  final formkey = GlobalKey<FormState>();
+  EvEnterVehicleRegNumSscreen({
+    super.key,
+    required this.evaluationDataModel,
+    required this.prefillInspection,
+  });
+
   static RegExp carRegNumberRegex = RegExp(r'^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$');
+
+  @override
+  State<EvEnterVehicleRegNumSscreen> createState() =>
+      _EvEnterVehicleRegNumSscreenState();
+}
+
+class _EvEnterVehicleRegNumSscreenState
+    extends State<EvEnterVehicleRegNumSscreen> {
+  TextEditingController regNumberController = TextEditingController();
+
+  final formkey = GlobalKey<FormState>();
+  @override
+  void initState() {
+    super.initState();
+    if (widget.prefillInspection != null) {
+      final vehicleNymber =
+          widget.prefillInspection!.regNo.isEmpty
+              ? null
+              : widget.prefillInspection!.regNo;
+      if (vehicleNymber != null) {
+        regNumberController = TextEditingController(text: vehicleNymber);
+        setState(() {});
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +60,7 @@ class EvEnterVehicleRegNumSscreen extends StatelessWidget {
         leading: evCustomBackButton(context),
         backgroundColor: EvAppColors.DEFAULT_BLUE_DARK,
         title: Text(
-          '${evaluationDataModel.carMake} ${evaluationDataModel.carModel}',
+          '${widget.evaluationDataModel.carMake} ${widget.evaluationDataModel.carModel}',
           style: EvAppStyle.style(
             context: context,
             fontWeight: FontWeight.w500,
@@ -39,8 +71,9 @@ class EvEnterVehicleRegNumSscreen extends StatelessWidget {
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(h(context) * .08),
           child: EvEvaluationProcessBar(
+            prefillInspection: widget.prefillInspection,
             currentPage: 4,
-            evaluationDataModel: evaluationDataModel,
+            evaluationDataModel: widget.evaluationDataModel,
           ),
         ),
       ),
@@ -59,13 +92,15 @@ class EvEnterVehicleRegNumSscreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(height: 10),
               EvAppCustomTextfield(
                 focusColor: EvAppColors.DEFAULT_BLUE_DARK,
                 isTextCapital: true,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please enter the registration number';
-                  } else if (!carRegNumberRegex.hasMatch(value)) {
+                  } else if (!EvEnterVehicleRegNumSscreen.carRegNumberRegex
+                      .hasMatch(value)) {
                     return 'Registration number is not valid';
                   } else {
                     return null;
@@ -83,12 +118,13 @@ class EvEnterVehicleRegNumSscreen extends StatelessWidget {
                 title: 'Continue',
                 onTap: () {
                   if (formkey.currentState!.validate()) {
-                    final _evaluationDataModel = evaluationDataModel;
+                    final _evaluationDataModel = widget.evaluationDataModel;
                     _evaluationDataModel.vehicleRegNumber =
                         regNumberController.text;
                     Navigator.of(context).push(
                       AppRoutes.createRoute(
                         EvSelectTotalKmsDrivenScreen(
+                          prefillInspection: widget.prefillInspection,
                           evaluationDataModel: _evaluationDataModel,
                         ),
                       ),

@@ -17,20 +17,30 @@ class EvSearchCarMakeBloc
           // log('No Quesry');
 
           emit(
-              SearchListHasDataState(searchResult: event.initialListOfCarMake));
+            SearchListHasDataState(
+              searchResult: event.initialListOfCarMake,
+              selectedCarMakeId: null,
+            ),
+          );
         } else {
-          final filteredCarMakes = event.initialListOfCarMake.where((carMake) {
-            return carMake.makeName
-                .toLowerCase()
-                .contains(event.query.toLowerCase());
-          }).toList();
+          final filteredCarMakes =
+              event.initialListOfCarMake.where((carMake) {
+                return carMake.makeName.toLowerCase().contains(
+                  event.query.toLowerCase(),
+                );
+              }).toList();
 
           if (filteredCarMakes.isEmpty) {
             emit(SearchListIsEmptyState('No Data Found'));
             // log('Empty  search Result ${filteredCarMakes.length}');
           } else {
             // log('Result search ${filteredCarMakes.length}');
-            emit(SearchListHasDataState(searchResult: filteredCarMakes));
+            emit(
+              SearchListHasDataState(
+                searchResult: filteredCarMakes,
+                selectedCarMakeId: null,
+              ),
+            );
           }
         }
       } catch (e) {
@@ -38,6 +48,15 @@ class EvSearchCarMakeBloc
 
         debugPrint(e.toString());
       }
+    });
+
+    on<OnSelectCarMake>((event, emit) {
+      log("ggdgdgd");
+      final currentState = state;
+      if (currentState is SearchListHasDataState) {
+        log("done");
+        emit(currentState.copyWith(selectedCarMakeId: event.selectedMakeId));
+      } 
     });
   }
 }

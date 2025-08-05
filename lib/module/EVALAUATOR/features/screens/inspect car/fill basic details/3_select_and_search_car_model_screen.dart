@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +12,7 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20car%20models/fetch_car_model_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/car_models_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/evaluation_data_model.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/4_select_varient_type.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_selection_button.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
@@ -20,8 +23,11 @@ import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_search_fie
 
 class EvSelectAndSearchCarModelScreen extends StatefulWidget {
   EvaluationDataEntryModel evaluationDataEntryModel;
+  final InspectionModel? prefillInspection;
+
   EvSelectAndSearchCarModelScreen({
     super.key,
+    required this.prefillInspection,
     required this.evaluationDataEntryModel,
   });
 
@@ -39,6 +45,12 @@ class _EvSelectAndSearchCarModelScreenState
     super.initState();
     context.read<EvFetchCarModelBloc>().add(
       InitialFetchCarModelEvent(
+        currentModelId:
+            widget.prefillInspection != null
+                ? widget.prefillInspection!.modelId.isNotEmpty
+                    ? widget.prefillInspection!.modelId
+                    : null
+                : null,
         context: context,
         makeId: widget.evaluationDataEntryModel.makeId!,
         makeYear: widget.evaluationDataEntryModel.makeYear!,
@@ -47,7 +59,6 @@ class _EvSelectAndSearchCarModelScreenState
   }
 
   List<CarModeModel> listOfCarModel = [];
-  int? selectedCarModelIndex;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,7 +125,7 @@ class _EvSelectAndSearchCarModelScreenState
                       }
                     case FetchCarModelSuccessState():
                       {
-                        return _buildGrid(state.listOfCarModel);
+                        return _buildGrid(state.listOfCarModel, state);
                       }
                     case SearchCarModelEmtyDataState():
                       {
@@ -125,7 +136,7 @@ class _EvSelectAndSearchCarModelScreenState
                       }
                     case SearchCarModelHasDataState():
                       {
-                        return _buildGrid(state.searchResult);
+                        return _buildGrid(state.searchResult, state);
                       }
                     case FetchCarModelErrorState():
                       {
@@ -151,7 +162,7 @@ class _EvSelectAndSearchCarModelScreenState
     );
   }
 
-  Widget _buildGrid(List<CarModeModel> list) {
+  Widget _buildGrid(List<CarModeModel> list, EvFetchCarModelState state) {
     return list.isEmpty
         ? AppEmptyText(text: 'No Data Found !', neddMorhieght: true)
         : AppMargin(
@@ -169,15 +180,23 @@ class _EvSelectAndSearchCarModelScreenState
               crossAxisSpacing: 12,
             ),
             itemBuilder: (context, index) {
+              bool isSelected =
+                  state.selectedModelId != null
+                      ? state.selectedModelId == list[index].modelId
+                      : false;
               return InkWell(
                 onTap: () {
-                  setState(() {
-                    selectedCarModelIndex = index;
-                  });
+                  // setState(() {
+                  //   selectedCarModelIndex = index;
+                  // });
+                  context.read<EvFetchCarModelBloc>().add(
+                    OnSelectModel(modelId: list[index].modelId),
+                  );
 
                   Navigator.of(context).push(
                     AppRoutes.createRoute(
                       EvSelectFuealTypeScreen(
+                        prefillInspection: widget.prefillInspection,
                         evaluationDataEntryModel: EvaluationDataEntryModel(
                           inspectionId:
                               widget.evaluationDataEntryModel.inspectionId,
@@ -204,7 +223,7 @@ class _EvSelectAndSearchCarModelScreenState
                         border: Border.all(
                           width: 1.5,
                           color:
-                              selectedCarModelIndex == index
+                              isSelected
                                   ? EvAppColors.kAppSecondaryColor
                                   : EvAppColors.black,
                         ),
@@ -225,11 +244,11 @@ class _EvSelectAndSearchCarModelScreenState
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color:
-                            selectedCarModelIndex == index
+                            isSelected
                                 ? EvAppColors.kAppSecondaryColor
                                 : EvAppColors.DEFAULT_BLUE_DARK,
                         gradient:
-                            selectedCarModelIndex == index
+                            isSelected
                                 ? LinearGradient(
                                   begin: Alignment.topRight,
                                   end: Alignment.bottomRight,

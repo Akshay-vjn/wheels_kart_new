@@ -1,3 +1,4 @@
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/search/search%20car%20make/search_car_make_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/car_make_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/evaluation_data_model.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
@@ -19,8 +21,10 @@ import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_search_fie
 class EvSelectAndSearchCarMakes extends StatefulWidget {
   List<CarMakeModel> listofCarMake;
   String inspectuionId;
+  final InspectionModel? prefillInspection;
   EvSelectAndSearchCarMakes({
     super.key,
+    required this.prefillInspection,
     required this.listofCarMake,
     required this.inspectuionId,
   });
@@ -40,6 +44,16 @@ class _EvSelectAndSearchCarMakesState extends State<EvSelectAndSearchCarMakes> {
         initialListOfCarMake: widget.listofCarMake,
       ),
     );
+    if (widget.prefillInspection != null) {
+      context.read<EvSearchCarMakeBloc>().add(
+        OnSelectCarMake(
+          selectedMakeId:
+              widget.prefillInspection!.makeId.isNotEmpty
+                  ? widget.prefillInspection!.makeId
+                  : null,
+        ),
+      );
+    }
   }
 
   @override
@@ -101,13 +115,13 @@ class _EvSelectAndSearchCarMakesState extends State<EvSelectAndSearchCarMakes> {
                   listener: (context, state) {},
                   builder: (context, state) {
                     switch (state) {
-                      case SearchCarMakeInitialState():
-                        {
-                          return _buildGrid(widget.listofCarMake);
-                        }
+                      // case SearchCarMakeInitialState():
+                      //   {
+                      //     return _buildGrid(widget.listofCarMake);
+                      //   }
                       case SearchListHasDataState():
                         {
-                          return _buildGrid(state.searchResult);
+                          return _buildGrid(state.searchResult, state);
                         }
 
                       case SearchListIsEmptyState():
@@ -136,11 +150,14 @@ class _EvSelectAndSearchCarMakesState extends State<EvSelectAndSearchCarMakes> {
     );
   }
 
-  Widget _buildGrid(List<CarMakeModel> data) {
+  Widget _buildGrid(List<CarMakeModel> data, SearchListHasDataState state) {
     return data.isEmpty
         ? AppEmptyText(text: 'Cars Not Found !', neddMorhieght: true)
         : GridView.builder(
-          padding: const EdgeInsets.only(bottom: AppDimensions.paddingSize5),
+          padding: const EdgeInsets.only(
+            bottom: AppDimensions.paddingSize5,
+            top: 10,
+          ),
           physics: const BouncingScrollPhysics(),
           shrinkWrap: true,
           itemCount: data.length,
@@ -153,9 +170,13 @@ class _EvSelectAndSearchCarMakesState extends State<EvSelectAndSearchCarMakes> {
                 EvAppColors.kAppSecondaryColor,
               ),
               onTap: () {
+                context.read<EvSearchCarMakeBloc>().add(
+                  OnSelectCarMake(selectedMakeId: data[index].makeId),
+                );
                 Navigator.of(context).push(
                   AppRoutes.createRoute(
                     EvSelectAndSeachManufacturingYear(
+                      prefillInspection: widget.prefillInspection,
                       evaluationDataEntryModel: EvaluationDataEntryModel(
                         inspectionId: widget.inspectuionId,
                         carMake: data[index].makeName,
@@ -165,8 +186,23 @@ class _EvSelectAndSearchCarMakesState extends State<EvSelectAndSearchCarMakes> {
                   ),
                 );
               },
-              child: Card(
-                color: EvAppColors.white,
+              child: Container(
+                margin: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 5,
+                      spreadRadius: 1,
+                      color: Colors.black.withAlpha(50),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  color: EvAppColors.white,
+                  border:
+                      data[index].makeId == state.selectedCarMakeId
+                          ? Border.all(color: EvAppColors.DEFAULT_BLUE_DARK)
+                          : null,
+                ),
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,

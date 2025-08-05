@@ -13,22 +13,32 @@ class EvFetchCarModelBloc
   EvFetchCarModelBloc() : super(FetchCarModelInitialState()) {
     on<InitialFetchCarModelEvent>(_onFechCarMakeModel);
     on<OnSearchCarModelEvent>(_onSeachCarModel);
+
+    on<OnSelectModel>(_onSelectCarModel);
   }
 
-  Future<void> _onFechCarMakeModel(InitialFetchCarModelEvent event,
-      Emitter<EvFetchCarModelState> emit) async {
+  Future<void> _onFechCarMakeModel(
+    InitialFetchCarModelEvent event,
+    Emitter<EvFetchCarModelState> emit,
+  ) async {
     emit(FetchCarModelLoadingState());
     try {
       final snapshot = await FetchCarModelRepo.fetchCarModel(
-          event.context, event.makeId, event.makeYear);
+        event.context,
+        event.makeId,
+        event.makeYear,
+      );
 
       if (snapshot['error'] == false ||
           snapshot['message'] == 'Models list fetched successfully') {
         List data = snapshot['data'];
 
-        emit(FetchCarModelSuccessState(
-            listOfCarModel:
-                data.map((e) => CarModeModel.fromJson(e)).toList()));
+        emit(
+          FetchCarModelSuccessState(
+            selectedModelId: event.currentModelId,
+            listOfCarModel: data.map((e) => CarModeModel.fromJson(e)).toList(),
+          ),
+        );
       } else if (snapshot['error'] == true) {
         emit(FetchCarModelErrorState(errorMessage: snapshot['message']));
       } else if (snapshot.isEmpty) {
@@ -41,34 +51,61 @@ class EvFetchCarModelBloc
   }
 
   Future<void> _onSeachCarModel(
-      OnSearchCarModelEvent event, Emitter<EvFetchCarModelState> emit) async {
+    OnSearchCarModelEvent event,
+    Emitter<EvFetchCarModelState> emit,
+  ) async {
     log(event.query);
     try {
       if (event.query.isEmpty) {
-        emit(FetchCarModelSuccessState(
-            listOfCarModel: event.initialListOfCarModels));
+        emit(
+          FetchCarModelSuccessState(
+            listOfCarModel: event.initialListOfCarModels,
+          ),
+        );
       } else {
-        final filteredCarMakes = event.initialListOfCarModels.where((carModel) {
-          return carModel.modelName
-              .toLowerCase()
-              .contains(event.query.toLowerCase());
-        }).toList();
+        final filteredCarMakes =
+            event.initialListOfCarModels.where((carModel) {
+              return carModel.modelName.toLowerCase().contains(
+                event.query.toLowerCase(),
+              );
+            }).toList();
 
         if (filteredCarMakes.isEmpty) {
           if (event.query.isEmpty) {
-            emit(FetchCarModelSuccessState(
-                listOfCarModel: event.initialListOfCarModels));
+            emit(
+              FetchCarModelSuccessState(
+                listOfCarModel: event.initialListOfCarModels,
+              ),
+            );
           } else {
             emit(SearchCarModelEmtyDataState(emptyMessage: 'No Data Found ! '));
           }
           // log('Empty  search Result ${filteredCarMakes.length}');
         } else {
           // log('Result search ${filteredCarMakes.length}');
-          emit(SearchCarModelHasDataState(searchResult: filteredCarMakes));
+          emit(
+            SearchCarModelHasDataState(
+              searchResult: filteredCarMakes,
+              selectedModelId: state.selectedModelId,
+            ),
+          );
         }
       }
     } catch (e) {
       log('bloc - error - search car make => ${e.toString()}');
+    }
+  }
+
+  Future<void> _onSelectCarModel(
+    OnSelectModel event,
+    Emitter<EvFetchCarModelState> emit,
+  ) async {
+    final currentState = state;
+
+    if (currentState is SearchCarModelHasDataState) {
+      emit(currentState.copyWith(selectedModelId: event.modelId));
+    } else if (currentState is FetchCarModelSuccessState) {
+      emit(currentState.copyWith(selectedModelId: event.modelId));
     }
   }
 }

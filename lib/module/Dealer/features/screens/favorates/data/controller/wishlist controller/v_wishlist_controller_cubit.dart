@@ -78,11 +78,15 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
       for (var car in cuuremtSate.myWishList) {
         if (car.evaluationId == newBid.evaluationId) {
           final bid = newBid;
+          final reversed = bid.vendorBids.toList();
+
           car.bidStatus = bid.bidStatus;
           car.soldName = bid.soldName;
           car.soldTo = bid.soldTo;
           car.currentBid = bid.currentBid;
           car.bidClosingTime = bid.bidClosingTime;
+          car.vendorIds = reversed.map((e) => e.vendorId).toList();
+
           updatedList.add(car);
         } else {
           updatedList.add(car);

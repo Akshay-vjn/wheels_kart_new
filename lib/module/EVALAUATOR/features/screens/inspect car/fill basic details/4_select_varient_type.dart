@@ -9,6 +9,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/evaluation_data_model.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/varient_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/fetch_car_varient_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/5_enter_vehicle_reg_num_sscreen.dart';
@@ -20,7 +21,13 @@ import 'package:wheels_kart/common/components/app_spacer.dart';
 
 class EvSelectFuealTypeScreen extends StatefulWidget {
   EvaluationDataEntryModel evaluationDataEntryModel;
-  EvSelectFuealTypeScreen({super.key, required this.evaluationDataEntryModel});
+  final InspectionModel? prefillInspection;
+
+  EvSelectFuealTypeScreen({
+    super.key,
+    required this.evaluationDataEntryModel,
+    required this.prefillInspection,
+  });
 
   @override
   State<EvSelectFuealTypeScreen> createState() =>
@@ -65,6 +72,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    _initiateThePrefillData();
   }
 
   void _scrollToIndex() {
@@ -76,6 +84,66 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
   }
 
   Color boxColor = EvAppColors.FILL_COLOR;
+
+  _initiateThePrefillData() async {
+    if (widget.prefillInspection != null) {
+      final lastFuelType =
+          widget.prefillInspection!.fuelType.isNotEmpty
+              ? widget.prefillInspection!.fuelType
+              : null;
+      final lastTransmissionType =
+          widget.prefillInspection!.transmissionType.isNotEmpty
+              ? widget.prefillInspection!.transmissionType
+              : null;
+      final lastVarientId =
+          widget.prefillInspection!.variantId.isNotEmpty
+              ? widget.prefillInspection!.variantId
+              : null;
+
+      if (lastFuelType != null) {
+        selectedFuelType = lastFuelType;
+        selectedFuelTypeIndex = listOFFuelType.indexWhere(
+          (element) => element['title'] == selectedFuelType,
+        );
+        disableFuelView = true;
+      }
+      if (lastTransmissionType != null) {
+        selectedTransmission = lastTransmissionType;
+        selectedTransmissionIndex = transmissionsList.indexWhere(
+          (element) => element['title'] == selectedTransmission,
+        );
+        disableTransmissionView = true;
+      }
+      if (lastVarientId != null) {
+        varientId = lastVarientId;
+        final snapshot = await FetchCarVarientRepo.fetchCarVarient(
+          context,
+          widget.evaluationDataEntryModel.modelId!,
+          selectedFuelType!,
+          lastTransmissionType!.toLowerCase(),
+        );
+
+        if (snapshot['error'] == false ||
+            snapshot['message'] == 'Variant list fetched successfully') {
+          List data = snapshot['data'];
+          varientList = data.map((e) => VarientModel.fromJson(e)).toList();
+          selectedVarient = varientId;
+          selectedVarientIndex=varientList.indexWhere((element) => element.variantId==varientId,);
+          disableVarientView = true;
+          setState(() {
+            
+          });
+
+          // int? selectedVarientIndex;
+          // String? selectedVarient;
+          // bool disableVarientView = false;
+          // final varient = varientList.firstWhere(
+          //   (element) => element.variantId == varientId,
+          // );
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +163,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(h(context) * .08),
           child: EvEvaluationProcessBar(
+            prefillInspection: widget.prefillInspection,
             currentPage: 3,
             evaluationDataModel: widget.evaluationDataEntryModel,
           ),
@@ -185,7 +254,10 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                         AppDimensions.radiusSize5,
                       ),
                     ),
-                    child: Icon(Icons.edit, color: EvAppColors.DEFAULT_BLUE_GREY),
+                    child: Icon(
+                      Icons.edit,
+                      color: EvAppColors.DEFAULT_BLUE_GREY,
+                    ),
                   ),
                 ),
               ],
@@ -304,7 +376,10 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                         AppDimensions.radiusSize5,
                       ),
                     ),
-                    child: Icon(Icons.edit, color: EvAppColors.DEFAULT_BLUE_GREY),
+                    child: Icon(
+                      Icons.edit,
+                      color: EvAppColors.DEFAULT_BLUE_GREY,
+                    ),
                   ),
                 ),
               ],
@@ -456,7 +531,10 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                         AppDimensions.radiusSize5,
                       ),
                     ),
-                    child: Icon(Icons.edit, color: EvAppColors.DEFAULT_BLUE_GREY),
+                    child: Icon(
+                      Icons.edit,
+                      color: EvAppColors.DEFAULT_BLUE_GREY,
+                    ),
                   ),
                 ),
               ],
@@ -495,6 +573,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                             Navigator.of(context).push(
                               AppRoutes.createRoute(
                                 EvEnterVehicleRegNumSscreen(
+                                  prefillInspection: widget.prefillInspection,
                                   evaluationDataModel: EvaluationDataEntryModel(
                                     modelId:
                                         widget.evaluationDataEntryModel.modelId,

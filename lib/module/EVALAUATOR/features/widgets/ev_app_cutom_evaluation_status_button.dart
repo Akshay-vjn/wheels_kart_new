@@ -10,6 +10,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/1_select_and_search_car_makes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/2_select_and_search_manufacturing_year_selection.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/3_select_and_search_car_model_screen.dart';
@@ -22,9 +23,12 @@ import 'package:wheels_kart/module/EVALAUATOR/data/model/evaluation_data_model.d
 
 class EvEvaluationProcessBar extends StatefulWidget {
   int currentPage;
+  final InspectionModel? prefillInspection;
+
   EvaluationDataEntryModel evaluationDataModel;
   EvEvaluationProcessBar({
     super.key,
+    required this.prefillInspection,
     required this.currentPage,
     required this.evaluationDataModel,
   });
@@ -141,6 +145,7 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
                         if (state is FetchCarMakeSuccessState) {
                           navigatTo(
                             EvSelectAndSearchCarMakes(
+                              prefillInspection: widget.prefillInspection,
                               inspectuionId:
                                   widget.evaluationDataModel.inspectionId,
                               listofCarMake: state.carMakeData,
@@ -152,6 +157,7 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
                       {
                         navigatTo(
                           EvSelectAndSeachManufacturingYear(
+                            prefillInspection: widget.prefillInspection,
                             evaluationDataEntryModel:
                                 widget.evaluationDataModel,
                           ),
@@ -161,6 +167,7 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
                       {
                         navigatTo(
                           EvSelectAndSearchCarModelScreen(
+                            prefillInspection: widget.prefillInspection,
                             evaluationDataEntryModel:
                                 widget.evaluationDataModel,
                           ),
@@ -170,6 +177,7 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
                       {
                         navigatTo(
                           EvSelectFuealTypeScreen(
+                            prefillInspection: widget.prefillInspection,
                             evaluationDataEntryModel:
                                 widget.evaluationDataModel,
                           ),
@@ -179,6 +187,7 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
                       {
                         navigatTo(
                           EvEnterVehicleRegNumSscreen(
+                            prefillInspection: widget.prefillInspection,
                             evaluationDataModel: widget.evaluationDataModel,
                           ),
                         );
@@ -187,6 +196,7 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
                       {
                         navigatTo(
                           EvSelectTotalKmsDrivenScreen(
+                                prefillInspection: widget.prefillInspection,
                             evaluationDataModel: widget.evaluationDataModel,
                           ),
                         );
@@ -195,6 +205,7 @@ class _EvEvaluationProcessBarState extends State<EvEvaluationProcessBar> {
                       {
                         navigatTo(
                           EvSelectAndSearchCarLocationScreen(
+                                prefillInspection: widget.prefillInspection,
                             evaluationDataModel: widget.evaluationDataModel,
                           ),
                         );

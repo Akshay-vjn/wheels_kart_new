@@ -18,10 +18,10 @@ class CarMakeModel {
     });
 
     factory CarMakeModel.fromJson(Map<String, dynamic> json) => CarMakeModel(
-        makeId: json["makeId"],
-        spinnyMakeId: json["spinnyMakeId"],
-        makeName: json["makeName"],
-        logo: json["logo"],
+        makeId: json["makeId"]??'',
+        spinnyMakeId: json["spinnyMakeId"]??'',
+        makeName: json["makeName"]??'',
+        logo: json["logo"]??'',
         createdAt: CreatedAt.fromJson(json["created_at"]),
         modifiedAt: DateTime.parse(json["modified_at"]),
     );

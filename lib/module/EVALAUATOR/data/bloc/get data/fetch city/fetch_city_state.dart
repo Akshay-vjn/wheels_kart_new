@@ -9,7 +9,21 @@ final class FetchCityLoadingState extends EvFetchCityState {}
 
 final class FetchCitySuccessSate extends EvFetchCityState {
   List<CityModel> listOfCities;
-  FetchCitySuccessSate({required this.listOfCities});
+  final String? selectedCityId;
+
+  FetchCitySuccessSate({
+    required this.listOfCities,
+    required this.selectedCityId,
+  });
+  FetchCitySuccessSate copyWith({
+    List<CityModel>? listOfCities,
+    String? selectedCityId,
+  }) {
+    return FetchCitySuccessSate(
+      listOfCities: listOfCities ?? this.listOfCities,
+      selectedCityId: selectedCityId ?? this.selectedCityId,
+    );
+  }
 }
 
 final class FetchCityErrorState extends EvFetchCityState {
@@ -17,6 +31,6 @@ final class FetchCityErrorState extends EvFetchCityState {
   FetchCityErrorState({required this.errorMessage});
 }
 
-final class FetchCitySearchHasDataState extends EvFetchCityState {}
+// final class FetchCitySearchHasDataState extends EvFetchCityState {}
 
-final class FetchCitySearchEmptyDataState extends EvFetchCityState {}
+// final class FetchCitySearchEmptyDataState extends EvFetchCityState {}

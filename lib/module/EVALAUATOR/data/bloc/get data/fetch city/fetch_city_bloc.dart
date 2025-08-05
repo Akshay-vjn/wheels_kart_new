@@ -10,6 +10,8 @@ part 'fetch_city_state.dart';
 class EvFetchCityBloc extends Bloc<EvFetchCityEvent, EvFetchCityState> {
   EvFetchCityBloc() : super(FetchCityInitialState()) {
     on<OnFetchCityDataEvent>(_onFetchcCities);
+
+    on<OnSelectCity>(_onSelectCity);
   }
 
   Future<void> _onFetchcCities(
@@ -22,18 +24,29 @@ class EvFetchCityBloc extends Bloc<EvFetchCityEvent, EvFetchCityState> {
     if (response['error'] == false ||
         response['message'] == 'Make list fetched successfully') {
       List cities = response['data'];
-      final listOfData = cities
-          .map(
-            (e) => CityModel.fromJson(e),
-          )
-          .toList();
-      emit(FetchCitySuccessSate(listOfCities: listOfData));
+      final listOfData = cities.map((e) => CityModel.fromJson(e)).toList();
+      emit(
+        FetchCitySuccessSate(
+          listOfCities: listOfData,
+          selectedCityId: event.lastCitySelected,
+        ),
+      );
     } else if (response['error'] == true) {
       emit(FetchCityErrorState(errorMessage: response['message']));
     } else if (response.isEmpty) {
       emit(FetchCityErrorState(errorMessage: 'Cities not found !'));
     } else {
       emit(FetchCityErrorState(errorMessage: 'Cities not found !'));
+    }
+  }
+
+  Future<void> _onSelectCity(
+    OnSelectCity event,
+    Emitter<EvFetchCityState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is FetchCitySuccessSate) {
+      emit(currentState.copyWith(selectedCityId: event.selectedCityId));
     }
   }
 }

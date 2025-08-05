@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
@@ -46,7 +47,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
     context.read<EvFetchCarMakeBloc>().add(
       InitalFetchCarMakeEvent(context: context),
     );
-   _loadInspections();
+    _loadInspections();
 
     _animationController.forward();
   }
@@ -251,7 +252,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
 
   Widget _buildCardHeader(InspectionModel inspectionModel) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -334,7 +335,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
 
   Widget _buildCustomerDetails(InspectionModel inspectionModel) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -428,7 +429,7 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
     bool canInspect,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
           Expanded(
@@ -521,15 +522,17 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
       Navigator.of(context).push(
         AppRoutes.createRoute(
           EvSelectAndSearchCarMakes(
+            prefillInspection: inspectionModel,
             inspectuionId: inspectionModel.inspectionId,
             listofCarMake: state.carMakeData,
           ),
         ),
       );
     } else {
-      _showErrorSnackBar(
+      showSnakBar(
         context,
         'Car make data not available. Please try again.',
+        isError: true,
       );
     }
   }
@@ -561,9 +564,9 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
         Navigator.of(context).pop(); // Close loading dialog
 
         if (snapshot['error'] == true) {
-          _showErrorSnackBar(context, snapshot['message']);
+          showSnakBar(context, snapshot['message'], isError: true);
         } else if (snapshot.isEmpty) {
-          _showErrorSnackBar(context, 'Instruction page not found!');
+          showSnakBar(context, 'Instruction page not found!', isError: true);
         } else if (snapshot['error'] == false) {
           Navigator.of(context).push(
             AppRoutes.createRoute(
@@ -587,7 +590,11 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
       }
     } catch (e) {
       Navigator.of(context).pop(); // Close loading dialog
-      _showErrorSnackBar(context, 'An error occurred. Please try again.');
+      showSnakBar(
+        context,
+        'An error occurred. Please try again.',
+        isError: true,
+      );
     }
   }
 
@@ -640,19 +647,19 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
     );
   }
 
-  void _showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        action: SnackBarAction(
-          label: 'DISMISS',
-          textColor: Colors.white,
-          onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-        ),
-      ),
-    );
-  }
+  // void _showErrorSnackBar(BuildContext context, String message) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text(message),
+  //       backgroundColor: Colors.red,
+  //       behavior: SnackBarBehavior.floating,
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  //       action: SnackBarAction(
+  //         label: 'DISMISS',
+  //         textColor: Colors.white,
+  //         onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+  //       ),
+  //     ),
+  //   );
+  // }
 }

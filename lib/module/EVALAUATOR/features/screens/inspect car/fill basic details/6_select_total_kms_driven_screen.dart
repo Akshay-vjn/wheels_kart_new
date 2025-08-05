@@ -7,6 +7,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/evaluation_data_model.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fill%20basic%20details/7_select_and_search_car_location_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_selection_button.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
@@ -16,7 +17,12 @@ import 'package:wheels_kart/common/components/app_spacer.dart';
 
 class EvSelectTotalKmsDrivenScreen extends StatefulWidget {
   final EvaluationDataEntryModel evaluationDataModel;
-  EvSelectTotalKmsDrivenScreen({super.key, required this.evaluationDataModel});
+  final InspectionModel? prefillInspection;
+  EvSelectTotalKmsDrivenScreen({
+    super.key,
+    required this.evaluationDataModel,
+    required this.prefillInspection,
+  });
 
   @override
   State<EvSelectTotalKmsDrivenScreen> createState() =>
@@ -33,6 +39,21 @@ class _EvSelectTotalKmsDrivenScreenState
     // TODO: implement initState
     super.initState();
     _genarateKmsList();
+  }
+
+  _initializeLastKm() {
+    if (widget.prefillInspection != null) {
+      final km =
+          widget.prefillInspection!.kmsDriven.isEmpty
+              ? null
+              : widget.prefillInspection!.kmsDriven;
+      if (km != null) {
+        selectedKmsDrivenvalue = km;
+        selectedIndexofKmsDrive = listOfKmsData.indexOf(
+          selectedKmsDrivenvalue!,
+        );
+      }
+    }
   }
 
   @override
@@ -53,6 +74,8 @@ class _EvSelectTotalKmsDrivenScreenState
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(h(context) * .08),
           child: EvEvaluationProcessBar(
+            prefillInspection: widget.prefillInspection,
+
             currentPage: 5,
             evaluationDataModel: widget.evaluationDataModel,
           ),
@@ -112,6 +135,7 @@ class _EvSelectTotalKmsDrivenScreenState
                         Navigator.of(context).push(
                           AppRoutes.createRoute(
                             EvSelectAndSearchCarLocationScreen(
+                              prefillInspection: widget.prefillInspection,
                               evaluationDataModel: _evaluationData,
                             ),
                           ),
@@ -152,5 +176,7 @@ class _EvSelectTotalKmsDrivenScreenState
         }
       }
     });
+
+    _initializeLastKm();
   }
 }

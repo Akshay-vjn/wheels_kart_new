@@ -7,6 +7,7 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/home/ev_live_leads_tab.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_button.dart';
@@ -25,9 +26,11 @@ import 'package:wheels_kart/common/components/app_spacer.dart';
 
 class EvSelectAndSearchCarLocationScreen extends StatefulWidget {
   final EvaluationDataEntryModel evaluationDataModel;
+  final InspectionModel? prefillInspection;
 
   const EvSelectAndSearchCarLocationScreen({
     super.key,
+    required this.prefillInspection,
     required this.evaluationDataModel,
   });
 
@@ -41,13 +44,23 @@ class _EvSelectAndSearchCarLocationScreenState
   @override
   void initState() {
     super.initState();
-
-    context.read<EvFetchCityBloc>().add(OnFetchCityDataEvent(context: context));
+    final lastCitySelected =
+        widget.prefillInspection != null
+            ? widget.prefillInspection!.cityId.isNotEmpty
+                ? widget.prefillInspection!.cityId
+                : null
+            : null;
+    context.read<EvFetchCityBloc>().add(
+      OnFetchCityDataEvent(
+        context: context,
+        lastCitySelected: lastCitySelected,
+      ),
+    );
   }
 
-  int? selectedCityindex;
-  String? selctedCityId;
-  String? selectedCityName;
+  // int? selectedCityindex;
+  // String? selctedCityId;
+  // String? selectedCityName;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +80,8 @@ class _EvSelectAndSearchCarLocationScreenState
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(h(context) * .08),
           child: EvEvaluationProcessBar(
+            prefillInspection: widget.prefillInspection,
+
             currentPage: 6,
             evaluationDataModel: widget.evaluationDataModel,
           ),
@@ -82,7 +97,7 @@ class _EvSelectAndSearchCarLocationScreenState
                 }
               case FetchCitySuccessSate():
                 {
-                  return _buildCityView(state.listOfCities);
+                  return _buildCityView(state.listOfCities, state);
                 }
               case FetchCityErrorState():
                 {
@@ -100,23 +115,27 @@ class _EvSelectAndSearchCarLocationScreenState
     );
   }
 
-  Widget _buildCityView(List<CityModel> cityList) {
+  Widget _buildCityView(List<CityModel> cityList, FetchCitySuccessSate state) {
     return ListView.builder(
       itemCount: cityList.length,
       itemBuilder: (context, index) {
+        bool isSelected = state.selectedCityId == cityList[index].cityId;
         return EvAppCustomeSelctionButton(
           isButtonBorderView: true,
           currentIndex: index,
           onTap: () {
-            setState(() {
-              selectedCityindex = index;
-              selectedCityName = cityList[index].cityName;
-              selctedCityId = cityList[index].cityId;
-            });
-
+            // setState(() {
+            //   selectedCityindex = index;
+            //   selectedCityName = cityList[index].cityName;
+            //   selctedCityId = cityList[index].cityId;
+            // });
+            context.read<EvFetchCityBloc>().add(
+              OnSelectCity(selectedCityId: cityList[index].cityId),
+            );
             final _evaluationData = widget.evaluationDataModel;
-            _evaluationData.carLocation = selectedCityName;
-            _evaluationData.locationID = selctedCityId;
+            _evaluationData.carLocation = cityList[index].cityName;
+            ;
+            _evaluationData.locationID = cityList[index].cityId;
 
             showModalBottomSheet(
               enableDrag: true,
@@ -247,7 +266,7 @@ class _EvSelectAndSearchCarLocationScreenState
               },
             );
           },
-          selectedButtonIndex: selectedCityindex,
+          selectedButtonIndex: isSelected ? index : null,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingSize15,
@@ -261,7 +280,7 @@ class _EvSelectAndSearchCarLocationScreenState
                   style: EvAppStyle.style(
                     size: AppDimensions.fontSize18(context),
                     context: context,
-                    color: selectedCityindex != index ? EvAppColors.black : null,
+                    color: isSelected ? EvAppColors.black : null,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
