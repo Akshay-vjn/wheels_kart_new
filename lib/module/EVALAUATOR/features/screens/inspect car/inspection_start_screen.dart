@@ -264,6 +264,9 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       isQuestionsAllCompleded &&
       isVideoAllUploaded;
 
+  bool get isVideoOnlyPending =>
+      isPicturedAllUploaded && isLegalsAllUPloaded && isQuestionsAllCompleded;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -300,7 +303,11 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                             child: Text(
                               textAlign: TextAlign.center,
                               "You can edit the inspection until it is approved.",
-                              style: VStyle.style(context: context,color: EvAppColors.grey,size: 14),
+                              style: VStyle.style(
+                                context: context,
+                                color: EvAppColors.grey,
+                                size: 14,
+                              ),
                             ),
                           )
                           : SizedBox.shrink(),
@@ -383,7 +390,9 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                 value: completionProgress * _progressController.value,
                 backgroundColor: Colors.white.withOpacity(0.3),
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  isAllCompleted ? Colors.green : Colors.orange,
+                  isAllCompleted || isVideoOnlyPending
+                      ? Colors.green
+                      : Colors.orange,
                 ),
                 minHeight: 8,
               );
@@ -391,7 +400,9 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            isAllCompleted
+            isVideoOnlyPending
+                ? "Required steps all completed! Ready to submit."
+                : isAllCompleted
                 ? 'All steps completed! Ready to submit.'
                 : '${4 - [isPicturedAllUploaded, isLegalsAllUPloaded, isQuestionsAllCompleded, isVideoAllUploaded].where((e) => e).length} steps remaining',
             style: TextStyle(
@@ -418,24 +429,16 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
           ),
         ),
         const SizedBox(height: 20),
-        _buildEnhancedStepCard(
-          title: "Vehicle Photos",
-          subtitle: "Capture all required angles",
-          icon: CupertinoIcons.camera_fill,
-          isCompleted: isPicturedAllUploaded,
-          onTap: () => _navigateToPhotos(),
-          stepNumber: 1,
-        ),
-        const SizedBox(height: 16),
 
         _buildEnhancedStepCard(
-          title: "Vehicle Videos",
-          subtitle: "Capture full walkaround and engine bay videos",
-          icon: CupertinoIcons.video_camera_solid,
-          isCompleted: isVideoAllUploaded,
-          onTap: () => _navigateToVideos(),
-          stepNumber: 2,
+          title: "Inspection Report",
+          subtitle: "Complete evaluation checklist",
+          icon: CupertinoIcons.checkmark_seal_fill,
+          isCompleted: isQuestionsAllCompleded,
+          onTap: () => _navigateToReport(),
+          stepNumber: 1,
         ),
+
         const SizedBox(height: 16),
         _buildEnhancedStepCard(
           title: "Vehicle Legals",
@@ -443,16 +446,28 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
           icon: CupertinoIcons.doc_fill,
           isCompleted: isLegalsAllUPloaded,
           onTap: () => _navigateToDocuments(),
-          stepNumber: 3,
+          stepNumber: 2,
         ),
+
         const SizedBox(height: 16),
         _buildEnhancedStepCard(
-          title: "Inspection Report",
-          subtitle: "Complete evaluation checklist",
-          icon: CupertinoIcons.checkmark_seal_fill,
-          isCompleted: isQuestionsAllCompleded,
-          onTap: () => _navigateToReport(),
+          title: "Vehicle Photos",
+          subtitle: "Capture all required angles",
+          icon: CupertinoIcons.camera_fill,
+          isCompleted: isPicturedAllUploaded,
+          onTap: () => _navigateToPhotos(),
+          stepNumber: 3,
+        ),
+
+        const SizedBox(height: 16),
+        _buildEnhancedStepCard(
+          title: "Vehicle Videos",
+          subtitle: "Capture full walkaround and engine bay videos",
+          icon: CupertinoIcons.video_camera_solid,
+          isCompleted: isVideoAllUploaded,
+          onTap: () => _navigateToVideos(),
           stepNumber: 4,
+          isOptional: true,
         ),
       ],
     );
@@ -465,158 +480,193 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
     required bool isCompleted,
     required VoidCallback onTap,
     required int stepNumber,
+    bool isOptional = false,
   }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color:
-                  isCompleted
-                      ? Colors.green.withOpacity(0.3)
-                      : Colors.grey.withOpacity(0.2),
-              width: 2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    isCompleted
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.grey.withOpacity(0.1),
-                offset: const Offset(0, 4),
-                blurRadius: 12,
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
+        child: Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
                   color:
                       isCompleted
-                          ? Colors.green.withOpacity(0.1)
-                          : EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(30),
+                          ? Colors.green.withOpacity(0.3)
+                          : Colors.grey.withOpacity(0.2),
+                  width: 2,
                 ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Icon(
-                        icon,
-                        color:
-                            isCompleted
-                                ? Colors.green
-                                : EvAppColors.DEFAULT_BLUE_DARK,
-                        size: 28,
-                      ),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                        isCompleted
+                            ? Colors.green.withOpacity(0.1)
+                            : Colors.grey.withOpacity(0.1),
+                    offset: const Offset(0, 4),
+                    blurRadius: 12,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color:
+                          isCompleted
+                              ? Colors.green.withOpacity(0.1)
+                              : EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    if (isCompleted)
-                      Positioned(
-                        top: 2,
-                        right: 2,
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: const BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 14,
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Icon(
+                            icon,
+                            color:
+                                isCompleted
+                                    ? Colors.green
+                                    : EvAppColors.DEFAULT_BLUE_DARK,
+                            size: 28,
                           ),
                         ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color:
-                                isCompleted ? Colors.green : Colors.grey[400],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(
-                              stepNumber.toString(),
-                              style: const TextStyle(
+                        if (isCompleted)
+                          Positioned(
+                            top: 2,
+                            right: 2,
+                            child: Container(
+                              width: 20,
+                              height: 20,
+                              decoration: const BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.check,
                                 color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                                size: 14,
                               ),
                             ),
                           ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color:
+                                    isCompleted
+                                        ? Colors.green
+                                        : Colors.grey[400],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  stepNumber.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              title,
+                              style: EvAppStyle.style(
+                                context: context,
+                                size: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(height: 8),
                         Text(
-                          title,
+                          subtitle,
                           style: EvAppStyle.style(
                             context: context,
-                            size: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
+                            size: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                isCompleted
+                                    ? Colors.green.withOpacity(0.1)
+                                    : Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            isCompleted ? "Completed" : "Pending",
+                            style: TextStyle(
+                              color:
+                                  isCompleted
+                                      ? Colors.green[700]
+                                      : Colors.orange[700],
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      subtitle,
-                      style: EvAppStyle.style(
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey[400],
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+            if (isOptional)
+              Positioned(
+                right: 10,
+                top: 10,
+                child: Material(
+                  borderRadius: BorderRadius.circular(12),
+                  elevation: 1,
+                  color: EvAppColors.DARK_SECONDARY.withAlpha(200),
+                  shadowColor: EvAppColors.black.withAlpha(30),
+                  child: Padding(
+                    padding: EdgeInsetsGeometry.symmetric(
+                      horizontal: 10,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      "Optional",
+                      style: EvAppStyle.poppins(
                         context: context,
-                        size: 14,
-                        color: Colors.grey[600],
+                        color: EvAppColors.white,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            isCompleted
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.orange.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        isCompleted ? "Completed" : "Pending",
-                        style: TextStyle(
-                          color:
-                              isCompleted
-                                  ? Colors.green[700]
-                                  : Colors.orange[700],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 20),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -628,7 +678,10 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
-        onPressed: isAllCompleted ? _onSubmit : _onIncompleteSubmit,
+        onPressed:
+            isAllCompleted || isVideoOnlyPending
+                ? _onSubmit
+                : _onIncompleteSubmit,
         style: ElevatedButton.styleFrom(
           backgroundColor: isAllCompleted ? Colors.green : Colors.grey[400],
           foregroundColor: Colors.white,
@@ -644,13 +697,31 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (isAllCompleted) ...[
+            if (isAllCompleted || isVideoOnlyPending) ...[
               const Icon(Icons.check_circle, size: 24),
               const SizedBox(width: 12),
             ],
-            Text(
-              isAllCompleted ? "Submit Inspection" : "Complete All Steps First",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  isAllCompleted || isVideoOnlyPending
+                      ? "Submit Inspection"
+                      : "Complete All Steps First",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (isVideoOnlyPending)
+                  Text(
+                    "Video is not updated!",
+                    style: EvAppStyle.style(
+                      context: context,
+                      color: EvAppColors.white,
+                    ),
+                  ),
+              ],
             ),
           ],
         ),
@@ -711,7 +782,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   }
 
   void _onSubmit() async {
-    if (isAllCompleted) {
+    if (isAllCompleted || isVideoOnlyPending) {
       log("Inspection submitted successfully");
 
       final isError = await context
@@ -754,6 +825,12 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
         "Complete Inspection",
         "Please complete the inspection report before submitting.",
         _navigateToReport,
+      );
+    } else if (!isVideoAllUploaded) {
+      _showWarningAndNavigate(
+        "Upload Vehilce Videos",
+        "Please upload all vehilce videos before submitting (optional).",
+        _navigateToVideos,
       );
     }
   }

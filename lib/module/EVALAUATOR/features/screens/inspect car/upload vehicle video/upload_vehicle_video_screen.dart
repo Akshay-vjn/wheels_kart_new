@@ -161,6 +161,7 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
               children: [
                 AppSpacer(heightPortion: .02),
                 _buildVideoButton(
+                  buttonTitle: "Walkaround Video",
                   state: state,
                   videoId:
                       state.isAvailabeWalkaroundVideo
@@ -175,20 +176,19 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
                           : null,
                   hintText: "Full Walkaround Video.",
                   onTap: () {
-                    context
-                        .read<UploadVehicleVideoCubit>()
-                        .onClickFullWalkaroundVideo(
-                          state.isAvailabeWalkaroundVideo
-                              ? walkaroundVideo!.videoId
-                              : null,
-                          widget.inspectionId,
-                          context,
-                        );
+                    showGallaryOrCameraSheet(
+                      "Walkaroud",
+
+                      state.isAvailabeWalkaroundVideo
+                          ? walkaroundVideo!.videoId
+                          : null,
+                    );
                   },
                   isUploading: state.isWalkAroundUploading,
                 ),
                 AppSpacer(heightPortion: .02),
                 _buildVideoButton(
+                  buttonTitle: "Engine Side Video",
                   state: state,
 
                   videoId:
@@ -204,15 +204,13 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
                           : null,
                   hintText: "Engine Side Video after starting vehicle.",
                   onTap: () {
-                    context
-                        .read<UploadVehicleVideoCubit>()
-                        .onClickFullEngineVideo(
-                          state.isAvailableEngineVideo
-                              ? engineSideVideo!.video
-                              : null,
-                          widget.inspectionId,
-                          context,
-                        );
+                    showGallaryOrCameraSheet(
+                      "Engine Side",
+
+                      state.isAvailableEngineVideo
+                          ? engineSideVideo!.videoId
+                          : null,
+                    );
                   },
                   isUploading: state.isEngineUploading,
                 ),
@@ -235,6 +233,7 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
     required bool isUploading,
     required String videoType,
     required String videoId,
+    required String buttonTitle,
   }) {
     return Column(
       children: [
@@ -375,7 +374,7 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
                         const SizedBox(width: 12),
                         Text(
                           existingVideoFile == null
-                              ? "Capture Video"
+                              ? buttonTitle
                               : "Delete & Update Video",
                           style: EvAppStyle.style(
                             context: context,
@@ -510,6 +509,141 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
           ),
         ),
       ],
+    );
+  }
+
+  void showGallaryOrCameraSheet(String type, String? videoId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor:
+          Colors.transparent, // Optional: adds rounded corner effect
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: EvAppColors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Upload $type Video",
+                  style: EvAppStyle.style(
+                    context: context,
+                    fontWeight: FontWeight.bold,
+                    size: 18,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Gallery Option
+                    _buildOptionCard(
+                      context,
+                      icon: Icons.collections,
+                      label: "Gallery",
+                      onTap: () {
+                        if (type == "Engine Side") {
+                          context
+                              .read<UploadVehicleVideoCubit>()
+                              .onClickFullEngineVideo(
+                                videoId,
+                                widget.inspectionId,
+                                true,
+                                context,
+                              );
+                        } else {
+                          context
+                              .read<UploadVehicleVideoCubit>()
+                              .onClickFullWalkaroundVideo(
+                                videoId,
+                                widget.inspectionId,
+                                true,
+                                context,
+                              );
+                        }
+                        // Your gallery logic here
+                      },
+                    ),
+                    // Camera Option
+                    _buildOptionCard(
+                      context,
+                      icon: Icons.camera_alt,
+                      label: "Camera",
+                      onTap: () {
+                        if (type == "Engine Side") {
+                          context
+                              .read<UploadVehicleVideoCubit>()
+                              .onClickFullEngineVideo(
+                                videoId,
+                                widget.inspectionId,
+                                false,
+                                context,
+                              );
+                        } else {
+                          context
+                              .read<UploadVehicleVideoCubit>()
+                              .onClickFullWalkaroundVideo(
+                                videoId,
+                                widget.inspectionId,
+                                false,
+                                context,
+                              );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildOptionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Material(
+        color: EvAppColors.white,
+        borderRadius: BorderRadius.circular(20),
+        elevation: 5,
+        child: Container(
+          width: w(context) * 0.4,
+          height: h(context) * 0.17,
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 40, color: Colors.black87),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                style: EvAppStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.bold,
+                  size: 16,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

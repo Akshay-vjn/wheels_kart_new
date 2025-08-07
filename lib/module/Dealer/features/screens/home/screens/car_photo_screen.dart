@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +9,12 @@ import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/photo_gallary_view.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
 
 class VCarPhotoScreen extends StatefulWidget {
@@ -195,28 +199,70 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AspectRatio(
-                                aspectRatio: 16 / 9,
-                                child: Container(
-                                  margin: EdgeInsets.all(10),
-                                  width: w(context),
-                                  child: CachedNetworkImage(
-                                    errorWidget:
-                                        (context, url, error) =>
-                                            Icon(Icons.safety_check_outlined),
-                                    imageUrl:
-                                        state.currentTabImages[index]['image'],
+                              InkWell(
+                                onTap: () {
+                                  final carPhotos =
+                                      state.detail.images
+                                          .map((e) => e.url)
+                                          .toList();
+
+                                  final images =
+                                      state.detail.sections
+                                          .expand(
+                                            (section) => section.entries.expand(
+                                              (entry) => entry.responseImages,
+                                            ),
+                                          )
+                                          .toList();
+                                  final allImages = [...carPhotos, ...images];
+                                  final findIndex = allImages.indexOf(
+                                    state.currentTabImages[index]['image'],
+                                  );
+                                  // entries.map((e) =>e. ,).toList();
+                                  Navigator.of(context).push(
+                                    AppRoutes.createRoute(
+                                      PhotoGallaryView(
+                                        currentImageIndex: findIndex,
+                                        images: allImages,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Hero(
+                                  tag: state.currentTabImages[index]['image'],
+                                  child: AspectRatio(
+                                    aspectRatio: 16 / 9,
+                                    child: Container(
+                                      margin: EdgeInsets.all(10),
+                                      width: w(context),
+                                      child: CachedNetworkImage(
+                                        errorWidget:
+                                            (context, url, error) => Icon(
+                                              Icons.safety_check_outlined,
+                                            ),
+                                        imageUrl:
+                                            state
+                                                .currentTabImages[index]['image'],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 15),
-                                child: Text(
-                                  state.currentTabImages[index]['comment'],
-                                  
-                                  style: VStyle.style(context: context,size: 13,color: VColors.GREENHARD),
+                              if (state
+                                  .currentTabImages[index]['comment']
+                                  .isNotEmpty)
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 15),
+                                  child: Text(
+                                    state.currentTabImages[index]['comment'],
+
+                                    style: VStyle.style(
+                                      context: context,
+                                      size: 13,
+                                      color: VColors.GREENHARD,
+                                    ),
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),

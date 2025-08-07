@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
+import 'package:wheels_kart/common/utils/permissions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/video_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/delete_upload_video_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/fetch_upload_video_repo.dart';
@@ -96,52 +97,59 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
   Future<void> onClickFullWalkaroundVideo(
     String? videoId,
     String insepctionId,
+    bool isFromGallery,
     BuildContext context,
   ) async {
     final currentState = state;
     if (currentState is UploadVehicleVideoSuccessState) {
-      final pickedFIle = await ImagePicker().pickVideo(
-        source: ImageSource.camera,
-        maxDuration: Duration(minutes: 1),
-      );
+      if (await AppPermission.askCameraAndGallary()) {
+        final pickedFIle = await ImagePicker().pickVideo(
+          source: isFromGallery ? ImageSource.gallery : ImageSource.camera,
 
-      if (pickedFIle == null) return;
-      emit(currentState.copyWith(isWalkAroundUploading: true));
-      if (videoId != null) {
-        await _deleteVideo(insepctionId, videoId, context);
+          maxDuration: Duration(minutes: 1),
+        );
+
+        if (pickedFIle == null) return;
+        emit(currentState.copyWith(isWalkAroundUploading: true));
+        if (videoId != null) {
+          await _deleteVideo(insepctionId, videoId, context);
+        }
+        await _uploadVideo(
+          context,
+          File(pickedFIle.path),
+          insepctionId,
+          WLAKAROUND,
+        );
       }
-      await _uploadVideo(
-        context,
-        File(pickedFIle.path),
-        insepctionId,
-        WLAKAROUND,
-      );
     }
   }
 
   Future<void> onClickFullEngineVideo(
     String? videoId,
     String insepctionId,
+    bool isFromGallery,
     BuildContext context,
   ) async {
     final currentState = state;
     if (currentState is UploadVehicleVideoSuccessState) {
-      final pickedFIle = await ImagePicker().pickVideo(
-        source: ImageSource.camera,
-        maxDuration: Duration(minutes: 1),
-      );
+      if (await AppPermission.askCameraAndGallary()) {
+        final pickedFIle = await ImagePicker().pickVideo(
+          source: isFromGallery ? ImageSource.gallery : ImageSource.camera,
+          maxDuration: Duration(minutes: 1),
+        );
 
-      if (pickedFIle == null) return;
-      emit(currentState.copyWith(isEngineUploading: true));
-      if (videoId != null) {
-        await _deleteVideo(insepctionId, videoId, context);
+        if (pickedFIle == null) return;
+        emit(currentState.copyWith(isEngineUploading: true));
+        if (videoId != null) {
+          await _deleteVideo(insepctionId, videoId, context);
+        }
+        await _uploadVideo(
+          context,
+          File(pickedFIle.path),
+          insepctionId,
+          ENGINESIDE,
+        );
       }
-      await _uploadVideo(
-        context,
-        File(pickedFIle.path),
-        insepctionId,
-        ENGINESIDE,
-      );
     }
   }
 
