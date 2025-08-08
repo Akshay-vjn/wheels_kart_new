@@ -6,9 +6,11 @@ import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 
 class PhotoGallaryView extends StatefulWidget {
-  final List<String> images;
+  List<Map<String, String>> images;
   final int currentImageIndex;
   PhotoGallaryView({
     super.key,
@@ -50,7 +52,7 @@ class _PhotoGallaryViewState extends State<PhotoGallaryView> {
                   ),
                   gestureDetectorBehavior: HitTestBehavior.translucent,
                   imageProvider: CachedNetworkImageProvider(
-                    widget.images[index],
+                    widget.images[index]['image'] ?? "",
                   ),
                 ),
           ),
@@ -71,6 +73,29 @@ class _PhotoGallaryViewState extends State<PhotoGallaryView> {
                   ),
                 ),
               ],
+            ),
+          ),
+
+          Positioned(
+            bottom: 50,
+            child: Container(
+              margin: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children:
+                    widget.images[currentIndex]['title']!
+                        .split(",")
+                        .map(
+                          (e) => Text(
+                            "∙ $e",
+                            style: EvAppStyle.style(
+                              context: context,
+                              color: EvAppColors.white,
+                            ),
+                          ),
+                        )
+                        .toList(),
+              ),
             ),
           ),
         ],

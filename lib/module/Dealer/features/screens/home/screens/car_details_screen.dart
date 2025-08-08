@@ -279,7 +279,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                   );
                                 }).toList(),
                           ),
-                          AppSpacer(heightPortion: .03,)
+                          AppSpacer(heightPortion: .03),
                         ]),
                       ),
                     ),
@@ -842,13 +842,18 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
     String? subtitle,
   }) {
     Widget icon;
+    Color color;
 
     if (answer == "OK" || answer == "YES") {
       icon = Icon(SolarIconsBold.checkCircle, color: VColors.PRIMARY);
+      color = VColors.PRIMARY;
     } else if (answer == "NOT OK" || answer == "NO") {
       icon = Icon(SolarIconsBold.closeCircle, color: VColors.ERROR);
+      color = VColors.ERROR;
     } else {
       icon = Icon(SolarIconsOutline.infoCircle, color: VColors.ACCENT);
+      color = VColors.ACCENT;
+
       subtitle ??= answer;
     }
     return Padding(
@@ -898,7 +903,7 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                           ),
                                           gradient: LinearGradient(
                                             colors: [
-                                              VColors.DARK_GREY.withAlpha(100),
+                                              color.withAlpha(50),
 
                                               VColors.WHITE.withAlpha(40),
                                               VColors.WHITE,
@@ -906,14 +911,15 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                           ),
                                         ),
                                         child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                              CrossAxisAlignment.center,
                                           children: [
                                             Text(
-                                              "● ",
+                                              "∙ ",
                                               style: VStyle.style(
                                                 context: context,
-                                                color: VColors.DARK_GREY,
+                                                color: color.withAlpha(100),
                                                 fontWeight: FontWeight.w500,
                                                 size: 12,
                                               ),
@@ -923,9 +929,9 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                                 e,
                                                 style: VStyle.style(
                                                   context: context,
-                                                  color: VColors.DARK_GREY,
-                                                  fontWeight: FontWeight.bold,
-                                                  size: 12,
+                                                  color: color,
+                                                  fontWeight: FontWeight.w300,
+                                                  size: 10,
                                                 ),
                                               ),
                                             ),

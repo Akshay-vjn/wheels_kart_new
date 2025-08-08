@@ -27,13 +27,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take photos or scan documents.</string>
+	<string>Allow us to use your camera to take photos, record videos, or scan documents.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>We need access to your documents folder to save and view PDF files.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>We need permission to save images or PDFs to your photo library.</string>
+	<string>Allow us to save photos, videos, and PDFs to your library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to select and upload images.</string>
+	<string>Allow us to access your library to upload photos and videos.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -53,6 +53,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone to record video with sound.</string>
 
 </dict>
 </plist>

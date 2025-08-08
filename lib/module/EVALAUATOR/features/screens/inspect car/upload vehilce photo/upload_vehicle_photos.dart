@@ -148,10 +148,9 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
           const SizedBox(height: 16),
           Text(
             "Loading photo angles...",
-            style: EvAppStyle.style(
+            style: EvAppStyle.poppins(
               context: context,
-              color: Colors.grey[600],
-              size: AppDimensions.fontSize15(context),
+              size: AppDimensions.fontSize13(context),
             ),
           ),
         ],
@@ -508,42 +507,49 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
     FetchUploadedVehilcePhotosSuccessSate fetchUploadsState,
     UplaodVehilcePhotoState uploadState,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionTitle("Photo Preview", Icons.photo_camera),
-        const SizedBox(height: 16),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.35,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color:
-                  uploadState.selectedAngleId != null
-                      ? EvAppColors.DEFAULT_BLUE_DARK
-                      : Colors.grey[300]!,
-              width: 2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+    return BlocBuilder<UplaodVehilcePhotoCubit, UplaodVehilcePhotoState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTitle("Photo Preview", Icons.photo_camera),
+            const SizedBox(height: 16),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: double.infinity,
+              height: MediaQuery.of(context).size.height * 0.35,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color:
+                      uploadState.selectedAngleId != null
+                          ? EvAppColors.DEFAULT_BLUE_DARK
+                          : Colors.grey[300]!,
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: _buildPhotoContent(
-              angleState,
-              fetchUploadsState,
-              uploadState,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child:
+                    state is UplaodVehilcePhotoLoadingState
+                        ? EVAppLoadingIndicator()
+                        : _buildPhotoContent(
+                          angleState,
+                          fetchUploadsState,
+                          uploadState,
+                        ),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 

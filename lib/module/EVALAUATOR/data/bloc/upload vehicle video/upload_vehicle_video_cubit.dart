@@ -100,10 +100,11 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
     bool isFromGallery,
     BuildContext context,
   ) async {
+    final imagePicker = ImagePicker();
     final currentState = state;
     if (currentState is UploadVehicleVideoSuccessState) {
-      if (await AppPermission.askCameraAndGallary()) {
-        final pickedFIle = await ImagePicker().pickVideo(
+      // if (await AppPermission.askCameraAndGallery(context)) {
+        final pickedFIle = await imagePicker.pickVideo(
           source: isFromGallery ? ImageSource.gallery : ImageSource.camera,
 
           maxDuration: Duration(minutes: 1),
@@ -121,7 +122,7 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
           WLAKAROUND,
         );
       }
-    }
+    // }
   }
 
   Future<void> onClickFullEngineVideo(
@@ -130,10 +131,12 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
     bool isFromGallery,
     BuildContext context,
   ) async {
+    final imagePicker = ImagePicker();
+
     final currentState = state;
     if (currentState is UploadVehicleVideoSuccessState) {
-      if (await AppPermission.askCameraAndGallary()) {
-        final pickedFIle = await ImagePicker().pickVideo(
+      // if (await AppPermission.askCameraAndGallery(context)) {
+        final pickedFIle = await imagePicker.pickVideo(
           source: isFromGallery ? ImageSource.gallery : ImageSource.camera,
           maxDuration: Duration(minutes: 1),
         );
@@ -150,7 +153,7 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
           ENGINESIDE,
         );
       }
-    }
+    // }
   }
 
   Future<void> _deleteVideo(

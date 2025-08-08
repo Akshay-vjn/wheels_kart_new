@@ -7,8 +7,10 @@ import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehicle%20video/upload_vehicle_video_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/video_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20vehicle%20video/video_player_screen.dart';
@@ -521,89 +523,111 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: EvAppColors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Upload $type Video",
-                  style: EvAppStyle.style(
-                    context: context,
-                    fontWeight: FontWeight.bold,
-                    size: 18,
-                    color: Colors.black87,
+        return BlocBuilder<UploadVehicleVideoCubit, UploadVehicleVideoState>(
+          builder: (context, state) {
+            if (state is UploadVehicleVideoSuccessState) {
+              bool isUploading =
+                  state.isEngineUploading || state.isWalkAroundUploading;
+              return Container(
+                decoration: BoxDecoration(
+                  color: EvAppColors.white,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Gallery Option
-                    _buildOptionCard(
-                      context,
-                      icon: Icons.collections,
-                      label: "Gallery",
-                      onTap: () {
-                        if (type == "Engine Side") {
-                          context
-                              .read<UploadVehicleVideoCubit>()
-                              .onClickFullEngineVideo(
-                                videoId,
-                                widget.inspectionId,
-                                true,
-                                context,
-                              );
-                        } else {
-                          context
-                              .read<UploadVehicleVideoCubit>()
-                              .onClickFullWalkaroundVideo(
-                                videoId,
-                                widget.inspectionId,
-                                true,
-                                context,
-                              );
-                        }
-                        // Your gallery logic here
-                      },
-                    ),
-                    // Camera Option
-                    _buildOptionCard(
-                      context,
-                      icon: Icons.camera_alt,
-                      label: "Camera",
-                      onTap: () {
-                        if (type == "Engine Side") {
-                          context
-                              .read<UploadVehicleVideoCubit>()
-                              .onClickFullEngineVideo(
-                                videoId,
-                                widget.inspectionId,
-                                false,
-                                context,
-                              );
-                        } else {
-                          context
-                              .read<UploadVehicleVideoCubit>()
-                              .onClickFullWalkaroundVideo(
-                                videoId,
-                                widget.inspectionId,
-                                false,
-                                context,
-                              );
-                        }
-                      },
-                    ),
-                  ],
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 20,
                 ),
-              ],
-            ),
-          ),
+                child: SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Upload $type Video",
+                        style: EvAppStyle.style(
+                          context: context,
+                          fontWeight: FontWeight.bold,
+                          size: 18,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Gallery Option
+                          _buildOptionCard(
+                            isEnabled: !isUploading,
+
+                            context,
+                            icon: Icons.collections,
+                            label: "Gallery",
+                            onTap: () async {
+                              if (type == "Engine Side") {
+                                await context
+                                    .read<UploadVehicleVideoCubit>()
+                                    .onClickFullEngineVideo(
+                                      videoId,
+                                      widget.inspectionId,
+                                      true,
+                                      context,
+                                    );
+                              } else {
+                                await context
+                                    .read<UploadVehicleVideoCubit>()
+                                    .onClickFullWalkaroundVideo(
+                                      videoId,
+                                      widget.inspectionId,
+                                      true,
+                                      context,
+                                    );
+                              }
+                              Navigator.pop(context);
+                              // Your gallery logic here
+                            },
+                          ),
+                          // Camera Option
+                          _buildOptionCard(
+                            isEnabled: !isUploading,
+                            context,
+                            icon: Icons.camera_alt,
+                            label: "Camera",
+                            onTap: () async {
+                              if (type == "Engine Side") {
+                                await context
+                                    .read<UploadVehicleVideoCubit>()
+                                    .onClickFullEngineVideo(
+                                      videoId,
+                                      widget.inspectionId,
+                                      false,
+                                      context,
+                                    );
+                              } else {
+                                await context
+                                    .read<UploadVehicleVideoCubit>()
+                                    .onClickFullWalkaroundVideo(
+                                      videoId,
+                                      widget.inspectionId,
+                                      false,
+                                      context,
+                                    );
+                              }
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      AppSpacer(heightPortion: .03),
+                      if (isUploading) BlinkingText(),
+                    ],
+                  ),
+                ),
+              );
+            } else {
+              return SizedBox();
+            }
+          },
         );
       },
     );
@@ -614,14 +638,15 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    required bool isEnabled,
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: isEnabled ? onTap : null,
       borderRadius: BorderRadius.circular(20),
       child: Material(
         color: EvAppColors.white,
         borderRadius: BorderRadius.circular(20),
-        elevation: 5,
+        elevation: isEnabled ? 5 : 1,
         child: Container(
           width: w(context) * 0.4,
           height: h(context) * 0.17,
@@ -629,7 +654,11 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 40, color: Colors.black87),
+              Icon(
+                icon,
+                size: 40,
+                color: isEnabled ? Colors.black87 : Colors.grey.shade300,
+              ),
               const SizedBox(height: 12),
               Text(
                 label,
@@ -637,13 +666,49 @@ class _UploadVehicleVideoScreenState extends State<UploadVehicleVideoScreen>
                   context: context,
                   fontWeight: FontWeight.bold,
                   size: 16,
-                  color: Colors.black87,
+                  color: isEnabled ? Colors.black87 : Colors.grey.shade300,
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class BlinkingText extends StatefulWidget {
+  @override
+  _BlinkingTextState createState() => _BlinkingTextState();
+}
+
+class _BlinkingTextState extends State<BlinkingText> {
+  bool _visible = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: _visible ? 1.0 : 0.0, end: _visible ? 0.0 : 1.0),
+      duration: const Duration(milliseconds: 800),
+      onEnd: () {
+        setState(() {
+          _visible = !_visible; // Toggle to repeat the blink
+        });
+      },
+      builder: (context, opacity, child) {
+        return Opacity(
+          opacity: opacity,
+          child: Text(
+            "Uploading video please wait..",
+            style: EvAppStyle.style(
+              context: context,
+              size: 15,
+              fontWeight: FontWeight.bold,
+              color: EvAppColors.black,
+            ),
+          ),
+        );
+      },
     );
   }
 }

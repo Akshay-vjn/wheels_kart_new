@@ -19,6 +19,7 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20syste
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_dashboard/ev_fetch_dashboard_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/login%20page%20bloc/login_bloc_bloc.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/inspection%20progress%20controller/inspection_progress_controller_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/search/search%20car%20make/search_car_make_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
@@ -61,14 +62,16 @@ blocProviders(Widget child) => MultiBlocProvider(
     BlocProvider<UplaodVehilcePhotoCubit>(
       create: (_) => UplaodVehilcePhotoCubit(),
     ),
-     BlocProvider<UploadVehicleVideoCubit>(
+    BlocProvider<UploadVehicleVideoCubit>(
       create: (_) => UploadVehicleVideoCubit(),
     ),
     BlocProvider<FetchPictureAnglesCubit>(
       create: (_) => FetchPictureAnglesCubit(),
     ),
     BlocProvider<DownloadPdfCubit>(create: (_) => DownloadPdfCubit()),
-
+    BlocProvider<InspectionProgressCubit>(
+      create: (_) => InspectionProgressCubit(),
+    ),
     // Dealer CONTROLLERS
     BlocProvider<VNavControllerCubit>(create: (_) => VNavControllerCubit()),
     BlocProvider<VAuctionControlllerBloc>(
@@ -84,16 +87,12 @@ blocProviders(Widget child) => MultiBlocProvider(
     BlocProvider<VDetailsControllerBloc>(
       create: (_) => VDetailsControllerBloc(),
     ),
-    BlocProvider<VOcbControllerBloc>(
-      create: (_) => VOcbControllerBloc(),
-    ),
+    BlocProvider<VOcbControllerBloc>(create: (_) => VOcbControllerBloc()),
     BlocProvider<VMyAuctionControllerBloc>(
       create: (_) => VMyAuctionControllerBloc(),
     ),
-    BlocProvider<MyOcbControllerBloc>(
-      create: (_) => MyOcbControllerBloc(),
-    ),
-     BlocProvider<VCarvideoControllerCubit>(
+    BlocProvider<MyOcbControllerBloc>(create: (_) => MyOcbControllerBloc()),
+    BlocProvider<VCarvideoControllerCubit>(
       create: (_) => VCarvideoControllerCubit(),
     ),
   ],

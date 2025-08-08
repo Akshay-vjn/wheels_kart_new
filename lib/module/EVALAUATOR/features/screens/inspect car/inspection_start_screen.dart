@@ -3,7 +3,10 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/inspection%20progress%20controller/inspection_progress_controller_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/inspection%20progress%20controller/inspection_progress_controller_state.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/upload%20vehicle%20video/upload_vehicle_video_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/document_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/upload_car_legals.dart';
@@ -46,10 +49,10 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
     with TickerProviderStateMixin, RouteAware {
   InspectionModel? inspectionModel;
   bool isLoading = true;
-  bool isQuestionsAllCompleded = false;
-  bool isLegalsAllUPloaded = false;
-  bool isPicturedAllUploaded = false;
-  bool isVideoAllUploaded = false;
+  // bool isQuestionsAllCompleded = false;
+  // bool isLegalsAllUPloaded = false;
+  // bool isPicturedAllUploaded = false;
+  // bool isVideoAllUploaded = false;
 
   late AnimationController _progressController;
   late AnimationController _fadeController;
@@ -96,17 +99,16 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
 
   Future<void> _onFetchApis() async {
     // PHOTOS
-    context.read<FetchPictureAnglesCubit>().onFetchPictureAngles(context);
-    context.read<FetchUploadedVehilcePhotosCubit>().onFetchUploadVehiclePhotos(
-      context,
-      widget.inspectionId,
-    );
-    context.read<UploadVehicleVideoCubit>().onFetcUploadVideos(
+    await context.read<FetchPictureAnglesCubit>().onFetchPictureAngles(context);
+    await context
+        .read<FetchUploadedVehilcePhotosCubit>()
+        .onFetchUploadVehiclePhotos(context, widget.inspectionId);
+    await context.read<UploadVehicleVideoCubit>().onFetcUploadVideos(
       context,
       widget.inspectionId,
     );
     // DOCUMENTS
-    context.read<FetchDocumentsCubit>().onFetchDocumets(
+    await context.read<FetchDocumentsCubit>().onFetchDocumets(
       context,
       widget.inspectionId,
     );
@@ -115,7 +117,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
     );
   }
 
-  _checkQuestionsAreAnswersOrNot() {
+  Future<void> _checkQuestionsAreAnswersOrNot() async {
     // QUESTIONS
     try {
       final currentState = BlocProvider.of<FetchInspectionsBloc>(context).state;
@@ -125,17 +127,22 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                 .where((element) => element.inspectionId == widget.inspectionId)
                 .toList()
                 .first;
-
-        isQuestionsAllCompleded = inspectionModel!.currentStatus.every(
-          (element) => element.balance == 0,
+        context.read<InspectionProgressCubit>().setQuestionsCompleted(
+          inspectionModel!.currentStatus.every(
+            (element) => element.balance == 0,
+          ),
         );
+
+        // isQuestionsAllCompleded = inspectionModel!.currentStatus.every(
+        //   (element) => element.balance == 0,
+        // );
       }
     } catch (e) {
       log("Error - ${e}");
     }
   }
 
-  _checkDocumetsAllUplaoded() {
+  Future<void> _checkDocumetsAllUplaoded() async {
     // DOCS
     final stateOfUploadedDocs =
         BlocProvider.of<FetchDocumentsCubit>(context).state;
@@ -178,18 +185,22 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
           regDate.isEmpty ||
           insuranceValidity.isEmpty ||
           !isDocAllUploaded) {
-        isLegalsAllUPloaded = false;
+        context.read<InspectionProgressCubit>().setLegalsCompleted(false);
+
+        // isLegalsAllUPloaded = false;
       } else {
-        isLegalsAllUPloaded = true;
+        context.read<InspectionProgressCubit>().setLegalsCompleted(true);
+
+        // isLegalsAllUPloaded = true;
       }
-      log("Doc" + isDocAllUploaded.toString());
-      log(isLegalsAllUPloaded.toString());
+      // log("Doc" + isDocAllUploaded.toString());
+      // log(isLegalsAllUPloaded.toString());
     } else {
       log("Doc Not initialized.");
     }
   }
 
-  _checkCarPhotosAllUplaoded() {
+  Future<void> _checkCarPhotosAllUplaoded() async {
     // PHOTOS
     final stateOfUploadedPhotos =
         BlocProvider.of<FetchUploadedVehilcePhotosCubit>(context).state;
@@ -202,44 +213,48 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       final angles = stateOfCarAngles.pictureAngles;
       final uploadedPhotos = stateOfUploadedPhotos.vehiclePhtotos;
 
-      for (var angle in angles) {
-        if (uploadedPhotos.any((element) => element.angleId == angle.angleId)) {
-          isPicturedAllUploaded = true;
-        } else {
-          isPicturedAllUploaded = false;
-          break;
-        }
-      }
+      context.read<InspectionProgressCubit>().setPhotosCompleted(
+        angles.every(
+          (angle) =>
+              uploadedPhotos.any((photo) => photo.angleId == angle.angleId),
+        ),
+      );
+
+      // isPicturedAllUploaded = angles.every(
+      //   (angle) =>
+      //       uploadedPhotos.any((photo) => photo.angleId == angle.angleId),
+      // );
     } else {
       log("Photo Not initialized.");
     }
   }
 
-  _checkCarVideoAllUplaoded() {
+  Future<void> _checkCarVideoAllUplaoded() async {
     // Video
     final stateOfUploadedVideos =
         BlocProvider.of<UploadVehicleVideoCubit>(context).state;
 
     if (stateOfUploadedVideos is UploadVehicleVideoSuccessState) {
-      isVideoAllUploaded =
-          stateOfUploadedVideos.isAvailabeWalkaroundVideo &&
-          stateOfUploadedVideos.isAvailableEngineVideo;
+      context.read<InspectionProgressCubit>().setVideosCompleted(
+        stateOfUploadedVideos.isAvailabeWalkaroundVideo &&
+            stateOfUploadedVideos.isAvailableEngineVideo,
+      );
+
+      // isVideoAllUploaded =
+      //     stateOfUploadedVideos.isAvailabeWalkaroundVideo &&
+      //     stateOfUploadedVideos.isAvailableEngineVideo;
     }
   }
 
   initScreen() async {
     // FETCH ALL APIS FOR CHECKING COMPLETED OR NOT
     try {
-      _onFetchApis();
-      await Future.delayed(Duration(seconds: 1));
+      await _onFetchApis();
+      // await Future.delayed(Duration(seconds: 1)); // Give bloc time to update
       // -- Check completed Inspection Report --
-      _checkQuestionsAreAnswersOrNot();
-      // -- Check completed Documents --
-      _checkDocumetsAllUplaoded();
-      // -- Check completed Car Photos --
-      _checkCarPhotosAllUplaoded();
-      // await Future.delayed(Duration(seconds: 1));
-      _checkCarVideoAllUplaoded();
+      await _checkTheProgress();
+      // _recalculateCompletionFlags();
+
       isLoading = false;
       setState(() {});
       _fadeController.forward();
@@ -249,23 +264,42 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
     }
   }
 
-  double get completionProgress {
-    int completed = 0;
-    if (isPicturedAllUploaded) completed++;
-    if (isVideoAllUploaded) completed++;
-    if (isLegalsAllUPloaded) completed++;
-    if (isQuestionsAllCompleded) completed++;
-    return completed / 4;
+  Future<void> _checkTheProgress() async {
+    await _checkQuestionsAreAnswersOrNot();
+    await _checkDocumetsAllUplaoded();
+    await _checkCarPhotosAllUplaoded();
+    await _checkCarVideoAllUplaoded();
   }
 
-  bool get isAllCompleted =>
-      isPicturedAllUploaded &&
-      isLegalsAllUPloaded &&
-      isQuestionsAllCompleded &&
-      isVideoAllUploaded;
+  // void _recalculateCompletionFlags() {
+  //   log(
+  //     "Completion Flags => Questions: $isQuestionsAllCompleded, Docs: $isLegalsAllUPloaded, Photos: $isPicturedAllUploaded, Video: $isVideoAllUploaded",
+  //   );
+  //   log("Total Completed: ${completionProgress * 100}%");
+  // }
 
-  bool get isVideoOnlyPending =>
-      isPicturedAllUploaded && isLegalsAllUPloaded && isQuestionsAllCompleded;
+  // double get completionProgress {
+  //   final flags = [
+  //     isQuestionsAllCompleded,
+  //     isLegalsAllUPloaded,
+  //     isPicturedAllUploaded,
+  //     isVideoAllUploaded,
+  //   ];
+  //   final completed = flags.where((flag) => flag).length;
+  //   return completed / flags.length;
+  // }
+
+  // bool get isAllCompleted =>
+  //     isQuestionsAllCompleded &&
+  //     isLegalsAllUPloaded &&
+  //     isPicturedAllUploaded &&
+  //     isVideoAllUploaded;
+
+  // bool get isVideoOnlyPending =>
+  //     isQuestionsAllCompleded &&
+  //     isLegalsAllUPloaded &&
+  //     isPicturedAllUploaded &&
+  //     !isVideoAllUploaded;
 
   @override
   Widget build(BuildContext context) {
@@ -288,7 +322,22 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       ),
       body:
           isLoading
-              ? Center(child: EVAppLoadingIndicator())
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    EVAppLoadingIndicator(),
+                    AppSpacer(heightPortion: .03),
+                    Text(
+                      "Loading progress..",
+                      style: EvAppStyle.poppins(
+                        context: context,
+                        size: AppDimensions.fontSize13(context),
+                      ),
+                    ),
+                  ],
+                ),
+              )
               : FadeTransition(
                 opacity: _fadeAnimation,
                 child: SingleChildScrollView(
@@ -328,148 +377,156 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   }
 
   Widget _buildProgressHeader() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            EvAppColors.DEFAULT_BLUE_DARK,
-            EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.3),
-            offset: const Offset(0, 8),
-            blurRadius: 20,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Inspection Progress',
-                style: EvAppStyle.style(
-                  color: Colors.white,
-                  context: context,
-                  fontWeight: FontWeight.bold,
-                  size: 20,
-                ),
+    return BlocBuilder<InspectionProgressCubit, InspectionProgressState>(
+      builder: (context, state) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                EvAppColors.DEFAULT_BLUE_DARK,
+                EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.3),
+                offset: const Offset(0, 8),
+                blurRadius: 20,
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${(completionProgress * 100).toInt()}%',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Inspection Progress',
+                    style: EvAppStyle.style(
+                      color: Colors.white,
+                      context: context,
+                      fontWeight: FontWeight.bold,
+                      size: 20,
+                    ),
                   ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${(state.progress * 100).toInt()}%',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              AnimatedBuilder(
+                animation: _progressController,
+                builder: (context, child) {
+                  return LinearProgressIndicator(
+                    value: state.progress * _progressController.value,
+                    backgroundColor: Colors.white.withOpacity(0.3),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      state.isAllCompleted || state.isVideoOnlyPending
+                          ? Colors.green
+                          : Colors.orange,
+                    ),
+                    minHeight: 8,
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              Text(
+                state.isVideoOnlyPending
+                    ? "Required steps all completed! Ready to submit."
+                    : state.isAllCompleted
+                    ? 'All steps completed! Ready to submit.'
+                    : '${4 - [state.isPhotosCompleted, state.isLegalsCompleted, state.isQuestionsCompleted, state.isVideosCompleted].where((e) => e).length} steps remaining',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 14,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          AnimatedBuilder(
-            animation: _progressController,
-            builder: (context, child) {
-              return LinearProgressIndicator(
-                value: completionProgress * _progressController.value,
-                backgroundColor: Colors.white.withOpacity(0.3),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  isAllCompleted || isVideoOnlyPending
-                      ? Colors.green
-                      : Colors.orange,
-                ),
-                minHeight: 8,
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-          Text(
-            isVideoOnlyPending
-                ? "Required steps all completed! Ready to submit."
-                : isAllCompleted
-                ? 'All steps completed! Ready to submit.'
-                : '${4 - [isPicturedAllUploaded, isLegalsAllUPloaded, isQuestionsAllCompleded, isVideoAllUploaded].where((e) => e).length} steps remaining',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildInspectionSteps() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Inspection Steps',
-          style: EvAppStyle.style(
-            context: context,
-            size: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
-          ),
-        ),
-        const SizedBox(height: 20),
+    return BlocBuilder<InspectionProgressCubit, InspectionProgressState>(
+      builder: (context, progressState) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Inspection Steps',
+              style: EvAppStyle.style(
+                context: context,
+                size: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[800],
+              ),
+            ),
+            const SizedBox(height: 20),
 
-        _buildEnhancedStepCard(
-          title: "Inspection Report",
-          subtitle: "Complete evaluation checklist",
-          icon: CupertinoIcons.checkmark_seal_fill,
-          isCompleted: isQuestionsAllCompleded,
-          onTap: () => _navigateToReport(),
-          stepNumber: 1,
-        ),
+            _buildEnhancedStepCard(
+              title: "Inspection Report",
+              subtitle: "Complete evaluation checklist",
+              icon: CupertinoIcons.checkmark_seal_fill,
+              isCompleted: progressState.isVideosCompleted,
+              onTap: () => _navigateToReport(),
+              stepNumber: 1,
+            ),
 
-        const SizedBox(height: 16),
-        _buildEnhancedStepCard(
-          title: "Vehicle Legals",
-          subtitle: "Upload required vehilce legals",
-          icon: CupertinoIcons.doc_fill,
-          isCompleted: isLegalsAllUPloaded,
-          onTap: () => _navigateToDocuments(),
-          stepNumber: 2,
-        ),
+            const SizedBox(height: 16),
+            _buildEnhancedStepCard(
+              title: "Vehicle Legals",
+              subtitle: "Upload required vehilce legals",
+              icon: CupertinoIcons.doc_fill,
+              isCompleted: progressState.isLegalsCompleted,
+              onTap: () => _navigateToDocuments(),
+              stepNumber: 2,
+            ),
 
-        const SizedBox(height: 16),
-        _buildEnhancedStepCard(
-          title: "Vehicle Photos",
-          subtitle: "Capture all required angles",
-          icon: CupertinoIcons.camera_fill,
-          isCompleted: isPicturedAllUploaded,
-          onTap: () => _navigateToPhotos(),
-          stepNumber: 3,
-        ),
+            const SizedBox(height: 16),
+            _buildEnhancedStepCard(
+              title: "Vehicle Photos",
+              subtitle: "Capture all required angles",
+              icon: CupertinoIcons.camera_fill,
+              isCompleted: progressState.isPhotosCompleted,
+              onTap: () => _navigateToPhotos(),
+              stepNumber: 3,
+            ),
 
-        const SizedBox(height: 16),
-        _buildEnhancedStepCard(
-          title: "Vehicle Videos",
-          subtitle: "Capture full walkaround and engine bay videos",
-          icon: CupertinoIcons.video_camera_solid,
-          isCompleted: isVideoAllUploaded,
-          onTap: () => _navigateToVideos(),
-          stepNumber: 4,
-          isOptional: true,
-        ),
-      ],
+            const SizedBox(height: 16),
+            _buildEnhancedStepCard(
+              title: "Vehicle Videos",
+              subtitle: "Capture full walkaround and engine bay videos",
+              icon: CupertinoIcons.video_camera_solid,
+              isCompleted: progressState.isVideosCompleted,
+              onTap: () => _navigateToVideos(),
+              stepNumber: 4,
+              isOptional: true,
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -649,8 +706,9 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                 child: Material(
                   borderRadius: BorderRadius.circular(12),
                   elevation: 1,
-                  color: EvAppColors.DARK_SECONDARY.withAlpha(200),
+                  color: EvAppColors.DARK_SECONDARY.withAlpha(150),
                   shadowColor: EvAppColors.black.withAlpha(30),
+
                   child: Padding(
                     padding: EdgeInsetsGeometry.symmetric(
                       horizontal: 10,
@@ -660,6 +718,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                       "Optional",
                       style: EvAppStyle.poppins(
                         context: context,
+                        size: 10,
                         color: EvAppColors.white,
                       ),
                     ),
@@ -673,116 +732,149 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   }
 
   Widget _buildSubmitButton() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: double.infinity,
-      height: 60,
-      child: ElevatedButton(
-        onPressed:
-            isAllCompleted || isVideoOnlyPending
-                ? _onSubmit
-                : _onIncompleteSubmit,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isAllCompleted ? Colors.green : Colors.grey[400],
-          foregroundColor: Colors.white,
-          elevation: isAllCompleted ? 8 : 2,
-          shadowColor:
-              isAllCompleted
-                  ? Colors.green.withOpacity(0.3)
-                  : Colors.grey.withOpacity(0.2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isAllCompleted || isVideoOnlyPending) ...[
-              const Icon(Icons.check_circle, size: 24),
-              const SizedBox(width: 12),
-            ],
-            Column(
+    return BlocBuilder<InspectionProgressCubit, InspectionProgressState>(
+      builder: (context, state) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: double.infinity,
+          height: 60,
+          child: ElevatedButton(
+            onPressed:
+                state.isAllCompleted || state.isVideoOnlyPending
+                    ? _onSubmit
+                    : _onIncompleteSubmit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  state.isAllCompleted || state.isVideoOnlyPending
+                      ? Colors.green
+                      : Colors.grey[400],
+              foregroundColor: Colors.white,
+              elevation: state.isAllCompleted ? 8 : 2,
+              shadowColor:
+                  state.isAllCompleted || state.isVideoOnlyPending
+                      ? Colors.green.withOpacity(0.3)
+                      : Colors.grey.withOpacity(0.2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  isAllCompleted || isVideoOnlyPending
-                      ? "Submit Inspection"
-                      : "Complete All Steps First",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (isVideoOnlyPending)
-                  Text(
-                    "Video is not updated!",
-                    style: EvAppStyle.style(
-                      context: context,
-                      color: EvAppColors.white,
+                if (state.isAllCompleted || state.isVideoOnlyPending) ...[
+                  const Icon(Icons.check_circle, size: 24),
+                  const SizedBox(width: 12),
+                ],
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.isAllCompleted || state.isVideoOnlyPending
+                          ? "Submit Inspection"
+                          : "Complete All Steps First",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                    if (state.isVideoOnlyPending)
+                      Text(
+                        "Video is not updated!",
+                        style: EvAppStyle.style(
+                          context: context,
+                          color: EvAppColors.white,
+                        ),
+                      ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   void _navigateToPhotos() {
-    Navigator.of(context).push(
-      AppRoutes.createRoute(
-        UploadVehiclePhotos(inspectionId: widget.inspectionId),
-      ),
-    );
+    Navigator.of(context)
+        .push(
+          AppRoutes.createRoute(
+            UploadVehiclePhotos(inspectionId: widget.inspectionId),
+          ),
+        )
+        .then((value) {
+          _checkCarPhotosAllUplaoded();
+        });
   }
 
   void _navigateToVideos() {
-    Navigator.of(context).push(
-      AppRoutes.createRoute(
-        UploadVehicleVideoScreen(inspectionId: widget.inspectionId),
-      ),
-    );
+    Navigator.of(context)
+        .push(
+          AppRoutes.createRoute(
+            UploadVehicleVideoScreen(inspectionId: widget.inspectionId),
+          ),
+        )
+        .then((value) {
+          _checkCarVideoAllUplaoded();
+        });
   }
 
   void _navigateToDocuments() {
     final state = context.read<FetchDocumentsCubit>().state;
+    final progressState = context.read<InspectionProgressCubit>().state;
     if (state is FetchDocumentsSuccessState) {
-      if (isLegalsAllUPloaded) {
-        Navigator.of(context).push(
-          AppRoutes.createRoute(
-            ViewCarLegals(inspectionId: widget.inspectionId),
-          ),
-        );
+      if (progressState.isLegalsCompleted) {
+        Navigator.of(context)
+            .push(
+              AppRoutes.createRoute(
+                ViewCarLegals(inspectionId: widget.inspectionId),
+              ),
+            )
+            .then((value) {
+              _checkDocumetsAllUplaoded();
+            });
       } else {
-        Navigator.of(context).push(
-          AppRoutes.createRoute(
-            UploadCarLegals(inspectionId: widget.inspectionId),
-          ),
-        );
+        Navigator.of(context)
+            .push(
+              AppRoutes.createRoute(
+                UploadCarLegals(inspectionId: widget.inspectionId),
+              ),
+            )
+            .then((value) {
+              _checkDocumetsAllUplaoded();
+            });
       }
     } else {
-      Navigator.of(context).push(
-        AppRoutes.createRoute(
-          UploadCarLegals(inspectionId: widget.inspectionId),
-        ),
-      );
+      Navigator.of(context)
+          .push(
+            AppRoutes.createRoute(
+              UploadCarLegals(inspectionId: widget.inspectionId),
+            ),
+          )
+          .then((value) {
+            _checkDocumetsAllUplaoded();
+          });
     }
   }
 
   void _navigateToReport() {
-    Navigator.of(context).push(
-      AppRoutes.createRoute(
-        EvSelectPortionScreen(
-          inspectionId: widget.inspectionId,
-          instructionData: widget.instructionData,
-        ),
-      ),
-    );
+    Navigator.of(context)
+        .push(
+          AppRoutes.createRoute(
+            EvSelectPortionScreen(
+              inspectionId: widget.inspectionId,
+              instructionData: widget.instructionData,
+            ),
+          ),
+        )
+        .then((value) {
+          _checkQuestionsAreAnswersOrNot();
+        });
   }
 
   void _onSubmit() async {
-    if (isAllCompleted || isVideoOnlyPending) {
+    final state = context.read<InspectionProgressCubit>().state;
+    if (state.isAllCompleted || state.isVideoOnlyPending) {
       log("Inspection submitted successfully");
 
       final isError = await context
@@ -808,25 +900,27 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   }
 
   void _onIncompleteSubmit() {
-    if (!isPicturedAllUploaded) {
+    final progressState = context.read<InspectionProgressCubit>().state;
+
+    if (!progressState.isPhotosCompleted) {
       _showWarningAndNavigate(
         "Upload Vehicle Photos",
         "Please upload all required vehicle photos before submitting.",
         _navigateToPhotos,
       );
-    } else if (!isLegalsAllUPloaded) {
+    } else if (!progressState.isLegalsCompleted) {
       _showWarningAndNavigate(
         "Upload Vehilce Legals",
         "Please upload all required vehilce legals before submitting.",
         _navigateToDocuments,
       );
-    } else if (!isQuestionsAllCompleded) {
+    } else if (!progressState.isQuestionsCompleted) {
       _showWarningAndNavigate(
         "Complete Inspection",
         "Please complete the inspection report before submitting.",
         _navigateToReport,
       );
-    } else if (!isVideoAllUploaded) {
+    } else if (!progressState.isVideosCompleted) {
       _showWarningAndNavigate(
         "Upload Vehilce Videos",
         "Please upload all vehilce videos before submitting (optional).",

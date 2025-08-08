@@ -12,17 +12,12 @@ class EVAppLoadingIndicator extends StatelessWidget {
           needMorHigt == true
               ? SizedBox(
                 height: h(context) * .8,
-                child: CircularProgressIndicator.adaptive(
-                  strokeWidth: 2,
-                ),
-
-   
+                child: CircularProgressIndicator.adaptive(strokeWidth: 2),
               )
               : CircularProgressIndicator.adaptive(
                 strokeWidth: 2,
+                constraints: BoxConstraints(minHeight: 30, minWidth: 30),
               ),
-
-   
     );
   }
 }

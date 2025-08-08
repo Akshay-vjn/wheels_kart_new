@@ -1,11 +1,10 @@
-import 'dart:developer';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
@@ -26,8 +25,6 @@ class VCarPhotoScreen extends StatefulWidget {
 }
 
 class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
-  final _scrollController = ScrollController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,13 +73,16 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
 
   Widget _tabSection(VDetailsControllerSuccessState state) => Container(
     color: VColors.WHITE,
-    child: SingleChildScrollView(
-      controller: _scrollController,
+    alignment: Alignment.center,
+    height: 40,
+    child: ScrollablePositionedList.builder(
+      initialScrollIndex: state.currentImageTabIndex,
+      shrinkWrap: true,
       scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          GestureDetector(
+      itemCount: widget.carDetail.sections.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return GestureDetector(
             onTap: () {
               context.read<VDetailsControllerBloc>().add(
                 OnChangeImageTab(imageTabIndex: 0),
@@ -92,6 +92,8 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
               key: GlobalObjectKey(0),
 
               child: Container(
+                alignment: Alignment.center,
+
                 margin: EdgeInsets.all(5),
                 padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
                 decoration: BoxDecoration(
@@ -114,59 +116,143 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
                 ),
               ),
             ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children:
-                widget.carDetail.sections.asMap().entries.map((map) {
-                  int index = map.key + 1;
-                  final section = map.value;
-                  int length = 0;
-                  for (var entry in section.entries) {
-                    length = length + entry.responseImages.length;
-                  }
+          );
+        } else {
+          final section = widget.carDetail.sections[index - 1];
+          int length = 0;
+          for (var entry in section.entries) {
+            length = length + entry.responseImages.length;
+          }
+          return GestureDetector(
+            onTap: () {
+              context.read<VDetailsControllerBloc>().add(
+                OnChangeImageTab(imageTabIndex: index),
+              );
+            },
+            child: FadeInRight(
+              key: GlobalObjectKey(index),
 
-                  return GestureDetector(
-                    onTap: () {
-                      context.read<VDetailsControllerBloc>().add(
-                        OnChangeImageTab(imageTabIndex: index),
-                      );
-                    },
-                    child: FadeInRight(
-                      key: GlobalObjectKey(index),
+              child: Container(
+                alignment: Alignment.center,
 
-                      child: Container(
-                        margin: EdgeInsets.all(5),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color:
-                              index == state.currentImageTabIndex
-                                  ? VColors.GREENHARD
-                                  : null,
-                        ),
-                        child: Text(
-                          "${section.portionName} ($length) ",
-                          style: VStyle.style(
-                            fontWeight: FontWeight.bold,
-                            context: context,
-                            color:
-                                index == state.currentImageTabIndex
-                                    ? VColors.WHITE
-                                    : VColors.BLACK,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-          ),
-        ],
-      ),
+                margin: EdgeInsets.all(5),
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color:
+                      index == state.currentImageTabIndex
+                          ? VColors.GREENHARD
+                          : null,
+                ),
+                child: Text(
+                  "${section.portionName} ($length) ",
+                  style: VStyle.style(
+                    fontWeight: FontWeight.bold,
+                    context: context,
+                    color:
+                        index == state.currentImageTabIndex
+                            ? VColors.WHITE
+                            : VColors.BLACK,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      },
     ),
+
+    // child: SingleChildScrollView(
+    //   controller: _scrollController,
+    //   scrollDirection: Axis.horizontal,
+    //   child: Row(
+    //     mainAxisSize: MainAxisSize.min,
+    //     children: [
+    //       GestureDetector(
+    //         onTap: () {
+    //           context.read<VDetailsControllerBloc>().add(
+    //             OnChangeImageTab(imageTabIndex: 0),
+    //           );
+    //         },
+    //         child: FadeInRight(
+    //           key: GlobalObjectKey(0),
+
+    //           child: Container(
+    //             margin: EdgeInsets.all(5),
+    //             padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+    //             decoration: BoxDecoration(
+    //               borderRadius: BorderRadius.circular(4),
+    //               color:
+    //                   0 == state.currentImageTabIndex
+    //                       ? VColors.GREENHARD
+    //                       : null,
+    //             ),
+    //             child: Text(
+    //               "Car Photos",
+    //               style: VStyle.style(
+    //                 fontWeight: FontWeight.bold,
+    //                 context: context,
+    //                 color:
+    //                     0 == state.currentImageTabIndex
+    //                         ? VColors.WHITE
+    //                         : VColors.BLACK,
+    //               ),
+    //             ),
+    //           ),
+    //         ),
+    //       ),
+    //       Row(
+    //         mainAxisSize: MainAxisSize.min,
+    //         children:
+    //             widget.carDetail.sections.asMap().entries.map((map) {
+    //               int index = map.key + 1;
+    //               final section = map.value;
+    //               int length = 0;
+    //               for (var entry in section.entries) {
+    //                 length = length + entry.responseImages.length;
+    //               }
+
+    //               return GestureDetector(
+    //                 onTap: () {
+    //                   context.read<VDetailsControllerBloc>().add(
+    //                     OnChangeImageTab(imageTabIndex: index),
+    //                   );
+    //                 },
+    //                 child: FadeInRight(
+    //                   key: GlobalObjectKey(index),
+
+    //                   child: Container(
+    //                     margin: EdgeInsets.all(5),
+    //                     padding: EdgeInsets.symmetric(
+    //                       horizontal: 5,
+    //                       vertical: 3,
+    //                     ),
+    //                     decoration: BoxDecoration(
+    //                       borderRadius: BorderRadius.circular(4),
+    //                       color:
+    //                           index == state.currentImageTabIndex
+    //                               ? VColors.GREENHARD
+    //                               : null,
+    //                     ),
+    //                     child: Text(
+    //                       "${section.portionName} ($length) ",
+    //                       style: VStyle.style(
+    //                         fontWeight: FontWeight.bold,
+    //                         context: context,
+    //                         color:
+    //                             index == state.currentImageTabIndex
+    //                                 ? VColors.WHITE
+    //                                 : VColors.BLACK,
+    //                       ),
+    //                     ),
+    //                   ),
+    //                 ),
+    //               );
+    //             }).toList(),
+    //       ),
+    //     ],
+    //   ),
+    // ),
   );
   Widget _imageViewSection(VDetailsControllerSuccessState state) => Expanded(
     child: AnimationLimiter(
@@ -203,20 +289,31 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
                                 onTap: () {
                                   final carPhotos =
                                       state.detail.images
-                                          .map((e) => e.url)
+                                          .map(
+                                            (e) => {
+                                              "image": e.url,
+                                              "title": e.name,
+                                            },
+                                          )
                                           .toList();
 
                                   final images =
                                       state.detail.sections
+                                          .expand((section) => section.entries)
                                           .expand(
-                                            (section) => section.entries.expand(
-                                              (entry) => entry.responseImages,
+                                            (entry) => entry.responseImages.map(
+                                              (image) => {
+                                                "image": image,
+                                                "title": entry.options ?? '',
+                                              },
                                             ),
                                           )
                                           .toList();
                                   final allImages = [...carPhotos, ...images];
-                                  final findIndex = allImages.indexOf(
-                                    state.currentTabImages[index]['image'],
+                                  final findIndex = allImages.indexWhere(
+                                    (element) =>
+                                        element['image'] ==
+                                        state.currentTabImages[index]['image'],
                                   );
                                   // entries.map((e) =>e. ,).toList();
                                   Navigator.of(context).push(
@@ -248,19 +345,30 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
                                   ),
                                 ),
                               ),
-                              if (state
-                                  .currentTabImages[index]['comment']
-                                  .isNotEmpty)
+                              if (state.currentTabImages[index]['comment'] !=
+                                      null &&
+                                  state
+                                      .currentTabImages[index]['comment']
+                                      .isNotEmpty)
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 15),
-                                  child: Text(
-                                    state.currentTabImages[index]['comment'],
-
-                                    style: VStyle.style(
-                                      context: context,
-                                      size: 13,
-                                      color: VColors.GREENHARD,
-                                    ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children:
+                                        state.currentTabImages[index]['comment']
+                                            .split(",")
+                                            .map<Widget>(
+                                              (e) => Text(
+                                                "∙ $e",
+                                                style: VStyle.style(
+                                                  context: context,
+                                                  size: 13,
+                                                  color: VColors.DARK_GREY,
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
                                   ),
                                 ),
                             ],

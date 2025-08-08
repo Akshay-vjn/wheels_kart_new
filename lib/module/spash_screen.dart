@@ -41,8 +41,6 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _backgroundAnimation;
   late Animation<double> _particleAnimation;
 
-  bool showLoading = false;
-  bool showText = false;
 
   @override
   void initState() {
@@ -148,12 +146,11 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Start text animation after logo
     await Future.delayed(const Duration(milliseconds: 800));
-    setState(() => showText = true);
     _textController.forward();
 
     // Show loading after text
     await Future.delayed(const Duration(milliseconds: 800));
-    setState(() => showLoading = true);
+
     _loadingController.forward();
   }
 

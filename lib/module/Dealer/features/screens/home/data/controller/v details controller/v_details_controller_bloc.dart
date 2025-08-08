@@ -92,7 +92,7 @@ class VDetailsControllerBloc
           final section = currentState.detail.sections[event.imageTabIndex - 1];
           for (var entry in section.entries) {
             for (var image in entry.responseImages) {
-              images.add({"image": image, "comment": entry.comment});
+              images.add({"image": image, "comment": entry.options});
             }
           }
         }
@@ -117,8 +117,7 @@ class VDetailsControllerBloc
           carDetailModel.carDetails.currentBid = event.newBid.currentBid;
           carDetailModel.carDetails.bidClosingTime =
               event.newBid.bidClosingTime;
-        
-        
+
           emit(cuuremtSate.coptyWith(detail: carDetailModel));
         }
       }
@@ -195,7 +194,7 @@ class VDetailsControllerBloc
   }) async {
     HapticFeedback.mediumImpact();
 
-    final yourBid = int.parse(currentBid.isEmpty?"0":currentBid) + 2000;
+    final yourBid = int.parse(currentBid.isEmpty ? "0" : currentBid) + 2000;
 
     final message = '''
 $image
