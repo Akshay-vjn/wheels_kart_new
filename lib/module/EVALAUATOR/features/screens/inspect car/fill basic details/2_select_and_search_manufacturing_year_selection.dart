@@ -37,7 +37,7 @@ class _EvSelectAndSeachManufacturingYearState
   @override
   void initState() {
     super.initState();
-    final _year = _getLast20Years();
+    final _year = _getYearsFrom2000Desc();
 
     for (var i in _year) {
       years.add(i.toString());
@@ -53,11 +53,13 @@ class _EvSelectAndSeachManufacturingYearState
       }
     }
   }
-
-  List<int> _getLast20Years() {
-    final currentYear = DateTime.now().year;
-    return List.generate(20, (index) => currentYear - index);
-  }
+List<int> _getYearsFrom2000Desc() {
+  final currentYear = DateTime.now().year;
+  return List.generate(
+    currentYear - 2000 + 1,
+    (index) => currentYear - index,
+  );
+}
 
   List<String> searchReasult = [];
 
