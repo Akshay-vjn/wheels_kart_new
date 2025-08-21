@@ -91,21 +91,73 @@ class VMyAuctionControllerBloc
     }
   }
 
+  // void _connectWebSocket(
+  //   ConnectWebSocket event,
+  //   Emitter<VMyAuctionControllerState> emit,
+  // ) {
+  //   channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
+
+  //   _subscription = channel.stream.listen((data) {
+  //     log("triggered ----------------");
+  //     String decoded = utf8.decode(data);
+  //     final jsonData = jsonDecode(decoded);
+  //     log("Converted ----------------");
+
+  //     add(
+  //       UpdatePrice(newBid: LiveBidModel.fromJson(jsonData), myId: event.myId),
+  //     );
+  //   });
+  // }
+
   void _connectWebSocket(
     ConnectWebSocket event,
     Emitter<VMyAuctionControllerState> emit,
   ) {
     channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
-    _subscription = channel.stream.listen((data) {
-      log("triggered ----------------");
-      String decoded = utf8.decode(data);
-      final jsonData = jsonDecode(decoded);
-      log("Converted ----------------");
+    // Send heartbeat every 30 seconds
+    Timer.periodic(Duration(seconds: 30), (_) {
+      try {
+        channel.sink.add(jsonEncode({"type": "ping"}));
+      } catch (e) {
+        log("Ping failed: $e");
+      }
+    });
 
-      add(
-        UpdatePrice(newBid: LiveBidModel.fromJson(jsonData), myId: event.myId),
-      );
+    _subscription = channel.stream.listen(
+      (data) {
+        log("triggered ----------------");
+
+        try {
+          final decoded = (data is String) ? data : utf8.decode(data);
+          final jsonData = jsonDecode(decoded);
+          log("Converted ----------------");
+
+          add(
+            UpdatePrice(
+              newBid: LiveBidModel.fromJson(jsonData),
+              myId: event.myId,
+            ),
+          );
+        } catch (e) {
+          log("Error decoding WebSocket data: $e");
+        }
+      },
+      onError: (error) {
+        log("WebSocket error: $error");
+        _reconnect(event);
+      },
+      onDone: () {
+        log("WebSocket closed. Reconnecting...");
+        _reconnect(event);
+      },
+      cancelOnError: true,
+    );
+  }
+
+  void _reconnect(ConnectWebSocket event) {
+    Future.delayed(Duration(seconds: 3), () {
+      add(ConnectWebSocket(myId: event.myId));
     });
   }
 

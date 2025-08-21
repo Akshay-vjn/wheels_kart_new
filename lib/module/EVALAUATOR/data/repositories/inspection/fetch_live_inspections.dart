@@ -9,17 +9,25 @@ import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_api_const.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 
 class FetchInspectionRepo {
-  static Future<Map<String, dynamic>> getInspectionByStatus(
-      BuildContext context,String inspectionType) async {
+  static Future<Map<String, dynamic>> getInspections(
+    BuildContext context,
+    String inspectionType,
+  ) async {
     final state = context.read<AppAuthController>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
-        final url = Uri.parse('${EvApiConst.baseUrl}${EvApiConst.fetchInspections}');
+        final url = Uri.parse(
+          '${EvApiConst.baseUrl}${EvApiConst.fetchInspections}',
+        );
 
-        Response response = await http.post(url, headers: {
-          'Content-Type': 'application/json',
-          'Authorization': state.userModel.token!
-        },body: jsonEncode({"status": inspectionType}));
+        Response response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': state.userModel.token!,
+          },
+          body: jsonEncode({"status": inspectionType}),
+        );
 
         final decodedata = jsonDecode(response.body);
 
@@ -27,12 +35,12 @@ class FetchInspectionRepo {
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
-            'data': decodedata['data']
+            'data': decodedata['data'],
           };
         } else {
           return {
             'error': decodedata['error'],
-            'message': decodedata['message']
+            'message': decodedata['message'],
           };
         }
       } catch (e) {

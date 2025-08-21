@@ -75,9 +75,9 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     setState(() => _isPressed = false);
     _animationController.reverse();
     // log(widget.vehicle.soldTo.toString());
-    if ((!_isColsed || _isNotStarted) && !_isCancelled) {
+    // if ((!_isColsed || _isNotStarted) && !_isCancelled) {
       onPressCard();
-    }
+    // }
   }
 
   void _onTapCancel() {
@@ -225,8 +225,9 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                           child: Column(
                             children: [
                               _buildDetailsGrid(),
+                              
 
-                              if (_isOpened || _isSold) ...[
+                              // if (_isOpened || _isSold) ...[
                                 AppSpacer(heightPortion: .01),
                                 Row(
                                   mainAxisAlignment:
@@ -237,7 +238,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                   ],
                                 ),
                                 AppSpacer(heightPortion: .01),
-                              ],
+                              // ],
 
                               if (_isOpened && !_isColsed) ...[
                                 Column(
@@ -795,7 +796,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color,
+        color: color.withAlpha(180),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(

@@ -6,7 +6,9 @@ sealed class FetchInspectionsEvent {}
 class OnGetInspectionList extends FetchInspectionsEvent {
   BuildContext context;
   String inspetionListType;
-  OnGetInspectionList({required this.context, required this.inspetionListType});
+  OnGetInspectionList({
+    required this.context,
+    required this.inspetionListType,
+  });
 }
-
 

@@ -110,7 +110,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
   late bool _isLiked;
 
   void onPressCard() async {
-    if (!_isColsed) {
+    // if (!_isColsed) {
       _isLiked = await Navigator.of(context).push(
         AppRoutes.createRoute(
           VCarDetailsScreen(
@@ -122,7 +122,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
           ),
         ),
       );
-    }
+    // }
   }
 
   void onPressLikeButton() async {
@@ -639,7 +639,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color,
+        color: color.withAlpha(180),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(

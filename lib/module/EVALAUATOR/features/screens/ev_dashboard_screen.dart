@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
-
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
@@ -13,7 +12,6 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/profile/ev_profile_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/new%20lead/ev_create_new_inspection_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/home/e_completed_evaluation_list.dart';
-
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/home/ev_live_leads_tab.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_dashboard/ev_fetch_dashboard_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
@@ -212,7 +210,7 @@ class _EvDashboardScreenState extends State<EvDashboardScreen>
               : const SizedBox();
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
       // Enhanced Bottom Navigation Bar
       bottomNavigationBar:

@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/fetch_inspections.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/fetch_live_inspections.dart';
 
 part 'fetch_inspections_event.dart';
 part 'fetch_inspections_state.dart';
@@ -12,14 +12,14 @@ class FetchInspectionsBloc
   FetchInspectionsBloc() : super(InitialFetchInspectionsState()) {
     on<OnGetInspectionList>(_onGetInspectionData);
   }
-  List<InspectionModel> listOfInspection = [];
+  List<InspectionModel> listOfLiveInspection = [];
   Future<void> _onGetInspectionData(
     OnGetInspectionList event,
     Emitter<FetchInspectionsState> emit,
   ) async {
-    listOfInspection = [];
+    listOfLiveInspection = [];
     emit(LoadingFetchInspectionsState());
-    final snapshot = await FetchInspectionRepo.getInspectionByStatus(
+    final snapshot = await FetchInspectionRepo.getInspections(
       event.context,
       event.inspetionListType,
     );
@@ -27,11 +27,12 @@ class FetchInspectionsBloc
     if (snapshot['error'] == false) {
       List data = snapshot['data'];
       String message = snapshot['message'];
-      listOfInspection = data.map((e) => InspectionModel.fromJson(e)).toList();
+      listOfLiveInspection =
+          data.map((e) => InspectionModel.fromJson(e)).toList();
       emit(
         SuccessFetchInspectionsState(
           message: message,
-          listOfInspection: listOfInspection,
+          listOfInspection: listOfLiveInspection,
         ),
       );
     } else if (snapshot['error'] == true) {

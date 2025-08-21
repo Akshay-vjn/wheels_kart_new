@@ -86,7 +86,19 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
           builder: (context, state) {
             switch (state) {
               case LoadingFetchInspectionsState():
-                return Center(child: EVAppLoadingIndicator());
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      EVAppLoadingIndicator(),
+                      SizedBox(height: 16),
+                      Text(
+                        'Loading live inspections...',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                );
               case SuccessFetchInspectionsState():
                 return state.listOfInspection.isEmpty
                     ? _buildEmptyState(state.message)

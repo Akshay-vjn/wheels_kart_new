@@ -300,7 +300,9 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
         ),
       ),
       child: RefreshIndicator.adaptive(
-        onRefresh: _onRefresh,
+        onRefresh: () async {
+          _onRefresh();
+        },
         color: EvAppColors.DEFAULT_BLUE_DARK,
         backgroundColor: Colors.white,
         child: MultiBlocListener(
@@ -343,7 +345,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                         EVAppLoadingIndicator(),
                         SizedBox(height: 16),
                         Text(
-                          'Loading inspections...',
+                          'Loading completed inspections...',
                           style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       ],
@@ -403,17 +405,17 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
           ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: _onRefresh,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Refresh'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: EvAppColors.DARK_SECONDARY,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-          ),
+          // const SizedBox(height: 24),
+          // ElevatedButton.icon(
+          //   onPressed: _onRefresh,
+          //   icon: const Icon(Icons.refresh),
+          //   label: const Text('Refresh'),
+          //   style: ElevatedButton.styleFrom(
+          //     backgroundColor: EvAppColors.DARK_SECONDARY,
+          //     foregroundColor: Colors.white,
+          //     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -517,10 +519,10 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
             ),
             const SizedBox(height: 12),
 
-                      _buildContactInfo(context, model),
+            _buildContactInfo(context, model),
 
             const SizedBox(height: 10),
-              _buildActionButton(
+            _buildActionButton(
               label: "Edit Inspection",
               icon: Icons.edit,
               isCompleted: false,
@@ -635,7 +637,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                 ],
               ),
             ),
-            _buildStatusChip(model.status),
+            _buildStatusChip("Completed"),
           ],
         ),
       ],

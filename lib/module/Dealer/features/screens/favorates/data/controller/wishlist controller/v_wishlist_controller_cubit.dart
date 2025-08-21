@@ -57,16 +57,60 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
     }
   }
 
+  // void connectWebSocket() {
+  //   channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
+
+  //   _subscription = channel.stream.listen((data) {
+  //     log("triggered ----------------");
+  //     String decoded = utf8.decode(data);
+  //     final jsonData = jsonDecode(decoded);
+  //     log("Converted ----------------");
+
+  //     _updatePrice(LiveBidModel.fromJson(jsonData));
+  //   });
+  // }
+
   void connectWebSocket() {
     channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
-    _subscription = channel.stream.listen((data) {
-      log("triggered ----------------");
-      String decoded = utf8.decode(data);
-      final jsonData = jsonDecode(decoded);
-      log("Converted ----------------");
+    // Send heartbeat every 30 seconds
+    Timer.periodic(Duration(seconds: 30), (_) {
+      try {
+        channel.sink.add(jsonEncode({"type": "ping"}));
+      } catch (e) {
+        log("Ping failed: $e");
+      }
+    });
 
-      _updatePrice(LiveBidModel.fromJson(jsonData));
+    _subscription = channel.stream.listen(
+      (data) {
+        log("triggered ----------------");
+
+        try {
+          final decoded = (data is String) ? data : utf8.decode(data);
+          final jsonData = jsonDecode(decoded);
+          log("Converted ----------------");
+
+          _updatePrice(LiveBidModel.fromJson(jsonData));
+        } catch (e) {
+          log("Error decoding WebSocket data: $e");
+        }
+      },
+      onError: (error) {
+        log("WebSocket error: $error");
+        _reconnect();
+      },
+      onDone: () {
+        log("WebSocket closed. Reconnecting...");
+        _reconnect();
+      },
+      cancelOnError: true,
+    );
+  }
+
+  void _reconnect() {
+    Future.delayed(Duration(seconds: 3), () {
+      connectWebSocket();
     });
   }
 
