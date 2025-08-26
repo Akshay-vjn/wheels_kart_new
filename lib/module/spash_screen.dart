@@ -179,7 +179,7 @@ class _SplashScreenState extends State<SplashScreen>
                 );
               } else {
                 final getUserPref = await AppAuthController().getUserData;
-                if (getUserPref.isDealerAcceptedTermsAndCondition == true) {
+                if (getUserPref.isDealerAcceptedTermsAndCondition == true) { 
                   Navigator.of(context).pushAndRemoveUntil(
                     AppRoutes.createRoute(VNavScreen()),
                     (context) => false,
