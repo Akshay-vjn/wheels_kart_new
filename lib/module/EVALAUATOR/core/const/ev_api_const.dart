@@ -21,6 +21,7 @@ class EvApiConst {
   static const String fetchDahsbord = "login/dashboard";
   static const String fetchProfile = "login/profile";
   static const String login = "login";
+  static const String register = "inspections/register";
 
   static const String fetchDocTypes = 'masters/documenttypes';
   static const String fetchPictureAngles = 'masters/pictureangles';

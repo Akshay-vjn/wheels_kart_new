@@ -171,6 +171,8 @@ class VDetailsControllerBloc
   //     add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
   //   });
   // }
+  Timer? _heartbeatTimer;
+
   void _connectWebSocket(
     ConnectWebSocket event,
     Emitter<VDetailsControllerState> emit,
@@ -178,7 +180,9 @@ class VDetailsControllerBloc
     channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
     // Send heartbeat every 30 seconds
-    Timer.periodic(Duration(seconds: 30), (_) {
+
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (_) {
       try {
         channel.sink.add(jsonEncode({"type": "ping"}));
       } catch (e) {
@@ -213,6 +217,7 @@ class VDetailsControllerBloc
   }
 
   void _reconnect(ConnectWebSocket event) {
+    _subscription?.cancel();
     Future.delayed(Duration(seconds: 3), () {
       add(ConnectWebSocket());
     });
@@ -220,6 +225,9 @@ class VDetailsControllerBloc
 
   @override
   Future<void> close() {
+    log("------------Closing Bloc and WebSocket. ------------ Details Bloc");
+    _timer?.cancel();
+    _heartbeatTimer?.cancel();
     _subscription?.cancel();
     channel.sink.close();
     return super.close();

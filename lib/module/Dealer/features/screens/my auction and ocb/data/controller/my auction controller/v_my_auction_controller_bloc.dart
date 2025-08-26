@@ -2,14 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/models/v_my_auction_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/repo/v_get_my_auctions_epo.dart';
@@ -59,6 +55,7 @@ class VMyAuctionControllerBloc
                       ),
                     )
                     .toList();
+            // car.toJson().toString();
 
             updatedList.add(car);
           } else {
@@ -108,6 +105,7 @@ class VMyAuctionControllerBloc
   //     );
   //   });
   // }
+  Timer? _heartbeatTimer;
 
   void _connectWebSocket(
     ConnectWebSocket event,
@@ -116,7 +114,8 @@ class VMyAuctionControllerBloc
     channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
     // Send heartbeat every 30 seconds
-    Timer.periodic(Duration(seconds: 30), (_) {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (_) {
       try {
         channel.sink.add(jsonEncode({"type": "ping"}));
       } catch (e) {
@@ -156,6 +155,7 @@ class VMyAuctionControllerBloc
   }
 
   void _reconnect(ConnectWebSocket event) {
+    _subscription?.cancel();
     Future.delayed(Duration(seconds: 3), () {
       add(ConnectWebSocket(myId: event.myId));
     });
@@ -163,6 +163,11 @@ class VMyAuctionControllerBloc
 
   @override
   Future<void> close() {
+    log(
+      "------------Closing Bloc and WebSocket.  ------------ My Auction Bloc",
+    );
+
+    _heartbeatTimer?.cancel();
     _subscription?.cancel();
     channel.sink.close();
     return super.close();

@@ -13,6 +13,7 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/screens/terms_and_condition_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_edit_profile_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
@@ -34,7 +35,7 @@ class _VAccountTabState extends State<VAccountTab>
 
   @override
   void initState() {
-    context.read<VProfileControllerCubit>().onFetchProfile(context);
+    // context.read<VProfileControllerCubit>().onFetchProfile(context);
     super.initState();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -110,12 +111,12 @@ class _VAccountTabState extends State<VAccountTab>
                                   // Settings Section
                                   _buildSettingsSection(context),
 
-                                  AppSpacer(heightPortion: .04),
+                                  AppSpacer(heightPortion: .02),
 
                                   // Logout Button
                                   _buildLogoutButton(context),
 
-                                  AppSpacer(heightPortion: .04),
+                                  AppSpacer(heightPortion: .02),
                                 ],
                               ),
                             ),
@@ -419,16 +420,16 @@ class _VAccountTabState extends State<VAccountTab>
 
           AppSpacer(heightPortion: .02),
 
-          _buildSettingsItem(
-            "Bidding History",
-            "Tap to view your bidding records",
-            SolarIconsOutline.list,
-            context,
-            onTap: () {
-              Navigator.of(context).push(AppRoutes.createRoute(VMybidScreen()));
-            },
-            isFirst: true,
-          ),
+          // _buildSettingsItem(
+          //   "Bidding History",
+          //   "Tap to view your bidding records",
+          //   SolarIconsOutline.list,
+          //   context,
+          //   onTap: () {
+          //     Navigator.of(context).push(AppRoutes.createRoute(VMyBidTab()));
+          //   },
+          //   isFirst: true,
+          // ),
 
           // _buildSettingsItem(
           //   "Notifications",
@@ -438,14 +439,17 @@ class _VAccountTabState extends State<VAccountTab>
           //   onTap: () {},
           //   isFirst: true,
           // ),
-
-          // _buildSettingsItem(
-          //   "Privacy & Security",
-          //   "Control your privacy settings",
-          //   SolarIconsOutline.shieldCheck,
-          //   context,
-          //   onTap: () {},
-          // ),
+          _buildSettingsItem(
+            "Terms & Conditions",
+            "Read our terms and policies",
+            SolarIconsOutline.document,
+            context,
+            onTap: () {
+              Navigator.of(
+                context,
+              ).push(AppRoutes.createRoute(const VTermsAndConditionScreen()));
+            },
+          ),
 
           // _buildSettingsItem(
           //   "Help & Support",
@@ -631,11 +635,37 @@ class _VAccountTabState extends State<VAccountTab>
   }
 
   Widget _buildLogoutButton(BuildContext context) {
-    return VCustomButton(
-      title: "LOGOUT",
-      onTap: () {
+    // return VCustomButton(
+    //   bgColor: VColors.ERROR,
+    //   title: "LOGOUT",
+    //   onTap: () {
+    //     _showLogoutDialog(context);
+    //   },
+    // );
+    return ElevatedButton.icon(
+      onPressed: () {
         _showLogoutDialog(context);
       },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: VColors.ERROR,
+        minimumSize: Size(w(context), 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      icon: const Icon(
+        CupertinoIcons.square_arrow_right,
+        color: VColors.WHITE,
+        weight: 10,
+      ),
+      label: Text(
+        "Log Out",
+        style: VStyle.style(
+          context: context,
+
+          color: VColors.WHITE,
+          size: 17,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 

@@ -238,7 +238,7 @@ class _AuctionTileState extends State<AuctionTile>
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: VMybidScreen.buildImageSection(
+                child: VMyBidTab.buildImageSection(
                   widget.auction.frontImage,
                   widget.auction.evaluationId,
                 ),
@@ -253,7 +253,7 @@ class _AuctionTileState extends State<AuctionTile>
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                VMybidScreen.buildHeader(
+                VMyBidTab.buildHeader(
                   context,
                   widget.auction.manufacturingYear,
                   widget.auction.brandName,

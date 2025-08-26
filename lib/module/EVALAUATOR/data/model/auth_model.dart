@@ -5,6 +5,7 @@ class AuthUserModel {
   String? userName;
   String? userId;
   String? userType;
+  bool? isDealerAcceptedTermsAndCondition;
   // String tokenExpireMessage;
 
   AuthUserModel({
@@ -14,6 +15,7 @@ class AuthUserModel {
     this.userId,
     this.userName,
     this.userType,
+    this.isDealerAcceptedTermsAndCondition,
     // required this.tokenExpireMessage
   });
 }

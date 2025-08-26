@@ -7,12 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_register_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/fetch_profile_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/login_repo.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_login_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_register_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_login_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_login_screen.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 
@@ -27,6 +29,8 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
   static const String userIdKey = "USER_ID";
   static const String userNameKey = "USER_NAME";
   static const String userTypeKey = "USER_TYPE";
+  static const String isDealerAcceptedTermsAndCondition =
+      "IS_ACCEPTED_TERMS_AND_CONDITION";
 
   Future<void> _setLoginPreference(AuthUserModel userData) async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -37,11 +41,15 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     preferences.setString(userIdKey, userData.userId ?? '');
     preferences.setString(userNameKey, userData.userName ?? '');
     preferences.setString(userTypeKey, userData.userType ?? '');
+
+    preferences.setBool(
+      isDealerAcceptedTermsAndCondition,
+      userData.isDealerAcceptedTermsAndCondition ?? false,
+    );
   }
 
   Future<void> updateLoginPreference(AuthUserModel userData) async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
-
     final data = await getUserData;
 
     preferences.setString(
@@ -64,16 +72,25 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
       userData.userType ?? data.userType ?? '',
     );
 
+    preferences.setBool(
+      isDealerAcceptedTermsAndCondition,
+      userData.isDealerAcceptedTermsAndCondition ??
+          data.isDealerAcceptedTermsAndCondition ??
+          false,
+    );
+    final newData = await getUserData;
+
     log(
-      'Name - > ${data.userName}\nNumber - > ${data.mobileNumber}\nType -> ${data.userType}\nUser ID - > ${data.userId}',
+      "New Updated Data -> \n"
+      'Name - > ${newData.userName}\nNumber - > ${newData.mobileNumber}\nType -> ${newData.userType}\nUser ID - > ${newData.userId}. \nTerms Accepted=> ${newData.isDealerAcceptedTermsAndCondition}',
     );
   }
 
   Future<void> checkForLogin(BuildContext context) async {
     final userData = await getUserData;
-
     log(
-      'Name - > ${userData.userName}\nNumber - > ${userData.mobileNumber}\nType -> ${userData.userType}\nUser ID - > ${userData.userId}',
+      "cjeck for login -> \n"
+      'Name - > ${userData.userName}\nNumber - > ${userData.mobileNumber}\nType -> ${userData.userType}\nUser ID - > ${userData.userId}. \nTerms Accepted=> ${userData.isDealerAcceptedTermsAndCondition}',
     );
 
     if (userData.token != null &&
@@ -113,6 +130,10 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
 
     String? userType = preferences.getString(userTypeKey);
 
+    bool? isAcceptedTermsAndCondition = preferences.getBool(
+      isDealerAcceptedTermsAndCondition,
+    );
+
     return AuthUserModel(
       mobileNumber: number,
       password: password,
@@ -120,6 +141,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
       userId: userId,
       userType: userType,
       userName: name,
+      isDealerAcceptedTermsAndCondition: isAcceptedTermsAndCondition,
     );
   }
 
@@ -134,6 +156,8 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     await prefs.remove(userIdKey);
     await prefs.remove(userTypeKey);
 
+    await prefs.remove(isDealerAcceptedTermsAndCondition);
+
     emit(AuthCubitUnAuthenticatedState());
 
     Navigator.of(context).pushAndRemoveUntil(
@@ -142,7 +166,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     );
   }
 
-  // LOGIN USER
+  // LOGIN EVALUATOR
   Future<bool> loginUser(
     BuildContext context,
     String mobileNumber,
@@ -194,9 +218,42 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
       emit(AuthErrorState(errorMessage: 'No Internet Connection !'));
       return false;
     }
+  } // REGISTER EVALUATOR
+
+  Future<bool> registerEvaluator(
+    BuildContext context,
+    String mobileNumber,
+    String password,
+    String confirmPassword,
+    String name,
+  ) async {
+    emit(AuthLodingState());
+    final snapshot = await EvRegisterRepo.registerEvaluator(
+      mobileNumber,
+      password,
+      confirmPassword,
+
+      name,
+    );
+
+    if (snapshot['error'] == false && snapshot.isNotEmpty) {
+      emit(AppAuthControllerInitialState());
+      vSnackBarMessage(
+        context,
+        "Congratulation!.Registration successful, you can login now.",
+      );
+      Navigator.of(
+        context,
+      ).pushReplacement(AppRoutes.createRoute(EvLoginScreen()));
+      return true;
+    } else {
+      vSnackBarMessage(context, snapshot['message'], state: VSnackState.ERROR);
+      emit(AuthErrorState(errorMessage: snapshot['message']));
+      return false;
+    }
   }
 
-  // LOGIN USER
+  // LOGIN VENDOR
   Future<bool> loginVendor(
     BuildContext context,
     String mobileNumber,
@@ -209,14 +266,16 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     if (snapshot.isNotEmpty) {
       if (snapshot['error'] == false) {
         log(snapshot['data'].toString());
-
+    final currentUserData = await getUserData;
         final authmodel = AuthUserModel(
           mobileNumber: mobileNumber,
           password: password,
           token: snapshot['token'],
-          userName:name?? "",
-          userId:id?? "",
+          userName: name ?? "",
+          userId: id ?? "",
           userType: "VENDOR",
+          isDealerAcceptedTermsAndCondition: currentUserData.isDealerAcceptedTermsAndCondition
+
         );
         await _setLoginPreference(authmodel);
         emit(
@@ -236,6 +295,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     }
   }
 
+  // RESISTER VENDOR
   Future<bool> registerVendor(
     BuildContext context,
     String mobileNumber,

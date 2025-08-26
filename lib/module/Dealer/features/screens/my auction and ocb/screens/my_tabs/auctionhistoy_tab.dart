@@ -8,11 +8,9 @@ import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/models/v_my_auction_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_losing_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_owned_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_winning_tab.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/widgets/auction_tile.dart';
 
 class AuctionHistoryTab extends StatefulWidget {
   final String myId;
@@ -25,21 +23,28 @@ class AuctionHistoryTab extends StatefulWidget {
 class _AuctionHistoryTabState extends State<AuctionHistoryTab>
     with TickerProviderStateMixin {
   late TabController auctionTaContoller;
-
+  late final VMyAuctionControllerBloc _auctionControllerBloc;
   @override
   void initState() {
     auctionTaContoller = TabController(length: 3, vsync: this);
 
-    final controller = context.read<VMyAuctionControllerBloc>();
+    _auctionControllerBloc = context.read<VMyAuctionControllerBloc>();
 
-    controller.add(ConnectWebSocket(myId: widget.myId));
-    controller.add(OnGetMyAuctions(context: context));
+    _auctionControllerBloc.add(ConnectWebSocket(myId: widget.myId));
+    _auctionControllerBloc.add(OnGetMyAuctions(context: context));
     super.initState();
     auctionTaContoller.addListener(() {
       setState(() {
         currentIndex = auctionTaContoller.index;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _auctionControllerBloc.close();
+    // TODO: implement dispose
+    super.dispose();
   }
 
   int currentIndex = 0;

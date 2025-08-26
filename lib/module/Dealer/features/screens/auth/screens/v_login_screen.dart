@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,8 +11,12 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/screens/terms_and_condition_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/terms_and_condion_accept_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_registration_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 
 class VLoginScreen extends StatefulWidget {
   VLoginScreen({super.key});
@@ -98,7 +103,7 @@ class _VLoginScreenState extends State<VLoginScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       body: BlocListener<AppAuthController, AppAuthControllerState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           switch (state) {
             case AuthErrorState():
               {
@@ -112,11 +117,22 @@ class _VLoginScreenState extends State<VLoginScreen>
             case AuthCubitAuthenticateState():
               {
                 HapticFeedback.mediumImpact();
-                showToastMessage(context, state.loginMesaage);
+
                 Navigator.of(context).pushAndRemoveUntil(
-                  AppRoutes.createRoute(VNavScreen()),
+                  AppRoutes.createRoute(VTermsAndCondionAcceptScreen()),
                   (context) => false,
                 );
+                // await context.read<AppAuthController>().updateLoginPreference(
+                //   AuthUserModel(isDealerAcceptedTermsAndCondition: true),
+                // );
+                // showToastMessage(
+                //   context,
+                //   "Login Successful, Welcome to Wheels Kart",
+                // );
+                // Navigator.of(context).pushAndRemoveUntil(
+                //   AppRoutes.createRoute(VNavScreen()),
+                //   (context) => false,
+                // );
               }
             default:
               {}
@@ -213,14 +229,14 @@ class _VLoginScreenState extends State<VLoginScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                          "Sign In",
-                          style: VStyle.style(
-                            context: context,
-                            fontWeight: FontWeight.bold,
-                            size: 36,
-                            color: Colors.white,
-                          ),
-                        ),
+                      "Sign In",
+                      style: VStyle.style(
+                        context: context,
+                        fontWeight: FontWeight.bold,
+                        size: 36,
+                        color: Colors.white,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       "Enter your credentials to continue",
@@ -253,8 +269,6 @@ class _VLoginScreenState extends State<VLoginScreen>
             children: [
               const SizedBox(height: 32),
 
-            
-
               _buildEnhancedTextField(
                 controller: _mobileNumberController,
                 focusNode: _mobileFocusNode,
@@ -278,29 +292,7 @@ class _VLoginScreenState extends State<VLoginScreen>
                 validator: (value) => Validator.validateRequired(value),
               ),
 
-              const SizedBox(height: 16),
-
-              // Forgot password
-              // Align(
-              //   alignment: Alignment.centerRight,
-              //   child: TextButton(
-              //     onPressed: () {
-              //       HapticFeedback.selectionClick();
-              //       // Handle forgot password
-              //     },
-              //     child: Text(
-              //       "Forgot Password?",
-              //       style: VStyle.style(
-              //         context: context,
-              //         size: 14,
-              //         color: VColors.SECONDARY,
-              //         fontWeight: FontWeight.w600,
-              //       ),
-              //     ),
-              //   ),
-              // ),
-
-              const SizedBox(height: 32),
+              const SizedBox(height: 25),
 
               // Sign In Button
               BlocBuilder<AppAuthController, AppAuthControllerState>(
@@ -321,6 +313,35 @@ class _VLoginScreenState extends State<VLoginScreen>
                     },
                   );
                 },
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "Dont have an account? ",
+                    style: VStyle.style(
+                      context: context,
+                      size: 14,
+                      color: VColors.BLACK,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(
+                        context,
+                      ).push(AppRoutes.createRoute(VRegistrationScreen()));
+                    },
+                    child: Text(
+                      "Sign Up",
+                      style: VStyle.style(
+                        context: context,
+                        size: 14,
+                        color: VColors.SECONDARY,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 48),
@@ -346,7 +367,7 @@ class _VLoginScreenState extends State<VLoginScreen>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withAlpha(100),
+            color: Colors.grey.withAlpha(60),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -453,9 +474,7 @@ class _VLoginScreenState extends State<VLoginScreen>
                     ? const SizedBox(
                       height: 24,
                       width: 24,
-                      child:VLoadingIndicator(
-                    
-                      ),
+                      child: VLoadingIndicator(),
                     )
                     : Text(
                       "SIGN IN",

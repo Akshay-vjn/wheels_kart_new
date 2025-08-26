@@ -218,7 +218,7 @@ class _OcbTileState extends State<OcbTile>
                 borderRadius: BorderRadius.circular(12),
                 child: AspectRatio(
                   aspectRatio: 16 / 10,
-                  child: VMybidScreen.buildImageSection(
+                  child: VMyBidTab.buildImageSection(
                     widget.ocb.frontImage,
                     widget.ocb.evaluationId,
                   ),
@@ -233,7 +233,7 @@ class _OcbTileState extends State<OcbTile>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VMybidScreen.buildHeader(
+                VMyBidTab.buildHeader(
                   context,
                   widget.ocb.manufacturingYear,
                   widget.ocb.brandName,

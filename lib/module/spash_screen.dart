@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/terms_and_condion_accept_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const_images.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
@@ -40,7 +41,6 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _loadingOpacityAnimation;
   late Animation<double> _backgroundAnimation;
   late Animation<double> _particleAnimation;
-
 
   @override
   void initState() {
@@ -167,7 +167,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return BlocListener<AppAuthController, AppAuthControllerState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         switch (state) {
           case AuthCubitAuthenticateState():
             {
@@ -178,10 +178,19 @@ class _SplashScreenState extends State<SplashScreen>
                   (context) => false,
                 );
               } else {
-                Navigator.of(context).pushAndRemoveUntil(
-                  AppRoutes.createRoute(VNavScreen()),
-                  (context) => false,
-                );
+                final getUserPref = await AppAuthController().getUserData;
+                if (getUserPref.isDealerAcceptedTermsAndCondition == true) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    AppRoutes.createRoute(VNavScreen()),
+                    (context) => false,
+                  );
+                } else {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    AppRoutes.createRoute(VTermsAndCondionAcceptScreen()),
+                    (context) => false,
+                  );
+                }
+             
               }
             }
           case AuthCubitUnAuthenticatedState():

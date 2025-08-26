@@ -25,7 +25,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_phot
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_video_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
 
-class VCarDetailsScreen extends StatefulWidget {
+class VCarDetailsScreen extends StatelessWidget {
   final bool isLiked;
   final String frontImage;
   final String inspectionId;
@@ -43,25 +43,65 @@ class VCarDetailsScreen extends StatefulWidget {
   });
 
   @override
-  State<VCarDetailsScreen> createState() => _VCarDetailsScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => VDetailsControllerBloc(),
+      child: CarDetailsScreen(
+        hideBidPrice: hideBidPrice,
+        frontImage: frontImage,
+        inspectionId: inspectionId,
+        isLiked: isLiked,
+        auctionType: auctionType,
+        isShowingInHistoryScreen: isShowingInHistoryScreen,
+      ),
+    );
+  }
 }
 
-class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
+class CarDetailsScreen extends StatefulWidget {
+  final bool isLiked;
+  final String frontImage;
+  final String inspectionId;
+  final bool hideBidPrice;
+  final String auctionType;
+  final bool isShowingInHistoryScreen;
+  const CarDetailsScreen({
+    super.key,
+    required this.hideBidPrice,
+    required this.frontImage,
+    required this.inspectionId,
+    required this.isLiked,
+    required this.auctionType,
+    this.isShowingInHistoryScreen = false,
+  });
+
+  @override
+  State<CarDetailsScreen> createState() => _CarDetailsScreenState();
+}
+
+class _CarDetailsScreenState extends State<CarDetailsScreen> {
+  late final VDetailsControllerBloc _detailControllerBloc;
   @override
   void initState() {
     _isLiked = widget.isLiked;
     setState(() {});
 
-    context.read<VDetailsControllerBloc>().add(
+    _detailControllerBloc = context.read<VDetailsControllerBloc>();
+    _detailControllerBloc.add(
       OnFetchDetails(context: context, inspectionId: widget.inspectionId),
     );
-    context.read<VDetailsControllerBloc>().add(ConnectWebSocket());
+    _detailControllerBloc.add(ConnectWebSocket());
     super.initState();
     log(widget.inspectionId);
   }
 
   bool _isLiked = false;
   bool get isOCB => widget.auctionType == "OCB";
+  @override
+  void dispose() {
+    _detailControllerBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -911,7 +951,8 @@ class _VCarDetailsScreenState extends State<VCarDetailsScreen> {
                                           ),
                                         ),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
                                           children: [

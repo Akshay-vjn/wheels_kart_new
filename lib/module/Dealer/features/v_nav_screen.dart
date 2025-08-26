@@ -1,5 +1,3 @@
-
-
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -8,20 +6,59 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_account_tab.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/screens/v_fav_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/home_tab.dart';
 import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
-class VNavScreen extends StatelessWidget {
+String CURRENT_DEALER_ID = "";
+
+class VNavScreen extends StatefulWidget {
   const VNavScreen({super.key});
-  static List<Widget> tabs = [VHomeTab(), VFavTab(), VAccountTab()];
+  static List<Widget> tabs = [
+    VHomeTab(),
+    BlocProvider(
+      create: (context) => VWishlistControllerCubit(),
+      child: VFavTab(),
+    ),
+    VMyBidTab(),
+    VAccountTab(),
+  ];
+
+  @override
+  State<VNavScreen> createState() => _VNavScreenState();
+}
+
+class _VNavScreenState extends State<VNavScreen> {
+  @override
+  void initState() {
+    context.read<VProfileControllerCubit>().onFetchProfile(context);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: VColors.WHITEBGCOLOR,
-      body: BlocBuilder<VNavControllerCubit, VNavControllerState>(
-        builder: (context, state) => tabs[state.currentIndex],
+      body: BlocConsumer<VProfileControllerCubit, VProfileControllerState>(
+        listener: (context, state) {
+          if (state is VProfileControllerSuccessState) {
+            CURRENT_DEALER_ID = state.profileModel.vendorId;
+          }
+        },
+        builder: (context, state) {
+          if (state is VProfileControllerSuccessState) {
+            return BlocBuilder<VNavControllerCubit, VNavControllerState>(
+              builder: (context, state) => VNavScreen.tabs[state.currentIndex],
+            );
+          }
+
+          return Center(child: EVAppLoadingIndicator());
+        },
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -63,6 +100,12 @@ class VNavScreen extends StatelessWidget {
 
                     activeIcon: Icon(CupertinoIcons.heart_fill),
                     icon: Icon(CupertinoIcons.heart),
+                  ),
+                  BottomNavigationBarItem(
+                    label: "History",
+
+                    activeIcon: Icon(CupertinoIcons.square_list_fill),
+                    icon: Icon(CupertinoIcons.list_bullet),
                   ),
                   // BottomNavigationBarItem(
                   //   label: "My Order",

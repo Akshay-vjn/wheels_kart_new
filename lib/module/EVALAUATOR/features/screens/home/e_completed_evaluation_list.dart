@@ -522,9 +522,13 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
             _buildContactInfo(context, model),
 
             const SizedBox(height: 10),
+
             _buildActionButton(
               label: "Edit Inspection",
               icon: Icons.edit,
+              isEnabled:
+                  model.status.toLowerCase() == 'new' ||
+                  model.status.toLowerCase() == 'assigned',
               isCompleted: false,
               onTap: () => _onClicEditInspection(model),
               backgroundColor: EvAppColors.DEFAULT_BLUE_GREY,
@@ -637,7 +641,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                 ],
               ),
             ),
-            _buildStatusChip("Completed"),
+            _buildStatusChip(model.status),
           ],
         ),
       ],
@@ -645,16 +649,30 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
   }
 
   Widget _buildStatusChip(String status) {
+    Color color;
+    switch (status.toLowerCase()) {
+      case 'assigned':
+      case "completed":
+        color = Colors.orange;
+        break;
+
+      case 'sold':
+        color = Colors.red;
+        break;
+      case 'cancelled':
+        color = Colors.grey;
+        break;
+      default:
+        color = Colors.grey;
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [EvAppColors.kGreen, EvAppColors.kGreen.withOpacity(0.8)],
-        ),
+        gradient: LinearGradient(colors: [color, color.withOpacity(0.8)]),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: EvAppColors.kGreen.withOpacity(0.3),
+            color: color.withOpacity(0.3),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -798,7 +816,7 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
     required Color backgroundColor,
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: isEnabled ? onTap : null,
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

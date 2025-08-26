@@ -69,12 +69,14 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
   //     _updatePrice(LiveBidModel.fromJson(jsonData));
   //   });
   // }
+  Timer? _heartbeatTimer;
 
   void connectWebSocket() {
     channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
     // Send heartbeat every 30 seconds
-    Timer.periodic(Duration(seconds: 30), (_) {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (_) {
       try {
         channel.sink.add(jsonEncode({"type": "ping"}));
       } catch (e) {
@@ -109,6 +111,7 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
   }
 
   void _reconnect() {
+    _subscription?.cancel();
     Future.delayed(Duration(seconds: 3), () {
       connectWebSocket();
     });
@@ -143,6 +146,8 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
 
   @override
   Future<void> close() {
+    log("------------Closing Bloc and WebSocket. ------------ Wishlist Bloc");
+    _heartbeatTimer?.cancel();
     _subscription?.cancel();
     channel.sink.close();
     return super.close();

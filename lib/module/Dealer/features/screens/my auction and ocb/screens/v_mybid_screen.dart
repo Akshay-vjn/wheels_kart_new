@@ -7,15 +7,17 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auctionhistoy_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/bought_ocb_history_tab.dart';
+import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
 
-class VMybidScreen extends StatefulWidget {
-  const VMybidScreen({super.key});
+class VMyBidTab extends StatefulWidget {
+  const VMyBidTab({super.key});
 
   @override
-  State<VMybidScreen> createState() => _VMybidScreenState();
+  State<VMyBidTab> createState() => _VMyBidTabState();
 
   static Widget buildImageSection(String image, String id) {
     return ClipRRect(
@@ -145,19 +147,19 @@ class VMybidScreen extends StatefulWidget {
   }
 }
 
-class _VMybidScreenState extends State<VMybidScreen>
-    with TickerProviderStateMixin {
+class _VMyBidTabState extends State<VMyBidTab> with TickerProviderStateMixin {
   late TabController _tabController;
-  late String myId;
+  // late String myId;
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this);
-    final state = context.read<AppAuthController>().state;
-    if (state is AuthCubitAuthenticateState) {
-      myId = state.userModel.userId ?? "";
-    } else {
-      myId = '';
-    }
+    // final state = context.read<AppAuthController>().state;
+    // if (state is AuthCubitAuthenticateState) {
+    //   myId = state.userModel.userId ?? "";
+    // } else {
+    //   myId = '';
+    // }
+
     super.initState();
   }
 
@@ -170,11 +172,11 @@ class _VMybidScreenState extends State<VMybidScreen>
           length: 2,
           child: Column(
             children: [
+              AppSpacer(heightPortion: .01),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  VCustomBackbutton(blendColor: VColors.GREY),
-
+                  // VCustomBackbutton(blendColor: VColors.GREY),
                   AppSpacer(widthPortion: .02),
                   Flexible(
                     child: TabBar(
@@ -195,10 +197,6 @@ class _VMybidScreenState extends State<VMybidScreen>
                       ),
                       dividerHeight: 0,
                       tabs: [
-                        // Padding(
-                        //   padding: EdgeInsetsGeometry.only(bottom: 10, top: 10),
-                        //   child: Text("Hightlist"),
-                        // ),
                         Padding(
                           padding: EdgeInsetsGeometry.only(bottom: 10, top: 10),
                           child: Text("Auction"),
@@ -212,6 +210,7 @@ class _VMybidScreenState extends State<VMybidScreen>
                   ),
                 ],
               ),
+              AppSpacer(heightPortion: .01),
 
               Expanded(
                 child: Container(
@@ -219,7 +218,10 @@ class _VMybidScreenState extends State<VMybidScreen>
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      AuctionHistoryTab(myId: myId),
+                      BlocProvider(
+                        create: (context) => VMyAuctionControllerBloc(),
+                        child: AuctionHistoryTab(myId: CURRENT_DEALER_ID),
+                      ),
                       BoughtOcbHistoryTab(),
                     ],
                   ),

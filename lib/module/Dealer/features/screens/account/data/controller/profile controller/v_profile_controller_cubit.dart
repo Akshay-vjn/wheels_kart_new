@@ -26,9 +26,13 @@ class VProfileControllerCubit extends Cubit<VProfileControllerState> {
 
         if (context.mounted) {
           context.read<AppAuthController>().updateLoginPreference(
-            AuthUserModel(userId: model.vendorId, userName: model.vendorName),
+            AuthUserModel(
+              userId: model.vendorId,
+              userName: model.vendorName,
+              isDealerAcceptedTermsAndCondition: true,
+            ),
           );
-          log("Dine");
+          log("Profile Fetched : ${model.vendorName}");
         }
         emit(VProfileControllerSuccessState(profileModel: model));
       } else {

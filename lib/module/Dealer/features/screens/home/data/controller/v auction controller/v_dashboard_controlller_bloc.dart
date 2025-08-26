@@ -68,7 +68,7 @@ class VAuctionControlllerBloc
               car.currentBid = bid.currentBid;
               car.bidClosingTime = bid.bidClosingTime;
               car.vendorIds = reversed.map((e) => e.vendorId).toList();
-              
+
               updatedList.add(car);
             } else {
               updatedList.add(car);
@@ -101,58 +101,62 @@ class VAuctionControlllerBloc
   //     add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
   //   });
   // }
+  Timer? _heartbeatTimer;
 
   void _connectWebSocket(
-  ConnectWebSocket event,
-  Emitter<VAuctionControlllerState> emit,
-) {
-  channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
+    ConnectWebSocket event,
+    Emitter<VAuctionControlllerState> emit,
+  ) {
+    channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
 
-  // Send heartbeat every 30 seconds
-  Timer.periodic(Duration(seconds: 30), (_) {
-    try {
-      channel.sink.add(jsonEncode({"type": "ping"}));
-    } catch (e) {
-      log("Ping failed: $e");
-    }
-  });
+    // Send heartbeat every 30 seconds
 
-  _subscription = channel.stream.listen(
-    (data) {
-      log("triggered ----------------");
-
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (_) {
       try {
-        final decoded = (data is String) ? data : utf8.decode(data);
-        final jsonData = jsonDecode(decoded);
-        log("Converted ----------------");
-
-        add(UpdatePrice(
-          newBid: LiveBidModel.fromJson(jsonData),
-        ));
+        channel.sink.add(jsonEncode({"type": "ping"}));
       } catch (e) {
-        log("Error decoding WebSocket data: $e");
+        log("Ping failed: $e");
       }
-    },
-    onError: (error) {
-      log("WebSocket error: $error");
-      _reconnect(event);
-    },
-    onDone: () {
-      log("WebSocket closed. Reconnecting...");
-      _reconnect(event);
-    },
-    cancelOnError: true,
-  );
-}
+    });
 
-void _reconnect(ConnectWebSocket event) {
-  Future.delayed(Duration(seconds: 3), () {
-    add(ConnectWebSocket());
-  });
-}
+    _subscription = channel.stream.listen(
+      (data) {
+        log("triggered ----------------");
+
+        try {
+          final decoded = (data is String) ? data : utf8.decode(data);
+          final jsonData = jsonDecode(decoded);
+          log("Converted ----------------");
+
+          add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
+        } catch (e) {
+          log("Error decoding WebSocket data: $e");
+        }
+      },
+      onError: (error) {
+        log("WebSocket error: $error");
+        _reconnect(event);
+      },
+      onDone: () {
+        log("WebSocket closed. Reconnecting...");
+        _reconnect(event);
+      },
+      cancelOnError: true,
+    );
+  }
+
+  void _reconnect(ConnectWebSocket event) {
+    _subscription?.cancel();
+    Future.delayed(Duration(seconds: 3), () {
+      add(ConnectWebSocket());
+    });
+  }
 
   @override
   Future<void> close() {
+    log("------------Closing Bloc and WebSocket. ------------ Dashboard Bloc");
+    _heartbeatTimer?.cancel();
     _subscription?.cancel();
     channel.sink.close();
     return super.close();

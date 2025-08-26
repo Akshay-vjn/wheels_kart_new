@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_registration_Screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
@@ -169,321 +170,372 @@ class _EvLoginScreenState extends State<EvLoginScreen>
         },
         child: SafeArea(
           bottom: false,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: SizedBox(
-              height:
-                  MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top,
-              child: AppMargin(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: evCustomBackButton(
-                          context,
-                          color: EvAppColors.black,
-                        ),
-                      ),
-
-                      // Header Section
-                      Expanded(
-                        flex: 2,
-                        child: FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // App Icon/Logo placeholder
-                              ScaleTransition(
-                                scale: _scaleAnimation,
-                                child: Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: EvAppColors.kAppSecondaryColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: EvAppColors.kAppSecondaryColor
-                                            .withOpacity(0.3),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
-                                        offset: const Offset(0, 10),
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: SizedBox(
+                  height:
+                      MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top,
+                  child: AppMargin(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // Header Section
+                          Expanded(
+                            flex: 2,
+                            child: FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // App Icon/Logo placeholder
+                                  ScaleTransition(
+                                    scale: _scaleAnimation,
+                                    child: Container(
+                                      width: 80,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        color: EvAppColors.kAppSecondaryColor,
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: EvAppColors
+                                                .kAppSecondaryColor
+                                                .withOpacity(0.3),
+                                            blurRadius: 20,
+                                            spreadRadius: 5,
+                                            offset: const Offset(0, 10),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    Iconsax.user_octagon,
-                                    color: Colors.white,
-                                    size: 40,
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 24),
-
-                              // Welcome Text
-                              SlideTransition(
-                                position: _slideAnimation,
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'Welcome Back!',
-                                      style: EvAppStyle.style(
-                                        fontWeight: FontWeight.w700,
-                                        size: AppDimensions.fontSize25(context),
-                                        context: context,
-                                        color: EvAppColors.black,
+                                      child: const Icon(
+                                        Iconsax.user_octagon,
+                                        color: Colors.white,
+                                        size: 40,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text.rich(
-                                      TextSpan(
-                                        children: [
+                                  ),
+
+                                  const SizedBox(height: 24),
+
+                                  // Welcome Text
+                                  SlideTransition(
+                                    position: _slideAnimation,
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'Welcome Back!',
+                                          style: EvAppStyle.style(
+                                            fontWeight: FontWeight.w700,
+                                            size: AppDimensions.fontSize25(
+                                              context,
+                                            ),
+                                            context: context,
+                                            color: EvAppColors.black,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text.rich(
                                           TextSpan(
-                                            text: 'Sign in to your ',
-                                            style: EvAppStyle.style(
-                                              context: context,
-                                              fontWeight: FontWeight.w400,
-                                              size: AppDimensions.fontSize16(
-                                                context,
+                                            children: [
+                                              TextSpan(
+                                                text: 'Sign in to your ',
+                                                style: EvAppStyle.style(
+                                                  context: context,
+                                                  fontWeight: FontWeight.w400,
+                                                  size:
+                                                      AppDimensions.fontSize16(
+                                                        context,
+                                                      ),
+                                                  color: EvAppColors.black
+                                                      .withOpacity(0.7),
+                                                ),
                                               ),
-                                              color: EvAppColors.black
-                                                  .withOpacity(0.7),
+                                              TextSpan(
+                                                text: 'Evaluator Account',
+                                                style: EvAppStyle.style(
+                                                  size:
+                                                      AppDimensions.fontSize16(
+                                                        context,
+                                                      ),
+                                                  fontWeight: FontWeight.w600,
+                                                  context: context,
+                                                  color:
+                                                      EvAppColors
+                                                          .kAppSecondaryColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Form Section
+                          Expanded(
+                            flex: 3,
+                            child: SlideTransition(
+                              position: _slideAnimation,
+                              child: Container(
+                                padding: EdgeInsets.all(
+                                  AppDimensions.paddingSize25,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(
+                                      AppDimensions.radiusSize18,
+                                    ),
+                                    topRight: Radius.circular(
+                                      AppDimensions.radiusSize18,
+                                    ),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 20,
+                                      spreadRadius: 5,
+                                      offset: const Offset(0, -5),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    // Form Header
+                                    Container(
+                                      width: 40,
+                                      height: 4,
+                                      alignment: Alignment.center,
+                                      margin: const EdgeInsets.only(bottom: 30),
+                                      child: Container(
+                                        width: 40,
+                                        height: 4,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[300],
+                                          borderRadius: BorderRadius.circular(
+                                            2,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    // Mobile Number Field
+                                    _buildEnhancedTextField(
+                                      controller: _mobileNumberController,
+                                      label: 'Mobile Number',
+                                      hint: 'Enter your 10-digit mobile number',
+                                      prefixIcon: Iconsax.mobile,
+                                      keyboardType: TextInputType.phone,
+                                      maxLength: 10,
+                                      validator: (value) {
+                                        if (value?.isEmpty ?? true) {
+                                          return 'Please enter your mobile number';
+                                        }
+                                        if (value!.length != 10) {
+                                          return 'Please enter a valid 10-digit mobile number';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+
+                                    const SizedBox(height: 20),
+
+                                    // Password Field
+                                    BlocBuilder<
+                                      EvLoginBlocBloc,
+                                      EvLoginBlocState
+                                    >(
+                                      builder:
+                                          (
+                                            context,
+                                            state,
+                                          ) => _buildEnhancedTextField(
+                                            controller: _passwordController,
+                                            label: 'Password',
+                                            hint: 'Enter your password',
+                                            prefixIcon: Iconsax.lock,
+                                            isPassword: true,
+                                            obscureText: state.isPasswordHide,
+                                            suffixIcon: InkWell(
+                                              onTap: () {
+                                                HapticFeedback.lightImpact();
+                                                if (state.isPasswordHide) {
+                                                  context
+                                                      .read<EvLoginBlocBloc>()
+                                                      .add(HidePassword());
+                                                } else {
+                                                  context
+                                                      .read<EvLoginBlocBloc>()
+                                                      .add(ShowPassword());
+                                                }
+                                              },
+                                              child: Icon(
+                                                state.isPasswordHide
+                                                    ? Iconsax.eye
+                                                    : Iconsax.eye_slash,
+                                                color:
+                                                    EvAppColors
+                                                        .kAppSecondaryColor,
+                                                size: 20,
+                                              ),
+                                            ),
+                                            validator: (value) {
+                                              if (value?.isEmpty ?? true) {
+                                                return 'Please enter your password';
+                                              }
+                                              if (value!.length < 6) {
+                                                return 'Password must be at least 6 characters';
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                    ),
+
+                                    AppSpacer(heightPortion: .05),
+
+                                    // Forgot Password
+                                    // Align(
+                                    //   alignment: Alignment.centerRight,
+                                    //   child: TextButton(
+                                    //     onPressed: () {
+                                    //       HapticFeedback.lightImpact();
+                                    //       // TODO: Implement forgot password
+                                    //     },
+                                    //     child: Text(
+                                    //       'Forgot Password?',
+                                    //       style: AppStyle.style(
+                                    //         fontWeight: FontWeight.w600,
+                                    //         context: context,
+                                    //         color: AppColors.kAppSecondaryColor,
+                                    //         size: AppDimensions.fontSize15(context),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // ),
+
+                                    // const Spacer(),
+
+                                    // Login Button
+                                    _buildEnhancedButton(
+                                      onTap: () async {
+                                        if (_formKey.currentState!.validate()) {
+                                          HapticFeedback.mediumImpact();
+                                          context
+                                              .read<EvAppNavigationCubit>()
+                                              .handleBottomnavigation(0);
+
+                                          await context
+                                              .read<AppAuthController>()
+                                              .loginUser(
+                                                context,
+                                                _mobileNumberController.text,
+                                                _passwordController.text,
+                                              );
+                                        } else {
+                                          HapticFeedback.heavyImpact();
+                                        }
+                                      },
+                                      title: 'SIGN IN',
+                                      isEnabled: _isFormValid,
+                                    ),
+
+                                    const SizedBox(height: 5),
+
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "Don't have an account?",
+                                          style: EvAppStyle.style(
+                                            context: context,
+                                            color: EvAppColors.black
+                                                .withOpacity(0.6),
+                                            size: AppDimensions.fontSize15(
+                                              context,
                                             ),
                                           ),
-                                          TextSpan(
-                                            text: 'Evaluator Account',
-                                            style: EvAppStyle.style(
-                                              size: AppDimensions.fontSize16(
-                                                context,
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                              AppRoutes.createRoute(
+                                                const EvRegistrationScreen(),
                                               ),
-                                              fontWeight: FontWeight.w600,
+                                            );
+                                          },
+                                          child: Text(
+                                            'Sign Up',
+                                            style: EvAppStyle.style(
                                               context: context,
                                               color:
                                                   EvAppColors
                                                       .kAppSecondaryColor,
+                                              fontWeight: FontWeight.w600,
+                                              size: AppDimensions.fontSize15(
+                                                context,
+                                              ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      textAlign: TextAlign.center,
+                                        ),
+                                      ],
                                     ),
+
+                                    // Additional Options
+                                    // Row(
+                                    //   mainAxisAlignment: MainAxisAlignment.center,
+                                    //   children: [
+                                    //     Text(
+                                    //       'Need help? ',
+                                    //       style: AppStyle.style(
+                                    //         context: context,
+                                    //         color: AppColors.black.withOpacity(0.6),
+                                    //         size: AppDimensions.fontSize15(context),
+                                    //       ),
+                                    //     ),
+                                    //     GestureDetector(
+                                    //       onTap: () {
+                                    //         HapticFeedback.lightImpact();
+                                    //         // TODO: Implement support
+                                    //       },
+                                    //       child: Text(
+                                    //         'Contact Support',
+                                    //         style: AppStyle.style(
+                                    //           context: context,
+                                    //           color: AppColors.kAppSecondaryColor,
+                                    //           fontWeight: FontWeight.w600,
+                                    //           size: AppDimensions.fontSize15(context),
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Form Section
-                      Expanded(
-                        flex: 3,
-                        child: SlideTransition(
-                          position: _slideAnimation,
-                          child: Container(
-                            padding: EdgeInsets.all(
-                              AppDimensions.paddingSize25,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(
-                                  AppDimensions.radiusSize18,
-                                ),
-                                topRight: Radius.circular(
-                                  AppDimensions.radiusSize18,
-                                ),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 20,
-                                  spreadRadius: 5,
-                                  offset: const Offset(0, -5),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // Form Header
-                                Container(
-                                  width: 40,
-                                  height: 4,
-                                  alignment: Alignment.center,
-                                  margin: const EdgeInsets.only(bottom: 30),
-                                  child: Container(
-                                    width: 40,
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[300],
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                  ),
-                                ),
-
-                                // Mobile Number Field
-                                _buildEnhancedTextField(
-                                  controller: _mobileNumberController,
-                                  label: 'Mobile Number',
-                                  hint: 'Enter your 10-digit mobile number',
-                                  prefixIcon: Iconsax.mobile,
-                                  keyboardType: TextInputType.phone,
-                                  maxLength: 10,
-                                  validator: (value) {
-                                    if (value?.isEmpty ?? true) {
-                                      return 'Please enter your mobile number';
-                                    }
-                                    if (value!.length != 10) {
-                                      return 'Please enter a valid 10-digit mobile number';
-                                    }
-                                    return null;
-                                  },
-                                ),
-
-                                const SizedBox(height: 20),
-
-                                // Password Field
-                                BlocBuilder<EvLoginBlocBloc, EvLoginBlocState>(
-                                  builder:
-                                      (
-                                        context,
-                                        state,
-                                      ) => _buildEnhancedTextField(
-                                        controller: _passwordController,
-                                        label: 'Password',
-                                        hint: 'Enter your password',
-                                        prefixIcon: Iconsax.lock,
-                                        isPassword: true,
-                                        obscureText: state.isPasswordHide,
-                                        suffixIcon: InkWell(
-                                          onTap: () {
-                                            HapticFeedback.lightImpact();
-                                            if (state.isPasswordHide) {
-                                              context
-                                                  .read<EvLoginBlocBloc>()
-                                                  .add(HidePassword());
-                                            } else {
-                                              context
-                                                  .read<EvLoginBlocBloc>()
-                                                  .add(ShowPassword());
-                                            }
-                                          },
-                                          child: Icon(
-                                            state.isPasswordHide
-                                                ? Iconsax.eye
-                                                : Iconsax.eye_slash,
-                                            color:
-                                                EvAppColors.kAppSecondaryColor,
-                                            size: 20,
-                                          ),
-                                        ),
-                                        validator: (value) {
-                                          if (value?.isEmpty ?? true) {
-                                            return 'Please enter your password';
-                                          }
-                                          if (value!.length < 6) {
-                                            return 'Password must be at least 6 characters';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                ),
-
-                                AppSpacer(heightPortion: .05),
-
-                                // Forgot Password
-                                // Align(
-                                //   alignment: Alignment.centerRight,
-                                //   child: TextButton(
-                                //     onPressed: () {
-                                //       HapticFeedback.lightImpact();
-                                //       // TODO: Implement forgot password
-                                //     },
-                                //     child: Text(
-                                //       'Forgot Password?',
-                                //       style: AppStyle.style(
-                                //         fontWeight: FontWeight.w600,
-                                //         context: context,
-                                //         color: AppColors.kAppSecondaryColor,
-                                //         size: AppDimensions.fontSize15(context),
-                                //       ),
-                                //     ),
-                                //   ),
-                                // ),
-
-                                // const Spacer(),
-
-                                // Login Button
-                                _buildEnhancedButton(
-                                  onTap: () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      HapticFeedback.mediumImpact();
-                                      context
-                                          .read<EvAppNavigationCubit>()
-                                          .handleBottomnavigation(0);
-
-                                      await context
-                                          .read<AppAuthController>()
-                                          .loginUser(
-                                            context,
-                                            _mobileNumberController.text,
-                                            _passwordController.text,
-                                          );
-                                    } else {
-                                      HapticFeedback.heavyImpact();
-                                    }
-                                  },
-                                  title: 'SIGN IN',
-                                  isEnabled: _isFormValid,
-                                ),
-
-                                const SizedBox(height: 20),
-
-                                // Additional Options
-                                // Row(
-                                //   mainAxisAlignment: MainAxisAlignment.center,
-                                //   children: [
-                                //     Text(
-                                //       'Need help? ',
-                                //       style: AppStyle.style(
-                                //         context: context,
-                                //         color: AppColors.black.withOpacity(0.6),
-                                //         size: AppDimensions.fontSize15(context),
-                                //       ),
-                                //     ),
-                                //     GestureDetector(
-                                //       onTap: () {
-                                //         HapticFeedback.lightImpact();
-                                //         // TODO: Implement support
-                                //       },
-                                //       child: Text(
-                                //         'Contact Support',
-                                //         style: AppStyle.style(
-                                //           context: context,
-                                //           color: AppColors.kAppSecondaryColor,
-                                //           fontWeight: FontWeight.w600,
-                                //           size: AppDimensions.fontSize15(context),
-                                //         ),
-                                //       ),
-                                //     ),
-                                //   ],
-                                // ),
-                              ],
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
+              Align(
+                alignment: Alignment.topLeft,
+                child: evCustomBackButton(context, color: EvAppColors.black),
+              ),
+            ],
           ),
         ),
       ),

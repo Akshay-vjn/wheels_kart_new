@@ -9,6 +9,7 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/widgets/whishlist_card.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
+import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 
 class VFavTab extends StatefulWidget {
   const VFavTab({super.key});
@@ -17,22 +18,31 @@ class VFavTab extends StatefulWidget {
 }
 
 class _VFavTabState extends State<VFavTab> {
+  late final VWishlistControllerCubit _wishlistCubit;
+
   @override
   void initState() {
-    context.read<VWishlistControllerCubit>().connectWebSocket();
-    context.read<VWishlistControllerCubit>().onFetchWishList(context);
-    _getMyId();
+    _wishlistCubit = context.read<VWishlistControllerCubit>();
+    _wishlistCubit.connectWebSocket();
+    _wishlistCubit.onFetchWishList(context);
+    // _getMyId();
 
     super.initState();
   }
 
-  String myId = "";
-  Future<void> _getMyId() async {
-    final userData = await context.read<AppAuthController>().getUserData;
-    myId = userData.userId ?? '';
-  }
+  // String myId = "";
+  // Future<void> _getMyId() async {
+  //   final userData = await context.read<AppAuthController>().getUserData;
+  //   myId = userData.userId ?? '';
+  // }
 
   List<VCarModel> likedList = [];
+  @override
+  void dispose() {
+    _wishlistCubit.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -63,7 +73,7 @@ class _VFavTabState extends State<VFavTab> {
 
                                 child: FadeInAnimation(
                                   child: VWhishlistCard(
-                                    myId: myId,
+                                    myId: CURRENT_DEALER_ID,
                                     onPressFavoureButton: () async {
                                       HapticFeedback.lightImpact();
                                       await context

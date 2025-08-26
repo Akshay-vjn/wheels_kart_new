@@ -875,7 +875,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
         InkWell(
           onTap: () {
-            Navigator.of(context).push(AppRoutes.createRoute(VMybidScreen()));
+            Navigator.of(context).push(AppRoutes.createRoute(VMyBidTab()));
           },
           child: RichText(
             text: TextSpan(

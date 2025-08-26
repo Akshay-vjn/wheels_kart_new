@@ -11,9 +11,11 @@ import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/Auction/auction_vehicle_card.dart';
+import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
 class VAuctionCarBuilder extends StatefulWidget {
-  const VAuctionCarBuilder({super.key});
+  VAuctionCarBuilder({super.key});
 
   @override
   State<VAuctionCarBuilder> createState() => _VAuctionCarBuilderState();
@@ -22,23 +24,38 @@ class VAuctionCarBuilder extends StatefulWidget {
 // List<bool> myLikes = [];
 
 class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
+  late final VAuctionControlllerBloc _auctionControllerBloc;
   @override
   void initState() {
+    // _getMyId();
     // WEB SOCKET COONECTION
-    context.read<VAuctionControlllerBloc>().add(ConnectWebSocket());
-    context.read<VAuctionControlllerBloc>().add(
-      OnFetchVendorAuctionApi(context: context),
-    );
-
-    _getMyId();
+    initScreen();
     super.initState();
   }
 
-  String myId = "";
-  Future<void> _getMyId() async {
-    final userData = await context.read<AppAuthController>().getUserData;
-    myId = userData.userId ?? '';
-    log("My Id :$myId");
+  @override
+  void dispose() {
+    _auctionControllerBloc.close();
+    super.dispose();
+  }
+
+  bool loadingId = true;
+  // String myId = "";
+  // Future<void> _getMyId() async {
+  //   final userData = await context.read<AppAuthController>().getUserData;
+  //   myId = userData.userId ?? '';
+  //   setState(() {
+  //     loadingId = false;
+  //   });
+  //   log("My Id :$myId");
+  // }
+
+  initScreen() async {
+    _auctionControllerBloc = context.read<VAuctionControlllerBloc>();
+    _auctionControllerBloc.add(ConnectWebSocket());
+    // FETCHING DATA
+    _auctionControllerBloc.add(OnFetchVendorAuctionApi(context: context));
+    // await _getMyId();
   }
 
   @override
@@ -87,7 +104,7 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                                             carList
                                                 .map(
                                                   (e) => VAuctionVehicleCard(
-                                                    myId: myId,
+                                                    myId: CURRENT_DEALER_ID,
                                                     vehicle: e,
                                                   ),
                                                 )

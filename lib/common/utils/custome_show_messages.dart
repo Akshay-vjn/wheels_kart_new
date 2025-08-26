@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
@@ -10,18 +11,21 @@ void showCustomLoadingDialog(BuildContext context) {
   showDialog(context: context, builder: (context) => EVAppLoadingIndicator());
 }
 
-showToastMessage(BuildContext context, String message, {bool? isError}) {
+showToastMessage(BuildContext context, String message, {bool? isError}) async {
+  final getUserType = await AppAuthController().getUserData;
   Fluttertoast.showToast(
     msg: message,
     toastLength: Toast.LENGTH_SHORT,
     gravity: ToastGravity.BOTTOM,
+
     timeInSecForIosWeb: 1,
+
     backgroundColor:
         (isError == null || isError == false)
-            ? EvAppColors.DEFAULT_BLUE_DARK
+            ? EvAppColors.kAppSecondaryColor
             : EvAppColors.kRed,
     textColor: EvAppColors.white,
-    fontSize: AppDimensions.fontSize15(context),
+    fontSize: AppDimensions.fontSize13(context),
   );
 }
 

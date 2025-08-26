@@ -9,6 +9,7 @@ import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/v_ocb_car_card.dart';
+import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 
 class VOCBCarBuilder extends StatefulWidget {
   const VOCBCarBuilder({super.key});
@@ -18,20 +19,29 @@ class VOCBCarBuilder extends StatefulWidget {
 }
 
 class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
+  late final VOcbControllerBloc _ocbControllerBloc;
   @override
   void initState() {
     // WEB SOCKET COONECTION
-    context.read<VOcbControllerBloc>().add(ConnectWebSocket());
-    context.read<VOcbControllerBloc>().add(OnFechOncList(context: context));
+    _ocbControllerBloc = context.read<VOcbControllerBloc>();
 
-    _getMyId();
+    _ocbControllerBloc.add(ConnectWebSocket());
+    _ocbControllerBloc.add(OnFechOncList(context: context));
+
+    // _getMyId();
     super.initState();
   }
 
-  String myId = "";
-  Future<void> _getMyId() async {
-    final userData = await context.read<AppAuthController>().getUserData;
-    myId = userData.userId ?? '';
+  // String myId = "";
+  // // Future<void> _getMyId() async {
+  // //   final userData = await context.read<AppAuthController>().getUserData;
+  // //   myId = userData.userId ?? '';
+  // // }
+
+  @override
+  void dispose() {
+    _ocbControllerBloc.close(); // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -80,7 +90,7 @@ class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
                                             carList
                                                 .map(
                                                   (e) => VOcbCarCard(
-                                                    myId: myId,
+                                                    myId: CURRENT_DEALER_ID,
                                                     vehicle: e,
                                                   ),
                                                 )

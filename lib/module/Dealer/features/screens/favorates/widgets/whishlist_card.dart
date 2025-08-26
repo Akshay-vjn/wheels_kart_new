@@ -650,7 +650,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
 
         InkWell(
           onTap: () {
-            Navigator.of(context).push(AppRoutes.createRoute(VMybidScreen()));
+            Navigator.of(context).push(AppRoutes.createRoute(VMyBidTab()));
           },
           child: RichText(
             text: TextSpan(
