@@ -45,117 +45,134 @@ class _VEditProfileScreenState extends State<VEditProfileScreen> {
           "Edit Profile",
           style: VStyle.style(
             context: context,
-            fontWeight: FontWeight.w800,
-            size: 25,
+            color: VColors.BLACK,
+            fontWeight: FontWeight.w700,
+            size: 20,
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: AppMargin(
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: VColors.SECONDARY.withOpacity(0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, 5),
+      body: Column(
+        children: [
+          SizedBox(
+            height: 1,
+            width: double.infinity,
+            child: Material(
+              elevation: 1,
+              shadowColor: VColors.BLACK.withAlpha(100),
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: AppMargin(
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: VColors.SECONDARY.withOpacity(0.08),
+                            blurRadius: 20,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusSize15 + 5,
+                        ),
+                        color: VColors.WHITE,
+                        border: Border.all(
+                          color: VColors.GREY.withOpacity(0.1),
+                        ),
+                      ),
+                      padding: EdgeInsets.all(20),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            _buildField(
+                              "Full Name",
+                              _nameController,
+                              SolarIconsOutline.user,
+                              "Enter your name",
+                              context,
+                              (p0) {
+                                return null;
+                              },
+                              isFirst: true,
+                            ),
+                            _buildField(
+                              "Location",
+                              _locationController,
+                              CupertinoIcons.location,
+                              "Enter your city",
+                              context,
+                              (p0) {
+                                return null;
+                              },
+                            ),
+                            _buildField(
+                              "Email Address",
+                              _emailController,
+                              CupertinoIcons.mail,
+                              "Enter your email",
+                              context,
+                              (p0) {
+                                if (p0!.isNotEmpty) {
+                                  return Validator.validateEmail(p0);
+                                }
+                                return null;
+                              },
+                              isLast: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    AppSpacer(heightPortion: .03),
+                    BlocBuilder<
+                      VProfileControllerCubit,
+                      VProfileControllerState
+                    >(
+                      builder: (context, state) {
+                        return VCustomButton(
+                          isLoading: state is VProfileControllerLoadingState,
+                          title: "UPDATE",
+
+                          onTap: () {
+                            bool isDisabled =
+                                _nameController.text.trim().isEmpty &&
+                                _nameController.text.trim().isEmpty &&
+                                _nameController.text.trim().isEmpty;
+
+                            if (_formKey.currentState!.validate()) {
+                              if (!isDisabled) {
+                                final model = widget.model;
+                                final name =
+                                    _nameController.text.trim().isEmpty
+                                        ? model.vendorName
+                                        : _nameController.text.trim();
+                                final city =
+                                    _locationController.text.trim().isEmpty
+                                        ? model.vendorCity
+                                        : _locationController.text.trim();
+                                final email =
+                                    _emailController.text.trim().isEmpty
+                                        ? model.vendorEmail
+                                        : _emailController.text.trim();
+                                context
+                                    .read<VProfileControllerCubit>()
+                                    .onEditProfile(context, name, email, city);
+                              }
+                            }
+                          },
+                        );
+                      },
                     ),
                   ],
-                  borderRadius: BorderRadius.circular(
-                    AppDimensions.radiusSize15 + 5,
-                  ),
-                  color: VColors.WHITE,
-                  border: Border.all(color: VColors.GREY.withOpacity(0.1)),
-                ),
-                padding: EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      _buildField(
-                        "Full Name",
-                        _nameController,
-                        SolarIconsOutline.user,
-                        "Enter your name",
-                        context,
-                        (p0) {
-                          return null;
-                        },
-                        isFirst: true,
-                      ),
-                      _buildField(
-                        "Location",
-                        _locationController,
-                        CupertinoIcons.location,
-                        "Enter your city",
-                        context,
-                        (p0) {
-                          return null;
-                        },
-                      ),
-                      _buildField(
-                        "Email Address",
-                        _emailController,
-                        CupertinoIcons.mail,
-                        "Enter your email",
-                        context,
-                        (p0) {
-                          if (p0!.isNotEmpty) {
-                            return Validator.validateEmail(p0);
-                          }
-                          return null;
-                        },
-                        isLast: true,
-                      ),
-                    ],
-                  ),
                 ),
               ),
-              AppSpacer(heightPortion: .03),
-              BlocBuilder<VProfileControllerCubit, VProfileControllerState>(
-                builder: (context, state) {
-                  return VCustomButton(
-                    isLoading: state is VProfileControllerLoadingState,
-                    title: "UPDATE",
-
-                    onTap: () {
-                      bool isDisabled =
-                          _nameController.text.trim().isEmpty &&
-                          _nameController.text.trim().isEmpty &&
-                          _nameController.text.trim().isEmpty;
-
-                      if (_formKey.currentState!.validate()) {
-                        if (!isDisabled) {
-                          final model = widget.model;
-                          final name =
-                              _nameController.text.trim().isEmpty
-                                  ? model.vendorName
-                                  : _nameController.text.trim();
-                          final city =
-                              _locationController.text.trim().isEmpty
-                                  ? model.vendorCity
-                                  : _locationController.text.trim();
-                          final email =
-                              _emailController.text.trim().isEmpty
-                                  ? model.vendorEmail
-                                  : _emailController.text.trim();
-                          context.read<VProfileControllerCubit>().onEditProfile(
-                            context,
-                            name,
-                            email,
-                            city,
-                          );
-                        }
-                      }
-                    },
-                  );
-                },
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

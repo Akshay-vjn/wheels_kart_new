@@ -17,4 +17,6 @@ class VApiConst {
   static const myOCB = "vendorlogin/ocbhistory";
 
   static const buyOCB = "vendorlogin/buynow";
+
+  static const deleteAccount="vendorlogin/deletevendor";
 }

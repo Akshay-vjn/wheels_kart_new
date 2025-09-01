@@ -29,7 +29,6 @@ class _DecisionScreenState extends State<DecisionScreen>
   late AnimationController _particleController;
 
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
 
   late Animation<double> _backgroundAnimation;
   late Animation<double> _particleAnimation;
@@ -77,15 +76,7 @@ class _DecisionScreenState extends State<DecisionScreen>
       ),
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _slideAnimationController,
-        curve: Curves.elasticOut,
-      ),
-    );
+   
 
     // Start animations
     _fadeAnimationController.forward();
@@ -182,82 +173,74 @@ class _DecisionScreenState extends State<DecisionScreen>
                                 decoration: BoxDecoration(),
                                 child: Hero(
                                   tag: "app_logo",
-                                  child: Image.asset(EvConstImages.logoWhitePng),
+                                  child: Image.asset(
+                                    EvConstImages.logoWhitePng,
+                                  ),
                                 ),
                               ),
                             ),
 
                             AppSpacer(heightPortion: .06),
 
-                            // Animated Welcome Text
-                            SlideTransition(
-                              position: _slideAnimation,
-                              child: FadeTransition(
-                                opacity: _fadeAnimation,
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'Welcome Back!',
-                                      textAlign: TextAlign.center,
-                                      style: EvAppStyle.poppins(
-                                        fontWeight: FontWeight.w600,
-                                        size: AppDimensions.fontSize24(context),
-                                        context: context,
-                                        color: EvAppColors.white,
-                                      ),
-                                    ),
-                                    // AppSpacer(heightPortion: .01),
-                                    Text(
-                                      'Choose your profile to continue',
-                                      textAlign: TextAlign.center,
-                                      style: EvAppStyle.poppins(
-                                        fontWeight: FontWeight.w400,
-                                        size: AppDimensions.fontSize16(context),
-                                        context: context,
-                                        color: EvAppColors.white.withAlpha(190)
-                                      ),
-                                    ),
-                                  ],
+                            Column(
+                              children: [
+                                Text(
+                                  'Welcome Back!',
+                                  textAlign: TextAlign.center,
+                                  style: EvAppStyle.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    size: AppDimensions.fontSize24(context),
+                                    context: context,
+                                    color: EvAppColors.white,
+                                  ),
                                 ),
-                              ),
+                                // AppSpacer(heightPortion: .01),
+                                Text(
+                                  'Choose your profile to continue',
+                                  textAlign: TextAlign.center,
+                                  style: EvAppStyle.poppins(
+                                    fontWeight: FontWeight.w400,
+                                    size: AppDimensions.fontSize16(context),
+                                    context: context,
+                                    color: EvAppColors.white.withAlpha(190),
+                                  ),
+                                ),
+                              ],
                             ),
 
                             AppSpacer(heightPortion: .1),
 
                             // Animated Decision Buttons
-                            SlideTransition(
-                              position: _slideAnimation,
-                              child: Column(
-                                children: [
-                                  _buildEnhancedDecisionButton(
-                                    context,
-                                    'Evaluator',
-                                    'Login as Wheels Kart Evaluator',
-                                    'Assess and evaluate vehicles',
-                                    EvConstImages.evaluatorImage,
-                                    Icons.assessment_outlined,
-                                    const Color(0xFF2E7D32),
-                                    () {
-                                      _navigateWithAnimation(EvLoginScreen());
-                                    },
-                                  ),
+                            Column(
+                              children: [
+                                _buildEnhancedDecisionButton(
+                                  context,
+                                  'Evaluator',
+                                  'Login as Wheels Kart Evaluator',
+                                  'Assess and evaluate vehicles',
+                                  EvConstImages.evaluatorImage,
+                                  Icons.assessment_outlined,
+                                  const Color(0xFF2E7D32),
+                                  () {
+                                    _navigateWithAnimation(EvLoginScreen());
+                                  },
+                                ),
 
-                                  AppSpacer(heightPortion: .03),
+                                AppSpacer(heightPortion: .03),
 
-                                  _buildEnhancedDecisionButton(
-                                    context,
-                                    'Dealer',
-                                    'Login as Dealer',
-                                    'Manage your vehicle inventory',
-                                    EvConstImages.vendorImage,
-                                    Icons.store_outlined,
-                                    const Color(0xFF1565C0),
-                                    () {
-                                      _navigateWithAnimation(VLoginScreen());
-                                    },
-                                  ),
-                                ],
-                              ),
+                                _buildEnhancedDecisionButton(
+                                  context,
+                                  'Dealer',
+                                  'Login as Dealer',
+                                  'Manage your vehicle inventory',
+                                  EvConstImages.vendorImage,
+                                  Icons.store_outlined,
+                                  const Color(0xFF1565C0),
+                                  () {
+                                    _navigateWithAnimation(VLoginScreen());
+                                  },
+                                ),
+                              ],
                             ),
 
                             AppSpacer(heightPortion: .05),

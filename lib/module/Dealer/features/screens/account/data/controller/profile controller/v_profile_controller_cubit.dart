@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/data/repo/v_delete_vendor_account.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/repo/v_edit_profile_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/repo/v_profile_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
+import 'package:wheels_kart/module/spash_screen.dart';
 
 part 'v_profile_controller_state.dart';
 
@@ -91,5 +94,22 @@ class VProfileControllerCubit extends Cubit<VProfileControllerState> {
         );
       }
     }
+  }
+
+  Future<void> onDeleteAccount(BuildContext context) async {
+    emit(VProfileControllerLoadingState());
+    final response = await VDeleteVendorAccount.deleteAccount(context);
+    if (response.isNotEmpty && response['error'] == false) {
+      context.read<AppAuthController>().clearPreferenceData(context);
+
+      Navigator.of(context).pushAndRemoveUntil(
+        AppRoutes.createRoute(SplashScreen()),
+        (route) => false,
+      );
+      log(response['message']);
+    } else {
+      log(response['message']);
+    }
+    emit(VProfileControllerInitialState());
   }
 }

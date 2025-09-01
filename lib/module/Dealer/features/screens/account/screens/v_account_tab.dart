@@ -13,6 +13,7 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/screens/settngs_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/terms_and_condition_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_edit_profile_screen.dart';
@@ -440,6 +441,18 @@ class _VAccountTabState extends State<VAccountTab>
           //   isFirst: true,
           // ),
           _buildSettingsItem(
+            "Settings",
+            "Manage your account",
+            SolarIconsOutline.settings,
+            context,
+            onTap: () {
+              Navigator.of(
+                context,
+              ).push(AppRoutes.createRoute(VSettngsScreen()));
+            },
+            isFirst: true,
+          ),
+          _buildSettingsItem(
             "Terms & Conditions",
             "Read our terms and policies",
             SolarIconsOutline.document,
@@ -449,16 +462,8 @@ class _VAccountTabState extends State<VAccountTab>
                 context,
               ).push(AppRoutes.createRoute(const VTermsAndConditionScreen()));
             },
+            isLast: true,
           ),
-
-          // _buildSettingsItem(
-          //   "Help & Support",
-          //   "Get help or contact support",
-          //   SolarIconsOutline.questionCircle,
-          //   context,
-          //   onTap: () {},
-          //   isLast: true,
-          // ),
         ],
       ),
     );
