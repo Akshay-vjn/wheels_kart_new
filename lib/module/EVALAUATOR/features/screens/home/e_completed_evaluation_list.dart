@@ -635,6 +635,10 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
                   ),
                   const SizedBox(height: 4),
                   Text(
+                    model.modelName,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                  Text(
                     'Inspection ID: ${model.evaluationId}',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),

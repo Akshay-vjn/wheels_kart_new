@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image/image.dart' as img;
+import 'package:wheels_kart/common/utils/responsive_helper.dart';
 
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
@@ -27,7 +29,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
+  ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
@@ -58,6 +60,16 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
     );
 
     _animationController.forward();
+
+    // _scrollControllerd.addListener(() {});
+  }
+
+  void _scrollToLast() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -228,6 +240,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
           child: SlideTransition(
             position: _slideAnimation,
             child: SingleChildScrollView(
+              controller: _scrollController,
               physics: const BouncingScrollPhysics(),
               child: Container(
                 margin: const EdgeInsets.all(16),
@@ -404,10 +417,15 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                 clipBehavior: Clip.none,
                 children: [
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      HapticFeedback.selectionClick();
                       context.read<UplaodVehilcePhotoCubit>().onSelectAngle(
                         e.value.angleId,
                       );
+
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _scrollToLast();
+                      });
                     },
                     borderRadius: BorderRadius.circular(25),
                     child: AnimatedContainer(

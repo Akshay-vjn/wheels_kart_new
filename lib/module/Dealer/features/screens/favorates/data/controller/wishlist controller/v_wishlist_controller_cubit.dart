@@ -39,21 +39,24 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
   }
 
   Future<void> onFetchWishList(BuildContext context) async {
-    emit(VWishlistControllerLoadingState());
-    final response = await VWhishlistRepo.onFetchWishList(context);
-    if (response.isNotEmpty) {
-      if (response['error'] == false) {
-        final list = response['data'] as List;
-        emit(
-          VWishlistControllerSuccessState(
-            myWishList: list.map((e) => VCarModel.fromJson(e)).toList(),
-          ),
-        );
+    try {
+      emit(VWishlistControllerLoadingState());
+      final response = await VWhishlistRepo.onFetchWishList(context);
+      if (response.isNotEmpty) {
+        if (response['error'] == false) {
+          final list = response['data'] as List;
+          emit(
+            VWishlistControllerSuccessState(
+              myWishList: list.map((e) => VCarModel.fromJson(e)).toList(),
+            ),
+          );
+        } else {
+          emit(VWishlistControllerErrorState(error: response['message']));
+        }
       } else {
         emit(VWishlistControllerErrorState(error: response['message']));
       }
-    } else {
-      emit(VWishlistControllerErrorState(error: response['message']));
+    } catch (e) {
     }
   }
 

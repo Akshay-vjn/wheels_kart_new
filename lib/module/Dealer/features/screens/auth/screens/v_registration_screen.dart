@@ -341,7 +341,8 @@ class _VRegistrationScreenState extends State<VRegistrationScreen>
                 isPassword: true,
                 prefixIcon: Icons.lock_outline,
                 validator: (value) {
-                  if(_passwordController.text != _confirmPasswordContoller.text){
+                  if (_passwordController.text !=
+                      _confirmPasswordContoller.text) {
                     return "Password does not match";
                   }
                   return Validator.validateRequired(value);
@@ -411,28 +412,28 @@ class _VRegistrationScreenState extends State<VRegistrationScreen>
                     isLoading: state is AuthLodingState,
                     onTap: () async {
                       if (_formKey.currentState!.validate()) {
-                        if (!_isTermsAccepted) {
-                          HapticFeedback.heavyImpact();
-                          vSnackBarMessage(
-                            context,
-                            "Accept Terms & Conditions to proceed",
-                            state: VSnackState.ERROR,
-                          );
-                        } else {
-                          HapticFeedback.mediumImpact();
-                          if (_formKey.currentState!.validate()) {
-                            await context
-                                .read<AppAuthController>()
-                                .registerVendor(
-                                  context,
-                                  _mobileNumberController.text.trim(),
-                                  _passwordController.text.trim(),
-                                  _confirmPasswordContoller.text.trim(),
-                                  _fullNameController.text.trim(),
-                                  _emailContller.text.trim(),
-                                  _cityController.text.trim(),
-                                );
-                          }
+                        // if (!_isTermsAccepted) {
+                        //   HapticFeedback.heavyImpact();
+                        //   vSnackBarMessage(
+                        //     context,
+                        //     "Accept Terms & Conditions to proceed",
+                        //     state: VSnackState.ERROR,
+                        //   );
+                        // } else {
+                        HapticFeedback.mediumImpact();
+                        if (_formKey.currentState!.validate()) {
+                          await context
+                              .read<AppAuthController>()
+                              .registerVendor(
+                                context,
+                                _mobileNumberController.text.trim(),
+                                _passwordController.text.trim(),
+                                _confirmPasswordContoller.text.trim(),
+                                _fullNameController.text.trim(),
+                                _emailContller.text.trim(),
+                                _cityController.text.trim(),
+                              );
+                          // }
                         }
                       } else {
                         HapticFeedback.lightImpact();

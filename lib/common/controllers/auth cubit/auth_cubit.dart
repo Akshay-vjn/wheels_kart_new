@@ -5,6 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wheels_kart/common/components/delete_account_success_screen.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_register_repo.dart';
@@ -145,8 +146,11 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     );
   }
 
-  // LOG OUT USER
-  Future<void> clearPreferenceData(context) async {
+  // LOG OUT USER{}
+  Future<void> clearPreferenceData(
+    context, {
+    bool navigateToDelete = false,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(mobileNumberKey);
     await prefs.remove(passwordKey);
@@ -159,11 +163,17 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     await prefs.remove(isDealerAcceptedTermsAndCondition);
 
     emit(AuthCubitUnAuthenticatedState());
-
-    Navigator.of(context).pushAndRemoveUntil(
-      AppRoutes.createRoute(const SplashScreen()),
-      (context) => false,
-    );
+    if (navigateToDelete) {
+      Navigator.of(context).pushAndRemoveUntil(
+        AppRoutes.createRoute(AccountDeletionSuccessScreen()),
+        (context) => false,
+      );
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        AppRoutes.createRoute(const SplashScreen()),
+        (context) => false,
+      );
+    }
   }
 
   // LOGIN EVALUATOR
@@ -266,7 +276,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     if (snapshot.isNotEmpty) {
       if (snapshot['error'] == false) {
         log(snapshot['data'].toString());
-    final currentUserData = await getUserData;
+        final currentUserData = await getUserData;
         final authmodel = AuthUserModel(
           mobileNumber: mobileNumber,
           password: password,
@@ -274,8 +284,8 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
           userName: name ?? "",
           userId: id ?? "",
           userType: "VENDOR",
-          isDealerAcceptedTermsAndCondition: currentUserData.isDealerAcceptedTermsAndCondition
-
+          isDealerAcceptedTermsAndCondition:
+              currentUserData.isDealerAcceptedTermsAndCondition,
         );
         await _setLoginPreference(authmodel);
         emit(

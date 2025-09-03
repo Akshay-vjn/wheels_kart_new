@@ -16,9 +16,15 @@ import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20
 
 class AuctionTile extends StatefulWidget {
   final VMyAuctionModel auction;
+  final String myId;
   final int index;
 
-  const AuctionTile({super.key, required this.auction, required this.index});
+  const AuctionTile({
+    super.key,
+    required this.auction,
+    required this.index,
+    required this.myId,
+  });
 
   @override
   State<AuctionTile> createState() => _AuctionTileState();
@@ -63,7 +69,7 @@ class _AuctionTileState extends State<AuctionTile>
 
     // Start animations
     _slideController.forward();
-    if (!_timeOut && !isSoldToMe) {
+    if (!_timeOut && !isSold) {
       _pulseController.repeat(reverse: true);
     }
 
@@ -115,7 +121,7 @@ class _AuctionTileState extends State<AuctionTile>
 
         // Start pulsing if time is running out (less than 5 minutes)
         if (difference.inMinutes < 5 &&
-            !isSoldToMe &&
+            !isSold &&
             !_pulseController.isAnimating) {
           _pulseController.repeat(reverse: true);
         }
@@ -127,9 +133,10 @@ class _AuctionTileState extends State<AuctionTile>
     }
   }
 
-  bool get isSoldToMe => widget.auction.bidStatus == "Sold";
+  bool get isSold => widget.auction.bidStatus == "Sold";
+  bool get isSoldToMe => isSold && widget.auction.soldTo == widget.myId;
   bool get isMeHighBidder =>
-      !isSoldToMe
+      !isSold
           ? widget.auction.bidAmount ==
               widget.auction.yourBids.first.amount.toString()
           : false;
@@ -140,9 +147,10 @@ class _AuctionTileState extends State<AuctionTile>
       widget.auction.bidClosingTime!.difference(DateTime.now()).inMinutes < 5;
 
   Color get _borderColor {
-    if (isSoldToMe) return VColors.GREENHARD;
+    if (isSold) return VColors.GREENHARD;
     if (isMeHighBidder) return VColors.SECONDARY;
     if (_urgentTime) return Colors.orange;
+    // if (isSold) return VColors.DARK_GREY;
     return VColors.ERROR;
   }
 
@@ -160,7 +168,7 @@ class _AuctionTileState extends State<AuctionTile>
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
                 child: Material(
-                  elevation: isSoldToMe ? 8 : 4,
+                  elevation: isSold ? 8 : 4,
                   shadowColor: _borderColor.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(16),
                   child: InkWell(
@@ -186,7 +194,12 @@ class _AuctionTileState extends State<AuctionTile>
                                 : null,
                       ),
                       child: Column(
-                        children: [_buildMainContent(), _buildStatusSection()],
+                        children: [
+                          // Text(widget.myId),
+                          // Text(widget.auction.soldTo.toString()),
+                          _buildMainContent(),
+                          _buildStatusSection(),
+                        ],
                       ),
                     ),
                   ),
@@ -261,7 +274,7 @@ class _AuctionTileState extends State<AuctionTile>
                   widget.auction.city,
                   widget.auction.evaluationId,
                 ),
-                if (!isSoldToMe && !_timeOut) ...[
+                if (!isSold && !_timeOut) ...[
                   const SizedBox(height: 8),
                   _buildQuickStats(),
                 ],
@@ -304,7 +317,7 @@ class _AuctionTileState extends State<AuctionTile>
   }
 
   Widget _buildStatusSection() {
-    if (isSoldToMe) {
+    if (isSold) {
       return _buildPurchaseAuctionView();
     } else {
       return _buildLiveActiveAuctionView();
@@ -535,12 +548,13 @@ class _AuctionTileState extends State<AuctionTile>
   }
 
   Widget _buildPurchaseAuctionView() {
+    Color color = isSoldToMe ? VColors.GREENHARD : VColors.DARK_GREY;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [VColors.GREENHARD, VColors.GREENHARD.withOpacity(0.8)],
+          colors: [color, color.withOpacity(0.8)],
         ),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(16),
@@ -548,7 +562,7 @@ class _AuctionTileState extends State<AuctionTile>
         ),
         boxShadow: [
           BoxShadow(
-            color: VColors.GREENHARD.withOpacity(0.3),
+            color: color.withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -563,10 +577,18 @@ class _AuctionTileState extends State<AuctionTile>
               children: [
                 Row(
                   children: [
-                    Icon(Icons.check_circle, color: VColors.WHITE, size: 20),
+                    Icon(
+                      isSoldToMe
+                          ? Icons.check_circle_outline
+                          : Icons.check_circle,
+                      color: VColors.WHITE,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Text(
-                      widget.auction.bidStatus ?? "SOLD",
+                      isSoldToMe
+                          ? "WINNER"
+                          : widget.auction.bidStatus ?? "SOLD",
                       style: VStyle.style(
                         context: context,
                         size: 16,

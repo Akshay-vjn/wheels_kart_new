@@ -5,7 +5,8 @@ import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/widgets/auction_tile.dart';
 
 class AuctionLosingTab extends StatelessWidget {
-  const AuctionLosingTab({super.key});
+  final String myId;
+  const AuctionLosingTab({super.key, required this.myId});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +18,10 @@ class AuctionLosingTab extends StatelessWidget {
               data
                   .where(
                     (element) =>
-                        element.bidStatus == "Open" &&
-                        element.bidAmount !=
-                            element.yourBids.first.amount.toString(),
+                        (element.bidStatus == "Open" &&
+                            element.bidAmount !=
+                                element.yourBids.first.amount.toString()) ||
+                        (element.bidStatus == "Sold" && element.soldTo != myId),
                   )
                   .toList();
 
@@ -33,6 +35,7 @@ class AuctionLosingTab extends StatelessWidget {
                           .entries
                           .map(
                             (auction) => AuctionTile(
+                              myId: myId,
                               auction: auction.value,
                               index: auction.key,
                             ),

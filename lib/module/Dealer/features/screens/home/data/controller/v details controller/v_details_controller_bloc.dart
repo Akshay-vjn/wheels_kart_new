@@ -53,10 +53,14 @@ class VDetailsControllerBloc
           _timer = Timer.periodic(Duration(seconds: 1), (_) {
             add(RunTimer());
           });
+          log(response['message']);
         } else {
+          log("---------------------------${response['message']}");
           emit(VDetailsControllerErrorState(error: response['message']));
         }
       } else {
+        log("---------------------------${response['message']}");
+        log("Empty response");
         emit(VDetailsControllerErrorState(error: "Empty response"));
       }
     });
@@ -81,27 +85,41 @@ class VDetailsControllerBloc
     });
 
     on<OnChangeImageTab>((event, emit) async {
-      final currentState = state;
-      if (currentState is VDetailsControllerSuccessState) {
-        List<Map<String, dynamic>> images = [];
-        if (event.imageTabIndex == 0) {
-          for (var image in currentState.detail.images) {
-            images.add({"image": image.url, "comment": image.name});
-          }
-        } else {
-          final section = currentState.detail.sections[event.imageTabIndex - 1];
-          for (var entry in section.entries) {
-            for (var image in entry.responseImages) {
-              images.add({"image": image, "comment": entry.options});
+      try {
+        final currentState = state;
+        if (currentState is VDetailsControllerSuccessState) {
+          List<Map<String, dynamic>> images = [];
+          if (event.imageTabIndex == 0) {
+            log(
+              "-->>>>>>>>>>>>>>>>> Index (${currentState.detail.images.length})",
+            );
+            for (var image in currentState.detail.images) {
+              images.add({"image": image.url, "comment": image.name});
+            }
+          } else {
+            log("-->>>>>>>>>>>>>>>>> OTHER INDEX 1");
+            final section =
+                currentState.detail.sections[event.imageTabIndex - 1];
+            for (var entry in section.entries) {
+              for (var image in entry.responseImages) {
+                images.add({"image": image, "comment": entry.options});
+              }
             }
           }
+          emit(
+            currentState.coptyWith(
+              currentImageTabIndex: event.imageTabIndex,
+              currentTabImages: images,
+            ),
+          );
+          log(
+            "-->>>>>>>>>>>>>>>>> ${event.imageTabIndex}---- ${images.length} <<<<<<<<<<<<<------_",
+          );
+        } else {
+          log("--ELSE---------- catched Error while changin tab");
         }
-        emit(
-          currentState.coptyWith(
-            currentImageTabIndex: event.imageTabIndex,
-            currentTabImages: images,
-          ),
-        );
+      } catch (e) {
+        log("------------- catched Error while changin tab ${e}");
       }
     });
 
@@ -128,6 +146,7 @@ class VDetailsControllerBloc
     on<RunTimer>((event, emit) {
       final currentState = state;
       if (currentState is VDetailsControllerSuccessState) {
+        log("Timer running in Success State ........");
         final closingTIme = currentState.detail.carDetails.bidClosingTime;
         final now = DateTime.now();
         if (closingTIme != null) {
@@ -147,6 +166,7 @@ class VDetailsControllerBloc
             emit(currentState.coptyWith(endTime: "$hour:$minStr:$secStr"));
           }
         } else {
+          log("Timer Cancledd  ........");
           _timer?.cancel();
           emit(currentState.coptyWith(endTime: "00:00:00"));
         }

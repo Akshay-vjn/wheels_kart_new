@@ -9,10 +9,14 @@ class OnFetchVendorAuctionApi extends VAuctionControlllerEvent {
   OnFetchVendorAuctionApi({required this.context});
 }
 
+class ConnectWebSocket extends VAuctionControlllerEvent {
+  final BuildContext context;
 
-class ConnectWebSocket extends VAuctionControlllerEvent {}
+  ConnectWebSocket({required this.context});
+}
 
 class UpdatePrice extends VAuctionControlllerEvent {
+  BuildContext context;
   final LiveBidModel newBid;
-  UpdatePrice({required this.newBid});
+  UpdatePrice({required this.newBid, required this.context});
 }

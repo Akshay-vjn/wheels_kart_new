@@ -34,4 +34,6 @@ class EvApiConst {
   static const String fetchCarModel = "makemodels";
   static const String fetchCarVarient = "variants";
   static const String fetchCity = "city";
+
+  static const String deleteAccount="login/deleteevaluator";
 }

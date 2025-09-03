@@ -93,11 +93,11 @@ showSnakBar(
       backgroundColor: isError! ? Colors.red : Colors.green,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      action: SnackBarAction(
-        label: 'DISMISS',
-        textColor: Colors.white,
-        onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-      ),
+      // action: SnackBarAction(
+      //   label: 'DISMISS',
+      //   textColor: Colors.white,
+      //   onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+      // ),
     ),
   );
   // });

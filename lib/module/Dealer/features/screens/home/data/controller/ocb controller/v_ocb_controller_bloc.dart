@@ -43,19 +43,37 @@ class VOcbControllerBloc
 
     on<ConnectWebSocket>(_connectWebSocket);
 
-    on<UpdatePrice>((event, emit) {
+    on<UpdatePrice>((event, emit) async {
       final cuuremtSate = state;
       List<VCarModel> updatedList = [];
 
       if (cuuremtSate is VOcbControllerSuccessState) {
         if (event.newBid.trigger != null && event.newBid.trigger == "ocb new") {
           log("--------New OCB Listed");
-          emit(
-            VOcbControllerSuccessState(
-              listOfCars: cuuremtSate.listOfCars,
-              enableRefreshButton: true,
-            ),
-          );
+
+          // emit(
+          //   VOcbControllerSuccessState(
+          //     listOfCars: cuuremtSate.listOfCars,
+          //     enableRefreshButton: true,
+          //   ),
+          // );
+
+          final response = await VFetchOcbListRepo.getOcbList(event.context);
+          if (response.isNotEmpty) {
+            if (response['error'] == false) {
+              final data = response['data'] as List;
+              final list = data.map((e) => VCarModel.fromJson(e)).toList();
+
+              emit(
+                VOcbControllerSuccessState(
+                  listOfCars: list,
+                  enableRefreshButton: false,
+                ),
+              );
+            } else {
+              emit(VOcbControllerErrorState(errorMesage: response['message']));
+            }
+          }
         } else {
           log("--------Auction Updated");
           for (var car in cuuremtSate.listOfCars) {
@@ -70,7 +88,7 @@ class VOcbControllerBloc
               car.currentBid = bid.currentBid;
               car.bidClosingTime = bid.bidClosingTime;
               car.vendorIds = reversed.map((e) => e.vendorId).toList();
-              updatedList.add(car);
+              updatedList.insert(0, car);
             } else {
               updatedList.add(car);
             }
@@ -89,21 +107,6 @@ class VOcbControllerBloc
     on<OnBuyOCB>(_onBuyOcb);
   }
 
-  // void _connectWebSocket(
-  //   ConnectWebSocket event,
-  //   Emitter<VOcbControllerState> emit,
-  // ) {
-  //   channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
-
-  //   _subscription = channel.stream.listen((data) {
-  //     log("triggered ----------------");
-  //     String decoded = utf8.decode(data);
-  //     final jsonData = jsonDecode(decoded);
-  //     log("Converted ----------------");
-
-  //     add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
-  //   });
-  // }
   Timer? _heartbeatTimer;
 
   void _connectWebSocket(
@@ -131,7 +134,12 @@ class VOcbControllerBloc
           final jsonData = jsonDecode(decoded);
           log("Converted ----------------");
 
-          add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
+          add(
+            UpdatePrice(
+              newBid: LiveBidModel.fromJson(jsonData),
+              context: event.context,
+            ),
+          );
         } catch (e) {
           log("Error decoding WebSocket data: $e");
         }
@@ -149,9 +157,9 @@ class VOcbControllerBloc
   }
 
   void _reconnect(ConnectWebSocket event) {
-     _subscription?.cancel();
+    _subscription?.cancel();
     Future.delayed(Duration(seconds: 3), () {
-      add(ConnectWebSocket());
+      add(ConnectWebSocket(context: event.context));
     });
   }
 

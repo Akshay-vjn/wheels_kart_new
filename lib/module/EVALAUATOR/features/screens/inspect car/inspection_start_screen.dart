@@ -486,34 +486,34 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
             const SizedBox(height: 20),
 
             _buildEnhancedStepCard(
-              title: "Inspection Report",
-              subtitle: "Complete evaluation checklist",
-              icon: CupertinoIcons.checkmark_seal_fill,
-              isCompleted: progressState.isVideosCompleted,
-              onTap: () => _navigateToReport(),
-              stepNumber: 1,
-            ),
-
-            const SizedBox(height: 16),
-            _buildEnhancedStepCard(
               title: "Vehicle Legals",
               subtitle: "Upload required vehilce legals",
               icon: CupertinoIcons.doc_fill,
               isCompleted: progressState.isLegalsCompleted,
               onTap: () => _navigateToDocuments(),
-              stepNumber: 2,
+              stepNumber: 1,
             ),
 
             const SizedBox(height: 16),
+
             _buildEnhancedStepCard(
               title: "Vehicle Photos",
               subtitle: "Capture all required angles",
               icon: CupertinoIcons.camera_fill,
               isCompleted: progressState.isPhotosCompleted,
               onTap: () => _navigateToPhotos(),
+              stepNumber: 2,
+            ),
+            const SizedBox(height: 16),
+
+            _buildEnhancedStepCard(
+              title: "Inspection Report",
+              subtitle: "Complete evaluation checklist",
+              icon: CupertinoIcons.checkmark_seal_fill,
+              isCompleted: progressState.isVideosCompleted,
+              onTap: () => _navigateToReport(),
               stepNumber: 3,
             ),
-
             const SizedBox(height: 16),
             _buildEnhancedStepCard(
               title: "Vehicle Videos",

@@ -77,7 +77,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
 
   void _scrollToIndex() {
     _scrollController.animateTo(
-      w(context),
+      _scrollController.position.maxScrollExtent,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );

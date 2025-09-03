@@ -114,6 +114,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   bool get _isNotStarted => widget.model.bidStatus == "Not Started";
 
   bool get _isColsed => (_endTime == "00:00:00") || _isSold;
+  bool get _isCancelled => widget.model.bidStatus == "Cancelled";
 
   bool get _soldToMe => widget.myId == widget.model.soldTo && _isSold;
   bool get _isHigestBidderIsMe =>
@@ -358,7 +359,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                 Text(
                   widget.model.auctionType == "OCB"
                       ? "OCB Pirce"
-                      : _isColsed
+                      : _isColsed||_isCancelled
                       ? "Closing Bid"
                       : "Current Bid",
                   style: VStyle.style(
@@ -371,7 +372,11 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                 AppSpacer(widthPortion: .01),
 
                 Text(
-                  _isColsed ? "(Closed)" : "(${_endTime})",
+                  _isCancelled
+                      ? ""
+                      : _isColsed
+                      ? "(Closed)"
+                      : "(${_endTime})",
                   style: VStyle.style(
                     color: _isColsed ? VColors.GREY : VColors.BLACK,
                     context: context,

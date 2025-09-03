@@ -21,7 +21,7 @@ class VNavScreen extends StatefulWidget {
   const VNavScreen({super.key});
   static List<Widget> tabs = [
     VHomeTab(),
-    BlocProvider(
+    BlocProvider<VWishlistControllerCubit>(
       create: (context) => VWishlistControllerCubit(),
       child: VFavTab(),
     ),
@@ -79,7 +79,13 @@ class _VNavScreenState extends State<VNavScreen> {
                 backgroundColor: VColors.WHITE,
                 selectedItemColor: VColors.SECONDARY,
                 unselectedItemColor: VColors.GREYHARD,
-                unselectedLabelStyle: VStyle.style(context: context),
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                unselectedLabelStyle: VStyle.style(
+                  context: context,
+                  color: VColors.SECONDARY,
+                  fontWeight: FontWeight.bold,
+                ),
                 selectedLabelStyle: VStyle.style(
                   context: context,
                   color: VColors.SECONDARY,

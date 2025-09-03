@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/cubit/documents_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/transaction%20history%20controller/transaction_history_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v_car_video_controller/v_carvideo_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
@@ -94,6 +96,12 @@ blocProviders(Widget child) => MultiBlocProvider(
     BlocProvider<MyOcbControllerBloc>(create: (_) => MyOcbControllerBloc()),
     BlocProvider<VCarvideoControllerCubit>(
       create: (_) => VCarvideoControllerCubit(),
+    ),
+    BlocProvider<TransactionHistoryControllerCubit>(
+      create: (_) => TransactionHistoryControllerCubit(),
+    ),
+    BlocProvider<DocumentsControllerCubit>(
+      create: (_) => DocumentsControllerCubit(),
     ),
   ],
   child: child,

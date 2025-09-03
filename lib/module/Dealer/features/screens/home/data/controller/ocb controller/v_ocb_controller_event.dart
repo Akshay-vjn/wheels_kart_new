@@ -9,11 +9,16 @@ class OnFechOncList extends VOcbControllerEvent {
   OnFechOncList({required this.context});
 }
 
-class ConnectWebSocket extends VOcbControllerEvent {}
+class ConnectWebSocket extends VOcbControllerEvent {
+  final BuildContext context;
+
+  ConnectWebSocket({required this.context});
+}
 
 class UpdatePrice extends VOcbControllerEvent {
   final LiveBidModel newBid;
-  UpdatePrice({required this.newBid});
+  final BuildContext context;
+  UpdatePrice( {required this.newBid,required  this.context});
 }
 
 class OnBuyOCB extends VOcbControllerEvent {

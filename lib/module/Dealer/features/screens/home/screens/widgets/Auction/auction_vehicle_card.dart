@@ -76,7 +76,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     _animationController.reverse();
     // log(widget.vehicle.soldTo.toString());
     // if ((!_isColsed || _isNotStarted) && !_isCancelled) {
-      onPressCard();
+    onPressCard();
     // }
   }
 
@@ -173,7 +173,6 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
   @override
   Widget build(BuildContext context) {
-
     return AppMargin(
       child: GestureDetector(
         onTapDown: _onTapDown,
@@ -225,21 +224,20 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                           child: Column(
                             children: [
                               _buildDetailsGrid(),
-                              
 
                               // if (_isOpened || _isSold) ...[
-                                AppSpacer(heightPortion: .01),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    _buildTimerViewChip(),
-                                    _buildBidPriceChip(),
-                                  ],
-                                ),
-                                AppSpacer(heightPortion: .01),
-                              // ],
+                              AppSpacer(heightPortion: .01),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _buildTimerViewChip(),
+                                  _buildBidPriceChip(),
+                                ],
+                              ),
+                              AppSpacer(heightPortion: .01),
 
+                              // ],
                               if (_isOpened && !_isColsed) ...[
                                 Column(
                                   children: [
@@ -481,14 +479,19 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     return Flexible(
       child: Row(
         children: [
-          Icon(
-            Icons.timelapse_sharp,
-            color: _isColsed ? VColors.GREY : VColors.BLACK,
-            size: 16,
-          ),
+          if (!_isCancelled)
+            Icon(
+              Icons.timelapse_sharp,
+              color: _isColsed ? VColors.GREY : VColors.BLACK,
+              size: 16,
+            ),
           AppSpacer(widthPortion: .01),
           Text(
-            _isColsed ? "Closed" : _endTime,
+            _isColsed
+                ? "Closed"
+                : _isCancelled
+                ? ""
+                : _endTime,
             style: VStyle.style(
               color: _isColsed ? VColors.GREY : VColors.BLACK,
               context: context,
@@ -508,7 +511,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            _isColsed ? "Closing bid" : "Current bid",
+            _isColsed || _isCancelled ? "Closing bid" : "Current bid",
             style: VStyle.style(
               color: _isColsed ? VColors.GREY : VColors.BLACK,
               context: context,

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_login_scr
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_login_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 
 class DecisionScreen extends StatefulWidget {
   const DecisionScreen({super.key});

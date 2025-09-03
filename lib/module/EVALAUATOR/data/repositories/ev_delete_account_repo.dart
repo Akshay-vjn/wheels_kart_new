@@ -5,21 +5,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_api_const.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
-import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 
-class VDeleteVendorAccount {
+class EvDeleteAccountRepo {
   static Future<Map<String, dynamic>> deleteAccount(
     BuildContext context,
   ) async {
     final state = context.read<AppAuthController>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
-        final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.deleteAccount}');
+        final url = Uri.parse(
+          '${EvApiConst.baseUrl}${EvApiConst.deleteAccount}',
+        );
 
         Response response = await http.post(
           url,
-          body: {"confirm":"Yes"},
+          body: {"confirm": "Yes"},
           headers: {
             // 'Content-Type': 'application/json',
             'Authorization': state.userModel.token!,
@@ -32,7 +34,6 @@ class VDeleteVendorAccount {
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
-            // 'data': decodedata['data'],
           };
         } else {
           return {
@@ -41,7 +42,7 @@ class VDeleteVendorAccount {
           };
         }
       } catch (e) {
-        log('repo - catch error - Dealer - Delete Account => ${e.toString()}F');
+        log('repo - catch error - Delete account => ${e.toString()}   ');
         return {};
       }
     } else {

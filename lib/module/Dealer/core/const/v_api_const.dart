@@ -18,5 +18,9 @@ class VApiConst {
 
   static const buyOCB = "vendorlogin/buynow";
 
-  static const deleteAccount="vendorlogin/deletevendor";
+  static const deleteAccount = "vendorlogin/deletevendor";
+
+  static const transactionHistory = "";
+
+  static const recievedDocuments = "";
 }

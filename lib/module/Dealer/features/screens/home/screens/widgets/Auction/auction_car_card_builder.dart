@@ -52,7 +52,7 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
 
   initScreen() async {
     _auctionControllerBloc = context.read<VAuctionControlllerBloc>();
-    _auctionControllerBloc.add(ConnectWebSocket());
+    _auctionControllerBloc.add(ConnectWebSocket(context: context));
     // FETCHING DATA
     _auctionControllerBloc.add(OnFetchVendorAuctionApi(context: context));
     // await _getMyId();

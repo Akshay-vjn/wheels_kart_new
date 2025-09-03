@@ -12,6 +12,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/account/data/repo/v_d
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/repo/v_edit_profile_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/repo/v_profile_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
+import 'package:wheels_kart/module/decision_screen.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
 
 part 'v_profile_controller_state.dart';
@@ -99,12 +100,11 @@ class VProfileControllerCubit extends Cubit<VProfileControllerState> {
   Future<void> onDeleteAccount(BuildContext context) async {
     emit(VProfileControllerLoadingState());
     final response = await VDeleteVendorAccount.deleteAccount(context);
+    log(response.toString());
     if (response.isNotEmpty && response['error'] == false) {
-      context.read<AppAuthController>().clearPreferenceData(context);
-
-      Navigator.of(context).pushAndRemoveUntil(
-        AppRoutes.createRoute(SplashScreen()),
-        (route) => false,
+      context.read<AppAuthController>().clearPreferenceData(
+        context,
+        navigateToDelete: true,
       );
       log(response['message']);
     } else {

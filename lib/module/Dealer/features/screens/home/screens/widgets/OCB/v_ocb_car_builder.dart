@@ -25,7 +25,7 @@ class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
     // WEB SOCKET COONECTION
     _ocbControllerBloc = context.read<VOcbControllerBloc>();
 
-    _ocbControllerBloc.add(ConnectWebSocket());
+    _ocbControllerBloc.add(ConnectWebSocket(context: context));
     _ocbControllerBloc.add(OnFechOncList(context: context));
 
     // _getMyId();

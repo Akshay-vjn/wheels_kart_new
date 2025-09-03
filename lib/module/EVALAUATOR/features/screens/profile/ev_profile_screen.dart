@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/profile/settings_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
@@ -112,24 +113,26 @@ class _EvProfileScreenState extends State<EvProfileScreen>
                       // // Support Section
                       // _buildSectionTitle("Support"),
                       // const AppSpacer(heightPortion: .01),
-                      // _buildMenuSection([
-                      //   _buildProfileTile(
-                      //     "Help & Support",
-                      //     SolarIconsBold.questionCircle,
-                      //     () => _showHelpDialog(),
-                      //     backgroundColor: Colors.purple[50],
-                      //     iconColor: Colors.purple[600],
-                      //   ),
-                      //   _buildProfileTile(
-                      //     "About",
-                      //     SolarIconsBold.infoCircle,
-                      //     () => _showAboutDialog(),
-                      //     backgroundColor: Colors.indigo[50],
-                      //     iconColor: Colors.indigo[600],
-                      //   ),
-                      // ]),
+                      _buildMenuSection([
+                        _buildProfileTile(
+                          "Settings",
+                          SolarIconsBold.settings,
+                          () => Navigator.of(
+                            context,
+                          ).push(AppRoutes.createRoute(EvSettingsScreen())),
+                          backgroundColor: Colors.purple[50],
+                          iconColor: Colors.purple[600],
+                        ),
+                        // _buildProfileTile(
+                        //   "About",
+                        //   SolarIconsBold.infoCircle,
+                        //   () => _showAboutDialog(),
+                        //   backgroundColor: Colors.indigo[50],
+                        //   iconColor: Colors.indigo[600],
+                        // ),
+                      ]),
 
-                      // const AppSpacer(heightPortion: .04),
+                      const AppSpacer(heightPortion: .04),
 
                       // Logout Button
                       _buildLogoutButton(),

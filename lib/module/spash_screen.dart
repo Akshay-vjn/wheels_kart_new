@@ -14,7 +14,6 @@ import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/decision_screen.dart';
 
-import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 
@@ -166,6 +165,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+
     return BlocListener<AppAuthController, AppAuthControllerState>(
       listener: (context, state) async {
         switch (state) {
@@ -179,7 +179,7 @@ class _SplashScreenState extends State<SplashScreen>
                 );
               } else {
                 final getUserPref = await AppAuthController().getUserData;
-                if (getUserPref.isDealerAcceptedTermsAndCondition == true) { 
+                if (getUserPref.isDealerAcceptedTermsAndCondition == true) {
                   Navigator.of(context).pushAndRemoveUntil(
                     AppRoutes.createRoute(VNavScreen()),
                     (context) => false,
@@ -190,7 +190,6 @@ class _SplashScreenState extends State<SplashScreen>
                     (context) => false,
                   );
                 }
-             
               }
             }
           case AuthCubitUnAuthenticatedState():
@@ -322,8 +321,6 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
 
-                        // App name and tagline
-                        // if (showText)
                         AnimatedBuilder(
                           animation: _textController,
                           builder: (context, child) {
@@ -333,24 +330,6 @@ class _SplashScreenState extends State<SplashScreen>
                                 opacity: _textOpacityAnimation,
                                 child: Column(
                                   children: [
-                                    // Text(
-                                    //   'WheelsKart',
-                                    //   style: TextStyle(
-                                    //     fontSize: 32,
-                                    //     fontWeight: FontWeight.bold,
-                                    //     color: Colors.white,
-                                    //     letterSpacing: 2,
-                                    //     shadows: [
-                                    //       Shadow(
-                                    //         offset: const Offset(0, 2),
-                                    //         blurRadius: 4,
-                                    //         color: Colors.black.withOpacity(
-                                    //           0.5,
-                                    //         ),
-                                    //       ),
-                                    //     ],
-                                    //   ),
-                                    // ),
                                     const SizedBox(height: 50),
                                     Text(
                                       'Your Trusted Vehicle Partner',

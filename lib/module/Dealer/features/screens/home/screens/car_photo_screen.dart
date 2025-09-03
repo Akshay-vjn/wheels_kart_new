@@ -1,4 +1,3 @@
-
 import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -63,8 +62,14 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
                 _imageViewSection(state),
               ],
             );
+          } else if (state is VDetailsControllerErrorState) {
+            return Text("Error : ${state.error}");
+          } else if (state is VDetailsControllerLoadingState) {
+            return Text(state.toString());
+          } else if (state is VDetailsControllerInitialState) {
+            return Text(state.toString());
           } else {
-            return SizedBox.shrink();
+            return Text("Elese");
           }
         },
       ),

@@ -42,19 +42,36 @@ class VAuctionControlllerBloc
 
     on<ConnectWebSocket>(_connectWebSocket);
 
-    on<UpdatePrice>((event, emit) {
+    on<UpdatePrice>((event, emit) async {
       final cuuremtSate = state;
       List<VCarModel> updatedList = [];
 
       if (cuuremtSate is VAuctionControllerSuccessState) {
         if (event.newBid.trigger != null && event.newBid.trigger == "new") {
           log("--------New Auction Listed");
-          emit(
-            VAuctionControllerSuccessState(
-              listOfCars: cuuremtSate.listOfCars,
-              enableRefreshButton: true,
-            ),
+
+          final response = await VDashboardRepo.getDashboardDataF(
+            event.context,
           );
+
+          if (response.isNotEmpty && response['error'] == false) {
+            final data = response['data'] as List;
+            final list = data.map((e) => VCarModel.fromJson(e)).toList();
+
+            emit(
+              VAuctionControllerSuccessState(
+                listOfCars: list,
+                enableRefreshButton: false,
+              ),
+            );
+          } else {
+            emit(
+              VAuctionControllerSuccessState(
+                listOfCars: cuuremtSate.listOfCars,
+                enableRefreshButton: true,
+              ),
+            );
+          }
         } else {
           log("--------Auction Updated");
           for (var car in cuuremtSate.listOfCars) {
@@ -69,7 +86,7 @@ class VAuctionControlllerBloc
               car.bidClosingTime = bid.bidClosingTime;
               car.vendorIds = reversed.map((e) => e.vendorId).toList();
 
-              updatedList.add(car);
+              updatedList.insert(0, car);
             } else {
               updatedList.add(car);
             }
@@ -129,7 +146,12 @@ class VAuctionControlllerBloc
           final jsonData = jsonDecode(decoded);
           log("Converted ----------------");
 
-          add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
+          add(
+            UpdatePrice(
+              newBid: LiveBidModel.fromJson(jsonData),
+              context: event.context,
+            ),
+          );
         } catch (e) {
           log("Error decoding WebSocket data: $e");
         }
@@ -149,7 +171,7 @@ class VAuctionControlllerBloc
   void _reconnect(ConnectWebSocket event) {
     _subscription?.cancel();
     Future.delayed(Duration(seconds: 3), () {
-      add(ConnectWebSocket());
+      add(ConnectWebSocket(context: event.context));
     });
   }
 

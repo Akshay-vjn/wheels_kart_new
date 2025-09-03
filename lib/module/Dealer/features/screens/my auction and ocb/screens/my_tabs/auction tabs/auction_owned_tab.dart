@@ -5,7 +5,9 @@ import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/widgets/auction_tile.dart';
 
 class AuctionOwnedTab extends StatelessWidget {
-  const AuctionOwnedTab({super.key});
+  final String myId;
+
+  const AuctionOwnedTab({super.key, required this.myId});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,12 @@ class AuctionOwnedTab extends StatelessWidget {
         if (state is VMyAuctionControllerSuccessState) {
           final data = state.listOfMyAuctions;
           final list =
-              data.where((element) => element.bidStatus == "Sold").toList();
+              data
+                  .where(
+                    (element) =>
+                        element.bidStatus == "Sold" && element.soldTo == myId,
+                  )
+                  .toList();
 
           return list.isEmpty
               ? Center(child: AppEmptyText(text: "No Auctions found!"))
@@ -26,6 +33,7 @@ class AuctionOwnedTab extends StatelessWidget {
                           .entries
                           .map(
                             (auction) => AuctionTile(
+                              myId: myId,
                               auction: auction.value,
                               index: auction.key,
                             ),

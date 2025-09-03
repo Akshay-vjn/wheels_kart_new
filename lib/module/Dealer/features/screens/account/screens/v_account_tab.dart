@@ -13,8 +13,10 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/screens/documetnts_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/settngs_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/terms_and_condition_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/screens/transaction_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_edit_profile_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
@@ -362,6 +364,51 @@ class _VAccountTabState extends State<VAccountTab>
                   },
                 ),
               ),
+
+              AppSpacer(widthPortion: .04),
+              Expanded(
+                child: _buildActionCard(
+                  "Transactions",
+                  Icons.payments,
+                  context,
+                  onTap: () {
+                    Navigator.of(
+                      context,
+                    ).push(AppRoutes.createRoute(VTransactionScreen()));
+                  },
+                ),
+              ),
+              // const SizedBox(width: 12),
+              // Expanded(
+              //   child: _buildActionCard(
+              //     "Change Password",
+              //     SolarIconsOutline.lock,
+              //     context,
+              //     onTap: () {
+              //       // Navigate to change password
+              //     },
+              //   ),
+              // ),
+            ],
+          ),
+          AppSpacer(heightPortion: .02),
+          Row(
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  "Documents",
+                  SolarIconsOutline.documents,
+                  context,
+                  onTap: () {
+                    Navigator.of(
+                      context,
+                    ).push(AppRoutes.createRoute(VDocumentsScreen()));
+                  },
+                ),
+              ),
+
+              // AppSpacer(widthPortion: .04),
+
               // const SizedBox(width: 12),
               // Expanded(
               //   child: _buildActionCard(
@@ -652,9 +699,9 @@ class _VAccountTabState extends State<VAccountTab>
         _showLogoutDialog(context);
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: VColors.ERROR,
+        backgroundColor: VColors.ERROR.withAlpha(150),
         minimumSize: Size(w(context), 50),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
       icon: const Icon(
         CupertinoIcons.square_arrow_right,
@@ -662,7 +709,7 @@ class _VAccountTabState extends State<VAccountTab>
         weight: 10,
       ),
       label: Text(
-        "Log Out",
+        "Logout",
         style: VStyle.style(
           context: context,
 

@@ -161,9 +161,9 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
                         child: TabBarView(
                           controller: auctionTaContoller,
                           children: [
-                            AuctionWinningTab(),
-                            AuctionLosingTab(),
-                            AuctionOwnedTab(),
+                            AuctionWinningTab(myId: widget.myId),
+                            AuctionLosingTab(myId: widget.myId),
+                            AuctionOwnedTab(myId: widget.myId),
                           ],
                         ),
                       ),
