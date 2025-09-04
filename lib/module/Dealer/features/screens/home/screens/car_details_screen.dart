@@ -18,6 +18,7 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v_car_video_controller/v_carvideo_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
@@ -276,8 +277,17 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                           context,
                                                         ).push(
                                                           AppRoutes.createRoute(
-                                                            VCarPhotoScreen(
-                                                              carDetail: detail,
+                                                            BlocProvider.value(
+                                                              value:
+                                                                  context
+                                                                      .read<
+                                                                        VDetailsControllerBloc
+                                                                      >(),
+                                                              child:
+                                                                  VCarPhotoScreen(
+                                                                    carDetail:
+                                                                        detail,
+                                                                  ),
                                                             ),
                                                           ),
                                                         );
@@ -380,7 +390,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                       "₹${state.detail.carDetails.currentBid}",
                                       style: VStyle.style(
                                         context: context,
-                                        color: VColors.GREENHARD,
+                                        color: Color.fromARGB(255, 255, 152, 7),
                                         fontWeight: FontWeight.w900,
                                         size: 27,
                                       ),
@@ -393,7 +403,12 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                     if (!isOCB)
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: VColors.GREENHARD,
+                                          backgroundColor: Color.fromARGB(
+                                            255,
+                                            255,
+                                            152,
+                                            7,
+                                          ),
                                         ),
                                         onPressed: () async {
                                           final currentState =
@@ -406,25 +421,16 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                               is VDetailsControllerSuccessState) {
                                             final details =
                                                 currentState.detail.carDetails;
-                                            await VDetailsControllerBloc.showDiologueForBidWhatsapp(
+                                            await VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                                              from: "DETAILS",
                                               context: context,
-                                              currentBid:
-                                                  details.currentBid ?? '',
-                                              evaluationId:
-                                                  details.evaluationId,
-                                              image: widget.frontImage,
-                                              kmDrive: details.kmsDriven,
-                                              manufactureYear:
-                                                  details.yearOfManufacture,
-                                              model: details.model,
-                                              noOfOwners: details.noOfOwners,
-                                              regNumber:
-                                                  details.registrationNumber,
+
+                                              inspectionId: widget.inspectionId,
                                             );
                                           }
                                         },
                                         label: Text(
-                                          "Bid Now",
+                                          "UPDATE BID",
                                           style: VStyle.style(
                                             context: context,
                                             color: VColors.WHITE,
@@ -432,16 +438,17 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        icon: Icon(
-                                          SolarIconsBold.chatRound,
-                                          color: VColors.WHITE,
-                                        ),
                                       ),
 
                                     if (isOCB)
                                       ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: VColors.GREENHARD,
+                                          backgroundColor: Color.fromARGB(
+                                            255,
+                                            255,
+                                            152,
+                                            7,
+                                          ),
                                         ),
                                         onPressed: () async {
                                           final currentState =
@@ -470,10 +477,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        icon: Icon(
-                                          SolarIconsBold.chatRound,
-                                          color: VColors.WHITE,
-                                        ),
+                                       
                                       ),
                                     Text(
                                       state.endTime,
@@ -512,7 +516,10 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                       );
                       Navigator.of(context).push(
                         AppRoutes.createRoute(
-                          VCarPhotoScreen(carDetail: state.detail),
+                          BlocProvider.value(
+                            value: context.read<VDetailsControllerBloc>(),
+                            child: VCarPhotoScreen(carDetail: state.detail),
+                          ),
                         ),
                       );
                     },
@@ -1074,6 +1081,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                               AppSpacer(widthPortion: .02),
                               Text(
                                 e.value.type,
+
                                 style: VStyle.style(
                                   context: context,
                                   size: 15,

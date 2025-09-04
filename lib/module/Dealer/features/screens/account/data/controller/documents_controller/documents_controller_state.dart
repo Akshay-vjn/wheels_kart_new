@@ -14,5 +14,7 @@ final class DocumentsControllErrorState extends DocumentsControllerState {
 }
 
 final class DocumentsControllerSuccessState extends DocumentsControllerState {
-  List<VReceivedDocumentsModel> get documets => [];
+  final List<CollectedDocumetsModel> documets;
+
+  DocumentsControllerSuccessState({required this.documets});
 }

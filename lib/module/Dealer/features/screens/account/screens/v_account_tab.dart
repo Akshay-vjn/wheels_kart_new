@@ -13,10 +13,10 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/profile%20controller/v_profile_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/model/v_profile_model.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/account/screens/documetnts_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/screens/colledted_documetnts_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/settngs_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/terms_and_condition_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/account/screens/transaction_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/screens/payent_history.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/screens/v_edit_profile_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
@@ -368,13 +368,13 @@ class _VAccountTabState extends State<VAccountTab>
               AppSpacer(widthPortion: .04),
               Expanded(
                 child: _buildActionCard(
-                  "Transactions",
+                  "Payments",
                   Icons.payments,
                   context,
                   onTap: () {
                     Navigator.of(
                       context,
-                    ).push(AppRoutes.createRoute(VTransactionScreen()));
+                    ).push(AppRoutes.createRoute(VPaymentHistoryScreen()));
                   },
                 ),
               ),
@@ -396,13 +396,13 @@ class _VAccountTabState extends State<VAccountTab>
             children: [
               Expanded(
                 child: _buildActionCard(
-                  "Documents",
+                  "Collected Documents",
                   SolarIconsOutline.documents,
                   context,
                   onTap: () {
                     Navigator.of(
                       context,
-                    ).push(AppRoutes.createRoute(VDocumentsScreen()));
+                    ).push(AppRoutes.createRoute(VCollectedDocumentsScreen()));
                   },
                 ),
               ),

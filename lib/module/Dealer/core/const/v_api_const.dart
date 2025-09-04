@@ -17,10 +17,11 @@ class VApiConst {
   static const myOCB = "vendorlogin/ocbhistory";
 
   static const buyOCB = "vendorlogin/buynow";
+  static const updateAuciton = "vendorlogin/bid";
 
   static const deleteAccount = "vendorlogin/deletevendor";
 
-  static const transactionHistory = "";
+  static const transactionHistory = "vendorlogin/payments";
 
-  static const recievedDocuments = "";
+  static const recievedDocuments = "vendorlogin/collecteddocuments";
 }

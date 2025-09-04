@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +26,13 @@ class VCarPhotoScreen extends StatefulWidget {
 }
 
 class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: VColors.WHITEBGCOLOR,
-
+    
       appBar: AppBar(
         backgroundColor: VColors.WHITE,
         surfaceTintColor: VColors.WHITE,
@@ -43,19 +47,26 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
           ),
         ),
       ),
-      body: BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
+      body: BlocConsumer<VDetailsControllerBloc, VDetailsControllerState>(
+        listener: (context, state) {
+          log("------------ TRIGGER THE STATE FOR JUST TEST==> $state");
+        },
         builder: (context, state) {
           if (state is VDetailsControllerSuccessState) {
             return Column(
               children: [
-                _tabSection(state),
-
+                _tabSection(state ),
+    
                 Container(
                   height: 1,
                   width: w(context),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [VColors.WHITE, VColors.DARK_GREY, VColors.WHITE],
+                      colors: [
+                        VColors.WHITE,
+                        VColors.DARK_GREY,
+                        VColors.WHITE,
+                      ],
                     ),
                   ),
                 ),

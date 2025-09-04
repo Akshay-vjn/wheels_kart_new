@@ -9,9 +9,11 @@ import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
@@ -556,16 +558,10 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () {
-              VDetailsControllerBloc.showDiologueForBidWhatsapp(
+              VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                from: "AUCTION",
                 context: context,
-                currentBid: widget.vehicle.currentBid ?? "",
-                evaluationId: widget.vehicle.evaluationId,
-                image: widget.vehicle.frontImage,
-                kmDrive: widget.vehicle.kmsDriven,
-                manufactureYear: widget.vehicle.manufacturingYear,
-                model: widget.vehicle.modelName,
-                noOfOwners: '',
-                regNumber: widget.vehicle.regNo,
+                inspectionId: widget.vehicle.inspectionId,
               );
             },
             child: Container(
@@ -638,16 +634,11 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                 backgroundColor: VColors.SECONDARY,
               ),
               onPressed: () {
-                VDetailsControllerBloc.showDiologueForBidWhatsapp(
+                VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                  from: "AUCTION",
                   context: context,
-                  currentBid: widget.vehicle.currentBid ?? "",
-                  evaluationId: widget.vehicle.evaluationId,
-                  image: widget.vehicle.frontImage,
-                  kmDrive: widget.vehicle.kmsDriven,
-                  manufactureYear: widget.vehicle.manufacturingYear,
-                  model: widget.vehicle.modelName,
-                  noOfOwners: '',
-                  regNumber: widget.vehicle.regNo,
+
+                  inspectionId: widget.vehicle.inspectionId,
                 );
               },
               child: Row(
@@ -878,7 +869,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
         InkWell(
           onTap: () {
-            Navigator.of(context).push(AppRoutes.createRoute(VMyBidTab()));
+            context.read<VNavControllerCubit>().onChangeNav(2);
           },
           child: RichText(
             text: TextSpan(

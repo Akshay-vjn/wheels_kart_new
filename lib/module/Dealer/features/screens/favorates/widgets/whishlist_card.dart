@@ -9,6 +9,7 @@ import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
@@ -655,7 +656,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
 
         InkWell(
           onTap: () {
-            Navigator.of(context).push(AppRoutes.createRoute(VMyBidTab()));
+            context.read<VNavControllerCubit>().onChangeNav(2);
           },
           child: RichText(
             text: TextSpan(

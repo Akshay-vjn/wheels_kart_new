@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:solar_icons/solar_icons.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';

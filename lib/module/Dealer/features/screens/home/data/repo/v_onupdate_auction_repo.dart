@@ -8,21 +8,22 @@ import 'package:http/http.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 
-class VGetTransactionHistoryRepo {
-  static Future<Map<String, dynamic>> onGetTransactionHistory(
+class VOnupdateAuctionRepo {
+  static Future<Map<String, dynamic>> onUpdateAuction(
     BuildContext context,
+    String id,
+    String price,
   ) async {
     final state = context.read<AppAuthController>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
-        final url = Uri.parse(
-          '${VApiConst.baseUrl}${VApiConst.transactionHistory}',
-        );
+        final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.updateAuciton}');
 
         Response response = await http.post(
           url,
+          body: {"inspectionId": id, "currentBid": price},
           headers: {
-            'Content-Type': 'application/json',
+            // 'Content-Type': 'application/json',
             'Authorization': state.userModel.token!,
           },
         );
@@ -42,7 +43,7 @@ class VGetTransactionHistoryRepo {
           };
         }
       } catch (e) {
-        log('repo - catch error - Transaction History => ${e.toString()}F');
+        log('repo - catch error - updating aution => ${e.toString()}F');
         return {};
       }
     } else {
