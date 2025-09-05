@@ -36,6 +36,7 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
   }
 
   void onAdd200() {
+    HapticFeedback.selectionClick();
     int currentPrice = 0;
     if (_formField.text.isNotEmpty) {
       currentPrice = int.parse(_formField.text);
@@ -119,191 +120,198 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
   }
 
   Widget _buildWidget(String price) {
-    return Container(
-      // margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        color: VColors.WHITE,
-        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Update Bid",
-                style: VStyle.style(
-                  context: context,
-                  fontWeight: FontWeight.bold,
-                  size: 20,
-                ),
-              ),
-
-              AppSpacer(heightPortion: .02),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: SizedBox(
-                      // height: 50,
-                      child: TextFormField(
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Please enter a bid amount";
-                          }
-
-                          final parsed = int.tryParse(value.trim());
-                          if (parsed == null) {
-                            return "Please enter a valid number";
-                          }
-
-                          if (parsed < 2000) {
-                            return "Minimum bid amount should be 2000";
-                          }
-
-                          return null; // valid
-                        },
-                        inputFormatters: [
-                          FilteringTextInputFormatter
-                              .digitsOnly, // only numbers
-                        ],
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          if (value.isNotEmpty) {
-                            onChanged(int.parse(value));
-                          }
-                        },
-                        cursorColor: VColors.BLACK,
-                        controller: _formField,
-                        style: VStyle.style(
-                          context: context,
-                          size: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 10,
-                          ),
-
-                          // border: OutlineInputBorder(
-                          //   borderRadius: BorderRadius.circular(10),
-                          // ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
+      child: Container(
+        // margin: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(30),topRight: Radius.circular(30)),
+          color: VColors.WHITE,
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Update Bid",
+                  style: VStyle.style(
+                    context: context,
+                    fontWeight: FontWeight.bold,
+                    size: 20,
                   ),
-                  Flexible(
-                    flex: 1,
-                    child: SizedBox(
-                      height: 50,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: Color.fromARGB(255, 255, 152, 7),
-                          ),
+                ),
 
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(10),
-                          ),
-                        ),
-                        onPressed: onAdd200,
-                        child: Text(
-                          "+ 2000",
+                AppSpacer(heightPortion: .02),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      child: SizedBox(
+                        // height: 50,
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Please enter a bid amount";
+                            }
+
+                            final parsed = int.tryParse(value.trim());
+                            if (parsed == null) {
+                              return "Please enter a valid number";
+                            }
+
+                            if (parsed < 2000) {
+                              return "Minimum bid amount should be 2000";
+                            }
+
+                            return null; // valid
+                          },
+                          inputFormatters: [
+                            FilteringTextInputFormatter
+                                .digitsOnly, // only numbers
+                          ],
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              onChanged(int.parse(value));
+                            }
+                          },
+                          cursorColor: VColors.BLACK,
+                          controller: _formField,
                           style: VStyle.style(
                             context: context,
-                            size: 15,
-                            color: Color.fromARGB(255, 255, 152, 7),
+                            size: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 10,
+                            ),
+
+                            // border: OutlineInputBorder(
+                            //   borderRadius: BorderRadius.circular(10),
+                            // ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              AppSpacer(heightPortion: .01),
-              Row(
-                children: [
-                  Text(
-                    "Your Price : ${price}",
-                    style: VStyle.style(
-                      context: context,
-                      size: 15,
-                      color: VColors.DARK_GREY,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    " + ${_formField.text}",
-                    style: VStyle.style(
-                      context: context,
+                    Flexible(
+                      flex: 1,
+                      child: SizedBox(
+                        height: 50,
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: Color.fromARGB(255, 255, 152, 7),
+                            ),
 
-                      size: 15,
-                      color: VColors.SECONDARY,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-              AppSpacer(heightPortion: .02),
-              BlocBuilder<
-                VAuctionUpdateControllerCubit,
-                VAuctionUpdateControllerState
-              >(
-                builder: (context, state) {
-                  if (state is VAuctionUpdateLoadingState) {
-                    return Align(child: VLoadingIndicator());
-                  }
-                  return InkWell(
-                    onTap: () async {
-                      if (_formKey.currentState!.validate()) {
-                        await onUpdate();
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 24,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: const Color.fromARGB(255, 255, 152, 7),
-                      ),
-                      child: Text(
-                        "UPDATE",
-                        style: VStyle.style(
-                          context: context,
-                          size: 20,
-                          fontWeight: FontWeight.bold,
-                          color: VColors.WHITE,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusGeometry.circular(10),
+                            ),
+                          ),
+                          onPressed: onAdd200,
+                          child: Text(
+                            "+ 2000",
+                            style: VStyle.style(
+                              context: context,
+                              size: 15,
+                              color: Color.fromARGB(255, 255, 152, 7),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-            ],
+                  ],
+                ),
+                AppSpacer(heightPortion: .01),
+                Row(
+                  children: [
+                    Text(
+                      "Your Price : ${price}",
+                      style: VStyle.style(
+                        context: context,
+                        size: 15,
+                        color: VColors.DARK_GREY,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      " + ${_formField.text}",
+                      style: VStyle.style(
+                        context: context,
+
+                        size: 15,
+                        color: VColors.SECONDARY,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                AppSpacer(heightPortion: .02),
+                BlocBuilder<
+                  VAuctionUpdateControllerCubit,
+                  VAuctionUpdateControllerState
+                >(
+                  builder: (context, state) {
+                    if (state is VAuctionUpdateLoadingState) {
+                      return Align(child: VLoadingIndicator());
+                    }
+                    return InkWell(
+                      onTap: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await onUpdate();
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: const Color.fromARGB(255, 255, 152, 7),
+                        ),
+                        child: Text(
+                          "UPDATE",
+                          style: VStyle.style(
+                            context: context,
+                            size: 20,
+                            fontWeight: FontWeight.bold,
+                            color: VColors.WHITE,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -311,6 +319,7 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
   }
 
   Future<void> onUpdate() async {
+    HapticFeedback.mediumImpact();
     await context.read<VAuctionUpdateControllerCubit>().oUpdateAuction(
       context,
       widget.inspectionId,

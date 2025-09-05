@@ -66,14 +66,9 @@ class VAuctionUpdateControllerCubit
         builder:
             (ctc) => BlocProvider.value(
               value: context.read<VAuctionControlllerBloc>(),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: PlaceBidBottomSheet(
-                  inspectionId: inspectionId,
-                  from: from,
-                ),
+              child: PlaceBidBottomSheet(
+                inspectionId: inspectionId,
+                from: from,
               ),
             ),
       );
@@ -86,14 +81,9 @@ class VAuctionUpdateControllerCubit
         builder:
             (ctc) => BlocProvider.value(
               value: context.read<VDetailsControllerBloc>(),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: PlaceBidBottomSheet(
-                  inspectionId: inspectionId,
-                  from: from,
-                ),
+              child: PlaceBidBottomSheet(
+                inspectionId: inspectionId,
+                from: from,
               ),
             ),
       );
@@ -106,14 +96,9 @@ class VAuctionUpdateControllerCubit
         builder:
             (ctc) => BlocProvider.value(
               value: context.read<VMyAuctionControllerBloc>(),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: PlaceBidBottomSheet(
-                  inspectionId: inspectionId,
-                  from: from,
-                ),
+              child: PlaceBidBottomSheet(
+                inspectionId: inspectionId,
+                from: from,
               ),
             ),
       );
