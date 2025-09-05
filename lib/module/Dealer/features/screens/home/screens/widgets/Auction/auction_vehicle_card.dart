@@ -240,7 +240,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                               AppSpacer(heightPortion: .01),
 
                               // ],
-                              // if (_isOpened && !_isColsed) ...[
+                              if (_isOpened && !_isColsed) ...[
                                 Column(
                                   children: [
                                     Row(
@@ -253,7 +253,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                     ),
                                   ],
                                 ),
-                              // ],
+                              ],
 
                               // _buildOpenBidSection(),
                               if (_isSold) ...[
