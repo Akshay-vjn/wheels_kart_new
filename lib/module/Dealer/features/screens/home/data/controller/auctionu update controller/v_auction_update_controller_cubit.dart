@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_onupdate_auction_repo.dart';
@@ -81,6 +82,21 @@ class VAuctionUpdateControllerCubit
         builder:
             (ctc) => BlocProvider.value(
               value: context.read<VDetailsControllerBloc>(),
+              child: PlaceBidBottomSheet(
+                inspectionId: inspectionId,
+                from: from,
+              ),
+            ),
+      );
+    } else if (from == "WISHLIST") {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        barrierColor: Colors.black.withOpacity(0.5),
+        builder:
+            (ctc) => BlocProvider.value(
+              value: context.read<VWishlistControllerCubit>(),
               child: PlaceBidBottomSheet(
                 inspectionId: inspectionId,
                 from: from,

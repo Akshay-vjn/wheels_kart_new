@@ -477,7 +477,6 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                       
                                       ),
                                     Text(
                                       state.endTime,
@@ -1048,10 +1047,10 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                   .map(
                     (e) => Flexible(
                       child: InkWell(
-                        onTap: () {
-                          context
+                        onTap: () async {
+                          await context
                               .read<VCarvideoControllerCubit>()
-                              .onSelectVideo(e.value, e.key);
+                              .initializePlayer(e.value, e.key);
                           Navigator.of(context).push(
                             AppRoutes.createRoute(
                               CarVideoScreen(carVideos: carVideos),

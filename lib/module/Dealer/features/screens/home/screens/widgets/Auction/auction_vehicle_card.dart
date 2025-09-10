@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -175,6 +176,9 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
   @override
   Widget build(BuildContext context) {
+    // log("Have the bidders -> $_haveTheBidders");
+    // log("last Id -> ${widget.vehicle.vendorIds.last}");
+    // log("My Id : ${widget.myId}");
     return AppMargin(
       child: GestureDetector(
         onTapDown: _onTapDown,

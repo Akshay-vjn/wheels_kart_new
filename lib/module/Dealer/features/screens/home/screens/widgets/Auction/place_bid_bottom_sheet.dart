@@ -6,6 +6,7 @@ import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
@@ -114,6 +115,23 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
           }
         },
       );
+    } else if (widget.from == "WISHLIST") {
+      return BlocBuilder<VWishlistControllerCubit, VWishlistControllerState>(
+        builder: (context, state) {
+          if (state is VWishlistControllerSuccessState) {
+            return _buildWidget(
+              state.myWishList
+                  .firstWhere(
+                    (element) => element.inspectionId == widget.inspectionId,
+                  )
+                  .currentBid
+                  .toString(),
+            );
+          } else {
+            return SizedBox();
+          }
+        },
+      );
     } else {
       return SizedBox();
     }
@@ -129,7 +147,10 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
       child: Container(
         // margin: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(30),topRight: Radius.circular(30)),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
           color: VColors.WHITE,
           border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
         ),

@@ -1,6 +1,6 @@
 class VApiConst {
   static const String baseUrl = 'https://wheelskart.in/api/';
-  static const String socket = "ws://82.112.238.223:8080";
+  static const String socket = "ws://82.112.238.223:3050";
 
   static const vendorLogin = "vendorlogin";
   static const vendorRegister = "vendorlogin/register";

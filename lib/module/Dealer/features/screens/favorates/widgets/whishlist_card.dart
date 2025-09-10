@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VWhishlistCard extends StatefulWidget {
@@ -107,6 +107,12 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     }
   }
 
+  List<String> get _bidders => widget.model.vendorIds;
+
+  bool get _isIamInThisBid =>
+      _haveTheBidders
+          ? _bidders.any((element) => element == widget.myId)
+          : false;
   bool get _haveTheBidders => widget.model.vendorIds.isNotEmpty;
 
   bool get _isSold => widget.model.bidStatus == "Sold";
@@ -120,16 +126,44 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   bool get _soldToMe => widget.myId == widget.model.soldTo && _isSold;
   bool get _isHigestBidderIsMe =>
       _haveTheBidders ? widget.model.vendorIds.last == widget.myId : false;
+
   // bool get _enableViewButton => _soldToMe || _isOpened || _isNotStarted;
   bool get _enableViewButton => true;
   @override
   Widget build(BuildContext context) {
+    // log("Have the bidders -> $_haveTheBidders");
+    // log("last Id -> ${widget.model.vendorIds.last}");
+    //    log("first Id -> ${widget.model.vendorIds.first}");
+    // log("My Id : ${widget.myId}");
+
+    // log(widget.model.vendorIds.map((e) => e.toString()).toList().toString());
+
     return AnimatedBuilder(
       animation: _scaleAnimation,
       builder: (context, child) {
         return Transform.scale(
           scale: _scaleAnimation.value,
           child: GestureDetector(
+            onTap: () async {
+              if (_enableViewButton) {
+                final isLiked = await Navigator.of(context).push(
+                  AppRoutes.createRoute(
+                    VCarDetailsScreen(
+                      auctionType: widget.model.auctionType,
+                      hideBidPrice: widget.model.bidStatus != "Open",
+                      frontImage: widget.model.frontImage,
+                      inspectionId: widget.model.inspectionId,
+                      isLiked: widget.model.wishlisted == 1 ? true : false,
+                    ),
+                  ),
+                );
+                if (isLiked == false) {
+                  context.read<VWishlistControllerCubit>().onFetchWishList(
+                    context,
+                  );
+                }
+              }
+            },
             onTapDown: _onTapDown,
             onTapUp: _onTapUp,
             onTapCancel: _onTapCancel,
@@ -360,7 +394,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                 Text(
                   widget.model.auctionType == "OCB"
                       ? "OCB Pirce"
-                      : _isColsed||_isCancelled
+                      : _isColsed || _isCancelled
                       ? "Closing Bid"
                       : "Current Bid",
                   style: VStyle.style(
@@ -406,77 +440,16 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   Widget _buildActionButtons() {
     return Row(
       children: [
-        // View Details button
-        Expanded(
-          child:
-              _soldToMe
-                  ? DottedBorder(
-                    options: RoundedRectDottedBorderOptions(
-                      color: _soldToMe ? VColors.SUCCESS : VColors.GREY,
-                      radius: Radius.circular(10),
-                    ),
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.all(5),
-                      width: double.infinity,
-                      color: Colors.white,
-                      child: Text(
-                        _soldToMe
-                            ? "You won this auction"
-                            : "Auction closed – Item sold",
-                        style: VStyle.style(
-                          color: _soldToMe ? VColors.SUCCESS : null,
-                          context: context,
-                          fontWeight: FontWeight.bold,
-                          size: 15,
-                        ),
-                      ),
-                    ),
-                  )
-                  : OutlinedButton.icon(
-                    onPressed:
-                    // _isColsed
-                    //     ? null
-                    //     :
-                    () async {
-                      if (_enableViewButton) {
-                        final isLiked = await Navigator.of(context).push(
-                          AppRoutes.createRoute(
-                            VCarDetailsScreen(
-                              auctionType: widget.model.auctionType,
-                              hideBidPrice: widget.model.bidStatus != "Open",
-                              frontImage: widget.model.frontImage,
-                              inspectionId: widget.model.inspectionId,
-                              isLiked:
-                                  widget.model.wishlisted == 1 ? true : false,
-                            ),
-                          ),
-                        );
-                        if (isLiked == false) {
-                          context
-                              .read<VWishlistControllerCubit>()
-                              .onFetchWishList(context);
-                        }
-                      }
-                    },
-                    icon: const Icon(Icons.visibility_rounded, size: 16),
-                    label: const Text("View Details"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor:
-                          !_enableViewButton ? VColors.GREY : VColors.GREENHARD,
-                      side: BorderSide(
-                        color:
-                            !_enableViewButton
-                                ? VColors.GREY
-                                : VColors.GREENHARD.withOpacity(0.3),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                    ),
-                  ),
-        ),
+        if (_isOpened && !_isColsed) ...[
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [_buildHighAndLowBid(), _buildWhatsAppButton()],
+            ),
+          ),
+        ] else ...[
+          Expanded(child: SizedBox()),
+        ],
         const SizedBox(width: 12),
         _buildEnhancedFavoriteButton(widget.model.inspectionId),
 
@@ -719,5 +692,130 @@ class _VWhishlistCardState extends State<VWhishlistCard>
       default:
         return 'Not Specified';
     }
+  }
+
+  Widget _buildHighAndLowBid() {
+    Color color;
+    String titleText;
+    String subtitleText;
+
+    if (_isHigestBidderIsMe) {
+      color = VColors.SUCCESS;
+      titleText = "WINNING";
+      subtitleText = "";
+    } else {
+      color = VColors.ERROR;
+      titleText = "LOSING";
+      subtitleText = "Increase Bid";
+    }
+
+    return !_isIamInThisBid
+        ? SizedBox.shrink()
+        : Flexible(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                from: "WISHLIST",
+                context: context,
+                inspectionId: widget.model.inspectionId,
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              // height: 60,
+              // margin: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: color,
+                border: Border.all(color: color.withOpacity(0.6), width: 0.6),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withAlpha(21),
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        titleText,
+                        style: VStyle.style(
+                          context: context,
+                          color: VColors.WHITE,
+                          fontWeight: FontWeight.w900,
+                          size: 18,
+                        ),
+                      ),
+                      if (subtitleText.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitleText,
+                          style: VStyle.style(
+                            context: context,
+                            color: VColors.WHITE,
+                            fontWeight: FontWeight.w400,
+                            size: 12,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+  }
+
+  Widget _buildWhatsAppButton() {
+    return _isIamInThisBid
+        ? SizedBox.shrink()
+        : Flexible(
+          child: SizedBox(
+            // margin: EdgeInsets.symmetric(horizontal: 5),
+            height: 50,
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadiusGeometry.circular(10),
+                ),
+                backgroundColor: VColors.SECONDARY,
+              ),
+              onPressed: () {
+                VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                  from: "WISHLIST",
+                  context: context,
+
+                  inspectionId: widget.model.inspectionId,
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Bid your price",
+                    style: VStyle.style(
+                      context: context,
+                      color: VColors.WHITE,
+                      size: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  AppSpacer(widthPortion: .03),
+                  Icon(SolarIconsBold.chatRound, color: VColors.WHITE),
+                ],
+              ),
+            ),
+          ),
+        );
   }
 }
