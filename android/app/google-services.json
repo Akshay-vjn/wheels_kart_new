@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "210848571083",
+    "project_id": "wheels-kart-4e8c8",
+    "storage_bucket": "wheels-kart-4e8c8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210848571083:android:607dd59a87d86d5864454e",
+        "android_client_info": {
+          "package_name": "com.crisant.wheelskart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOSghc_HarpeBfC0mCjyGr6vy0J2r0nj4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
