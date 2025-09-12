@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -678,147 +679,153 @@ class _EvCreateInspectionScreenState extends State<EvCreateInspectionScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
+        return SafeArea(
+          top: false,
+          bottom: Platform.isAndroid,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Success Animation
-                TweenAnimationBuilder(
-                  duration: const Duration(milliseconds: 1200),
-                  tween: Tween<double>(begin: 0.0, end: 1.0),
-                  curve: Curves.elasticOut,
-                  builder: (context, value, child) {
-                    return Transform.scale(
-                      scale: value,
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.check_circle,
-                          size: 60,
-                          color: EvAppColors.DEFAULT_BLUE_DARK,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 24),
-
-                Text(
-                  'Vehicle Registered Successfully!',
-                  textAlign: TextAlign.center,
-                  style: EvAppStyle.style(
-                    context: context,
-                    size: AppDimensions.fontSize18(context),
-                    fontWeight: FontWeight.bold,
-                    color: EvAppColors.DEFAULT_BLUE_DARK,
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                Text(
-                  'Would you like to start the inspection now or schedule it for later?',
-                  textAlign: TextAlign.center,
-                  style: EvAppStyle.style(
-                    context: context,
-                    size: AppDimensions.fontSize15(context),
-                    color: EvAppColors.grey,
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Action Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                          showSnakBar(
-                            context,
-                            "Vehicle registered. You can complete inspection from dashboard.",
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: BorderSide(
-                            color: EvAppColors.DEFAULT_BLUE_DARK,
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'Later',
-                          style: EvAppStyle.style(
-                            context: context,
-                            color: EvAppColors.DEFAULT_BLUE_DARK,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _handleInspectNow(inspectionModel),
-                        icon: const Icon(
-                          Icons.search,
-                          color: Colors.white,
-                          size: 20,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Success Animation
+                  TweenAnimationBuilder(
+                    duration: const Duration(milliseconds: 1200),
+                    tween: Tween<double>(begin: 0.0, end: 1.0),
+                    curve: Curves.elasticOut,
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: EvAppColors.DEFAULT_BLUE_DARK.withOpacity(
+                              0.1,
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.check_circle,
+                            size: 60,
+                            color: EvAppColors.DEFAULT_BLUE_DARK,
+                          ),
                         ),
-                        label: Text(
-                          'Inspect Now',
-                          style: EvAppStyle.style(
-                            context: context,
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  Text(
+                    'Vehicle Registered Successfully!',
+                    textAlign: TextAlign.center,
+                    style: EvAppStyle.style(
+                      context: context,
+                      size: AppDimensions.fontSize18(context),
+                      fontWeight: FontWeight.bold,
+                      color: EvAppColors.DEFAULT_BLUE_DARK,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Text(
+                    'Would you like to start the inspection now or schedule it for later?',
+                    textAlign: TextAlign.center,
+                    style: EvAppStyle.style(
+                      context: context,
+                      size: AppDimensions.fontSize15(context),
+                      color: EvAppColors.grey,
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                            showSnakBar(
+                              context,
+                              "Vehicle registered. You can complete inspection from dashboard.",
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(
+                              color: EvAppColors.DEFAULT_BLUE_DARK,
+                              width: 1.5,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Later',
+                            style: EvAppStyle.style(
+                              context: context,
+                              color: EvAppColors.DEFAULT_BLUE_DARK,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _handleInspectNow(inspectionModel),
+                          icon: const Icon(
+                            Icons.search,
                             color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                            size: 20,
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: EvAppColors.DEFAULT_BLUE_DARK,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          label: Text(
+                            'Inspect Now',
+                            style: EvAppStyle.style(
+                              context: context,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                          elevation: 2,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: EvAppColors.DEFAULT_BLUE_DARK,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
 
-                const SizedBox(height: 16),
-              ],
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
         );

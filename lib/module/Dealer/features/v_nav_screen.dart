@@ -42,89 +42,94 @@ class _VNavScreenState extends State<VNavScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: VColors.WHITEBGCOLOR,
-      body: BlocConsumer<VProfileControllerCubit, VProfileControllerState>(
-        listener: (context, state) {
-          if (state is VProfileControllerSuccessState) {
-            CURRENT_DEALER_ID = state.profileModel.vendorId;
-          }
-        },
-        builder: (context, state) {
-          if (state is VProfileControllerSuccessState) {
-            return BlocBuilder<VNavControllerCubit, VNavControllerState>(
-              builder: (context, state) => VNavScreen.tabs[state.currentIndex],
-            );
-          }
+    return SafeArea(
+      top: false,
+      bottom: Platform.isAndroid,
+      child: Scaffold(
+        backgroundColor: VColors.WHITEBGCOLOR,
+        body: BlocConsumer<VProfileControllerCubit, VProfileControllerState>(
+          listener: (context, state) {
+            if (state is VProfileControllerSuccessState) {
+              CURRENT_DEALER_ID = state.profileModel.vendorId;
+            }
+          },
+          builder: (context, state) {
+            if (state is VProfileControllerSuccessState) {
+              return BlocBuilder<VNavControllerCubit, VNavControllerState>(
+                builder:
+                    (context, state) => VNavScreen.tabs[state.currentIndex],
+              );
+            }
 
-          return Center(child: EVAppLoadingIndicator());
-        },
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: VColors.WHITE,
-          boxShadow: [
-            BoxShadow(
-              color: VColors.BLACK.withAlpha(50),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+            return Center(child: EVAppLoadingIndicator());
+          },
         ),
-        height: Platform.isAndroid ? h(context) * .09 : null,
-        width: w(context),
-        child: BlocBuilder<VNavControllerCubit, VNavControllerState>(
-          builder:
-              (context, state) => BottomNavigationBar(
-                backgroundColor: VColors.WHITE,
-                selectedItemColor: VColors.SECONDARY,
-                unselectedItemColor: VColors.GREYHARD,
-                showSelectedLabels: true,
-                showUnselectedLabels: true,
-                unselectedLabelStyle: VStyle.style(
-                  context: context,
-                  color: VColors.SECONDARY,
-                  fontWeight: FontWeight.bold,
-                ),
-                selectedLabelStyle: VStyle.style(
-                  context: context,
-                  color: VColors.SECONDARY,
-                  fontWeight: FontWeight.bold,
-                ),
-                currentIndex: state.currentIndex,
-                onTap: (value) {
-                  context.read<VNavControllerCubit>().onChangeNav(value);
-                },
-                items: [
-                  BottomNavigationBarItem(
-                    label: "Cars",
-                    activeIcon: Icon(CupertinoIcons.wand_stars),
-                    icon: Icon(CupertinoIcons.wand_stars_inverse),
-                  ),
-                  BottomNavigationBarItem(
-                    label: "For You",
-
-                    activeIcon: Icon(CupertinoIcons.heart_fill),
-                    icon: Icon(CupertinoIcons.heart),
-                  ),
-                  BottomNavigationBarItem(
-                    label: "History",
-
-                    activeIcon: Icon(CupertinoIcons.square_list_fill),
-                    icon: Icon(CupertinoIcons.list_bullet),
-                  ),
-                  // BottomNavigationBarItem(
-                  //   label: "My Order",
-                  //   activeIcon: Icon(CupertinoIcons.list_dash),
-                  //   icon: Icon(CupertinoIcons.list_bullet),
-                  // ),
-                  BottomNavigationBarItem(
-                    label: "Account",
-                    activeIcon: Icon(CupertinoIcons.person_fill),
-                    icon: Icon(CupertinoIcons.person),
-                  ),
-                ],
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: VColors.WHITE,
+            boxShadow: [
+              BoxShadow(
+                color: VColors.BLACK.withAlpha(50),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
+            ],
+          ),
+          height: Platform.isAndroid ? h(context) * .09 : null,
+          width: w(context),
+          child: BlocBuilder<VNavControllerCubit, VNavControllerState>(
+            builder:
+                (context, state) => BottomNavigationBar(
+                  backgroundColor: VColors.WHITE,
+                  selectedItemColor: VColors.SECONDARY,
+                  unselectedItemColor: VColors.GREYHARD,
+                  showSelectedLabels: true,
+                  showUnselectedLabels: true,
+                  unselectedLabelStyle: VStyle.style(
+                    context: context,
+                    color: VColors.SECONDARY,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  selectedLabelStyle: VStyle.style(
+                    context: context,
+                    color: VColors.SECONDARY,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  currentIndex: state.currentIndex,
+                  onTap: (value) {
+                    context.read<VNavControllerCubit>().onChangeNav(value);
+                  },
+                  items: [
+                    BottomNavigationBarItem(
+                      label: "Cars",
+                      activeIcon: Icon(CupertinoIcons.wand_stars),
+                      icon: Icon(CupertinoIcons.wand_stars_inverse),
+                    ),
+                    BottomNavigationBarItem(
+                      label: "For You",
+
+                      activeIcon: Icon(CupertinoIcons.heart_fill),
+                      icon: Icon(CupertinoIcons.heart),
+                    ),
+                    BottomNavigationBarItem(
+                      label: "History",
+
+                      activeIcon: Icon(CupertinoIcons.square_list_fill),
+                      icon: Icon(CupertinoIcons.list_bullet),
+                    ),
+                    // BottomNavigationBarItem(
+                    //   label: "My Order",
+                    //   activeIcon: Icon(CupertinoIcons.list_dash),
+                    //   icon: Icon(CupertinoIcons.list_bullet),
+                    // ),
+                    BottomNavigationBarItem(
+                      label: "Account",
+                      activeIcon: Icon(CupertinoIcons.person_fill),
+                      icon: Icon(CupertinoIcons.person),
+                    ),
+                  ],
+                ),
+          ),
         ),
       ),
     );

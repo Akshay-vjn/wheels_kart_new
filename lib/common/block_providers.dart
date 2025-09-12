@@ -4,6 +4,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/account/data/controll
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/payment%20history%20controller/payment_history_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20purchase%20controller/ocb_purchace_controlle_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v_car_video_controller/v_carvideo_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/ocb%20controller/my_ocb_controller_bloc.dart';
@@ -106,6 +107,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     ),
     BlocProvider<VAuctionUpdateControllerCubit>(
       create: (_) => VAuctionUpdateControllerCubit(),
+    ),
+    BlocProvider<OcbPurchaceControlleCubit>(
+      create: (_) => OcbPurchaceControlleCubit(),
     ),
     // BlocProvider<VAuctionControlllerBloc>(
     //   create: (_) => DocumentsControllerCubit(),

@@ -21,8 +21,8 @@ class UpdatePrice extends VOcbControllerEvent {
   UpdatePrice( {required this.newBid,required  this.context});
 }
 
-class OnBuyOCB extends VOcbControllerEvent {
-  final String inspectionId;
-  final BuildContext context;
-  OnBuyOCB({required this.inspectionId, required this.context});
-}
+// class OnBuyOCB extends VOcbControllerEvent {
+//   final String inspectionId;
+//   final BuildContext context;
+//   OnBuyOCB({required this.inspectionId, required this.context});
+// }

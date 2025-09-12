@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -138,129 +140,136 @@ class _EvSelectAndSearchCarLocationScreenState
             _evaluationData.locationID = cityList[index].cityId;
 
             showModalBottomSheet(
-              enableDrag: true,
+              // enableDrag: true,
+              // context: context,
+              useSafeArea: true,
               context: context,
+              isScrollControlled: true,
               shape: BeveledRectangleBorder(),
               builder: (context) {
-                return Container(
-                  color: EvAppColors.white,
-                  padding: const EdgeInsets.all(AppDimensions.paddingSize15),
-                  width: w(context),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Confirm Details",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: AppDimensions.fontSize24(context),
+                return SafeArea(
+                  top: false,
+                  bottom: Platform.isAndroid,
+                  child: Container(
+                    color: EvAppColors.white,
+                    padding: const EdgeInsets.all(AppDimensions.paddingSize15),
+                    width: w(context),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Confirm Details",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: AppDimensions.fontSize24(context),
+                          ),
                         ),
-                      ),
-                      AppSpacer(heightPortion: .02),
-                      _buildItemText('Brand', _evaluationData.carMake!),
-                      _buildItemText(
-                        'Manufacturing year',
-                        _evaluationData.makeYear!,
-                      ),
-                      _buildItemText('Model', _evaluationData.carModel!),
-                      _buildItemText('Fuel type', _evaluationData.fuelType!),
-                      _buildItemText(
-                        'Transmission type',
-                        _evaluationData.transmissionType!,
-                      ),
-                      _buildItemText('Varient', _evaluationData.varient!),
-                      _buildItemText(
-                        'Reg. no.',
-                        _evaluationData.vehicleRegNumber!,
-                      ),
-                      _buildItemText(
-                        'Kms driven',
-                        _evaluationData.totalKmsDriven!,
-                      ),
-                      _buildItemText('City', _evaluationData.carLocation!),
-                      const AppSpacer(heightPortion: .02),
-                      EvAppCustomButton(
-                        bgColor: EvAppColors.DEFAULT_BLUE_DARK,
-                        isSquare: true,
-                        title: 'Save Inspection',
-                        onTap: () async {
-                          final snapshot =
-                              await UpdateInspectionRepo.updateInspection(
-                                context,
-                                _evaluationData,
-                              );
+                        AppSpacer(heightPortion: .02),
+                        _buildItemText('Brand', _evaluationData.carMake!),
+                        _buildItemText(
+                          'Manufacturing year',
+                          _evaluationData.makeYear!,
+                        ),
+                        _buildItemText('Model', _evaluationData.carModel!),
+                        _buildItemText('Fuel type', _evaluationData.fuelType!),
+                        _buildItemText(
+                          'Transmission type',
+                          _evaluationData.transmissionType!,
+                        ),
+                        _buildItemText('Varient', _evaluationData.varient!),
+                        _buildItemText(
+                          'Reg. no.',
+                          _evaluationData.vehicleRegNumber!,
+                        ),
+                        _buildItemText(
+                          'Kms driven',
+                          _evaluationData.totalKmsDriven!,
+                        ),
+                        _buildItemText('City', _evaluationData.carLocation!),
+                        const AppSpacer(heightPortion: .02),
+                        EvAppCustomButton(
+                          bgColor: EvAppColors.DEFAULT_BLUE_DARK,
+                          isSquare: true,
+                          title: 'Save Inspection',
+                          onTap: () async {
+                            final snapshot =
+                                await UpdateInspectionRepo.updateInspection(
+                                  context,
+                                  _evaluationData,
+                                );
 
-                          if (snapshot.isEmpty) {
-                            showToastMessage(
-                              context,
-                              'Updating inspection failed !,please try agian',
-                              isError: true,
-                            );
-                            Navigator.of(context).pushAndRemoveUntil(
-                              AppRoutes.createRoute(EvDashboardScreen()),
-                              (route) => false,
-                            );
-                          } else if (snapshot['error'] == true) {
-                            showToastMessage(
-                              context,
-                              snapshot['message'],
-                              isError: true,
-                            );
-                            Navigator.pop(context);
-                          } else if (snapshot['error'] == false) {
-                            showToastMessage(context, snapshot['message']);
-                            Navigator.of(context).pushAndRemoveUntil(
-                              AppRoutes.createRoute(EvDashboardScreen()),
-                              (route) => false,
-                            );
-                          }
-                        },
-                      ),
-                      const AppSpacer(heightPortion: .02),
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            AppRoutes.createRoute(EvDashboardScreen()),
-                            (context) => false,
-                          );
-                        },
-                        overlayColor: WidgetStatePropertyAll(
-                          EvAppColors.kAppSecondaryColor.withOpacity(0.1),
+                            if (snapshot.isEmpty) {
+                              showToastMessage(
+                                context,
+                                'Updating inspection failed !,please try agian',
+                                isError: true,
+                              );
+                              Navigator.of(context).pushAndRemoveUntil(
+                                AppRoutes.createRoute(EvDashboardScreen()),
+                                (route) => false,
+                              );
+                            } else if (snapshot['error'] == true) {
+                              showToastMessage(
+                                context,
+                                snapshot['message'],
+                                isError: true,
+                              );
+                              Navigator.pop(context);
+                            } else if (snapshot['error'] == false) {
+                              showToastMessage(context, snapshot['message']);
+                              Navigator.of(context).pushAndRemoveUntil(
+                                AppRoutes.createRoute(EvDashboardScreen()),
+                                (route) => false,
+                              );
+                            }
+                          },
                         ),
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: w(context),
-                          padding: const EdgeInsetsDirectional.all(
-                            AppDimensions.paddingSize20,
+                        const AppSpacer(heightPortion: .02),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              AppRoutes.createRoute(EvDashboardScreen()),
+                              (context) => false,
+                            );
+                          },
+                          overlayColor: WidgetStatePropertyAll(
+                            EvAppColors.kAppSecondaryColor.withOpacity(0.1),
                           ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: EvAppColors.kRed),
-                          ),
-                          child: Text(
-                            'Cancel',
-                            style: EvAppStyle.style(
-                              fontWeight: FontWeight.bold,
-                              context: context,
-                              size: AppDimensions.fontSize16(context),
-                              color: EvAppColors.kRed,
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: w(context),
+                            padding: const EdgeInsetsDirectional.all(
+                              AppDimensions.paddingSize20,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: EvAppColors.kRed),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: EvAppStyle.style(
+                                fontWeight: FontWeight.bold,
+                                context: context,
+                                size: AppDimensions.fontSize16(context),
+                                color: EvAppColors.kRed,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      //
-                      // Divider(),
-                      // _buildItemText(
-                      //     'inspaction id', _evaluationData.inspectionId!),
-                      // _buildItemText(
-                      //     'engine type', _evaluationData.engineTypeId!),
-                      // _buildItemText('make id', _evaluationData.makeId!),
-                      // _buildItemText('model id', _evaluationData.modelId!),
-                      // _buildItemText(
-                      //     'location id', _evaluationData.locationID!),
-                      // _buildItemText(
-                      //     'varient id', _evaluationData.varientId!),
-                    ],
+                        //
+                        // Divider(),
+                        // _buildItemText(
+                        //     'inspaction id', _evaluationData.inspectionId!),
+                        // _buildItemText(
+                        //     'engine type', _evaluationData.engineTypeId!),
+                        // _buildItemText('make id', _evaluationData.makeId!),
+                        // _buildItemText('model id', _evaluationData.modelId!),
+                        // _buildItemText(
+                        //     'location id', _evaluationData.locationID!),
+                        // _buildItemText(
+                        //     'varient id', _evaluationData.varientId!),
+                      ],
+                    ),
                   ),
                 );
               },

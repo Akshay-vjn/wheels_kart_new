@@ -377,6 +377,8 @@
 //   }
 // }
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
@@ -400,159 +402,165 @@ class CarVideoScreen extends StatelessWidget {
         final cubit = context.read<VCarvideoControllerCubit>();
         final controller = cubit.controller;
 
-        return Scaffold(
-          // appBar: AppBar(
-          //   title: const Text("Car Videos"),
-          //   actions: [
-          //     IconButton(
-          //       icon: const Icon(Icons.close),
-          //       onPressed: () => cubit.stopAndClose(context),
-          //     ),
-          //   ],
-          // ),
-          body: Column(
-            children: [
-              Container(
-                height: 120,
-                width: w(context),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: VColors.BLACK.withAlpha(40),
-                      blurRadius: 12,
-                      offset: Offset(2, 2),
-                    ),
-                  ],
-                  color: VColors.WHITE,
-                ),
-                child: SafeArea(
-                  child: Row(
-                    children: [
-                      VCustomBackbutton(
-                        blendColor: VColors.GREY,
-                        onTap: () {
-                          cubit.stopAndClose(context);
-                        },
-                      ),
-                      AppSpacer(widthPortion: .03),
-                      Text(
-                        "Car Videos",
-                        style: VStyle.style(
-                          size: 15,
-                          context: context,
-                          fontWeight: FontWeight.w600,
-                        ),
+        return SafeArea(
+          top: false,
+          bottom: Platform.isAndroid,
+          child: Scaffold(
+            // appBar: AppBar(
+            //   title: const Text("Car Videos"),
+            //   actions: [
+            //     IconButton(
+            //       icon: const Icon(Icons.close),
+            //       onPressed: () => cubit.stopAndClose(context),
+            //     ),
+            //   ],
+            // ),
+            body: Column(
+              children: [
+                Container(
+                  height: 120,
+                  width: w(context),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: VColors.BLACK.withAlpha(40),
+                        blurRadius: 12,
+                        offset: Offset(2, 2),
                       ),
                     ],
+                    color: VColors.WHITE,
                   ),
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child:
-                      (controller != null && controller.value.isInitialized)
-                          ? AspectRatio(
-                            aspectRatio: controller.value.aspectRatio,
-                            child: VideoPlayer(controller),
-                          )
-                          : const VLoadingIndicator(),
-                ),
-              ),
-            ],
-          ),
-          bottomNavigationBar: Container(
-            alignment: Alignment.center,
-            height: 120,
-            width: w(context),
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: VColors.BLACK.withAlpha(40),
-                  blurRadius: 12,
-                  offset: Offset(2, 2),
-                ),
-              ],
-              color: VColors.WHITE,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            // height: 100,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: carVideos.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final video = carVideos[index];
-                final isSelected =
-                    state is VCarVideoControllerVideoSuccessState &&
-                    state.currentIndex == index;
-                final isPlaying =
-                    state is VCarVideoControllerVideoSuccessState &&
-                    state.isPlaying &&
-                    state.currentIndex == index;
-
-                return GestureDetector(
-                  onTap: () async {
-                    if (isSelected) {
-                      await cubit.togglePlayPause();
-                    } else {
-                      await cubit.initializePlayer(video, index);
-                      await cubit.play();
-                    }
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                    width: isSelected ? 160 : 120,
-                    height: isSelected ? 80 : 80,
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.teal : Colors.grey.shade700,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        if (isSelected)
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 6,
-                            offset: Offset(0, 4),
-                          ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
+                  child: SafeArea(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Flexible(
-                          child: Text(
-                            video.type,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                        VCustomBackbutton(
+                          blendColor: VColors.GREY,
+                          onTap: () {
+                            cubit.stopAndClose(context);
+                          },
+                        ),
+                        AppSpacer(widthPortion: .03),
+                        Text(
+                          "Car Videos",
+                          style: VStyle.style(
+                            size: 15,
+                            context: context,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (isSelected) ...[
-                          const SizedBox(width: 8),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            transitionBuilder:
-                                (child, anim) =>
-                                    ScaleTransition(scale: anim, child: child),
-                            child: Icon(
-                              isPlaying ? Icons.pause : Icons.play_arrow,
-                              key: ValueKey(isPlaying),
-                              size: 28,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
-                );
-              },
+                ),
+                Expanded(
+                  child: Center(
+                    child:
+                        (controller != null && controller.value.isInitialized)
+                            ? AspectRatio(
+                              aspectRatio: controller.value.aspectRatio,
+                              child: VideoPlayer(controller),
+                            )
+                            : const VLoadingIndicator(),
+                  ),
+                ),
+              ],
+            ),
+            bottomNavigationBar: Container(
+              alignment: Alignment.center,
+              height: 120,
+              width: w(context),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: VColors.BLACK.withAlpha(40),
+                    blurRadius: 12,
+                    offset: Offset(2, 2),
+                  ),
+                ],
+                color: VColors.WHITE,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              // height: 100,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: carVideos.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final video = carVideos[index];
+                  final isSelected =
+                      state is VCarVideoControllerVideoSuccessState &&
+                      state.currentIndex == index;
+                  final isPlaying =
+                      state is VCarVideoControllerVideoSuccessState &&
+                      state.isPlaying &&
+                      state.currentIndex == index;
+
+                  return GestureDetector(
+                    onTap: () async {
+                      if (isSelected) {
+                        await cubit.togglePlayPause();
+                      } else {
+                        await cubit.initializePlayer(video, index);
+                        await cubit.play();
+                      }
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                      width: isSelected ? 160 : 120,
+                      height: isSelected ? 80 : 80,
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.teal : Colors.grey.shade700,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          if (isSelected)
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 6,
+                              offset: Offset(0, 4),
+                            ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              video.type,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          if (isSelected) ...[
+                            const SizedBox(width: 8),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              transitionBuilder:
+                                  (child, anim) => ScaleTransition(
+                                    scale: anim,
+                                    child: child,
+                                  ),
+                              child: Icon(
+                                isPlaying ? Icons.pause : Icons.play_arrow,
+                                key: ValueKey(isPlaying),
+                                size: 28,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         );

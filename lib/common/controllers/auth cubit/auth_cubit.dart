@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wheels_kart/common/components/delete_account_success_screen.dart';
@@ -89,6 +90,8 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
 
   Future<void> checkForLogin(BuildContext context) async {
     final userData = await getUserData;
+    //  context.read<AppAuthController>().clearPreferenceData(context);
+
     log(
       "cjeck for login -> \n"
       'Name - > ${userData.userName}\nNumber - > ${userData.mobileNumber}\nType -> ${userData.userType}\nUser ID - > ${userData.userId}. \nTerms Accepted=> ${userData.isDealerAcceptedTermsAndCondition}',

@@ -12,10 +12,12 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20purchase%20controller/ocb_purchace_controlle_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/place_ocbbotton_sheet.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VOcbCarCard extends StatefulWidget {
@@ -111,17 +113,17 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
 
   void onPressCard() async {
     // if (!_isColsed) {
-      _isLiked = await Navigator.of(context).push(
-        AppRoutes.createRoute(
-          VCarDetailsScreen(
-            auctionType: "OCB",
-            hideBidPrice: widget.vehicle.bidStatus != "Open",
-            frontImage: widget.vehicle.frontImage,
-            inspectionId: widget.vehicle.inspectionId,
-            isLiked: widget.vehicle.wishlisted == 1 ? true : false,
-          ),
+    _isLiked = await Navigator.of(context).push(
+      AppRoutes.createRoute(
+        VCarDetailsScreen(
+          auctionType: "OCB",
+          hideBidPrice: widget.vehicle.bidStatus != "Open",
+          frontImage: widget.vehicle.frontImage,
+          inspectionId: widget.vehicle.inspectionId,
+          isLiked: widget.vehicle.wishlisted == 1 ? true : false,
         ),
-      );
+      ),
+    );
     // }
   }
 
@@ -492,10 +494,11 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
               backgroundColor: VColors.SECONDARY,
             ),
             onPressed: () {
-              VDetailsControllerBloc.showBuySheet(
+              OcbPurchaceControlleCubit.showBuySheet(
                 context,
                 widget.vehicle.currentBid ?? '',
                 widget.vehicle.inspectionId,
+                "OCB",
               );
             },
             child: Text(

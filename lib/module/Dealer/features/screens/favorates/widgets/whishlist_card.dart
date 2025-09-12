@@ -12,10 +12,12 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20purchase%20controller/ocb_purchace_controlle_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/place_ocbbotton_sheet.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VWhishlistCard extends StatefulWidget {
@@ -791,28 +793,30 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                 backgroundColor: VColors.SECONDARY,
               ),
               onPressed: () {
-                VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
-                  from: "WISHLIST",
-                  context: context,
+                if (widget.model.auctionType == "OCB") {
+                  OcbPurchaceControlleCubit.showBuySheet(
+                    context,
+                    widget.model.currentBid ?? '',
+                    widget.model.inspectionId,
+                    "WISHLIST",
+                  );
+                } else {
+                  VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                    from: "WISHLIST",
+                    context: context,
 
-                  inspectionId: widget.model.inspectionId,
-                );
+                    inspectionId: widget.model.inspectionId,
+                  );
+                }
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Bid your price",
-                    style: VStyle.style(
-                      context: context,
-                      color: VColors.WHITE,
-                      size: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  AppSpacer(widthPortion: .03),
-                  Icon(SolarIconsBold.chatRound, color: VColors.WHITE),
-                ],
+              child: Text(
+                widget.model.auctionType == "OCB" ? "Buy" : "Bid your price",
+                style: VStyle.style(
+                  context: context,
+                  color: VColors.WHITE,
+                  size: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

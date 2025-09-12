@@ -4,14 +4,17 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_buy_ocb_auction_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_ocb_list_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/place_ocbbotton_sheet.dart';
 
 part 'v_ocb_controller_event.dart';
 part 'v_ocb_controller_state.dart';
@@ -103,8 +106,6 @@ class VOcbControllerBloc
         }
       }
     });
-
-    on<OnBuyOCB>(_onBuyOcb);
   }
 
   Timer? _heartbeatTimer;
@@ -163,25 +164,37 @@ class VOcbControllerBloc
     });
   }
 
-  Future<void> _onBuyOcb(
-    OnBuyOCB event,
-    Emitter<VOcbControllerState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is VOcbControllerSuccessState) {
-      emit(currentState.copyWith(loadingTheOCBButton: true));
-      final response = await VBuyOcbAuctionRepo.buyOCB(
-        event.context,
-        event.inspectionId,
-      );
-      emit(currentState.copyWith(loadingTheOCBButton: false));
-      if (response['error'] == false) {
-        add(OnFechOncList(context: event.context));
-        Navigator.of(event.context).pop();
-        showToastMessage(event.context, response['message']);
-      }
-    }
-  }
+  // Future<void> _onBuyOcb(
+  //   OnBuyOCB event,
+  //   Emitter<VOcbControllerState> emit,
+  // ) async {
+  //   final currentState = state;
+  //   if (currentState is VOcbControllerSuccessState) {
+  //     emit(currentState.copyWith(loadingTheOCBButton: true));
+  //     // final response = await VBuyOcbAuctionRepo.buyOCB(
+  //     //   event.context,
+  //     //   event.inspectionId,
+  //     // );
+  //     await Future.delayed(Duration(seconds: 4));
+  //     final response = {"error": true, "message": 'Error'};
+
+  //     emit(currentState.copyWith(loadingTheOCBButton: false));
+  //     if (response['error'] == false) {
+  //       add(OnFechOncList(context: event.context));
+  //       Navigator.of(event.context).pop();
+  //       showToastMessage(event.context, response['message'].toString());
+  //     } else {
+  //       Navigator.of(event.context).pop();
+  //       showToastMessage(
+  //         event.context,
+  //         response['message'].toString(),
+  //         isError: true,
+  //       );
+  //     }
+  //   } else {
+  //     log("ELse case ");
+  //   }
+  // }
 
   @override
   Future<void> close() {

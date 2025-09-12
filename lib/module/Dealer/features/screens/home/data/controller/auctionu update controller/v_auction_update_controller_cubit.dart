@@ -60,6 +60,7 @@ class VAuctionUpdateControllerCubit
 
     if (from == "AUCTION") {
       showModalBottomSheet(
+        useSafeArea: true,
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -75,6 +76,7 @@ class VAuctionUpdateControllerCubit
       );
     } else if (from == "DETAILS") {
       showModalBottomSheet(
+         useSafeArea: true,
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -90,6 +92,7 @@ class VAuctionUpdateControllerCubit
       );
     } else if (from == "WISHLIST") {
       showModalBottomSheet(
+         useSafeArea: true,
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -105,6 +108,7 @@ class VAuctionUpdateControllerCubit
       );
     } else {
       showModalBottomSheet(
+         useSafeArea: true,
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,

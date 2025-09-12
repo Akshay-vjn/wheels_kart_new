@@ -19,11 +19,13 @@ import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20purchase%20controller/ocb_purchace_controlle_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v_car_video_controller/v_carvideo_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_photo_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_video_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/place_ocbbotton_sheet.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
 
 class VCarDetailsScreen extends StatelessWidget {
@@ -106,397 +108,417 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: VColors.WHITEBGCOLOR,
-      body: BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
-        builder: (context, state) {
-          switch (state) {
-            case VDetailsControllerErrorState():
-              {
-                return Center(child: AppEmptyText(text: state.error));
-              }
-            case VDetailsControllerSuccessState():
-              {
-                final detail = state.detail;
-                return CustomScrollView(
-                  slivers: [
-                    SliverAppBar(
-                      backgroundColor: VColors.WHITE,
-                      surfaceTintColor: VColors.WHITE,
-                      leading: VCustomBackbutton(
-                        onTap: () {
-                          Navigator.pop(context, _isLiked);
-                        },
-                        blendColor: VColors.BLACK.withAlpha(50),
-                      ),
-                      centerTitle: false,
-                      // floating: true,
-                      pinned: true,
-                      title: Text(
-                        "Back",
-                        style: VStyle.style(
-                          context: context,
-                          size: AppDimensions.fontSize18(context),
-                          color: VColors.BLACK,
+    return SafeArea(
+      top: false,
+      bottom: Platform.isAndroid,
+      child: Scaffold(
+        backgroundColor: VColors.WHITEBGCOLOR,
+        body: BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
+          builder: (context, state) {
+            switch (state) {
+              case VDetailsControllerErrorState():
+                {
+                  return Center(child: AppEmptyText(text: state.error));
+                }
+              case VDetailsControllerSuccessState():
+                {
+                  final detail = state.detail;
+                  return CustomScrollView(
+                    slivers: [
+                      SliverAppBar(
+                        backgroundColor: VColors.WHITE,
+                        surfaceTintColor: VColors.WHITE,
+                        leading: VCustomBackbutton(
+                          onTap: () {
+                            Navigator.pop(context, _isLiked);
+                          },
+                          blendColor: VColors.BLACK.withAlpha(50),
+                        ),
+                        centerTitle: false,
+                        // floating: true,
+                        pinned: true,
+                        title: Text(
+                          "Back",
+                          style: VStyle.style(
+                            context: context,
+                            size: AppDimensions.fontSize18(context),
+                            color: VColors.BLACK,
+                          ),
                         ),
                       ),
-                    ),
-                    SliverPadding(
-                      padding: EdgeInsets.all(0),
-                      sliver: SliverList(
-                        delegate: SliverChildListDelegate.fixed([
-                          _buildImageListButton(detail.images),
+                      SliverPadding(
+                        padding: EdgeInsets.all(0),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate.fixed([
+                            _buildImageListButton(detail.images),
 
-                          _buildVideoButton(detail.carVideos),
+                            _buildVideoButton(detail.carVideos),
 
-                          _buildCarHead(
-                            "${detail.carDetails.brand} ${detail.carDetails.model}",
-                            detail.carDetails.city,
-                            detail.carDetails.evaluationId,
-                            detail.carDetails.variant,
-                          ),
-                          AppSpacer(heightPortion: .01),
-                          _buildCarSpecification(detail.carDetails),
-                          AppSpacer(heightPortion: .01),
+                            _buildCarHead(
+                              "${detail.carDetails.brand} ${detail.carDetails.model}",
+                              detail.carDetails.city,
+                              detail.carDetails.evaluationId,
+                              detail.carDetails.variant,
+                            ),
+                            AppSpacer(heightPortion: .01),
+                            _buildCarSpecification(detail.carDetails),
+                            AppSpacer(heightPortion: .01),
 
-                          _buildCard(
-                            index: 0,
-                            icon: CupertinoIcons.doc_fill,
-                            cardTitle: "Documents",
-                            childres: [
-                              _buildQuestionAndAnswerTile(
-                                "RC availability",
-                                "YES",
-                              ),
-                              _buildQuestionAndAnswerTile(
-                                "Insurance",
-                                detail.carDetails.insuranceType,
-
-                                otherInfo: detail.carDetails.insuranceValidity,
-                                subtitle: "Expire on",
-                              ),
-
-                              _buildQuestionAndAnswerTile(
-                                "Road Tax",
-                                detail.carDetails.roadTaxPaid,
-                                otherInfo: detail.carDetails.roadTaxValidity,
-                                subtitle: "Expire on",
-                              ),
-
-                              _buildDevider(),
-
-                              Text(
-                                "Other informations",
-                                style: VStyle.style(
-                                  context: context,
-                                  fontWeight: FontWeight.bold,
-                                  color: VColors.GREENHARD,
-                                  size: AppDimensions.fontSize18(context),
+                            _buildCard(
+                              index: 0,
+                              icon: CupertinoIcons.doc_fill,
+                              cardTitle: "Documents",
+                              childres: [
+                                _buildQuestionAndAnswerTile(
+                                  "RC availability",
+                                  "YES",
                                 ),
-                              ),
+                                _buildQuestionAndAnswerTile(
+                                  "Insurance",
+                                  detail.carDetails.insuranceType,
 
-                              AppSpacer(heightPortion: .01),
-
-                              _buildQuestionAndAnswerTile(
-                                "Engine Type",
-                                detail.carDetails.engineType,
-                              ),
-                              _buildQuestionAndAnswerTile(
-                                "Car Length",
-                                detail.carDetails.carLength,
-                              ),
-                              _buildQuestionAndAnswerTile(
-                                "Cubic Capacity",
-                                detail.carDetails.cubicCapacity,
-                              ),
-
-                              _buildQuestionAndAnswerTile(
-                                "No. of Keys",
-                                detail.carDetails.noOfKeys,
-                              ),
-
-                              _buildDevider(),
-
-                              Text(
-                                "Registration and fitness",
-                                style: VStyle.style(
-                                  context: context,
-                                  fontWeight: FontWeight.bold,
-                                  color: VColors.GREENHARD,
-                                  size: AppDimensions.fontSize18(context),
+                                  otherInfo:
+                                      detail.carDetails.insuranceValidity,
+                                  subtitle: "Expire on",
                                 ),
-                              ),
-                              AppSpacer(heightPortion: .01),
 
-                              _buildQuestionAndAnswerTile(
-                                "Manufacture Date",
-                                detail.carDetails.manufactureDate,
-                              ),
-                              _buildQuestionAndAnswerTile(
-                                "Registration Date",
-                                detail.carDetails.registrationDate,
-                              ),
-                              _buildQuestionAndAnswerTile(
-                                "RTO",
-                                detail.carDetails.currentRto,
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children:
-                                detail.sections.asMap().entries.map((map) {
-                                  final index = map.key;
-                                  final section = map.value;
-                                  return _buildCard(
-                                    index: index + 1,
-                                    hideIcon: true,
-                                    icon: Icons.abc,
-                                    cardTitle: section.portionName,
-                                    childres:
-                                        section.entries.map((entry) {
-                                          return _buildQuestionAndAnswerTile(
-                                            entry.question,
-                                            entry.answer.toUpperCase(),
-                                            showIcon: true,
-                                            subtitle: entry.options,
-                                            child:
-                                                entry.responseImages.isNotEmpty
-                                                    ? InkWell(
-                                                      onTap: () async {
-                                                        context
-                                                            .read<
-                                                              VDetailsControllerBloc
-                                                            >()
-                                                            .add(
-                                                              OnChangeImageTab(
-                                                                imageTabIndex:
-                                                                    index + 1,
+                                _buildQuestionAndAnswerTile(
+                                  "Road Tax",
+                                  detail.carDetails.roadTaxPaid,
+                                  otherInfo: detail.carDetails.roadTaxValidity,
+                                  subtitle: "Expire on",
+                                ),
+
+                                _buildDevider(),
+
+                                Text(
+                                  "Other informations",
+                                  style: VStyle.style(
+                                    context: context,
+                                    fontWeight: FontWeight.bold,
+                                    color: VColors.GREENHARD,
+                                    size: AppDimensions.fontSize18(context),
+                                  ),
+                                ),
+
+                                AppSpacer(heightPortion: .01),
+
+                                _buildQuestionAndAnswerTile(
+                                  "Engine Type",
+                                  detail.carDetails.engineType,
+                                ),
+                                _buildQuestionAndAnswerTile(
+                                  "Car Length",
+                                  detail.carDetails.carLength,
+                                ),
+                                _buildQuestionAndAnswerTile(
+                                  "Cubic Capacity",
+                                  detail.carDetails.cubicCapacity,
+                                ),
+
+                                _buildQuestionAndAnswerTile(
+                                  "No. of Keys",
+                                  detail.carDetails.noOfKeys,
+                                ),
+
+                                _buildDevider(),
+
+                                Text(
+                                  "Registration and fitness",
+                                  style: VStyle.style(
+                                    context: context,
+                                    fontWeight: FontWeight.bold,
+                                    color: VColors.GREENHARD,
+                                    size: AppDimensions.fontSize18(context),
+                                  ),
+                                ),
+                                AppSpacer(heightPortion: .01),
+
+                                _buildQuestionAndAnswerTile(
+                                  "Manufacture Date",
+                                  detail.carDetails.manufactureDate,
+                                ),
+                                _buildQuestionAndAnswerTile(
+                                  "Registration Date",
+                                  detail.carDetails.registrationDate,
+                                ),
+                                _buildQuestionAndAnswerTile(
+                                  "RTO",
+                                  detail.carDetails.currentRto,
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children:
+                                  detail.sections.asMap().entries.map((map) {
+                                    final index = map.key;
+                                    final section = map.value;
+                                    return _buildCard(
+                                      index: index + 1,
+                                      hideIcon: true,
+                                      icon: Icons.abc,
+                                      cardTitle: section.portionName,
+                                      childres:
+                                          section.entries.map((entry) {
+                                            return _buildQuestionAndAnswerTile(
+                                              entry.question,
+                                              entry.answer.toUpperCase(),
+                                              showIcon: true,
+                                              subtitle: entry.options,
+                                              child:
+                                                  entry
+                                                          .responseImages
+                                                          .isNotEmpty
+                                                      ? InkWell(
+                                                        onTap: () async {
+                                                          context
+                                                              .read<
+                                                                VDetailsControllerBloc
+                                                              >()
+                                                              .add(
+                                                                OnChangeImageTab(
+                                                                  imageTabIndex:
+                                                                      index + 1,
+                                                                ),
+                                                              );
+                                                          Navigator.of(
+                                                            context,
+                                                          ).push(
+                                                            AppRoutes.createRoute(
+                                                              BlocProvider.value(
+                                                                value:
+                                                                    context
+                                                                        .read<
+                                                                          VDetailsControllerBloc
+                                                                        >(),
+                                                                child:
+                                                                    VCarPhotoScreen(
+                                                                      carDetail:
+                                                                          detail,
+                                                                    ),
                                                               ),
-                                                            );
-                                                        Navigator.of(
-                                                          context,
-                                                        ).push(
-                                                          AppRoutes.createRoute(
-                                                            BlocProvider.value(
-                                                              value:
-                                                                  context
-                                                                      .read<
-                                                                        VDetailsControllerBloc
-                                                                      >(),
-                                                              child:
-                                                                  VCarPhotoScreen(
-                                                                    carDetail:
-                                                                        detail,
-                                                                  ),
+                                                            ),
+                                                          );
+                                                        },
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(
+                                                              width: .5,
+                                                              color:
+                                                                  VColors
+                                                                      .SECONDARY,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  5,
+                                                                ),
+                                                          ),
+
+                                                          width: 50,
+                                                          height: 50,
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  5,
+                                                                ),
+                                                            child: CachedNetworkImage(
+                                                              fit: BoxFit.cover,
+                                                              imageUrl:
+                                                                  entry
+                                                                      .responseImages
+                                                                      .first,
                                                             ),
                                                           ),
-                                                        );
-                                                      },
-                                                      child: Container(
-                                                        decoration: BoxDecoration(
-                                                          border: Border.all(
-                                                            width: .5,
-                                                            color:
-                                                                VColors
-                                                                    .SECONDARY,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                5,
-                                                              ),
                                                         ),
-
-                                                        width: 50,
-                                                        height: 50,
-                                                        child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                5,
-                                                              ),
-                                                          child: CachedNetworkImage(
-                                                            fit: BoxFit.cover,
-                                                            imageUrl:
-                                                                entry
-                                                                    .responseImages
-                                                                    .first,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                    : SizedBox.shrink(),
-                                          );
-                                        }).toList(),
-                                  );
-                                }).toList(),
-                          ),
-                          AppSpacer(heightPortion: .03),
-                        ]),
+                                                      )
+                                                      : SizedBox.shrink(),
+                                            );
+                                          }).toList(),
+                                    );
+                                  }).toList(),
+                            ),
+                            AppSpacer(heightPortion: .03),
+                          ]),
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              }
-            default:
-              {
-                return Center(child: VLoadingIndicator());
-              }
-          }
-        },
-      ),
-      bottomNavigationBar:
-          widget.hideBidPrice == true
-              ? null
-              : BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
-                builder: (context, state) {
-                  if (state is VDetailsControllerSuccessState) {
-                    return state.endTime == "00:00:00"
-                        ? SizedBox.shrink()
-                        : SlideInUp(
-                          // duration: Duration(milliseconds: 800),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 15,
-                            ),
-                            height:
-                                Platform.isIOS
-                                    ? h(context) * .13
-                                    : h(context) * .12,
-                            decoration: BoxDecoration(
-                              color: VColors.WHITE,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: VColors.DARK_GREY.withAlpha(50),
-                                  blurRadius: 10,
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      isOCB ? "OCB Price" : "Current Bid",
-                                      style: VStyle.style(
-                                        context: context,
-                                        color: VColors.GREY,
-                                        fontWeight: FontWeight.w600,
-                                        size: 15,
+                    ],
+                  );
+                }
+              default:
+                {
+                  return Center(child: VLoadingIndicator());
+                }
+            }
+          },
+        ),
+        bottomNavigationBar:
+            widget.hideBidPrice == true
+                ? null
+                : BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
+                  builder: (context, state) {
+                    if (state is VDetailsControllerSuccessState) {
+                      return state.endTime == "00:00:00"
+                          ? SizedBox.shrink()
+                          : SlideInUp(
+                            // duration: Duration(milliseconds: 800),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: 15,
+                              ),
+                              height:
+                                  Platform.isIOS
+                                      ? h(context) * .13
+                                      : h(context) * .12,
+                              decoration: BoxDecoration(
+                                color: VColors.WHITE,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: VColors.DARK_GREY.withAlpha(50),
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        isOCB ? "OCB Price" : "Current Bid",
+                                        style: VStyle.style(
+                                          context: context,
+                                          color: VColors.GREY,
+                                          fontWeight: FontWeight.w600,
+                                          size: 15,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      "₹${state.detail.carDetails.currentBid}",
-                                      style: VStyle.style(
-                                        context: context,
-                                        color: Color.fromARGB(255, 255, 152, 7),
-                                        fontWeight: FontWeight.w900,
-                                        size: 27,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                Column(
-                                  children: [
-                                    if (!isOCB)
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color.fromARGB(
+                                      Text(
+                                        "₹${state.detail.carDetails.currentBid}",
+                                        style: VStyle.style(
+                                          context: context,
+                                          color: Color.fromARGB(
                                             255,
                                             255,
                                             152,
                                             7,
                                           ),
+                                          fontWeight: FontWeight.w900,
+                                          size: 27,
                                         ),
-                                        onPressed: () async {
-                                          final currentState =
-                                              context
-                                                  .read<
-                                                    VDetailsControllerBloc
-                                                  >()
-                                                  .state;
-                                          if (currentState
-                                              is VDetailsControllerSuccessState) {
-                                            final details =
-                                                currentState.detail.carDetails;
-                                            await VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
-                                              from: "DETAILS",
+                                      ),
+                                    ],
+                                  ),
+
+                                  Column(
+                                    children: [
+                                      if (!isOCB)
+                                        ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Color.fromARGB(
+                                              255,
+                                              255,
+                                              152,
+                                              7,
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                            final currentState =
+                                                context
+                                                    .read<
+                                                      VDetailsControllerBloc
+                                                    >()
+                                                    .state;
+                                            if (currentState
+                                                is VDetailsControllerSuccessState) {
+                                              final details =
+                                                  currentState
+                                                      .detail
+                                                      .carDetails;
+                                              await VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                                                from: "DETAILS",
+                                                context: context,
+
+                                                inspectionId:
+                                                    widget.inspectionId,
+                                              );
+                                            }
+                                          },
+                                          label: Text(
+                                            "UPDATE BID",
+                                            style: VStyle.style(
                                               context: context,
+                                              color: VColors.WHITE,
+                                              size: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
 
-                                              inspectionId: widget.inspectionId,
-                                            );
-                                          }
-                                        },
-                                        label: Text(
-                                          "UPDATE BID",
-                                          style: VStyle.style(
-                                            context: context,
-                                            color: VColors.WHITE,
-                                            size: 13,
-                                            fontWeight: FontWeight.bold,
+                                      if (isOCB)
+                                        ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Color.fromARGB(
+                                              255,
+                                              255,
+                                              152,
+                                              7,
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                            final currentState =
+                                                context
+                                                    .read<
+                                                      VDetailsControllerBloc
+                                                    >()
+                                                    .state;
+                                            if (currentState
+                                                is VDetailsControllerSuccessState) {
+                                              final details =
+                                                  currentState
+                                                      .detail
+                                                      .carDetails;
+                                              OcbPurchaceControlleCubit.showBuySheet(
+                                                context,
+                                                details.currentBid ?? '0',
+                                                widget.inspectionId,
+                                                "DETAILS",
+                                              );
+                                            }
+                                          },
+                                          label: Text(
+                                            "Buy Now",
+                                            style: VStyle.style(
+                                              context: context,
+                                              color: VColors.WHITE,
+                                              size: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
-                                      ),
-
-                                    if (isOCB)
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color.fromARGB(
-                                            255,
-                                            255,
-                                            152,
-                                            7,
-                                          ),
-                                        ),
-                                        onPressed: () async {
-                                          final currentState =
-                                              context
-                                                  .read<
-                                                    VDetailsControllerBloc
-                                                  >()
-                                                  .state;
-                                          if (currentState
-                                              is VDetailsControllerSuccessState) {
-                                            final details =
-                                                currentState.detail.carDetails;
-                                            VDetailsControllerBloc.showBuySheet(
-                                              context,
-                                              details.currentBid ?? '0',
-                                              widget.inspectionId,
-                                            );
-                                          }
-                                        },
-                                        label: Text(
-                                          "Buy Now",
-                                          style: VStyle.style(
-                                            context: context,
-                                            color: VColors.WHITE,
-                                            size: 13,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                      Text(
+                                        state.endTime,
+                                        style: VStyle.style(
+                                          context: context,
+                                          fontWeight: FontWeight.bold,
+                                          color: VColors.DARK_GREY,
                                         ),
                                       ),
-                                    Text(
-                                      state.endTime,
-                                      style: VStyle.style(
-                                        context: context,
-                                        fontWeight: FontWeight.bold,
-                                        color: VColors.DARK_GREY,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                },
-              ),
+                          );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  },
+                ),
+      ),
     );
   }
 
