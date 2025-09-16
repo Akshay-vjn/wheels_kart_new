@@ -18,9 +18,7 @@ class OcbPurchaceControlleCubit extends Cubit<OcbPurchaceControlleState> {
   Future<void> onBuyOCB(BuildContext context, String inspectionId) async {
     try {
       emit(OcbPurchaseLoadingState());
-      // final response = await VBuyOcbAuctionRepo.buyOCB(context, inspectionId);
-      await Future.delayed(Duration(seconds: 5));
-      final response = {};
+      final response = await VBuyOcbAuctionRepo.buyOCB(context, inspectionId);
       if (response['error'] == false) {
         context.read<VOcbControllerBloc>().add(OnFechOncList(context: context));
         context.read<VWishlistControllerCubit>().onFetchWishList(context);

@@ -2,19 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_buy_ocb_auction_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_ocb_list_repo.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/place_ocbbotton_sheet.dart';
 
 part 'v_ocb_controller_event.dart';
 part 'v_ocb_controller_state.dart';
