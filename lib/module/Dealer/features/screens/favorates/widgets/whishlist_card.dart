@@ -345,7 +345,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
         ),
         _buildEnhancedDetailChip(
           Icons.speed_rounded,
-          '${widget.model.kmsDriven} km',
+          '${widget.model.kmsDriven}',
           VColors.SECONDARY,
         ),
       ],

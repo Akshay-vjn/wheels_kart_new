@@ -788,7 +788,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
 
           carDetails.kmsDriven.isEmpty
               ? SizedBox.shrink()
-              : Text("${carDetails.kmsDriven} Km", style: style),
+              : Text("${carDetails.kmsDriven}", style: style),
           carDetails.kmsDriven.isEmpty
               ? SizedBox.shrink()
               : AppSpacer(widthPortion: .01),

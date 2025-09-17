@@ -406,7 +406,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
         AppSpacer(widthPortion: .01),
         _buildEnhancedDetailChip(
           Icons.speed_rounded,
-          '${widget.vehicle.kmsDriven} km',
+          widget.vehicle.kmsDriven,
           VColors.SECONDARY,
         ),
         AppSpacer(widthPortion: .01),
