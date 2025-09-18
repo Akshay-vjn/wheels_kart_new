@@ -19,7 +19,7 @@ class EvFetchCityBloc extends Bloc<EvFetchCityEvent, EvFetchCityState> {
     Emitter<EvFetchCityState> emit,
   ) async {
     emit(FetchCityLoadingState());
-    final response = await FetchCitiesRepo.getCityList(event.context);
+    final response = await EvFetchCitiesRepo.getCityList(event.context);
 
     if (response['error'] == false ||
         response['message'] == 'Make list fetched successfully') {

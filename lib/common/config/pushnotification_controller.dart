@@ -77,7 +77,6 @@ class PushNotificationConfig {
   Future<void> _getExistingToken(BuildContext context) async {
     try {
       String? token = await _firebaseMessaging.getToken();
-      log(token ?? "");
       if (token != null) {
         _notiToken = token;
         _updateTokenInDatabase(token, context);

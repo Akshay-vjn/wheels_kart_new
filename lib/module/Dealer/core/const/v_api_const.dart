@@ -4,8 +4,8 @@ class VApiConst {
 
   static const vendorLogin = "vendorlogin";
   static const vendorRegister = "vendorlogin/register";
-  static const vendorSavePushToken = "vendorLogin/settoken";
-  static const dashboard = "vendorlogin/dashboard";
+  static const vendorSavePushToken = "vendorlogin/settoken";
+  static const auctionData = "vendorlogin/dashboard";
   static const ocbData = "vendorlogin/ocb";
 
   static const details = "vendorlogin/details";
@@ -25,4 +25,6 @@ class VApiConst {
   static const transactionHistory = "vendorlogin/payments";
 
   static const recievedDocuments = "vendorlogin/collecteddocuments";
+
+  static const String fetchCity = "city";
 }

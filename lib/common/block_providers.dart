@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/documents_controller/documents_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/payment%20history%20controller/payment_history_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/filter_auction_and_ocb/filter_acution_and_ocb_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20purchase%20controller/ocb_purchace_controlle_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v_car_video_controller/v_carvideo_controller_cubit.dart';
@@ -110,6 +111,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     ),
     BlocProvider<OcbPurchaceControlleCubit>(
       create: (_) => OcbPurchaceControlleCubit(),
+    ),
+    BlocProvider<FilterAcutionAndOcbCubit>(
+      create: (_) => FilterAcutionAndOcbCubit(),
     ),
     // BlocProvider<VAuctionControlllerBloc>(
     //   create: (_) => DocumentsControllerCubit(),

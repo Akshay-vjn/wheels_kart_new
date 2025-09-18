@@ -132,6 +132,9 @@ class _VTermsAndCondionAcceptScreenState
                             //   ),
                             // );
                             HapticFeedback.heavyImpact();
+                            await PushNotificationConfig().initNotification(
+                              context,
+                            );
                             await context
                                 .read<AppAuthController>()
                                 .updateLoginPreference(
@@ -143,9 +146,7 @@ class _VTermsAndCondionAcceptScreenState
                               context,
                               "Login Successful, Welcome to Wheels Kart",
                             );
-                            await PushNotificationConfig().initNotification(
-                              context,
-                            );
+
                             Navigator.of(context).pushAndRemoveUntil(
                               AppRoutes.createRoute(VNavScreen()),
                               (context) => false,

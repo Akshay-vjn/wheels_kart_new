@@ -8,7 +8,7 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/v_ocb_car_card.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/OCB/v_ocb_car_card.dart';
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 
 class VOCBCarBuilder extends StatefulWidget {

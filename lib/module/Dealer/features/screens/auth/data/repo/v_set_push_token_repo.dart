@@ -13,41 +13,45 @@ class VSetPushTokenRepo {
     BuildContext context,
     String token,
   ) async {
-    final state = context.read<AppAuthController>().state;
-    if (state is AuthCubitAuthenticateState) {
-      try {
-        final url = Uri.parse(
-          '${VApiConst.baseUrl}${VApiConst.vendorSavePushToken}',
-        );
+    try {
+      final state = context.read<AppAuthController>().state;
+      if (state is AuthCubitAuthenticateState) {
+        try {
+          final url = Uri.parse(
+            '${VApiConst.baseUrl}${VApiConst.vendorSavePushToken}',
+          );
 
-        Response response = await http.post(
-          url,
-          body: {"vendorNotificationToken": token},
-          headers: {'Authorization': state.userModel.token!},
-        );
+          Response response = await http.post(
+            url,
+            body: {"vendorNotificationToken": token},
+            headers: {'Authorization': state.userModel.token!},
+          );
 
-        final decodedata = jsonDecode(response.body);
-
-        if (decodedata['status'] == 200) {
-          log("----------${decodedata['message']}");
-          return {
-            'error': decodedata['error'],
-            'message': decodedata['message'],
-            'data': decodedata['data'],
-          };
-        } else {
-          return {
-            'error': decodedata['error'],
-            'message': decodedata['message'],
-          };
+          final decodedata = jsonDecode(response.body);
+          log("---- Token Storing ------${decodedata['message']}");
+          if (decodedata['status'] == 200) {
+            return {
+              'error': decodedata['error'],
+              'message': decodedata['message'],
+              'data': decodedata['data'],
+            };
+          } else {
+            return {
+              'error': decodedata['error'],
+              'message': decodedata['message'],
+            };
+          }
+        } catch (e) {
+          log(
+            'repo - catch error - Dealer Push token saving => ${e.toString()}F',
+          );
+          return {};
         }
-      } catch (e) {
-        log(
-          'repo - catch error - Dealer Push token saving => ${e.toString()}F',
-        );
+      } else {
         return {};
       }
-    } else {
+    } catch (e) {
+      log('repo - catch error - Push token Auth State => ${e.toString()}F');
       return {};
     }
   }

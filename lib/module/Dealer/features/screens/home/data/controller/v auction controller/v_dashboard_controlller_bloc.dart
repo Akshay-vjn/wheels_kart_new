@@ -21,7 +21,7 @@ class VAuctionControlllerBloc
   VAuctionControlllerBloc() : super(VAuctionControlllerInitialState()) {
     on<OnFetchVendorAuctionApi>((event, emit) async {
       emit(VAuctionControlllerLoadingState());
-      final response = await VDashboardRepo.getDashboardDataF(event.context);
+      final response = await VAuctionData.getAuctionData(event.context);
       if (response.isNotEmpty) {
         if (response['error'] == false) {
           final data = response['data'] as List;
@@ -50,7 +50,7 @@ class VAuctionControlllerBloc
         if (event.newBid.trigger != null && event.newBid.trigger == "new") {
           log("--------New Auction Listed");
 
-          final response = await VDashboardRepo.getDashboardDataF(
+          final response = await VAuctionData.getAuctionData(
             event.context,
           );
 

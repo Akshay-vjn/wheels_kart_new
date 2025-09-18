@@ -25,7 +25,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_photo_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_video_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/OCB/place_ocbbotton_sheet.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/OCB/place_ocbbotton_sheet.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
 
 class VCarDetailsScreen extends StatelessWidget {

@@ -5,6 +5,7 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/config/pushnotification_controller.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
@@ -764,6 +765,7 @@ class _VAccountTabState extends State<VAccountTab>
               ),
               onPressed: () {
                 context.read<VNavControllerCubit>().onChangeNav(0);
+                PushNotificationConfig().deleteToken();
                 context.read<AppAuthController>().clearPreferenceData(context);
               },
             ),
