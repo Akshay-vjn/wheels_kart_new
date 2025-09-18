@@ -4,6 +4,7 @@ class VApiConst {
 
   static const vendorLogin = "vendorlogin";
   static const vendorRegister = "vendorlogin/register";
+  static const vendorSavePushToken = "vendorLogin/settoken";
   static const dashboard = "vendorlogin/dashboard";
   static const ocbData = "vendorlogin/ocb";
 

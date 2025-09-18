@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:wheels_kart/common/config/pushnotification_controller.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_registration_Screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
@@ -139,7 +140,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: BlocListener<AppAuthController, AppAuthControllerState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           switch (state) {
             case AuthErrorState():
               {
@@ -153,6 +154,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
               }
             case AuthCubitAuthenticateState():
               {
+                await PushNotificationConfig().initNotification(context);
                 HapticFeedback.mediumImpact();
                 showToastMessage(context, state.loginMesaage);
                 Navigator.of(context).pushAndRemoveUntil(

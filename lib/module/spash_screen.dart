@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/config/pushnotification_controller.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/terms_and_condion_accept_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const_images.dart';
@@ -165,7 +166,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-
     return BlocListener<AppAuthController, AppAuthControllerState>(
       listener: (context, state) async {
         switch (state) {
@@ -173,6 +173,7 @@ class _SplashScreenState extends State<SplashScreen>
             {
               if (state.userModel.userType == "EVALUATOR" ||
                   state.userModel.userType == "ADMIN") {
+                await PushNotificationConfig().initNotification(context);
                 Navigator.of(context).pushAndRemoveUntil(
                   AppRoutes.createRoute(EvDashboardScreen()),
                   (context) => false,
@@ -180,6 +181,7 @@ class _SplashScreenState extends State<SplashScreen>
               } else {
                 final getUserPref = await AppAuthController().getUserData;
                 if (getUserPref.isDealerAcceptedTermsAndCondition == true) {
+                  await PushNotificationConfig().initNotification(context);
                   Navigator.of(context).pushAndRemoveUntil(
                     AppRoutes.createRoute(VNavScreen()),
                     (context) => false,

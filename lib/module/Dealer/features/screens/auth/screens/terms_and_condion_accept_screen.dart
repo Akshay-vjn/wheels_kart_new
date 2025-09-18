@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/config/pushnotification_controller.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
@@ -141,6 +142,9 @@ class _VTermsAndCondionAcceptScreenState
                             showToastMessage(
                               context,
                               "Login Successful, Welcome to Wheels Kart",
+                            );
+                            await PushNotificationConfig().initNotification(
+                              context,
                             );
                             Navigator.of(context).pushAndRemoveUntil(
                               AppRoutes.createRoute(VNavScreen()),
