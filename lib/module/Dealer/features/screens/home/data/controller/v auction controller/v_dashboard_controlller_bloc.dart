@@ -86,7 +86,7 @@ class VAuctionControlllerBloc
               car.bidClosingTime = bid.bidClosingTime;
               car.vendorIds = reversed.map((e) => e.vendorId).toList();
 
-              updatedList.insert(0, car);
+              updatedList.add(car);
             } else {
               updatedList.add(car);
             }
