@@ -78,7 +78,7 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
         builder: (context, state) {
           if (state is VAuctionControllerSuccessState) {
             return _buildWidget(
-              state.listOfCars
+              state.listOfAllAuctionFromServer
                   .firstWhere(
                     (element) => element.inspectionId == widget.inspectionId,
                   )

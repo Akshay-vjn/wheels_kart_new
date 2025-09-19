@@ -26,5 +26,6 @@ class VApiConst {
 
   static const recievedDocuments = "vendorlogin/collecteddocuments";
 
-  static const String fetchCity = "city";
+  static const fetchCity = "masters/city";
+  static const fetchMakeModel = "masters/makemodel";
 }

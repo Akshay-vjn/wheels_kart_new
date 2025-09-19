@@ -4,10 +4,11 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/filter_auction_and_ocb/filter_acution_and_ocb_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_make_and_model_filter_model.dart';
 
 class FilterBottomSheet extends StatefulWidget {
-  final Function(Map<String, dynamic>)? onFiltersApplied;
-  final Map<String, dynamic> initialFilters;
+  final Function(Map<FilterCategory, List<String>>)? onFiltersApplied;
+  final Map<FilterCategory, List<String>> initialFilters;
 
   const FilterBottomSheet({
     super.key,
@@ -20,63 +21,17 @@ class FilterBottomSheet extends StatefulWidget {
 }
 
 class _FilterBottomSheetState extends State<FilterBottomSheet> {
-  Map<String, List<String>> selectedFilters = {};
-  int carsFound = 319;
-  // String selectedCategory = "Make & Model";
-
-  // Map<String, List<String>> filterData = {
-  //   "Make & Model": [
-  //     "Maruti Suzuki",
-  //     "Hyundai",
-  //     "Tata",
-  //     "Honda",
-  //     "Mahindra",
-  //     "Renault",
-  //     "Toyota",
-  //     "Ford",
-  //   ],
-  //   "Body Type": ["Hatchback", "Sedan", "SUV", "MUV", "Coupe", "Convertible"],
-  //   "RTO cities": [
-  //     "Delhi",
-  //     "Mumbai",
-  //     "Bangalore",
-  //     "Chennai",
-  //     "Pune",
-  //     "Kolkata",
-  //   ],
-  //   "Make Year": [
-  //     "2020-2023",
-  //     "2015-2019",
-  //     "2010-2014",
-  //     "2005-2009",
-  //     "Before 2005",
-  //   ],
-  //   "Km Driven": [
-  //     "0-10000",
-  //     "10000-25000",
-  //     "25000-50000",
-  //     "50000-75000",
-  //     "75000+",
-  //   ],
-  //   "Fuel Type": ["Petrol", "Diesel", "CNG", "Electric", "Hybrid"],
-  //   "Owner": ["1st Owner", "2nd Owner", "3rd Owner", "4th+ Owner"],
-  //   "Transmission": ["Manual", "Automatic", "CVT"],
-  //   "Price": ["Under 1 Lakh", "1-3 Lakh", "3-5 Lakh", "5-10 Lakh", "10+ Lakh"],
-  // };
-
-  List<String> get otherMakes => ["Renault", "Toyota", "Ford"];
+  Map<FilterCategory, List<String>> selectedFilters = {};
 
   @override
   void initState() {
     super.initState();
     // Initialize selectedFilters from widget.initialFilters
     widget.initialFilters.forEach((key, value) {
-      if (value is List<String>) {
-        selectedFilters[key] = List<String>.from(value);
-      }
+      // if (value is List<String>) {
+      selectedFilters[key] = List<String>.from(value);
+      // }
     });
-
-    context.read<FilterAcutionAndOcbCubit>().initWithFilterData(context);
   }
 
   @override
@@ -165,7 +120,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                                             child: ListTile(
                                               dense: true,
                                               title: Text(
-                                                category,
+                                                FilterAcutionAndOcbCubit.tryToString(
+                                                  category,
+                                                ),
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                   fontWeight:
@@ -196,7 +153,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                             child: Container(
                               color: Colors.white,
                               child:
-                                  state.currentFilterCategory == "Make & Model"
+                                  state.currentFilterCategory ==
+                                          FilterCategory.MakeAndMode
                                       ? _buildMakeModelContent()
                                       : _buildGenericFilterContent(),
                             ),
@@ -222,27 +180,27 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             ),
             child: Row(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "$carsFound",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Text(
-                      "Cars Found",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(width: 20),
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     // Text(
+                //     //   "$carsFound",
+                //     //   style: TextStyle(
+                //     //     fontSize: 18,
+                //     //     fontWeight: FontWeight.bold,
+                //     //     color: Colors.black87,
+                //     //   ),
+                //     // ),
+                //     Text(
+                //       "Cars Found",
+                //       style: TextStyle(
+                //         fontSize: 12,
+                //         color: Colors.grey.shade600,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // SizedBox(width: 20),
                 Expanded(
                   child: Row(
                     children: [
@@ -253,6 +211,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                             setState(() {
                               selectedFilters.clear();
                             });
+
+                            context
+                                .read<FilterAcutionAndOcbCubit>()
+                                .clearFilter();
                           },
                           style: OutlinedButton.styleFrom(
                             padding: EdgeInsets.symmetric(vertical: 12),
@@ -308,29 +270,49 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   }
 
   Widget _buildMakeModelContent() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Popular Makes Section
-          Text(
-            "POPULAR MAKES",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
-              letterSpacing: 0.5,
-            ),
-          ),
-          // SizedBox(height: 10),
-          // ...popularMakes.map(
-          //   (make) => _buildCheckboxItem(make, selectedCategory),
-          // ),
+    return BlocBuilder<FilterAcutionAndOcbCubit, FilterAcutionAndOcbState>(
+      builder: (context, state) {
+        switch (state) {
+          case FilterAcutionAndOcbInitial():
+            {
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Popular Makes Section
+                    SizedBox(height: 10),
+                    Text(
+                      "POPULAR MAKES",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 10),
 
-          // Other Makes Section
-        ],
-      ),
+                    ...state.filterData!.entries.first.value.map((e) {
+                      final make = MakeAndModelForFilterModel.fromJson(
+                        e.toJson(),
+                      );
+                      return _buildMakExpansionTile(
+                        make.makeName,
+                        state.currentFilterCategory!,
+                        make.models.map((e) => e.modelName).toList(),
+                      );
+                    }),
+
+                    // Other Makes Section
+                  ],
+                ),
+              );
+            }
+          default:
+            return SizedBox();
+        }
+      },
     );
   }
 
@@ -340,7 +322,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         switch (state) {
           case FilterAcutionAndOcbInitial():
             {
-              List<String> options =
+              List<dynamic> options =
                   state.filterData![state.currentFilterCategory] ?? [];
 
               return ListView.builder(
@@ -349,7 +331,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 itemBuilder: (context, index) {
                   return _buildCheckboxItem(
                     options[index],
-                    state.currentFilterCategory ?? "",
+                    state.currentFilterCategory!,
                   );
                 },
               );
@@ -363,30 +345,26 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     );
   }
 
-  Widget _buildCheckboxItem(String option, String category) {
-    bool isSelected = selectedFilters[category]?.contains(option) ?? false;
+  Widget _buildCheckboxItem(String option, FilterCategory category) {
+    String convertedOption = option;
+    if (FilterCategory.Price == category) {
+      convertedOption = _mapPriceLabelToFilter(option);
+    }
+    if (FilterCategory.KmDriven == category) {
+      convertedOption = _mapKmLabelToFilter(option);
+    }
+    if (FilterCategory.MakeYear == category) {
+      convertedOption = _mapMakeYearLabelToFilter(option);
+    }
+    bool isSelected =
+        selectedFilters[category]?.contains(convertedOption) ?? false;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {
-              setState(() {
-                if (!selectedFilters.containsKey(category)) {
-                  selectedFilters[category] = [];
-                }
-
-                if (isSelected) {
-                  selectedFilters[category]!.remove(option);
-                  if (selectedFilters[category]!.isEmpty) {
-                    selectedFilters.remove(category);
-                  }
-                } else {
-                  selectedFilters[category]!.add(option);
-                }
-              });
-            },
+            onTap: () => _onChooseOption(convertedOption, category, isSelected),
             child: Container(
               width: 20,
               height: 20,
@@ -415,13 +393,162 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               ),
             ),
           ),
-          Icon(
-            Icons.keyboard_arrow_down,
-            color: Colors.grey.shade600,
-            size: 20,
-          ),
+          // Icon(
+          //   Icons.keyboard_arrow_down,
+          //   color: Colors.grey.shade600,
+          //   size: 20,
+          // ),
         ],
       ),
     );
+  }
+
+  Widget _buildMakExpansionTile(
+    String option,
+    FilterCategory selctedCategory,
+    List<String> options,
+  ) {
+    bool isSelected =
+        selectedFilters[selctedCategory]?.contains(option) ?? false;
+
+    return ExpansionTile(
+      shape: BoxBorder.all(width: 0),
+      childrenPadding: EdgeInsets.symmetric(horizontal: 10),
+      backgroundColor: VColors.GREYHARD.withAlpha(100),
+      tilePadding: EdgeInsets.symmetric(horizontal: 10),
+      leading: GestureDetector(
+        onTap: () => _onChooseOption(option, selctedCategory, isSelected),
+        child: Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: isSelected ? Colors.blue : Colors.grey.shade400,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(3),
+            color: isSelected ? Colors.blue : Colors.transparent,
+          ),
+          child:
+              isSelected
+                  ? Icon(Icons.check, size: 14, color: Colors.white)
+                  : null,
+        ),
+      ),
+      title: Text(
+        option,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          color: Colors.grey.shade800,
+        ),
+      ),
+      enabled: options.isNotEmpty,
+      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+      children:
+          options.isEmpty
+              ? []
+              : [
+                Text(
+                  "POPULAR MODELS",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                SizedBox(height: 10),
+                ...options
+                    .map(
+                      (model) => Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: _buildCheckboxItem(model, selctedCategory),
+                      ),
+                    )
+                    .toList(),
+              ],
+    );
+  }
+
+  void _onChooseOption(
+    String option,
+    FilterCategory selctedCategory,
+    bool isSelected,
+  ) {
+    setState(() {
+      if (!selectedFilters.containsKey(selctedCategory)) {
+        selectedFilters[selctedCategory] = [];
+      }
+
+      if (isSelected) {
+        selectedFilters[selctedCategory]!.remove(option);
+        if (selectedFilters[selctedCategory]!.isEmpty) {
+          selectedFilters.remove(selctedCategory);
+        }
+      } else {
+        selectedFilters[selctedCategory]!.add(option);
+      }
+    });
+  }
+
+  // Helper
+
+  int? _extractFirstNumber(String s) {
+    final match = RegExp(r'(\d{2,})').firstMatch(s);
+    if (match == null) return null;
+    return int.tryParse(match.group(1)!);
+  }
+
+  String _mapPriceLabelToFilter(String label) {
+    final s = label.trim().toLowerCase();
+    int lakh(int n) => n * 100000;
+
+    if (s.contains('under')) {
+      final d = _extractFirstNumber(s);
+      if (d != null) return '<=${lakh(d)}';
+    }
+
+    if (s.contains('+')) {
+      final d = _extractFirstNumber(s);
+      if (d != null) return '>=${lakh(d)}';
+    }
+
+    if (s.contains('-')) {
+      final m = RegExp(r'(\d+)\s*-\s*(\d+)').firstMatch(s);
+      if (m != null) {
+        final a = int.parse(m.group(1)!);
+        final b = int.parse(m.group(2)!);
+        return '${lakh(a)}-${lakh(b)}';
+      }
+    }
+
+    final d = _extractFirstNumber(s);
+    if (d != null) return '${lakh(d)}-${lakh(d)}';
+    return label;
+  }
+
+  String _mapKmLabelToFilter(String label) {
+    final s = label.trim().toLowerCase();
+    if (s.contains('+')) {
+      final n = _extractFirstNumber(s);
+      if (n != null) return '>=$n';
+    }
+    if (s.contains('-')) return s; // already a range like "0-10000"
+    final n = _extractFirstNumber(s);
+    if (n != null) return '$n';
+    return label;
+  }
+
+  String _mapMakeYearLabelToFilter(String label) {
+    final s = label.trim().toLowerCase();
+    if (s.startsWith('before')) {
+      final n = _extractFirstNumber(s);
+      if (n != null) return '<=$n';
+    }
+    if (s.contains('-')) return s; // "2015-2019"
+    final n = _extractFirstNumber(s);
+    if (n != null) return '$n';
+    return label;
   }
 }

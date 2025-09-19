@@ -20,3 +20,10 @@ class UpdatePrice extends VAuctionControlllerEvent {
   final LiveBidModel newBid;
   UpdatePrice({required this.newBid, required this.context});
 }
+
+class OnApplyFilterAndSort extends VAuctionControlllerEvent {
+  final String? sortBy;
+  Map<FilterCategory, List<String>>? filterBy;
+
+  OnApplyFilterAndSort({required this.sortBy, this.filterBy});
+}

@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/filter_auction_and_ocb/filter_acution_and_ocb_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/filter/build_filter_sheet.dart';
 
 class FilterAndSortWidget extends StatefulWidget {
-  
-  final Function(Map<String, dynamic>)? onFiltersApplied;
-  final Function(String)? onSortApplied;
+  final Function(Map<FilterCategory, List<String>>, String)?
+  onFiltersAndSortApplied;
 
-  const FilterAndSortWidget({
-    Key? key,
-    this.onFiltersApplied,
-    this.onSortApplied,
-  }) : super(key: key);
+  const FilterAndSortWidget({Key? key, this.onFiltersAndSortApplied})
+    : super(key: key);
 
   @override
   _FilterAndSortWidgetState createState() => _FilterAndSortWidgetState();
 }
 
 class _FilterAndSortWidgetState extends State<FilterAndSortWidget> {
-  String selectedSort = "Relevance (Default)";
-  Map<String, dynamic> appliedFilters = {};
+  String selectedSort = "Ending Soonest (Default)";
+  Map<FilterCategory, List<String>> appliedFilters = {};
 
   double w(BuildContext context) => MediaQuery.of(context).size.width;
 
@@ -83,16 +80,6 @@ class _FilterAndSortWidgetState extends State<FilterAndSortWidget> {
   );
 
   void _showSortBottomSheet() {
-    List<String> sortOptions = [
-      "Relevance (Default)",
-      "Newest First",
-      "Ending Soonest",
-      "Price - Low to High",
-      "Price - High to Low",
-      "Year - Old to New",
-      "Year - New to Old",
-    ];
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -138,9 +125,9 @@ class _FilterAndSortWidgetState extends State<FilterAndSortWidget> {
                 ),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: sortOptions.length,
+                  itemCount: FilterAcutionAndOcbCubit.sortOptions.length,
                   itemBuilder: (context, index) {
-                    String option = sortOptions[index];
+                    String option = FilterAcutionAndOcbCubit.sortOptions[index];
                     bool isSelected = selectedSort == option;
 
                     return InkWell(
@@ -148,7 +135,10 @@ class _FilterAndSortWidgetState extends State<FilterAndSortWidget> {
                         setState(() {
                           selectedSort = option;
                         });
-                        widget.onSortApplied?.call(option);
+                        widget.onFiltersAndSortApplied?.call(
+                          appliedFilters,
+                          option,
+                        );
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -226,12 +216,11 @@ class _FilterAndSortWidgetState extends State<FilterAndSortWidget> {
       isScrollControlled: true,
       builder: (BuildContext context) {
         return FilterBottomSheet(
-
           onFiltersApplied: (filters) {
             setState(() {
               appliedFilters = filters;
             });
-            widget.onFiltersApplied?.call(filters);
+            widget.onFiltersAndSortApplied?.call(filters, selectedSort);
           },
           initialFilters: appliedFilters,
         );

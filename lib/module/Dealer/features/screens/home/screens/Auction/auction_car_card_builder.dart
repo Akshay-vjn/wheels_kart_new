@@ -12,7 +12,6 @@ import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/Auction/auction_vehicle_card.dart';
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
-import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
 class VAuctionCarBuilder extends StatefulWidget {
   VAuctionCarBuilder({super.key});
@@ -33,29 +32,16 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _auctionControllerBloc.close();
-    super.dispose();
-  }
-
-  bool loadingId = true;
-  // String myId = "";
-  // Future<void> _getMyId() async {
-  //   final userData = await context.read<AppAuthController>().getUserData;
-  //   myId = userData.userId ?? '';
-  //   setState(() {
-  //     loadingId = false;
-  //   });
-  //   log("My Id :$myId");
+  // @override
+  // void dispose() {
+  //   _auctionControllerBloc.close();
+  //   super.dispose();
   // }
 
   initScreen() async {
     _auctionControllerBloc = context.read<VAuctionControlllerBloc>();
     _auctionControllerBloc.add(ConnectWebSocket(context: context));
-    // FETCHING DATA
     _auctionControllerBloc.add(OnFetchVendorAuctionApi(context: context));
-    // await _getMyId();
   }
 
   @override
@@ -70,7 +56,7 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
 
           case VAuctionControllerSuccessState():
             {
-              final carList = state.listOfCars;
+              final carList = state.filterdAutionList;
 
               return RefreshIndicator.adaptive(
                 onRefresh: () async {

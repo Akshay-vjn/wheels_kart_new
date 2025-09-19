@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/filter_auction_and_ocb/filter_acution_and_ocb_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_dashboard_repo.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/car_models_model.dart';
 
 part 'v_dashboard_controlller_event.dart';
 part 'v_dashboard_controlller_state.dart';
@@ -18,6 +21,7 @@ class VAuctionControlllerBloc
     extends Bloc<VAuctionControlllerEvent, VAuctionControlllerState> {
   late WebSocketChannel channel;
   StreamSubscription? _subscription;
+
   VAuctionControlllerBloc() : super(VAuctionControlllerInitialState()) {
     on<OnFetchVendorAuctionApi>((event, emit) async {
       emit(VAuctionControlllerLoadingState());
@@ -29,7 +33,8 @@ class VAuctionControlllerBloc
 
           emit(
             VAuctionControllerSuccessState(
-              listOfCars: list,
+              filterdAutionList: list,
+              listOfAllAuctionFromServer: list,
               enableRefreshButton: false,
             ),
           );
@@ -38,6 +43,68 @@ class VAuctionControlllerBloc
         }
       }
     });
+
+    // FILTER
+
+    on<OnApplyFilterAndSort>((event, emit) {
+      final currentState = state;
+
+      if (currentState is! VAuctionControllerSuccessState) {
+        // If not success, you may want to queue the filter (see note below).
+        debugPrint(
+          'OnApplyFilterAndSort: bloc not in Success state, ignoring for now.',
+        );
+        return;
+      }
+
+      debugPrint(
+        'OnApplyFilterAndSort: received filters=${event.filterBy}, sort=${event.sortBy}',
+      );
+
+      final filters = event.filterBy;
+      final sort = event.sortBy;
+
+      // Base list to filter from: always start from the full server list so
+      // filters are applied consistently (AND semantics across categories).
+      final List<VCarModel> baseList = List<VCarModel>.from(
+        currentState.listOfAllAuctionFromServer,
+      );
+
+      // If filters is null or empty => reset filtered list to full list (optionally apply sort)
+      if (filters == null || filters.isEmpty) {
+        List<VCarModel> result = List<VCarModel>.from(baseList);
+
+        if (sort != null && sort.isNotEmpty) {
+          result = _onSort(result, sort);
+        }
+
+        // Only emit if different (cheap identity check)
+        if (!_listEqualsById(result, currentState.filterdAutionList)) {
+          emit(currentState.copyWith(filterdAutionList: result));
+        }
+        return;
+      }
+
+      // Apply filters (returns a new list)
+      List<VCarModel> filtered = _onFilter(baseList, filters);
+
+      // Apply sort on filtered results if requested
+      if (sort != null && sort.isNotEmpty) {
+        filtered = _onSort(filtered, sort);
+      }
+
+      debugPrint('OnApplyFilterAndSort: filteredCount=${filtered.length}');
+
+      // Emit new success state with filtered list
+      if (!_listEqualsById(filtered, currentState.filterdAutionList)) {
+        emit(currentState.copyWith(filterdAutionList: filtered));
+      } else {
+        debugPrint(
+          'OnApplyFilterAndSort: filtered list identical to current, skipping emit.',
+        );
+      }
+    });
+
     // WEB SOCKET
 
     on<ConnectWebSocket>(_connectWebSocket);
@@ -48,11 +115,9 @@ class VAuctionControlllerBloc
 
       if (cuuremtSate is VAuctionControllerSuccessState) {
         if (event.newBid.trigger != null && event.newBid.trigger == "new") {
-          log("--------New Auction Listed");
+          debugPrint("--------New Auction Listed");
 
-          final response = await VAuctionData.getAuctionData(
-            event.context,
-          );
+          final response = await VAuctionData.getAuctionData(event.context);
 
           if (response.isNotEmpty && response['error'] == false) {
             final data = response['data'] as List;
@@ -60,21 +125,24 @@ class VAuctionControlllerBloc
 
             emit(
               VAuctionControllerSuccessState(
-                listOfCars: list,
+                filterdAutionList: list,
+                listOfAllAuctionFromServer: list,
                 enableRefreshButton: false,
               ),
             );
           } else {
             emit(
               VAuctionControllerSuccessState(
-                listOfCars: cuuremtSate.listOfCars,
+                filterdAutionList: cuuremtSate.listOfAllAuctionFromServer,
+                listOfAllAuctionFromServer:
+                    cuuremtSate.listOfAllAuctionFromServer,
                 enableRefreshButton: true,
               ),
             );
           }
         } else {
-          log("--------Auction Updated");
-          for (var car in cuuremtSate.listOfCars) {
+          debugPrint("--------Auction Updated");
+          for (var car in cuuremtSate.listOfAllAuctionFromServer) {
             if (car.evaluationId == event.newBid.evaluationId) {
               final bid = event.newBid;
               final reversed = bid.vendorBids.toList();
@@ -93,31 +161,17 @@ class VAuctionControlllerBloc
           }
           emit(
             VAuctionControllerSuccessState(
-              listOfCars: updatedList,
+              filterdAutionList: updatedList,
+              listOfAllAuctionFromServer: updatedList,
               enableRefreshButton: cuuremtSate.enableRefreshButton,
             ),
           );
-          log("Updating Done------------");
+          debugPrint("Updating Done------------");
         }
       }
     });
   }
 
-  // void _connectWebSocket(
-  //   ConnectWebSocket event,
-  //   Emitter<VAuctionControlllerState> emit,
-  // ) {
-  //   channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
-
-  //   _subscription = channel.stream.listen((data) {
-  //     log("triggered ----------------");
-  //     String decoded = utf8.decode(data);
-  //     final jsonData = jsonDecode(decoded);
-  //     log("Converted ----------------");
-
-  //     add(UpdatePrice(newBid: LiveBidModel.fromJson(jsonData)));
-  //   });
-  // }
   Timer? _heartbeatTimer;
 
   void _connectWebSocket(
@@ -133,18 +187,18 @@ class VAuctionControlllerBloc
       try {
         channel.sink.add(jsonEncode({"type": "ping"}));
       } catch (e) {
-        log("Ping failed: $e");
+        debugPrint("Ping failed: $e");
       }
     });
 
     _subscription = channel.stream.listen(
       (data) {
-        log("triggered ----------------");
+        debugPrint("triggered ----------------");
 
         try {
           final decoded = (data is String) ? data : utf8.decode(data);
           final jsonData = jsonDecode(decoded);
-          log("Converted ----------------");
+          debugPrint("Converted ----------------");
 
           add(
             UpdatePrice(
@@ -153,15 +207,15 @@ class VAuctionControlllerBloc
             ),
           );
         } catch (e) {
-          log("Error decoding WebSocket data: $e");
+          debugPrint("Error decoding WebSocket data: $e");
         }
       },
       onError: (error) {
-        log("WebSocket error: $error");
+        debugPrint("WebSocket error: $error");
         _reconnect(event);
       },
       onDone: () {
-        log("WebSocket closed. Reconnecting...");
+        debugPrint("WebSocket closed. Reconnecting...");
         _reconnect(event);
       },
       cancelOnError: true,
@@ -177,10 +231,214 @@ class VAuctionControlllerBloc
 
   @override
   Future<void> close() {
-    log("------------Closing Bloc and WebSocket. ------------ Dashboard Bloc");
+    debugPrint(
+      "------------Closing Bloc and WebSocket. ------------ Dashboard Bloc",
+    );
     _heartbeatTimer?.cancel();
     _subscription?.cancel();
     channel.sink.close();
     return super.close();
   }
+
+  // SORTING
+  List<VCarModel> _onSort(List<VCarModel> result, String sort) {
+    return result;
+  }
+
+  // FILTER
+
+  bool _listEqualsById(List<VCarModel> a, List<VCarModel> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].inspectionId != b[i].inspectionId) return false;
+    }
+    return true;
+  }
+
+  List<VCarModel> _onFilter(
+    List<VCarModel> result,
+    Map<FilterCategory, List<String>> filters,
+  ) {
+    List<VCarModel> current = List<VCarModel>.from(result);
+
+    filters.forEach((key, values) {
+      if (values.isEmpty) return;
+
+      switch (key) {
+        case FilterCategory.MakeAndMode:
+          final selected = values.map((v) => v.toLowerCase()).toSet();
+          current =
+              current
+                  .where(
+                    (e) =>
+                        selected.contains(e.brandName.toLowerCase()) ||
+                        selected.contains(e.modelName.toLowerCase()),
+                  )
+                  .toList();
+          break;
+
+        case FilterCategory.City:
+          final selected = values.map((v) => v.toLowerCase()).toSet();
+          current =
+              current
+                  .where((e) => selected.contains(e.city.toLowerCase()))
+                  .toList();
+          break;
+
+        case FilterCategory.MakeYear:
+          current =
+              current.where((e) {
+                final int year = _parseIntSafe(e.manufacturingYear) ?? 0;
+                return values.any((v) => _matchesNumberOrRange(year, v));
+              }).toList();
+          break;
+
+        case FilterCategory.KmDriven:
+          current =
+              current.where((e) {
+                final int? km = _parseIntSafe(_removeKmSuffix(e.kmsDriven));
+                if (km == null) return false;
+                return values.any((v) => _matchesNumberOrRange(km, v));
+              }).toList();
+          break;
+
+        case FilterCategory.FuelType:
+          final selected = values.map((v) => v.toLowerCase()).toSet();
+          current =
+              current
+                  .where((e) => selected.contains(e.fuelType.toLowerCase()))
+                  .toList();
+          break;
+
+        // case FilterCategory.Owner:
+        //   current =
+        //       current.where((e) {
+        //         final int? owners =
+        //             e.ownerCount; // adjust if field name differs
+        //         if (owners == null) return false;
+        //         return values.any((v) => _matchesNumberOrRange(owners, v));
+        //       }).toList();
+        //   break;
+
+        // case FilterCategory.Transmission:
+        //   final selected = values.map((v) => v.toLowerCase()).toSet();
+        //   current =
+        //       current
+        //           .where((e) => selected.contains(e.transmission.toLowerCase()))
+        //           .toList();
+        //   break;
+
+        case FilterCategory.Price:
+          current =
+              current.where((e) {
+                final int price = _parseIntSafe(e.currentBid ?? '') ?? 0;
+                return values.any((v) => _matchesNumberOrRange(price, v));
+              }).toList();
+          break;
+      }
+    });
+
+    return current;
+  }
+
+  int? _parseIntSafe(String? s) {
+    if (s == null) return null;
+    final cleaned = s.replaceAll(
+      RegExp(r'[^0-9\-]'),
+      '',
+    ); // keep digits and minus
+    if (cleaned.isEmpty) return null;
+    return int.tryParse(cleaned);
+  }
+
+  /// Remove km/kms suffix and trailing punctuation, returns cleaned string
+  String _removeKmSuffix(String s) {
+    var trimmed = s.trim();
+
+    // drop trailing punctuation (comma, period)
+    while (trimmed.isNotEmpty &&
+        (trimmed.endsWith(',') ||
+            trimmed.endsWith('.') ||
+            trimmed.endsWith(';'))) {
+      trimmed = trimmed.substring(0, trimmed.length - 1).trim();
+    }
+
+    final lower = trimmed.toLowerCase();
+    if (lower.endsWith('kms')) {
+      return trimmed.substring(0, trimmed.length - 3).trim();
+    } else if (lower.endsWith('km')) {
+      return trimmed.substring(0, trimmed.length - 2).trim();
+    }
+    return trimmed;
+  }
+
+  /// Matches a numeric value against filter string forms:
+  /// - inequalities: "<=n", ">=n", "<n", ">n"
+  /// - ranges: "a-b"
+  /// - exact number: "n"
+  bool _matchesNumberOrRange(int value, String filter) {
+    final s = filter.trim();
+
+    if (s.isEmpty) return false;
+
+    final lower = s.toLowerCase();
+
+    // handle "before yyyy" or "before n" as "<=n"
+    if (lower.startsWith('before')) {
+      final n = _extractFirstNumber(s);
+      if (n == null) return false;
+      return value <= n;
+    }
+
+    // inequalities
+    if (s.startsWith('<=')) {
+      final n = _parseIntSafe(s.substring(2));
+      return n != null ? value <= n : false;
+    }
+    if (s.startsWith('>=')) {
+      final n = _parseIntSafe(s.substring(2));
+      return n != null ? value >= n : false;
+    }
+    if (s.startsWith('<')) {
+      final n = _parseIntSafe(s.substring(1));
+      return n != null ? value < n : false;
+    }
+    if (s.startsWith('>')) {
+      final n = _parseIntSafe(s.substring(1));
+      return n != null ? value > n : false;
+    }
+
+    // hyphen-range "start-end"
+    if (s.contains('-')) {
+      final parts =
+          s.split('-').map((p) => p.trim()).where((p) => p.isNotEmpty).toList();
+      if (parts.length == 2) {
+        final a = _parseIntSafe(parts[0]);
+        final b = _parseIntSafe(parts[1]);
+        if (a == null || b == null) return false;
+        final low = min(a, b);
+        final high = max(a, b);
+        return value >= low && value <= high;
+      }
+      return false;
+    }
+
+    // exact number
+    final n = _parseIntSafe(s);
+    if (n != null) return value == n;
+
+    return false;
+  }
+
+  /// Extract first number (2-4 digits or more) from a string. Returns null if none.
+  int? _extractFirstNumber(String s) {
+    final match = RegExp(r'(\d{2,})').firstMatch(s);
+    if (match == null) return null;
+    return int.tryParse(match.group(1)!);
+  }
+
+  /// --- UI label -> filter mappers (use these to convert selected labels to numeric filters) ---
+
+  
 }
