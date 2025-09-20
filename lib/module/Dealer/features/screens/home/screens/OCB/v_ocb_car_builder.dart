@@ -7,6 +7,7 @@ import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/filter_auction_and_ocb/filter_acution_and_ocb_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/OCB/v_ocb_car_card.dart';
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
@@ -32,18 +33,6 @@ class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
     super.initState();
   }
 
-  // String myId = "";
-  // // Future<void> _getMyId() async {
-  // //   final userData = await context.read<AppAuthController>().getUserData;
-  // //   myId = userData.userId ?? '';
-  // // }
-
-  @override
-  void dispose() {
-    _ocbControllerBloc.close(); // TODO: implement dispose
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<VOcbControllerBloc, VOcbControllerState>(
@@ -55,10 +44,11 @@ class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
             }
           case VOcbControllerSuccessState():
             {
-              final carList = state.listOfCars;
+              final carList = state.sortedAndFilterdOCBList;
 
               return RefreshIndicator.adaptive(
                 onRefresh: () async {
+                  context.read<FilterAcutionAndOcbCubit>().clearFilter();
                   return context.read<VOcbControllerBloc>().add(
                     OnFechOncList(context: context),
                   );

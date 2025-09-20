@@ -9,6 +9,7 @@ import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/filter_auction_and_ocb/filter_acution_and_ocb_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/Auction/auction_vehicle_card.dart';
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
@@ -60,6 +61,7 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
 
               return RefreshIndicator.adaptive(
                 onRefresh: () async {
+                  context.read<FilterAcutionAndOcbCubit>().clearFilter();
                   return context.read<VAuctionControlllerBloc>().add(
                     OnFetchVendorAuctionApi(context: context),
                   );

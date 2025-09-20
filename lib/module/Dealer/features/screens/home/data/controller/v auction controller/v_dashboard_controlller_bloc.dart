@@ -44,67 +44,6 @@ class VAuctionControlllerBloc
       }
     });
 
-    // FILTER
-
-    on<OnApplyFilterAndSort>((event, emit) {
-      final currentState = state;
-
-      if (currentState is! VAuctionControllerSuccessState) {
-        // If not success, you may want to queue the filter (see note below).
-        debugPrint(
-          'OnApplyFilterAndSort: bloc not in Success state, ignoring for now.',
-        );
-        return;
-      }
-
-      debugPrint(
-        'OnApplyFilterAndSort: received filters=${event.filterBy}, sort=${event.sortBy}',
-      );
-
-      final filters = event.filterBy;
-      final sort = event.sortBy;
-
-      // Base list to filter from: always start from the full server list so
-      // filters are applied consistently (AND semantics across categories).
-      final List<VCarModel> baseList = List<VCarModel>.from(
-        currentState.listOfAllAuctionFromServer,
-      );
-
-      // If filters is null or empty => reset filtered list to full list (optionally apply sort)
-      if (filters == null || filters.isEmpty) {
-        List<VCarModel> result = List<VCarModel>.from(baseList);
-
-        if (sort != null && sort.isNotEmpty) {
-          result = _onSort(result, sort);
-        }
-
-        // Only emit if different (cheap identity check)
-        if (!_listEqualsById(result, currentState.filterdAutionList)) {
-          emit(currentState.copyWith(filterdAutionList: result));
-        }
-        return;
-      }
-
-      // Apply filters (returns a new list)
-      List<VCarModel> filtered = _onFilter(baseList, filters);
-
-      // Apply sort on filtered results if requested
-      if (sort != null && sort.isNotEmpty) {
-        filtered = _onSort(filtered, sort);
-      }
-
-      debugPrint('OnApplyFilterAndSort: filteredCount=${filtered.length}');
-
-      // Emit new success state with filtered list
-      if (!_listEqualsById(filtered, currentState.filterdAutionList)) {
-        emit(currentState.copyWith(filterdAutionList: filtered));
-      } else {
-        debugPrint(
-          'OnApplyFilterAndSort: filtered list identical to current, skipping emit.',
-        );
-      }
-    });
-
     // WEB SOCKET
 
     on<ConnectWebSocket>(_connectWebSocket);
@@ -168,6 +107,105 @@ class VAuctionControlllerBloc
           );
           debugPrint("Updating Done------------");
         }
+      }
+    });
+
+    // FILTER
+
+    on<OnApplyFilterAndSortInAuction>((event, emit) {
+      final currentState = state;
+
+      if (currentState is! VAuctionControllerSuccessState) {
+        // If not success, you may want to queue the filter (see note below).
+        debugPrint(
+          'OnApplyFilterAndSort: bloc not in Success state, ignoring for now.',
+        );
+        return;
+      }
+
+      debugPrint(
+        'OnApplyFilterAndSort: received filters=${event.filterBy}, sort=${event.sortBy}',
+      );
+
+      final filters = event.filterBy;
+      final sort = event.sortBy;
+
+      // Base list to filter from: always start from the full server list so
+      // filters are applied consistently (AND semantics across categories).
+      final List<VCarModel> baseList = List<VCarModel>.from(
+        currentState.listOfAllAuctionFromServer,
+      );
+
+      // If filters is null or empty => reset filtered list to full list (optionally apply sort)
+      if (filters == null || filters.isEmpty) {
+        List<VCarModel> result = List<VCarModel>.from(baseList);
+
+        if (sort != null && sort.isNotEmpty) {
+          result = _onSort(result, sort);
+        }
+
+        // Only emit if different (cheap identity check)
+        if (!_listEqualsById(result, currentState.filterdAutionList)) {
+          emit(currentState.copyWith(filterdAutionList: result));
+        }
+        return;
+      }
+
+      // Apply filters (returns a new list)
+      List<VCarModel> filtered = _onFilter(baseList, filters);
+
+      // Apply sort on filtered results if requested
+      if (sort != null && sort.isNotEmpty) {
+        filtered = _onSort(filtered, sort);
+      }
+
+      debugPrint('OnApplyFilterAndSort: filteredCount=${filtered.length}');
+
+      // Emit new success state with filtered list
+      if (!_listEqualsById(filtered, currentState.filterdAutionList)) {
+        emit(currentState.copyWith(filterdAutionList: filtered));
+      } else {
+        debugPrint(
+          'OnApplyFilterAndSort: filtered list identical to current, skipping emit.',
+        );
+      }
+    });
+
+    // Search
+
+    on<OnSearchAuction>((event, emit) {
+      final currentState = state;
+      final query = event.query.toLowerCase().trim();
+
+      if (currentState is VAuctionControllerSuccessState) {
+        if (query.isEmpty) {
+          // If search box cleared → reset to full list
+          emit(
+            currentState.copyWith(
+              filterdAutionList: List<VCarModel>.from(
+                currentState.listOfAllAuctionFromServer,
+              ),
+            ),
+          );
+          return;
+        }
+
+        final searchedResult =
+            currentState.listOfAllAuctionFromServer.where((element) {
+              final brand = element.brandName.trim().toLowerCase();
+              final model = element.modelName.trim().toLowerCase();
+              final year = element.manufacturingYear.trim().toLowerCase();
+              final fuel = element.fuelType.trim().toLowerCase();
+
+              return brand.contains(query) ||
+                  model.contains(query) ||
+                  year.contains(query) ||
+                  fuel.contains(query);
+            }).toList();
+
+        emit(currentState.copyWith(filterdAutionList: searchedResult));
+      } else {
+        debugPrint("OnSearchAuction: state is not Success, ignoring");
       }
     });
   }
@@ -242,7 +280,48 @@ class VAuctionControlllerBloc
 
   // SORTING
   List<VCarModel> _onSort(List<VCarModel> result, String sort) {
-    return result;
+    final options = FilterAcutionAndOcbCubit.sortOptions;
+    final List<VCarModel> copy = List<VCarModel>.from(result);
+
+    if (sort == options[0]) {
+      // "Ending Soonest (Default)" -> sort by bidClosingTime ascending
+      // copy.sort((a, b) {
+      //   final at = a.bidClosingTime?.millisecondsSinceEpoch ?? 0;
+      //   final bt = b.bidClosingTime?.millisecondsSinceEpoch ?? 0;
+      //   return at.compareTo(bt);
+      // });
+      return copy;
+    } else if (sort == options[1]) {
+      // "Price - Low to High"
+      copy.sort(
+        (a, b) => (_parseIntSafe(a.currentBid ?? '') ?? 0).compareTo(
+          _parseIntSafe(b.currentBid ?? '') ?? 0,
+        ),
+      );
+    } else if (sort == options[2]) {
+      // "Price - High to Low"
+      copy.sort(
+        (a, b) => (_parseIntSafe(b.currentBid ?? '') ?? 0).compareTo(
+          _parseIntSafe(a.currentBid ?? '') ?? 0,
+        ),
+      );
+    } else if (sort == options[3]) {
+      // "Year - Old to New"
+      copy.sort(
+        (a, b) => (_parseIntSafe(a.manufacturingYear) ?? 0).compareTo(
+          _parseIntSafe(b.manufacturingYear) ?? 0,
+        ),
+      );
+    } else if (sort == options[4]) {
+      // "Year - New to Old"
+      copy.sort(
+        (a, b) => (_parseIntSafe(b.manufacturingYear) ?? 0).compareTo(
+          _parseIntSafe(a.manufacturingYear) ?? 0,
+        ),
+      );
+    }
+
+    return copy;
   }
 
   // FILTER
@@ -258,7 +337,7 @@ class VAuctionControlllerBloc
 
   List<VCarModel> _onFilter(
     List<VCarModel> result,
-    Map<FilterCategory, List<String>> filters,
+    Map<FilterCategory, List<dynamic>> filters,
   ) {
     List<VCarModel> current = List<VCarModel>.from(result);
 
@@ -439,6 +518,4 @@ class VAuctionControlllerBloc
   }
 
   /// --- UI label -> filter mappers (use these to convert selected labels to numeric filters) ---
-
-  
 }

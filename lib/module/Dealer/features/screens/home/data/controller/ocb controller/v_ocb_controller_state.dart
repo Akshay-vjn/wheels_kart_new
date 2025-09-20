@@ -13,24 +13,30 @@ final class VOcbControllerErrorState extends VOcbControllerState {
 }
 
 final class VOcbControllerSuccessState extends VOcbControllerState {
-  final List<VCarModel> listOfCars;
+  final List<VCarModel> sortedAndFilterdOCBList;
+  final List<VCarModel> listOfAllOCBFromServer;
   final bool loadingTheOCBButton;
   final bool enableRefreshButton;
 
   VOcbControllerSuccessState({
-    required this.listOfCars,
+    required this.listOfAllOCBFromServer,
+    required this.sortedAndFilterdOCBList,
     this.loadingTheOCBButton = false,
     required this.enableRefreshButton,
   });
   VOcbControllerSuccessState copyWith({
-    List<VCarModel>? listOfCars,
+    List<VCarModel>? sortedAndFilterdOCBList,
     bool? loadingTheOCBButton,
     bool? enableRefreshButton,
+    List<VCarModel>? listOfAllOCBFromServer,
   }) {
     return VOcbControllerSuccessState(
+      listOfAllOCBFromServer:
+          listOfAllOCBFromServer ?? this.listOfAllOCBFromServer,
       enableRefreshButton: enableRefreshButton ?? this.enableRefreshButton,
       loadingTheOCBButton: loadingTheOCBButton ?? this.loadingTheOCBButton,
-      listOfCars: listOfCars ?? this.listOfCars,
+      sortedAndFilterdOCBList:
+          sortedAndFilterdOCBList ?? this.sortedAndFilterdOCBList,
     );
   }
 }

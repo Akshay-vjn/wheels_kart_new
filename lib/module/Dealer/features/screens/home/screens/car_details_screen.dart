@@ -416,16 +416,8 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   Column(
                                     children: [
                                       if (!isOCB)
-                                        ElevatedButton.icon(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Color.fromARGB(
-                                              255,
-                                              255,
-                                              152,
-                                              7,
-                                            ),
-                                          ),
-                                          onPressed: () async {
+                                        InkWell(
+                                          onTap: () async {
                                             final currentState =
                                                 context
                                                     .read<
@@ -447,28 +439,52 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                               );
                                             }
                                           },
-                                          label: Text(
-                                            "UPDATE BID",
-                                            style: VStyle.style(
-                                              context: context,
-                                              color: VColors.WHITE,
-                                              size: 13,
-                                              fontWeight: FontWeight.bold,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 20,
+                                            ),
+                                            height: 50,
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                            ),
+
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  VColors.WARNING.withAlpha(
+                                                    150,
+                                                  ),
+                                                  VColors.WARNING,
+                                                ],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(25),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: VColors.WARNING
+                                                      .withAlpha(60),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                "UPDATE BID",
+                                                style: VStyle.style(
+                                                  context: context,
+                                                  color: VColors.WHITE,
+                                                  size: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
 
                                       if (isOCB)
-                                        ElevatedButton.icon(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Color.fromARGB(
-                                              255,
-                                              255,
-                                              152,
-                                              7,
-                                            ),
-                                          ),
-                                          onPressed: () async {
+                                        InkWell(
+                                          onTap: () {
                                             final currentState =
                                                 context
                                                     .read<
@@ -489,23 +505,65 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                               );
                                             }
                                           },
-                                          label: Text(
-                                            "Buy Now",
-                                            style: VStyle.style(
-                                              context: context,
-                                              color: VColors.WHITE,
-                                              size: 13,
-                                              fontWeight: FontWeight.bold,
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 20,
+                                            ),
+                                            height: 50,
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                            ),
+
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  VColors.WARNING.withAlpha(
+                                                    150,
+                                                  ),
+                                                  VColors.WARNING,
+                                                ],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(25),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: VColors.WARNING
+                                                      .withAlpha(60),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                "Buy Now",
+                                                style: VStyle.style(
+                                                  context: context,
+                                                  color: VColors.WHITE,
+                                                  size: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      Text(
-                                        state.endTime,
-                                        style: VStyle.style(
-                                          context: context,
-                                          fontWeight: FontWeight.bold,
-                                          color: VColors.DARK_GREY,
-                                        ),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.timer,
+                                            color: VColors.DARK_GREY,
+                                            size: 13,
+                                          ),
+                                          AppSpacer(widthPortion: .01),
+                                          Text(
+                                            state.endTime,
+                                            style: VStyle.style(
+                                              context: context,
+                                              fontWeight: FontWeight.bold,
+                                              color: VColors.DARK_GREY,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),

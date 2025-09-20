@@ -52,9 +52,10 @@ class PlaceOcbBottomSheet extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                "Current Price: ₹$currentBid",
+                "OCB Price : ₹$currentBid",
                 style: VStyle.style(
                   context: context,
+                  color: VColors.BLACK,
                   size: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -84,9 +85,21 @@ class PlaceOcbBottomSheet extends StatelessWidget {
 
                   width: double.infinity,
                   alignment: Alignment.center,
+                  height: 50,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    color: const Color.fromARGB(255, 255, 152, 7),
+                    gradient: LinearGradient(
+                      colors: [VColors.PRIMARY.withAlpha(150), VColors.PRIMARY],
+                    ),
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: VColors.PRIMARY.withAlpha(60),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: BlocBuilder<
                     OcbPurchaceControlleCubit,

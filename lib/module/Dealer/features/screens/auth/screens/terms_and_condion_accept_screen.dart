@@ -6,6 +6,7 @@ import 'package:wheels_kart/common/config/pushnotification_controller.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
@@ -126,6 +127,7 @@ class _VTermsAndCondionAcceptScreenState
                             ),
                           ),
                           onPressed: () async {
+                            context.read<VNavControllerCubit>().onChangeNav(0);
                             // AppAuthController().updateLoginPreference(
                             //   AuthUserModel(
                             //     isDealerAcceptedTermsAndCondition: true,

@@ -764,7 +764,7 @@ class _VAccountTabState extends State<VAccountTab>
                 ),
               ),
               onPressed: () {
-                context.read<VNavControllerCubit>().onChangeNav(0);
+              
                 PushNotificationConfig().deleteToken();
                 context.read<AppAuthController>().clearPreferenceData(context);
               },

@@ -18,11 +18,18 @@ class ConnectWebSocket extends VOcbControllerEvent {
 class UpdatePrice extends VOcbControllerEvent {
   final LiveBidModel newBid;
   final BuildContext context;
-  UpdatePrice( {required this.newBid,required  this.context});
+  UpdatePrice({required this.newBid, required this.context});
 }
 
-// class OnBuyOCB extends VOcbControllerEvent {
-//   final String inspectionId;
-//   final BuildContext context;
-//   OnBuyOCB({required this.inspectionId, required this.context});
-// }
+class OnApplyFilterAndSortInOCB extends VOcbControllerEvent {
+  final String? sortBy;
+  Map<FilterCategory, List<dynamic>>? filterBy;
+
+  OnApplyFilterAndSortInOCB({required this.sortBy, this.filterBy});
+}
+
+class OnSearchOCB extends VOcbControllerEvent {
+  final String query;
+
+  OnSearchOCB({required this.query});
+}

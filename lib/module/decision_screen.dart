@@ -24,12 +24,12 @@ class _DecisionScreenState extends State<DecisionScreen>
   late AnimationController _fadeAnimationController;
   late AnimationController _slideAnimationController;
   late AnimationController _backgroundController;
-  late AnimationController _particleController;
+  // late AnimationController _particleController;
 
   late Animation<double> _fadeAnimation;
 
   late Animation<double> _backgroundAnimation;
-  late Animation<double> _particleAnimation;
+  // late Animation<double> _particleAnimation;
 
   @override
   void initState() {
@@ -41,10 +41,10 @@ class _DecisionScreenState extends State<DecisionScreen>
     );
 
     // Particle animation controller
-    _particleController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
+    // _particleController = AnimationController(
+    //   duration: const Duration(milliseconds: 2000),
+    //   vsync: this,
+    // );
 
     // Initialize animations
     _fadeAnimationController = AnimationController(
@@ -64,17 +64,15 @@ class _DecisionScreenState extends State<DecisionScreen>
     );
 
     // Particle animation
-    _particleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _particleController, curve: Curves.easeInOut),
-    );
+    // _particleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    //   CurvedAnimation(parent: _particleController, curve: Curves.easeInOut),
+    // );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _fadeAnimationController,
         curve: Curves.easeInOut,
       ),
     );
-
-   
 
     // Start animations
     _fadeAnimationController.forward();
@@ -83,7 +81,7 @@ class _DecisionScreenState extends State<DecisionScreen>
     });
 
     _backgroundController.forward();
-    _particleController.repeat();
+    // _particleController.repeat();
   }
 
   @override
@@ -91,7 +89,7 @@ class _DecisionScreenState extends State<DecisionScreen>
     _fadeAnimationController.dispose();
     _slideAnimationController.dispose();
     _backgroundController.dispose();
-    _particleController.dispose();
+    // _particleController.dispose();
     super.dispose();
   }
 
@@ -123,35 +121,35 @@ class _DecisionScreenState extends State<DecisionScreen>
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  ...List.generate(6, (index) {
-                    return AnimatedBuilder(
-                      animation: _particleAnimation,
-                      builder: (context, child) {
-                        final offset = _particleAnimation.value * 2 * 3.14159;
-                        return Positioned(
-                          left:
-                              50 +
-                              (index * 60) +
-                              (30 * math.sin(offset + index)),
-                          top:
-                              100 +
-                              (index * 80) +
-                              (40 * math.cos(offset + index * 0.5)),
-                          child: Opacity(
-                            opacity: 0.1,
-                            child: Container(
-                              width: 20 + (index * 5),
-                              height: 20 + (index * 5),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }),
+                  // ...List.generate(6, (index) {
+                  //   return AnimatedBuilder(
+                  //     animation: _particleAnimation,
+                  //     builder: (context, child) {
+                  //       final offset = _particleAnimation.value * 2 * 3.14159;
+                  //       return Positioned(
+                  //         left:
+                  //             50 +
+                  //             (index * 60) +
+                  //             (30 * math.sin(offset + index)),
+                  //         top:
+                  //             100 +
+                  //             (index * 80) +
+                  //             (40 * math.cos(offset + index * 0.5)),
+                  //         child: Opacity(
+                  //           opacity: 0.1,
+                  //           child: Container(
+                  //             width: 20 + (index * 5),
+                  //             height: 20 + (index * 5),
+                  //             decoration: BoxDecoration(
+                  //               shape: BoxShape.circle,
+                  //               color: Colors.white,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       );
+                  //     },
+                  //   );
+                  // }),
                   SafeArea(
                     child: AppMargin(
                       child: SingleChildScrollView(

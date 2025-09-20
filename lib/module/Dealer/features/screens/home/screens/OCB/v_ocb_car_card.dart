@@ -245,6 +245,20 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
                       ],
                     ),
 
+                    if (_isColsed)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        child: Material(
+                          color: VColors.WHITE.withAlpha(120),
+                          borderRadius: BorderRadius.circular(15),
+
+                          child: SizedBox(height: 200, width: 200),
+                        ),
+                      ),
+
                     // Enhanced Favorite Button
                     Positioned(
                       right: 10,
@@ -410,17 +424,18 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
           VColors.SECONDARY,
         ),
         AppSpacer(widthPortion: .01),
-        _buildEnhancedDetailChip(
-          Icons.confirmation_number_rounded,
-          widget.vehicle.regNo.replaceRange(
-            6,
-            widget.vehicle.regNo.length,
-            // '●●●●●●',
-            "",
+        if (widget.vehicle.regNo.isNotEmpty)
+          _buildEnhancedDetailChip(
+            Icons.confirmation_number_rounded,
+            widget.vehicle.regNo.replaceRange(
+              6,
+              widget.vehicle.regNo.length,
+              // '●●●●●●',
+              "",
+            ),
+            const Color.fromARGB(255, 32, 138, 164),
+            isFullWidth: false,
           ),
-          const Color.fromARGB(255, 32, 138, 164),
-          isFullWidth: false,
-        ),
       ],
     );
   }
@@ -483,31 +498,43 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
   Widget _buildBuyAppButton() {
     return _isColsed
         ? SizedBox.shrink()
-        : SizedBox(
-          height: 50,
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusGeometry.circular(10),
+        : InkWell(
+          onTap: () {
+            OcbPurchaceControlleCubit.showBuySheet(
+              context,
+              widget.vehicle.currentBid ?? '',
+              widget.vehicle.inspectionId,
+              "OCB",
+            );
+          },
+          child: Container(
+            height: 50,
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [VColors.PRIMARY.withAlpha(150), VColors.PRIMARY],
               ),
-              backgroundColor: VColors.SECONDARY,
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: [
+                BoxShadow(
+                  color: VColors.PRIMARY.withAlpha(60),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            onPressed: () {
-              OcbPurchaceControlleCubit.showBuySheet(
-                context,
-                widget.vehicle.currentBid ?? '',
-                widget.vehicle.inspectionId,
-                "OCB",
-              );
-            },
-            child: Text(
-              "Buy",
-              style: VStyle.style(
-                context: context,
-                color: VColors.WHITE,
-                size: 15,
-                fontWeight: FontWeight.bold,
+
+            width: double.infinity,
+            child: Center(
+              child: Text(
+                "Buy Now",
+                style: VStyle.style(
+                  context: context,
+                  color: VColors.WHITE,
+                  size: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

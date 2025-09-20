@@ -21,9 +21,15 @@ class UpdatePrice extends VAuctionControlllerEvent {
   UpdatePrice({required this.newBid, required this.context});
 }
 
-class OnApplyFilterAndSort extends VAuctionControlllerEvent {
+class OnApplyFilterAndSortInAuction extends VAuctionControlllerEvent {
   final String? sortBy;
-  Map<FilterCategory, List<String>>? filterBy;
+  Map<FilterCategory, List<dynamic>>? filterBy;
 
-  OnApplyFilterAndSort({required this.sortBy, this.filterBy});
+  OnApplyFilterAndSortInAuction({required this.sortBy, this.filterBy});
+}
+
+class OnSearchAuction extends VAuctionControlllerEvent {
+  final String query;
+
+  OnSearchAuction({required this.query});
 }

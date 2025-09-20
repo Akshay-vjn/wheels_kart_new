@@ -202,9 +202,32 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                       child: _buildCardContent(),
                     ),
                   ),
+
+                  if (_isColsed)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      child: Material(
+                        color: VColors.WHITE.withAlpha(120),
+                        borderRadius: BorderRadius.circular(15),
+
+                        child: SizedBox(height: 200, width: 200),
+                      ),
+                    ),
+
                   // Favorite button with improved positioning
                   // Status indicator
-                  _buildStatusBadge(widget.model.bidStatus ?? ''),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildStatusBadge(widget.model.bidStatus ?? ''),
+                      _buildAuctionStatus(),
+                    ],
+                  ),
+
+                  _buildEnhancedFavoriteButton(widget.model.inspectionId),
                 ],
               ),
             ),
@@ -245,7 +268,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
           // Action buttons row
           _buildActionButtons(),
 
@@ -445,35 +468,16 @@ class _VWhishlistCardState extends State<VWhishlistCard>
         if (_isOpened && !_isColsed) ...[
           Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [_buildHighAndLowBid(), _buildWhatsAppButton()],
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [_buildBidButton()],
             ),
           ),
+
+          // const SizedBox(height: 12),
+          // New bid button widget
         ] else ...[
           Expanded(child: SizedBox()),
         ],
-        const SizedBox(width: 12),
-        _buildEnhancedFavoriteButton(widget.model.inspectionId),
-
-        // Bid Now button
-        // Expanded(
-        //   child: ElevatedButton.icon(
-        //     onPressed: () async {
-        //       // await VCarDetailsScreen().openWhatsApp(widge);
-        //     },
-        //     icon: const Icon(Icons.gavel_rounded, size: 16),
-        //     label: const Text("Bid Now"),
-        //     style: ElevatedButton.styleFrom(
-        //       backgroundColor: VColors.GREENHARD,
-        //       foregroundColor: Colors.white,
-        //       elevation: 0,
-        //       shape: RoundedRectangleBorder(
-        //         borderRadius: BorderRadius.circular(8),
-        //       ),
-        //       padding: const EdgeInsets.symmetric(vertical: 8),
-        //     ),
-        //   ),
-        // ),
       ],
     );
   }
@@ -506,40 +510,44 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   }
 
   Widget _buildEnhancedFavoriteButton(String inspectionId) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+    return Positioned(
+      right: 10,
+      top: 10,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          onTap: widget.onPressFavoureButton,
-          // onTap: () {
-          //   // Add haptic feedback
-          //   HapticFeedback.lightImpact();
-          //   context.read<VWishlistControllerCubit>().onChangeFavState(
-          //     context,
-          //     inspectionId,
-          //     fetch: true,
-          //   );
-          // },
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                Icons.favorite_rounded,
-                color: VColors.ACCENT,
-                size: 18,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: widget.onPressFavoureButton,
+            // onTap: () {
+            //   // Add haptic feedback
+            //   HapticFeedback.lightImpact();
+            //   context.read<VWishlistControllerCubit>().onChangeFavState(
+            //     context,
+            //     inspectionId,
+            //     fetch: true,
+            //   );
+            // },
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.favorite_rounded,
+                  color: VColors.ACCENT,
+                  size: 18,
+                ),
               ),
             ),
           ),
@@ -592,10 +600,10 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     }
     // You can customize this based on vehicle status
     return Container(
-      margin: EdgeInsets.all(15),
+      margin: EdgeInsets.only(left: 15, top: 15, bottom: 3),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withAlpha(180),
+        color: color.withAlpha(200),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
@@ -696,130 +704,262 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     }
   }
 
-  Widget _buildHighAndLowBid() {
-    Color color;
-    String titleText;
-    String subtitleText;
+  // Widget _buildHighAndLowBid() {
+  //   Color color;
+  //   String titleText;
+  //   String subtitleText;
+
+  //   if (_isHigestBidderIsMe) {
+  //     color = VColors.SUCCESS;
+  //     titleText = "WINNING";
+  //     subtitleText = "";
+  //   } else {
+  //     color = VColors.ERROR;
+  //     titleText = "LOSING";
+  //     subtitleText = "Increase Bid";
+  //   }
+
+  //   return !_isIamInThisBid
+  //       ? SizedBox.shrink()
+  //       : Flexible(
+  //         child: InkWell(
+  //           borderRadius: BorderRadius.circular(12),
+  //           onTap: () {
+  //             VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+  //               from: "WISHLIST",
+  //               context: context,
+  //               inspectionId: widget.model.inspectionId,
+  //             );
+  //           },
+  //           child: Container(
+  //             width: double.infinity,
+  //             // height: 60,
+  //             // margin: const EdgeInsets.symmetric(horizontal: 8),
+  //             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  //             decoration: BoxDecoration(
+  //               color: color,
+  //               border: Border.all(color: color.withOpacity(0.6), width: 0.6),
+  //               borderRadius: BorderRadius.circular(12),
+  //               boxShadow: [
+  //                 BoxShadow(
+  //                   color: color.withAlpha(21),
+  //                   blurRadius: 6,
+  //                   offset: Offset(0, 2),
+  //                 ),
+  //               ],
+  //             ),
+  //             child: Row(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 Column(
+  //                   mainAxisAlignment: MainAxisAlignment.center,
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Text(
+  //                       titleText,
+  //                       style: VStyle.style(
+  //                         context: context,
+  //                         color: VColors.WHITE,
+  //                         fontWeight: FontWeight.w900,
+  //                         size: 18,
+  //                       ),
+  //                     ),
+  //                     if (subtitleText.isNotEmpty) ...[
+  //                       const SizedBox(height: 2),
+  //                       Text(
+  //                         subtitleText,
+  //                         style: VStyle.style(
+  //                           context: context,
+  //                           color: VColors.WHITE,
+  //                           fontWeight: FontWeight.w400,
+  //                           size: 12,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  // }
+
+  // Widget _buildWhatsAppButton() {
+  //   return _isIamInThisBid
+  //       ? SizedBox.shrink()
+  //       : Flexible(
+  //         child: SizedBox(
+  //           // margin: EdgeInsets.symmetric(horizontal: 5),
+  //           height: 50,
+  //           width: double.infinity,
+  //           child: ElevatedButton(
+  //             style: ElevatedButton.styleFrom(
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadiusGeometry.circular(10),
+  //               ),
+  //               backgroundColor: VColors.SECONDARY,
+  //             ),
+  //             onPressed: () {
+  //               if (widget.model.auctionType == "OCB") {
+  //                 OcbPurchaceControlleCubit.showBuySheet(
+  //                   context,
+  //                   widget.model.currentBid ?? '',
+  //                   widget.model.inspectionId,
+  //                   "WISHLIST",
+  //                 );
+  //               } else {
+  //                 VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+  //                   from: "WISHLIST",
+  //                   context: context,
+
+  //                   inspectionId: widget.model.inspectionId,
+  //                 );
+  //               }
+  //             },
+  //             child: Text(
+  //               widget.model.auctionType == "OCB" ? "Buy" : "Bid your price",
+  //               style: VStyle.style(
+  //                 context: context,
+  //                 color: VColors.WHITE,
+  //                 size: 15,
+  //                 fontWeight: FontWeight.bold,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  // }
+
+  Widget _buildAuctionStatus() {
+    if (!_isIamInThisBid || _isColsed) return SizedBox.shrink();
+
+    Color statusColor;
+    String statusText;
+    IconData statusIcon;
 
     if (_isHigestBidderIsMe) {
-      color = VColors.SUCCESS;
-      titleText = "WINNING";
-      subtitleText = "";
+      statusColor = VColors.SUCCESS;
+      statusText = "WINNING";
+      statusIcon = Icons.trending_up;
     } else {
-      color = VColors.ERROR;
-      titleText = "LOSING";
-      subtitleText = "Increase Bid";
+      statusColor = VColors.ERROR;
+      statusText = "LOSINg";
+      statusIcon = Icons.trending_down;
     }
 
-    return !_isIamInThisBid
-        ? SizedBox.shrink()
-        : Flexible(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
-                from: "WISHLIST",
-                context: context,
-                inspectionId: widget.model.inspectionId,
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              // height: 60,
-              // margin: const EdgeInsets.symmetric(horizontal: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: color,
-                border: Border.all(color: color.withOpacity(0.6), width: 0.6),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withAlpha(21),
-                    blurRadius: 6,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        titleText,
-                        style: VStyle.style(
-                          context: context,
-                          color: VColors.WHITE,
-                          fontWeight: FontWeight.w900,
-                          size: 18,
-                        ),
-                      ),
-                      if (subtitleText.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitleText,
-                          style: VStyle.style(
-                            context: context,
-                            color: VColors.WHITE,
-                            fontWeight: FontWeight.w400,
-                            size: 12,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
+    return Container(
+      margin: EdgeInsets.only(left: 15),
+
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: statusColor.withOpacity(0.1),
+        border: Border.all(color: statusColor.withOpacity(0.3), width: 1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(width: 6),
+          Text(
+            statusText,
+            style: VStyle.poppins(
+              context: context,
+              color: statusColor,
+              fontWeight: FontWeight.w500,
+              size: 10,
             ),
           ),
-        );
+          const SizedBox(width: 6),
+          Icon(statusIcon, color: statusColor, size: 10),
+          const SizedBox(width: 6),
+        ],
+      ),
+    );
   }
 
-  Widget _buildWhatsAppButton() {
-    return _isIamInThisBid
-        ? SizedBox.shrink()
-        : Flexible(
-          child: SizedBox(
-            // margin: EdgeInsets.symmetric(horizontal: 5),
-            height: 50,
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(10),
-                ),
-                backgroundColor: VColors.SECONDARY,
-              ),
-              onPressed: () {
-                if (widget.model.auctionType == "OCB") {
-                  OcbPurchaceControlleCubit.showBuySheet(
-                    context,
-                    widget.model.currentBid ?? '',
-                    widget.model.inspectionId,
-                    "WISHLIST",
-                  );
-                } else {
-                  VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
-                    from: "WISHLIST",
-                    context: context,
+  Widget _buildBidButton() {
+    // Don't show bid button if user is winning
+    // if (_isIamInThisBid && _isHigestBidderIsMe) return SizedBox.shrink();
 
-                    inspectionId: widget.model.inspectionId,
-                  );
-                }
-              },
-              child: Text(
-                widget.model.auctionType == "OCB" ? "Buy" : "Bid your price",
+    // Don't show if user is not in bid and WhatsApp button is already shown
+    // if (!_isIamInThisBid) return SizedBox.shrink();
+
+    String buttonText;
+    Color buttonColor;
+    IconData buttonIcon;
+
+    if (!_isIamInThisBid) {
+      // New auction state
+      buttonText = "Place Your Bid";
+      buttonColor = VColors.PRIMARY;
+      buttonIcon = Icons.gavel_outlined;
+    } else {
+      // Losing state - user is in bid but not winning
+      buttonText = "Increase Your Bid";
+      buttonColor = VColors.WARNING; // or VColors.PRIMARY
+      buttonIcon = Icons.arrow_upward;
+    }
+
+    return Flexible(
+      flex: 2,
+      child: InkWell(
+        onTap: () {
+          if (widget.model.auctionType == "OCB") {
+            OcbPurchaceControlleCubit.showBuySheet(
+              context,
+              widget.model.currentBid ?? '',
+              widget.model.inspectionId,
+              "WISHLIST",
+            );
+          } else {
+            VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+              from: "WISHLIST",
+              context: context,
+
+              inspectionId: widget.model.inspectionId,
+            );
+          }
+        },
+        child: Container(
+          // width: double.infinity,
+          height: 50,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [buttonColor.withAlpha(150), buttonColor],
+            ),
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: buttonColor.withAlpha(60),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.model.auctionType != "OCB") ...[
+                Icon(buttonIcon, color: VColors.WHITE, size: 20),
+                const SizedBox(width: 8),
+              ],
+
+              Text(
+                widget.model.auctionType == "OCB" ? "Buy Now" : buttonText,
                 style: VStyle.style(
                   context: context,
                   color: VColors.WHITE,
-                  size: 15,
-                  fontWeight: FontWeight.bold,
+                  size: 16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
+            ],
           ),
-        );
+        ),
+      ),
+    );
   }
 }

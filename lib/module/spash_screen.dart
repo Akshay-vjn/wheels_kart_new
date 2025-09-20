@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _textController;
   late AnimationController _loadingController;
   late AnimationController _backgroundController;
-  late AnimationController _particleController;
+  // late AnimationController _particleController;
 
   late Animation<double> _logoScaleAnimation;
   late Animation<double> _logoOpacityAnimation;
@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<Offset> _textSlideAnimation;
   late Animation<double> _loadingOpacityAnimation;
   late Animation<double> _backgroundAnimation;
-  late Animation<double> _particleAnimation;
+  // late Animation<double> _particleAnimation;
 
   @override
   void initState() {
@@ -79,10 +79,10 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     // Particle animation controller
-    _particleController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
+    // _particleController = AnimationController(
+    //   duration: const Duration(milliseconds: 2000),
+    //   vsync: this,
+    // );
 
     // Logo animations
     _logoScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -130,15 +130,15 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     // Particle animation
-    _particleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _particleController, curve: Curves.easeInOut),
-    );
+    // _particleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    //   CurvedAnimation(parent: _particleController, curve: Curves.easeInOut),
+    // );
   }
 
   void _startAnimationSequence() async {
     // Start background and particle animations immediately
     _backgroundController.forward();
-    _particleController.repeat();
+    // _particleController.repeat();
 
     // Start logo animation after a short delay
     await Future.delayed(const Duration(milliseconds: 400));
@@ -160,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
     _textController.dispose();
     _loadingController.dispose();
     _backgroundController.dispose();
-    _particleController.dispose();
+    // _particleController.dispose();
     super.dispose();
   }
 
@@ -231,35 +231,35 @@ class _SplashScreenState extends State<SplashScreen>
               child: Stack(
                 children: [
                   // Animated background particles/shapes
-                  ...List.generate(6, (index) {
-                    return AnimatedBuilder(
-                      animation: _particleAnimation,
-                      builder: (context, child) {
-                        final offset = _particleAnimation.value * 2 * 3.14159;
-                        return Positioned(
-                          left:
-                              50 +
-                              (index * 60) +
-                              (30 * math.sin(offset + index)),
-                          top:
-                              100 +
-                              (index * 80) +
-                              (40 * math.cos(offset + index * 0.5)),
-                          child: Opacity(
-                            opacity: 0.1,
-                            child: Container(
-                              width: 20 + (index * 5),
-                              height: 20 + (index * 5),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }),
+                  // ...List.generate(6, (index) {
+                  //   return AnimatedBuilder(
+                  //     animation: _particleAnimation,
+                  //     builder: (context, child) {
+                  //       final offset = _particleAnimation.value * 2 * 3.14159;
+                  //       return Positioned(
+                  //         left:
+                  //             50 +
+                  //             (index * 60) +
+                  //             (30 * math.sin(offset + index)),
+                  //         top:
+                  //             100 +
+                  //             (index * 80) +
+                  //             (40 * math.cos(offset + index * 0.5)),
+                  //         child: Opacity(
+                  //           opacity: 0.1,
+                  //           child: Container(
+                  //             width: 20 + (index * 5),
+                  //             height: 20 + (index * 5),
+                  //             decoration: BoxDecoration(
+                  //               shape: BoxShape.circle,
+                  //               color: Colors.white,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       );
+                  //     },
+                  //   );
+                  // }),
 
                   // Main content
                   SafeArea(

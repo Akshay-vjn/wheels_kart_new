@@ -243,18 +243,15 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                               ),
                               AppSpacer(heightPortion: .01),
 
-                              // ],
                               if (_isOpened && !_isColsed) ...[
                                 Column(
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        _buildHighAndLowBid(),
-                                        _buildWhatsAppButton(),
-                                      ],
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [_buildBidButton()],
                                     ),
+                                    // const SizedBox(height: 12),
+                                    // New bid button widget
                                   ],
                                 ),
                               ],
@@ -300,6 +297,20 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                       ],
                     ),
 
+                    if (_isColsed)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        child: Material(
+                          color: VColors.WHITE.withAlpha(120),
+                          borderRadius: BorderRadius.circular(15),
+
+                          child: SizedBox(height: 200, width: 200),
+                        ),
+                      ),
+
                     // Enhanced Favorite Button
                     Positioned(
                       right: 10,
@@ -316,6 +327,8 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
+                          AppSpacer(widthPortion: .02),
+                          _buildAuctionStatus(),
                         ],
                       ),
                     ),
@@ -541,129 +554,245 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     );
   }
 
-  Widget _buildHighAndLowBid() {
-    Color color;
-    String titleText;
-    String subtitleText;
+  // Widget _buildHighAndLowBid() {
+  //   Color color;
+  //   String titleText;
+  //   String subtitleText;
+
+  //   if (_isHigestBidderIsMe) {
+  //     color = VColors.SUCCESS;
+  //     titleText = "WINNING";
+  //     subtitleText = "";
+  //   } else {
+  //     color = VColors.ERROR;
+  //     titleText = "LOSING";
+  //     subtitleText = "Increase Bid";
+  //   }
+
+  //   return !_isIamInThisBid
+  //       ? SizedBox.shrink()
+  //       : Flexible(
+  //         child: InkWell(
+  //           borderRadius: BorderRadius.circular(12),
+  //           onTap: () {
+  //             VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+  //               from: "AUCTION",
+  //               context: context,
+  //               inspectionId: widget.vehicle.inspectionId,
+  //             );
+  //           },
+  //           child: Container(
+  //             width: double.infinity,
+  //             // height: 60,
+  //             margin: const EdgeInsets.symmetric(horizontal: 8),
+  //             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  //             decoration: BoxDecoration(
+  //               color: color,
+  //               border: Border.all(color: color.withOpacity(0.6), width: 0.6),
+  //               borderRadius: BorderRadius.circular(12),
+  //               boxShadow: [
+  //                 BoxShadow(
+  //                   color: color.withAlpha(21),
+  //                   blurRadius: 6,
+  //                   offset: Offset(0, 2),
+  //                 ),
+  //               ],
+  //             ),
+  //             child: Row(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 Column(
+  //                   mainAxisAlignment: MainAxisAlignment.center,
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Text(
+  //                       titleText,
+  //                       style: VStyle.style(
+  //                         context: context,
+  //                         color: VColors.WHITE,
+  //                         fontWeight: FontWeight.w900,
+  //                         size: 18,
+  //                       ),
+  //                     ),
+  //                     if (subtitleText.isNotEmpty) ...[
+  //                       const SizedBox(height: 2),
+  //                       Text(
+  //                         subtitleText,
+  //                         style: VStyle.style(
+  //                           context: context,
+  //                           color: VColors.WHITE,
+  //                           fontWeight: FontWeight.w400,
+  //                           size: 12,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  // }
+
+  // Widget _buildWhatsAppButton() {
+  //   return _isIamInThisBid
+  //       ? SizedBox.shrink()
+  //       : Flexible(
+  //         child: Container(
+  //           margin: EdgeInsets.symmetric(horizontal: 5),
+  //           height: 50,
+  //           width: double.infinity,
+  //           child: ElevatedButton(
+  //             style: ElevatedButton.styleFrom(
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadiusGeometry.circular(10),
+  //               ),
+  //               backgroundColor: VColors.SECONDARY,
+  //             ),
+  //             onPressed: () {
+  //               VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+  //                 from: "AUCTION",
+  //                 context: context,
+
+  //                 inspectionId: widget.vehicle.inspectionId,
+  //               );
+  //             },
+  //             child: Row(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 Text(
+  //                   "Bid your price",
+  //                   style: VStyle.style(
+  //                     context: context,
+  //                     color: VColors.WHITE,
+  //                     size: 15,
+  //                     fontWeight: FontWeight.bold,
+  //                   ),
+  //                 ),
+  //                 AppSpacer(widthPortion: .03),
+  //                 Icon(SolarIconsBold.chatRound, color: VColors.WHITE),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  // }
+
+  Widget _buildAuctionStatus() {
+    if (!_isIamInThisBid || _isColsed) return SizedBox.shrink();
+
+    Color statusColor;
+    String statusText;
+    IconData statusIcon;
 
     if (_isHigestBidderIsMe) {
-      color = VColors.SUCCESS;
-      titleText = "WINNING";
-      subtitleText = "";
+      statusColor = VColors.SUCCESS;
+      statusText = "WINNING";
+      statusIcon = Icons.trending_up;
     } else {
-      color = VColors.ERROR;
-      titleText = "LOSING";
-      subtitleText = "Increase Bid";
+      statusColor = VColors.ERROR;
+      statusText = "LOSING";
+      statusIcon = Icons.trending_down;
     }
 
-    return !_isIamInThisBid
-        ? SizedBox.shrink()
-        : Flexible(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
-                from: "AUCTION",
-                context: context,
-                inspectionId: widget.vehicle.inspectionId,
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              // height: 60,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: color,
-                border: Border.all(color: color.withOpacity(0.6), width: 0.6),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withAlpha(21),
-                    blurRadius: 6,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        titleText,
-                        style: VStyle.style(
-                          context: context,
-                          color: VColors.WHITE,
-                          fontWeight: FontWeight.w900,
-                          size: 18,
-                        ),
-                      ),
-                      if (subtitleText.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitleText,
-                          style: VStyle.style(
-                            context: context,
-                            color: VColors.WHITE,
-                            fontWeight: FontWeight.w400,
-                            size: 12,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: statusColor.withOpacity(0.1),
+        border: Border.all(color: statusColor.withOpacity(0.3), width: 1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(width: 6),
+          Text(
+            statusText,
+            style: VStyle.poppins(
+              context: context,
+              color: statusColor,
+              fontWeight: FontWeight.w500,
+              size: 10,
             ),
           ),
-        );
+          const SizedBox(width: 6),
+          Icon(statusIcon, color: statusColor, size: 10),
+          const SizedBox(width: 6),
+        ],
+      ),
+    );
   }
 
-  Widget _buildWhatsAppButton() {
-    return _isIamInThisBid
-        ? SizedBox.shrink()
-        : Flexible(
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 5),
-            height: 50,
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(10),
-                ),
-                backgroundColor: VColors.SECONDARY,
-              ),
-              onPressed: () {
-                VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
-                  from: "AUCTION",
-                  context: context,
+  Widget _buildBidButton() {
+    // Don't show bid button if user is winning
+    // if (_isIamInThisBid && _isHigestBidderIsMe) return SizedBox.shrink();
 
-                  inspectionId: widget.vehicle.inspectionId,
-                );
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Bid your price",
-                    style: VStyle.style(
-                      context: context,
-                      color: VColors.WHITE,
-                      size: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  AppSpacer(widthPortion: .03),
-                  Icon(SolarIconsBold.chatRound, color: VColors.WHITE),
-                ],
-              ),
+    // Don't show if user is not in bid and WhatsApp button is already shown
+    // if (!_isIamInThisBid) return SizedBox.shrink();
+
+    String buttonText;
+    Color buttonColor;
+    IconData buttonIcon;
+
+    if (!_isIamInThisBid) {
+      // New auction state
+      buttonText = "Place Your Bid";
+      buttonColor = VColors.PRIMARY;
+      buttonIcon = Icons.gavel_outlined;
+    } else {
+      // Losing state - user is in bid but not winning
+      buttonText = "Increase Your Bid";
+      buttonColor = VColors.WARNING; // or VColors.PRIMARY
+      buttonIcon = Icons.arrow_upward;
+    }
+
+    return Flexible(
+      child: InkWell(
+        onTap: () {
+          VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+            from: "AUCTION",
+            context: context,
+            inspectionId: widget.vehicle.inspectionId,
+          );
+        },
+        child: Container(
+          // width: double.infinity,
+          height: 50,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [buttonColor.withAlpha(150), buttonColor],
             ),
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: buttonColor.withAlpha(60),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        );
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(buttonIcon, color: VColors.WHITE, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                buttonText,
+                style: VStyle.style(
+                  context: context,
+                  color: VColors.WHITE,
+                  size: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildEnhancedDetailChip(

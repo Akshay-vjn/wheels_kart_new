@@ -108,6 +108,7 @@ class FilterAcutionAndOcbCubit extends Cubit<FilterAcutionAndOcbState> {
     emit(
       FilterAcutionAndOcbInitial(
         currentFilterCategory: FilterCategory.MakeAndMode,
+        selectedSort: sortOptions[0],
         filterData: {
           FilterCategory.MakeAndMode: _makeAndModelList,
           FilterCategory.City: _city.map((e) => e.cityName).toList(),
@@ -129,10 +130,27 @@ class FilterAcutionAndOcbCubit extends Cubit<FilterAcutionAndOcbState> {
     }
   }
 
+  int? getAppliedFilterCount() {
+    if (state.selectedFilters == null || state.selectedFilters!.isEmpty) {
+      return null;
+    }
+    int total = 0;
+    state.selectedFilters!.forEach((key, values) {
+      total++;
+    });
+    return total;
+  }
+
   void clearFilter() {
     final currentState = state;
     if (currentState is FilterAcutionAndOcbInitial) {
-      emit(currentState.copyWith(selectedFilters: {}));
+      emit(
+        currentState.copyWith(
+          selectedFilters: {},
+          selectedSort: sortOptions[0],
+          currentFilterCategory: FilterCategory.MakeAndMode,
+        ),
+      );
     }
   }
 
@@ -167,4 +185,25 @@ class FilterAcutionAndOcbCubit extends Cubit<FilterAcutionAndOcbState> {
     "Year - Old to New",
     "Year - New to Old",
   ];
+
+  void onChangeSort(String sort) {
+    final currentState = state;
+    if (currentState is FilterAcutionAndOcbInitial) {
+      emit(currentState.copyWith(selectedSort: sort));
+    }
+  }
+
+  //APPLY FILTER and SORT
+
+  void onApplyFilterAndSort(
+    Map<FilterCategory, List<dynamic>> selectedFilters,
+    String selectedSort,
+  ) {
+    final currentState = state;
+    if (currentState is FilterAcutionAndOcbInitial) {
+      emit(currentState.copyWith(selectedFilters: selectedFilters));
+    }
+  }
+
+  // SEARACH
 }

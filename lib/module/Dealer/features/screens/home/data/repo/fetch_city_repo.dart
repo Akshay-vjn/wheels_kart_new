@@ -10,38 +10,42 @@ import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 
 class VFetchCitiesRepo {
   static Future<Map<String, dynamic>> getCityList(BuildContext context) async {
-    final state = context.read<AppAuthController>().state;
-    if (state is AuthCubitAuthenticateState) {
-      try {
-        final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.fetchCity}');
+    try {
+      final state = context.read<AppAuthController>().state;
+      if (state is AuthCubitAuthenticateState) {
+        try {
+          final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.fetchCity}');
 
-        Response response = await http.post(
-          url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': state.userModel.token!,
-          },
-        );
+          Response response = await http.post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': state.userModel.token!,
+            },
+          );
 
-        final decodedata = jsonDecode(response.body);
+          final decodedata = jsonDecode(response.body);
 
-        if (decodedata['status'] == 200) {
-          return {
-            'error': decodedata['error'],
-            'message': decodedata['message'],
-            'data': decodedata['data'],
-          };
-        } else {
-          return {
-            'error': decodedata['error'],
-            'message': decodedata['message'],
-          };
+          if (decodedata['status'] == 200) {
+            return {
+              'error': decodedata['error'],
+              'message': decodedata['message'],
+              'data': decodedata['data'],
+            };
+          } else {
+            return {
+              'error': decodedata['error'],
+              'message': decodedata['message'],
+            };
+          }
+        } catch (e) {
+          log('`repo` - catch error - fetch locationa  => ${e.toString()}   ');
+          return {};
         }
-      } catch (e) {
-        log('`repo` - catch error - fetch locationa  => ${e.toString()}   ');
+      } else {
         return {};
       }
-    } else {
+    } catch (e) {
       return {};
     }
   }

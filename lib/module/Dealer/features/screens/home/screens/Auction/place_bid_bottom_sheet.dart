@@ -319,12 +319,28 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
                             vertical: 12,
                             horizontal: 24,
                           ),
+
+                          height: 50,
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: const Color.fromARGB(255, 255, 152, 7),
+                            gradient: LinearGradient(
+                              colors: [
+                                VColors.WARNING.withAlpha(150),
+                                VColors.WARNING,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [
+                              BoxShadow(
+                                color: VColors.WARNING.withAlpha(60),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: Text(
-                            "UPDATE",
+                            "Bid Now",
                             style: VStyle.style(
                               context: context,
                               size: 20,

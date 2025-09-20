@@ -9,17 +9,19 @@ import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 
 class VFetchOcbListRepo {
-  static Future<Map<String, dynamic>> getOcbList(
-      BuildContext context) async {
-    final state = context.read<AppAuthController>().state;
-    if (state is AuthCubitAuthenticateState) {
-      try {
+  static Future<Map<String, dynamic>> getOcbList(BuildContext context) async {
+    try {
+      final state = context.read<AppAuthController>().state;
+      if (state is AuthCubitAuthenticateState) {
         final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.ocbData}');
 
-        Response response = await http.post(url, headers: {
-          'Content-Type': 'application/json',
-          'Authorization': state.userModel.token!
-        });
+        Response response = await http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': state.userModel.token!,
+          },
+        );
 
         final decodedata = jsonDecode(response.body);
 
@@ -27,19 +29,19 @@ class VFetchOcbListRepo {
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
-            'data': decodedata['data']
+            'data': decodedata['data'],
           };
         } else {
           return {
             'error': decodedata['error'],
-            'message': decodedata['message']
+            'message': decodedata['message'],
           };
         }
-      } catch (e) {
-        log('repo - catch error - Dealer - DASHBOARD => ${e.toString()}F');
+      } else {
         return {};
       }
-    } else {
+    } catch (e) {
+      log('repo - catch error - Dealer - DASHBOARD => ${e.toString()}F');
       return {};
     }
   }
