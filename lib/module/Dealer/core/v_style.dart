@@ -16,7 +16,7 @@ class VStyle {
     TextDecorationStyle? textDecorationStyle,
     TextDecoration? decoration,
   }) {
-    return TextStyle(
+    return GoogleFonts.poppins(
       decoration: decoration,
       decorationColor: color,
 

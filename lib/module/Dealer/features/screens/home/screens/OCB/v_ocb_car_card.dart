@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
@@ -267,17 +268,17 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
                     ),
 
                     // Status Badge (if needed)
-                    Positioned(
-                      left: 12,
-                      top: 12,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
-                        ],
-                      ),
-                    ),
+                    // Positioned(
+                    //   left: 12,
+                    //   top: 12,
+                    //   child: Row(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     mainAxisSize: MainAxisSize.min,
+                    //     children: [
+                    //       _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -347,6 +348,16 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        AppSpacer(heightPortion: .01),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
+            AppSpacer(widthPortion: .02),
+          ],
+        ),
+        AppSpacer(heightPortion: .01),
         Text(
           "${widget.vehicle.manufacturingYear} ${widget.vehicle.brandName}",
           style: VStyle.style(context: context, color: VColors.BLACK, size: 17),
@@ -424,6 +435,15 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
           VColors.SECONDARY,
         ),
         AppSpacer(widthPortion: .01),
+
+        if (widget.vehicle.noOfOwners.isNotEmpty) ...[
+          _buildEnhancedDetailChip(
+            CupertinoIcons.person_3,
+            ' ${_getOwnerPrefix(widget.vehicle.noOfOwners)}',
+            VColors.ACCENT,
+          ),
+          AppSpacer(widthPortion: .01),
+        ],
         if (widget.vehicle.regNo.isNotEmpty)
           _buildEnhancedDetailChip(
             Icons.confirmation_number_rounded,
@@ -739,5 +759,20 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
       default:
         return 'Not Specified';
     }
+  }
+
+  String _getOwnerPrefix(String numberOfOwners) {
+    if (numberOfOwners.isEmpty) return '';
+    final numberOfOwner = int.parse(numberOfOwners);
+    if (numberOfOwner == 1) {
+      return "$numberOfOwners st owner";
+    }
+    if (numberOfOwner == 2) {
+      return "$numberOfOwners nd owner";
+    }
+    if (numberOfOwner == 3) {
+      return "$numberOfOwners rd owner";
+    }
+    return "$numberOfOwners th owner";
   }
 }

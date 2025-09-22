@@ -263,6 +263,8 @@ class _EvSelectAndSearchCarModelScreenState
                         ),
                       ),
                       child: Text(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         list[index].modelName,
                         style: EvAppStyle.style(
                           color: EvAppColors.white,

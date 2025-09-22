@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
@@ -216,7 +217,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Flexible(child: _buildImageSection()),
                             AppSpacer(widthPortion: .02),
@@ -244,16 +245,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                               AppSpacer(heightPortion: .01),
 
                               if (_isOpened && !_isColsed) ...[
-                                Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [_buildBidButton()],
-                                    ),
-                                    // const SizedBox(height: 12),
-                                    // New bid button widget
-                                  ],
-                                ),
+                                _buildBidButton(),
                               ],
 
                               // _buildOpenBidSection(),
@@ -319,19 +311,19 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                     ),
 
                     // Status Badge (if needed)
-                    Positioned(
-                      left: 12,
-                      top: 12,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
-                          AppSpacer(widthPortion: .02),
-                          _buildAuctionStatus(),
-                        ],
-                      ),
-                    ),
+                    // Positioned(
+                    //   left: 12,
+                    //   top: 12,
+                    //   child: Row(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     mainAxisSize: MainAxisSize.min,
+                    //     children: [
+                    //       _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
+                    //       AppSpacer(widthPortion: .02),
+                    //       _buildAuctionStatus(),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -349,7 +341,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         bottomRight: Radius.circular(15),
       ),
       child: Container(
-        height: 100,
+        height: 120,
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -397,17 +389,41 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   Widget _buildHeader() {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        AppSpacer(heightPortion: .01),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
+            AppSpacer(widthPortion: .02),
+            _buildAuctionStatus(),
+          ],
+        ),
+        AppSpacer(heightPortion: .01),
         Text(
-          "${widget.vehicle.manufacturingYear} ${widget.vehicle.brandName}",
-          style: VStyle.style(context: context, color: VColors.BLACK, size: 17),
+          widget.vehicle.manufacturingYear + " " + widget.vehicle.brandName,
+          style: VStyle.poppins(
+            context: context,
+            color: VColors.BLACK,
+            size: 14,
+          ),
         ),
         Text(
           widget.vehicle.modelName,
-          style: VStyle.style(context: context, color: VColors.BLACK, size: 14),
+          style: VStyle.poppins(
+            context: context,
+            color: VColors.BLACK,
+            size: 17,
+          ),
         ),
+
+        // Text(
+        //   widget.vehicle.manufacturingYear,
+        //   style: VStyle.style(context: context, color: VColors.BLACK, size: 14),
+        // ),
         AppSpacer(heightPortion: .01),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,7 +444,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       widget.vehicle.city,
-                      style: VStyle.style(
+                      style: VStyle.poppins(
                         context: context,
                         color: VColors.DARK_GREY,
                       ),
@@ -440,7 +456,10 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
             Flexible(
               child: Text(
                 "ID: ${widget.vehicle.evaluationId}",
-                style: VStyle.style(context: context, color: VColors.DARK_GREY),
+                style: VStyle.poppins(
+                  context: context,
+                  color: VColors.DARK_GREY,
+                ),
               ),
             ),
           ],
@@ -477,6 +496,15 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           VColors.SECONDARY,
         ),
         AppSpacer(widthPortion: .01),
+        if (widget.vehicle.noOfOwners.isNotEmpty) ...[
+          _buildEnhancedDetailChip(
+            CupertinoIcons.person_3,
+            _getOwnerPrefix(widget.vehicle.noOfOwners),
+            VColors.ACCENT,
+          ),
+          AppSpacer(widthPortion: .01),
+        ],
+
         widget.vehicle.regNo.isNotEmpty
             ? _buildEnhancedDetailChip(
               Icons.confirmation_number_rounded,
@@ -747,49 +775,47 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
       buttonIcon = Icons.arrow_upward;
     }
 
-    return Flexible(
-      child: InkWell(
-        onTap: () {
-          VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
-            from: "AUCTION",
-            context: context,
-            inspectionId: widget.vehicle.inspectionId,
-          );
-        },
-        child: Container(
-          // width: double.infinity,
-          height: 50,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
+    return InkWell(
+      onTap: () {
+        VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+          from: "AUCTION",
+          context: context,
+          inspectionId: widget.vehicle.inspectionId,
+        );
+      },
+      child: Container(
+        // width: double.infinity,
+        height: 50,
+        margin: const EdgeInsets.symmetric(horizontal: 8),
 
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [buttonColor.withAlpha(150), buttonColor],
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [buttonColor.withAlpha(150), buttonColor],
+          ),
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: buttonColor.withAlpha(60),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: buttonColor.withAlpha(60),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(buttonIcon, color: VColors.WHITE, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              buttonText,
+              style: VStyle.style(
+                context: context,
+                color: VColors.WHITE,
+                size: 16,
+                fontWeight: FontWeight.w600,
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(buttonIcon, color: VColors.WHITE, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                buttonText,
-                style: VStyle.style(
-                  context: context,
-                  color: VColors.WHITE,
-                  size: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -824,7 +850,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           Flexible(
             child: Text(
               text,
-              style: VStyle.style(
+              style: VStyle.poppins(
                 context: context,
                 size: 10,
                 color: color,
@@ -1023,5 +1049,20 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         ),
       ],
     );
+  }
+
+  String _getOwnerPrefix(String numberOfOwners) {
+    if (numberOfOwners.isEmpty) return '';
+    final numberOfOwner = int.parse(numberOfOwners);
+    if (numberOfOwner == 1) {
+      return "$numberOfOwners st owner";
+    }
+    if (numberOfOwner == 2) {
+      return "$numberOfOwners nd owner";
+    }
+    if (numberOfOwner == 3) {
+      return "$numberOfOwners rd owner";
+    }
+    return "$numberOfOwners th owner";
   }
 }

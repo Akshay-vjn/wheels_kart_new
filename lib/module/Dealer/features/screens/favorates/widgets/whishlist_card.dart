@@ -219,14 +219,6 @@ class _VWhishlistCardState extends State<VWhishlistCard>
 
                   // Favorite button with improved positioning
                   // Status indicator
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildStatusBadge(widget.model.bidStatus ?? ''),
-                      _buildAuctionStatus(),
-                    ],
-                  ),
-
                   _buildEnhancedFavoriteButton(widget.model.inspectionId),
                 ],
               ),
@@ -341,6 +333,14 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildStatusBadge(widget.model.bidStatus ?? ''),
+            _buildAuctionStatus(),
+          ],
+        ),
+        AppSpacer(heightPortion: .01),
         Text(
           '${widget.model.manufacturingYear} ${widget.model.modelName}',
           style: VStyle.style(
@@ -366,6 +366,13 @@ class _VWhishlistCardState extends State<VWhishlistCard>
           getFuelType(widget.model.fuelType),
           getFuelTypeColor(widget.model.fuelType),
         ),
+        if (widget.model.noOfOwners.isNotEmpty) ...[
+          _buildEnhancedDetailChip(
+            CupertinoIcons.person_3,
+            _getOwnerPrefix(widget.model.noOfOwners),
+            VColors.ACCENT,
+          ),
+        ],
         _buildEnhancedDetailChip(
           Icons.speed_rounded,
           '${widget.model.kmsDriven}',
@@ -600,7 +607,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     }
     // You can customize this based on vehicle status
     return Container(
-      margin: EdgeInsets.only(left: 15, top: 15, bottom: 3),
+      // margin: EdgeInsets.only(left: 15, top: 15, bottom: 3),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withAlpha(200),
@@ -849,7 +856,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
     }
 
     return Container(
-      margin: EdgeInsets.only(left: 15),
+      margin: EdgeInsets.only(left: 5),
 
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
@@ -961,5 +968,20 @@ class _VWhishlistCardState extends State<VWhishlistCard>
         ),
       ),
     );
+  }
+
+  String _getOwnerPrefix(String numberOfOwners) {
+    if (numberOfOwners.isEmpty) return '';
+    final numberOfOwner = int.parse(numberOfOwners);
+    if (numberOfOwner == 1) {
+      return "$numberOfOwners st owner";
+    }
+    if (numberOfOwner == 2) {
+      return "$numberOfOwners nd owner";
+    }
+    if (numberOfOwner == 3) {
+      return "$numberOfOwners rd owner";
+    }
+    return "$numberOfOwners th owner";
   }
 }

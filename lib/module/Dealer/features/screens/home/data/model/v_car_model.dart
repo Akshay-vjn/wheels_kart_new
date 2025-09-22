@@ -16,10 +16,12 @@ class VCarModel {
   int wishlisted;
   String status;
   String brandName;
+  String noOfOwners;
   List<String> vendorIds;
   String auctionType;
 
   VCarModel({
+    required this.noOfOwners,
     required this.auctionType,
     required this.brandName,
     required this.inspectionId,
@@ -59,6 +61,7 @@ class VCarModel {
       kmsDriven: kmDrivern,
       regNo: json["regNo"] ?? '',
       city: json["City"] ?? '',
+      noOfOwners: json['noOfOwners'] ?? '',
       soldTo: json["soldTo"] ?? '',
       soldName: json["soldName"] ?? '',
       currentBid: json["currentBid"] ?? "0.00",
@@ -75,6 +78,7 @@ class VCarModel {
   }
 
   Map<String, dynamic> toJson() => {
+    "noOfOwners": noOfOwners,
     "inspectionId": inspectionId,
     "evaluationId": evaluationId,
     "modelName": modelName,
