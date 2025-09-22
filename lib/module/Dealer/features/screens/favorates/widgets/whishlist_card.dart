@@ -342,6 +342,17 @@ class _VWhishlistCardState extends State<VWhishlistCard>
         ),
         AppSpacer(heightPortion: .01),
         Text(
+          ' ${widget.model.brandName}',
+          style: VStyle.style(
+            context: context,
+            color: VColors.BLACK,
+            fontWeight: FontWeight.w500,
+            size: AppDimensions.fontSize12(context),
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
           '${widget.model.manufacturingYear} ${widget.model.modelName}',
           style: VStyle.style(
             context: context,
