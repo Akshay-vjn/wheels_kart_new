@@ -217,6 +217,13 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                       ),
                     ),
 
+                  if (_isColsed)
+                    Positioned(
+                      top: 15,
+                      left: w(context) * 0.28 + 25,
+                      child: _buildStatusBadge(widget.model.bidStatus ?? ''),
+                    ),
+
                   // Favorite button with improved positioning
                   // Status indicator
                   _buildEnhancedFavoriteButton(widget.model.inspectionId),
@@ -248,6 +255,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Title with better typography
+                    if (_isColsed) SizedBox(height: 15),
                     _buildCarTitle(),
                     const SizedBox(height: 10),
                     // Fuel and mileage chips
@@ -260,7 +268,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          // const SizedBox(height: 20),
           // Action buttons row
           _buildActionButtons(),
 
@@ -336,18 +344,18 @@ class _VWhishlistCardState extends State<VWhishlistCard>
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildStatusBadge(widget.model.bidStatus ?? ''),
+            if (!_isColsed) _buildStatusBadge(widget.model.bidStatus ?? ''),
             _buildAuctionStatus(),
           ],
         ),
         AppSpacer(heightPortion: .01),
         Text(
-          ' ${widget.model.brandName}',
+          '${widget.model.brandName}',
           style: VStyle.style(
             context: context,
             color: VColors.BLACK,
             fontWeight: FontWeight.w500,
-            size: AppDimensions.fontSize12(context),
+            size: AppDimensions.fontSize13(context),
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -485,16 +493,16 @@ class _VWhishlistCardState extends State<VWhishlistCard>
       children: [
         if (_isOpened && !_isColsed) ...[
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [_buildBidButton()],
+            child: Padding(
+              padding: EdgeInsetsGeometry.only(top: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [_buildBidButton()],
+              ),
             ),
           ),
 
-          // const SizedBox(height: 12),
           // New bid button widget
-        ] else ...[
-          Expanded(child: SizedBox()),
         ],
       ],
     );
@@ -718,7 +726,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
       case 'cng':
         return "CNG";
       default:
-        return 'Not Specified';
+        return fuelType.isNotEmpty ? fuelType.toUpperCase() : 'Not Specified';
     }
   }
 

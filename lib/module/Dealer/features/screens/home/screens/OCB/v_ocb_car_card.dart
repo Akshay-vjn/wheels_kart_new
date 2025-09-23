@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
+import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
@@ -177,7 +178,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
                 child: Stack(
                   children: [
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Row(
                           children: [
@@ -279,6 +280,14 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
                     //     ],
                     //   ),
                     // ),
+                    if (_isColsed)
+                      Positioned(
+                        top: 10,
+                        left: w(context) / 2 - 15,
+                        child: _buildStatusBadge(
+                          widget.vehicle.bidStatus ?? "",
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -296,7 +305,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
         bottomRight: Radius.circular(15),
       ),
       child: Container(
-        height: 100,
+        height: 120,
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -345,18 +354,12 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
   Widget _buildHeader() {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppSpacer(heightPortion: .01),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
-            AppSpacer(widthPortion: .02),
-          ],
-        ),
+
+        if (!_isColsed) _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
         AppSpacer(heightPortion: .01),
         Text(
           "${widget.vehicle.manufacturingYear} ${widget.vehicle.brandName}",
@@ -757,7 +760,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
       case 'cng':
         return "CNG";
       default:
-        return 'Not Specified';
+        return fuelType.isNotEmpty ? fuelType.toUpperCase() : 'Not Specified';
     }
   }
 

@@ -10,6 +10,7 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
+import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/blocs/v%20nav%20controller/v_nav_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
@@ -217,7 +218,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Flexible(child: _buildImageSection()),
                             AppSpacer(widthPortion: .02),
@@ -324,6 +325,14 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                     //     ],
                     //   ),
                     // ),
+                    if (_isColsed)
+                      Positioned(
+                        top: 10,
+                        left: w(context) / 2 - 15,
+                        child: _buildStatusBadge(
+                          widget.vehicle.bidStatus ?? "",
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -397,7 +406,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
+            if (!_isColsed) _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
             AppSpacer(widthPortion: .02),
             _buildAuctionStatus(),
           ],
@@ -1017,7 +1026,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
       case 'cng':
         return "CNG";
       default:
-        return 'Not Specified';
+        return fuelType.isNotEmpty ? fuelType.toUpperCase() : 'Not Specified';
     }
   }
 
