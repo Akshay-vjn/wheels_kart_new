@@ -210,20 +210,24 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
 
     if (stateOfUploadedPhotos is FetchUploadedVehilcePhotosSuccessSate &&
         stateOfCarAngles is FetchPictureAnglesSuccessState) {
-      final angles = stateOfCarAngles.pictureAngles;
+      final allAngles =
+          stateOfCarAngles.pictureAnglesByCategory.values
+              .expand((list) => list)
+              .toList();
       final uploadedPhotos = stateOfUploadedPhotos.vehiclePhtotos;
 
+      // context.read<InspectionProgressCubit>().setPhotosCompleted(
+      //   angles.every(
+      //     (angle) =>
+      //         uploadedPhotos.any((photo) => photo.angleId == angle.angleId),
+      //   ),
+      // );
       context.read<InspectionProgressCubit>().setPhotosCompleted(
-        angles.every(
+        allAngles.every(
           (angle) =>
               uploadedPhotos.any((photo) => photo.angleId == angle.angleId),
         ),
       );
-
-      // isPicturedAllUploaded = angles.every(
-      //   (angle) =>
-      //       uploadedPhotos.any((photo) => photo.angleId == angle.angleId),
-      // );
     } else {
       log("Photo Not initialized.");
     }

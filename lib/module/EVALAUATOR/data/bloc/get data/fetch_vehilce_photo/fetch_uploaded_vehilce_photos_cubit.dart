@@ -16,10 +16,14 @@ class FetchUploadedVehilcePhotosCubit
 
   Future<void> onFetchUploadVehiclePhotos(
     BuildContext context,
-    String inspectionId,
-  ) async {
+    String inspectionId, {
+    bool? isInsideCall,
+  }) async {
     try {
-      emit(FetchUploadedVehilcePhotosLoadingState());
+      if (isInsideCall == null) {
+        emit(FetchUploadedVehilcePhotosLoadingState());
+      }
+
       final response = await FetchUploadedVehiclePhotoRepo.fetchVehilcePhoto(
         context,
         inspectionId,
@@ -59,7 +63,6 @@ class FetchUploadedVehilcePhotosCubit
     String pictureId,
   ) async {
     try {
-
       final response = await DeleteVehilcePhotoRepo.deleteVehilcePhoto(
         context,
         inspectionId,

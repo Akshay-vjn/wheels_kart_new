@@ -9,8 +9,8 @@ class VehiclePhotoModel {
   dynamic angleId;
   dynamic description;
   String status;
-  CreatedAt createdAt;
-  DateTime modifiedAt;
+  CreatedAt? createdAt;
+  DateTime? modifiedAt;
 
   VehiclePhotoModel({
     required this.pictureId,
@@ -48,7 +48,7 @@ class VehiclePhotoModel {
     "angleId": angleId,
     "description": description,
     "status": status,
-    "created_at": createdAt.toJson(),
-    "modified_at": modifiedAt.toIso8601String(),
+    "created_at": createdAt?.toJson(),
+    "modified_at": modifiedAt?.toIso8601String(),
   };
 }
