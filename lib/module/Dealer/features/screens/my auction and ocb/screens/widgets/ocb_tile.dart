@@ -62,6 +62,7 @@ class _OcbTileState extends State<OcbTile> with SingleTickerProviderStateMixin {
     Navigator.of(context).push(
       AppRoutes.createRoute(
         VCarDetailsScreen(
+          paymentStatus: "Yes",
           isLiked: false,
           auctionType: "OCB",
           frontImage: widget.ocb.frontImage,

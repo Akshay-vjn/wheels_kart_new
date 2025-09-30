@@ -151,6 +151,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
                 final isLiked = await Navigator.of(context).push(
                   AppRoutes.createRoute(
                     VCarDetailsScreen(
+                      paymentStatus: widget.model.paymentStatus,
                       auctionType: widget.model.auctionType,
                       hideBidPrice: widget.model.bidStatus != "Open",
                       frontImage: widget.model.frontImage,
@@ -940,6 +941,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
             );
           } else {
             VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+              paymentStatus: widget.model.paymentStatus,
               from: "WISHLIST",
               context: context,
 

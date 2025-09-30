@@ -118,6 +118,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
     _isLiked = await Navigator.of(context).push(
       AppRoutes.createRoute(
         VCarDetailsScreen(
+          paymentStatus: "Yes",
           auctionType: "OCB",
           hideBidPrice: widget.vehicle.bidStatus != "Open",
           frontImage: widget.vehicle.frontImage,

@@ -998,6 +998,7 @@ class _AuctionTileState extends State<AuctionTile>
     Navigator.of(context).push(
       AppRoutes.createRoute(
         VCarDetailsScreen(
+          paymentStatus: "N/A",
           isLiked: false,
           auctionType: "AUCTION",
           frontImage: widget.auction.frontImage,
@@ -1376,6 +1377,7 @@ class _AuctionTileState extends State<AuctionTile>
   void _onIncreaseBidTap() {
     HapticFeedback.mediumImpact();
     VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+      paymentStatus: "Yes",
       from: "HISTORY",
       context: context,
       inspectionId: widget.auction.inspectionId,

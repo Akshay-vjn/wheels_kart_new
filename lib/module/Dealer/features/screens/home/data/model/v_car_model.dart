@@ -19,6 +19,7 @@ class VCarModel {
   String noOfOwners;
   List<String> vendorIds;
   String auctionType;
+  String paymentStatus;
 
   VCarModel({
     required this.noOfOwners,
@@ -41,6 +42,7 @@ class VCarModel {
     required this.wishlisted,
     required this.status,
     required this.vendorIds,
+    required this.paymentStatus,
   });
 
   factory VCarModel.fromJson(Map<String, dynamic> json) {
@@ -74,6 +76,7 @@ class VCarModel {
       wishlisted: json["wishlisted"] ?? 0,
       status: json["status"] ?? '',
       vendorIds: list == null ? [] : list.map((e) => e.toString()).toList(),
+      paymentStatus: json['paymentStatus']??"No",
     );
   }
 
@@ -96,5 +99,6 @@ class VCarModel {
     "wishlisted": wishlisted,
     "status": status,
     "vendorIds": vendorIds.map((e) => e).toList(),
+    "paymentStatus": paymentStatus,
   };
 }

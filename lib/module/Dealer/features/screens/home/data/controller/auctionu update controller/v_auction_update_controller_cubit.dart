@@ -55,6 +55,7 @@ class VAuctionUpdateControllerCubit
     required BuildContext context,
     required String inspectionId,
     required String from,
+    required String paymentStatus,
   }) async {
     HapticFeedback.mediumImpact();
 
@@ -71,12 +72,13 @@ class VAuctionUpdateControllerCubit
               child: PlaceBidBottomSheet(
                 inspectionId: inspectionId,
                 from: from,
+                paymentStatus: paymentStatus,
               ),
             ),
       );
     } else if (from == "DETAILS") {
       showModalBottomSheet(
-         useSafeArea: true,
+        useSafeArea: true,
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -85,6 +87,7 @@ class VAuctionUpdateControllerCubit
             (ctc) => BlocProvider.value(
               value: context.read<VDetailsControllerBloc>(),
               child: PlaceBidBottomSheet(
+                paymentStatus: paymentStatus,
                 inspectionId: inspectionId,
                 from: from,
               ),
@@ -92,7 +95,7 @@ class VAuctionUpdateControllerCubit
       );
     } else if (from == "WISHLIST") {
       showModalBottomSheet(
-         useSafeArea: true,
+        useSafeArea: true,
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -102,13 +105,14 @@ class VAuctionUpdateControllerCubit
               value: context.read<VWishlistControllerCubit>(),
               child: PlaceBidBottomSheet(
                 inspectionId: inspectionId,
+                paymentStatus: paymentStatus,
                 from: from,
               ),
             ),
       );
     } else {
       showModalBottomSheet(
-         useSafeArea: true,
+        useSafeArea: true,
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -117,6 +121,7 @@ class VAuctionUpdateControllerCubit
             (ctc) => BlocProvider.value(
               value: context.read<VMyAuctionControllerBloc>(),
               child: PlaceBidBottomSheet(
+                paymentStatus: paymentStatus,
                 inspectionId: inspectionId,
                 from: from,
               ),

@@ -121,6 +121,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     _isLiked = await Navigator.of(context).push(
       AppRoutes.createRoute(
         VCarDetailsScreen(
+          paymentStatus: widget.vehicle.paymentStatus,
           auctionType: "AUCTION",
           hideBidPrice: widget.vehicle.bidStatus != "Open",
           frontImage: widget.vehicle.frontImage,
@@ -787,6 +788,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     return InkWell(
       onTap: () {
         VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+          paymentStatus: widget.vehicle.paymentStatus,
           from: "AUCTION",
           context: context,
           inspectionId: widget.vehicle.inspectionId,

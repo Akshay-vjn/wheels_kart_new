@@ -35,6 +35,7 @@ class VCarDetailsScreen extends StatelessWidget {
   final bool hideBidPrice;
   final String auctionType;
   final bool isShowingInHistoryScreen;
+  final String paymentStatus;
   const VCarDetailsScreen({
     super.key,
     required this.hideBidPrice,
@@ -43,6 +44,7 @@ class VCarDetailsScreen extends StatelessWidget {
     required this.isLiked,
     required this.auctionType,
     this.isShowingInHistoryScreen = false,
+    required this.paymentStatus,
   });
 
   @override
@@ -50,6 +52,7 @@ class VCarDetailsScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => VDetailsControllerBloc(),
       child: CarDetailsScreen(
+        paymentStatus: paymentStatus,
         hideBidPrice: hideBidPrice,
         frontImage: frontImage,
         inspectionId: inspectionId,
@@ -68,6 +71,7 @@ class CarDetailsScreen extends StatefulWidget {
   final bool hideBidPrice;
   final String auctionType;
   final bool isShowingInHistoryScreen;
+  final String paymentStatus;
   const CarDetailsScreen({
     super.key,
     required this.hideBidPrice,
@@ -76,6 +80,7 @@ class CarDetailsScreen extends StatefulWidget {
     required this.isLiked,
     required this.auctionType,
     this.isShowingInHistoryScreen = false,
+    required this.paymentStatus,
   });
 
   @override
@@ -431,6 +436,8 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                       .detail
                                                       .carDetails;
                                               await VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                                                paymentStatus:
+                                                    widget.paymentStatus,
                                                 from: "DETAILS",
                                                 context: context,
 
