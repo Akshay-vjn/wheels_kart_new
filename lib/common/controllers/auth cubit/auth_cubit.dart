@@ -1,33 +1,37 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wheels_kart/common/components/delete_account_success_screen.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_otp_login_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_resend_otp_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_verify_otp_repo.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_api_const.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_register_repo.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/fetch_profile_repo.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/login_repo.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_resend_otp_repo.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_send_otp_repo.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_login_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_register_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_login_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_verify_otp_repo.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/fetch_profile_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_login_screen.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
-import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 
 part 'auth_state.dart';
 
 class AppAuthController extends Cubit<AppAuthControllerState> {
   AppAuthController() : super(AppAuthControllerInitialState());
-
+  //. LOCAL DATA STORING FOR USER CREDANTIAL (COMMON FOR BOTH MODULE)
   static const String mobileNumberKey = 'MOBILE_NUMBER';
-  static const String passwordKey = 'PASSWORD_KEY';
   static const String tokenKey = 'TOKEN_KEY';
   static const String userIdKey = "USER_ID";
   static const String userNameKey = "USER_NAME";
@@ -38,7 +42,6 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
   Future<void> _setLoginPreference(AuthUserModel userData) async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.setString(mobileNumberKey, userData.mobileNumber ?? '');
-    preferences.setString(passwordKey, userData.password ?? '');
     preferences.setString(tokenKey, userData.token ?? '');
 
     preferences.setString(userIdKey, userData.userId ?? '');
@@ -59,10 +62,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
       mobileNumberKey,
       userData.mobileNumber ?? data.mobileNumber ?? '',
     );
-    preferences.setString(
-      passwordKey,
-      userData.password ?? data.password ?? '',
-    );
+
     preferences.setString(tokenKey, userData.token ?? data.token ?? '');
 
     preferences.setString(userIdKey, userData.userId ?? data.userId ?? '');
@@ -83,39 +83,12 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     );
     final newData = await getUserData;
 
-    log(
-      "New Updated Data -> \n"
-      'Name - > ${newData.userName}\nNumber - > ${newData.mobileNumber}\nType -> ${newData.userType}\nUser ID - > ${newData.userId}. \nTerms Accepted=> ${newData.isDealerAcceptedTermsAndCondition}',
-    );
-  }
-
-  Future<void> checkForLogin(BuildContext context) async {
-    final userData = await getUserData;
-    //  context.read<AppAuthController>().clearPreferenceData(context);
-
-    log(
-      "cjeck for login -> \n"
-      'Name - > ${userData.userName}\nNumber - > ${userData.mobileNumber}\nType -> ${userData.userType}\nUser ID - > ${userData.userId}. \nTerms Accepted=> ${userData.isDealerAcceptedTermsAndCondition}',
-    );
-
-    if (userData.token != null &&
-        userData.password != null &&
-        userData.userName != null) {
-      if (userData.userType != null &&
-          (userData.userType == "EVALUATOR" || userData.userType == "ADMIN")) {
-        await loginUser(context, userData.mobileNumber!, userData.password!);
-      } else {
-        // await sendOtp(
-        //   context,
-        //   userData.mobileNumber!,
-        //   // userData.password!,
-        //   // id: userData.userId,
-        //   // name: userData.userName,
-        // );
-      }
-    } else {
-      emit(AuthCubitUnAuthenticatedState());
-    }
+    log("New Updated Datas");
+    log("Name - > ${newData.userName}");
+    log("Number - > ${newData.mobileNumber}");
+    log("Type -> ${newData.userType}");
+    log("User ID - > ${newData.userId}");
+    log("Terms Accepted=> ${newData.isDealerAcceptedTermsAndCondition}");
   }
 
   // GET USER DATA
@@ -124,8 +97,6 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
 
     String? number = preferences.getString(mobileNumberKey);
-
-    String? password = preferences.getString(passwordKey);
 
     String? token = preferences.getString(tokenKey);
 
@@ -141,7 +112,6 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
 
     return AuthUserModel(
       mobileNumber: number,
-      password: password,
       token: token,
       userId: userId,
       userType: userType,
@@ -157,7 +127,6 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(mobileNumberKey);
-    await prefs.remove(passwordKey);
     await prefs.remove(tokenKey);
     // profile data
     await prefs.remove(userNameKey);
@@ -179,62 +148,60 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
       );
     }
   }
+  // Common Function For Checking The Token Expire Or Not . If The Token Is Expire Then Automatically It Will Logout The User.
 
-  // LOGIN EVALUATOR
-  Future<bool> loginUser(
-    BuildContext context,
-    String mobileNumber,
-    String password,
-  ) async {
-    emit(AuthLodingState());
-    final snapshot = await LoginRepo.loginUserRepo(mobileNumber, password);
+  Future<void> checkTheTokenValidity(BuildContext context) async {
+    final userData = await getUserData;
+    bool isEvaluator =
+        userData.userType == "EVALUATOR" || userData.userType == "ADMIN";
+    bool alreadyLogin = userData.token != null && userData.userName != null;
 
-    if (snapshot['error'] == false) {
-      final profileSnapshot = await FetchFProfileDataRepos.getProfileData(
-        snapshot['token'],
+    log("Check Token Expire on Not");
+    log("Name - > ${userData.userName}");
+    log("Number - > ${userData.mobileNumber}");
+    log("Type -> ${userData.userType}");
+    log("User ID - > ${userData.userId}");
+    log("Terms Accepted=> ${userData.isDealerAcceptedTermsAndCondition}");
+
+    if (alreadyLogin) {
+      Uri url;
+
+      if (isEvaluator) {
+        url = Uri.parse('${EvApiConst.baseUrl}${EvApiConst.fetchProfile}');
+      } else {
+        url = Uri.parse('${VApiConst.baseUrl}${VApiConst.profile}');
+      }
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': userData.token ?? "",
+        },
       );
-      if (snapshot['error'] == false) {
-        log(snapshot['message']);
 
-        final authmodel = AuthUserModel(
-          mobileNumber: mobileNumber,
-          password: password,
-          token: snapshot['token'],
-          userName: profileSnapshot['data']['userFullName'],
-          userId: profileSnapshot['data']['userId'],
-          userType: profileSnapshot['data']['userType'],
-        );
-        await _setLoginPreference(authmodel);
+      final decodedata = jsonDecode(response.body);
+      log(decodedata.toString());
+      if (decodedata['status'] == 200) {
         emit(
           AuthCubitAuthenticateState(
-            userId: 0,
-            userModel: authmodel,
-            loginMesaage: snapshot['message'],
+            loginMesaage: "Login Success",
+            userModel: userData,
           ),
         );
-        return true;
-      } else if (snapshot['error'] == true) {
-        emit(AuthErrorState(errorMessage: profileSnapshot['message']));
-        return false;
       } else {
-        emit(
-          AuthErrorState(
-            errorMessage: 'Profile not matching for this credential',
-          ),
-        );
-        return false;
-      }
-    } else if (snapshot['error'] == true) {
-      log(snapshot['message']);
-      emit(AuthErrorState(errorMessage: snapshot['message']));
-      return false;
-    } else {
-      log('error');
-      emit(AuthErrorState(errorMessage: 'No Internet Connection !'));
-      return false;
-    }
-  } // REGISTER EVALUATOR
+        await clearPreferenceData(context);
 
+        emit(AuthCubitUnAuthenticatedState());
+      }
+    } else {
+      emit(AuthCubitUnAuthenticatedState());
+    }
+  }
+
+  // Evalatualor Auth Functiond
+
+  // -- 1 -- Regitser Evaluator (its might be remove)
   Future<bool> registerEvaluator(
     BuildContext context,
     String mobileNumber,
@@ -268,48 +235,103 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     }
   }
 
-  // LOGIN VENDOR
-  Future<int?> sendOtpForDealer(
+  // -- 2 -- Send OTP for Login
+  Future<void> sendOtpForEvaluator(
     BuildContext context,
     String mobileNumber,
   ) async {
     emit(AuthLodingState());
-    final snapshot = await VOtpLoginRepo.sendOtp(mobileNumber);
+    final snapshot = await EvSendOtpRepo.sendOtp(mobileNumber);
+
+    if (snapshot['error'] == false) {
+      log(snapshot['employeeId'].toString());
+      emit(
+        AuthCubitSendOTPState(
+          runTime: null,
+          isEnabledResendOTPButton: true,
+          userId: int.parse(snapshot['employeeId']),
+        ),
+      );
+    } else if (snapshot['error'] == true) {
+      log(snapshot['message']);
+      emit(AuthErrorState(errorMessage: snapshot['message']));
+    } else {
+      log('error');
+      emit(AuthErrorState(errorMessage: 'No Internet Connection !'));
+    }
+  }
+  // -- 3 -- Verify OTP for Login
+
+  Future<void> evaluatorVerifyOtp(
+    BuildContext context,
+    String mobileNumber,
+    String otp,
+    int userId, {
+    String? name,
+  }) async {
+    emit(AuthLodingState());
+    final snapshot = await EvVerifyOtpRepo.verifyOtp(userId, otp);
     if (snapshot.isNotEmpty) {
       if (snapshot['error'] == false) {
-        log(snapshot['employeeId'].toString());
-        final currentUserData = await getUserData;
-        //   final authmodel = AuthUserModel(
-        //     mobileNumber: mobileNumber,
-        //     password: password,
-        //     token: snapshot['token'],
-        //     userName: name ?? "",
-        //     userId: id ?? "",
-        //     userType: "VENDOR",
-        //     isDealerAcceptedTermsAndCondition:
-        //         currentUserData.isDealerAcceptedTermsAndCondition,
-        //   );
-        //   await _setLoginPreference(authmodel);
-        emit(
-          AuthCubitAuthenticateState(
-            userModel: currentUserData,
-            loginMesaage: snapshot['message'],
-            userId: int.parse(snapshot['employeeId']),
-          ),
+        final profileSnapshot = await FetchFProfileDataRepos.getProfileData(
+          snapshot['token'],
         );
-        //   return true;
-        return int.parse(snapshot['employeeId']);
+        if (profileSnapshot['error'] == false) {
+          log(profileSnapshot['message']);
+
+          final authmodel = AuthUserModel(
+            mobileNumber: mobileNumber,
+            token: snapshot['token'],
+            userName: profileSnapshot['data']['userFullName'],
+            userId: profileSnapshot['data']['userId'],
+            userType: profileSnapshot['data']['userType'],
+          );
+          await _setLoginPreference(authmodel);
+          emit(
+            AuthCubitAuthenticateState(
+              userModel: authmodel,
+              loginMesaage: snapshot['message'],
+            ),
+          );
+        } else if (profileSnapshot['error'] == true) {
+          emit(AuthErrorState(errorMessage: profileSnapshot['message']));
+        } else {
+          emit(
+            AuthErrorState(
+              errorMessage: 'Profile not matching for this credential',
+            ),
+          );
+        }
       } else {
         emit(AuthErrorState(errorMessage: snapshot['message'] ?? ''));
-        return null;
+        Future.delayed(Duration(seconds: 2)).then((value) {
+          emit(AuthErrorState(errorMessage: ''));
+        });
       }
     } else {
       emit(AuthErrorState(errorMessage: "No Internet Connection!"));
-      return null;
+      Future.delayed(Duration(seconds: 2)).then((value) {
+        emit(AuthErrorState(errorMessage: ''));
+      });
     }
   }
 
-  // RESISTER VENDOR
+  Future<void> evaluatorRensendOTP(int userId) async {
+    final response = await EvResendOtpRepo.resendOTP(userId);
+    if (response.isNotEmpty) {
+      if (response['error'] == false) {
+        _startTimer();
+      } else {
+        emit(AuthErrorState(errorMessage: response['message']));
+      }
+    } else {
+      emit(AuthErrorState(errorMessage: "Error while resending OTP"));
+    }
+  }
+
+  //.  DEALER OR VENDOR AUTH FYUNCTIONS
+
+  // -- 1 -- Regitser Delaer or Vendor (its might be remove)
   Future<bool> registerVendor(
     BuildContext context,
     String mobileNumber,
@@ -344,5 +366,140 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
       emit(AuthErrorState(errorMessage: snapshot['message']));
       return false;
     }
+  }
+
+  // -- 2 -- Send OTP for Dealer Or Vendor
+  Future<void> sendOtpForDealer(
+    BuildContext context,
+    String mobileNumber,
+  ) async {
+    emit(AuthLodingState());
+    final snapshot = await VOtpLoginRepo.sendOtp(mobileNumber);
+    if (snapshot.isNotEmpty) {
+      if (snapshot['error'] == false) {
+        log(snapshot['employeeId'].toString());
+        emit(
+          AuthCubitSendOTPState(
+            runTime: null,
+            isEnabledResendOTPButton: true,
+            userId: int.parse(snapshot['employeeId']),
+          ),
+        );
+      } else {
+        emit(AuthErrorState(errorMessage: snapshot['message'] ?? ''));
+      }
+    } else {
+      emit(AuthErrorState(errorMessage: "No Internet Connection!"));
+    }
+  }
+  // -- 3 -- Verify OTP for Dealer Or Vendor
+
+  Future<void> vendorVerifyOtp(
+    BuildContext context,
+    String mobileNumber,
+    String otp,
+    int userId, {
+    String? name,
+  }) async {
+    emit(AuthLodingState());
+    final snapshot = await VVerifyOtpRepo.verifyOtp(userId, otp);
+    if (snapshot.isNotEmpty) {
+      if (snapshot['error'] == false) {
+        log(snapshot['token'].toString());
+        final currentUserData = await getUserData;
+        final authmodel = AuthUserModel(
+          mobileNumber: mobileNumber,
+
+          token: snapshot['token'],
+          userName: name ?? "",
+          userId: userId.toString(),
+          userType: "VENDOR",
+          isDealerAcceptedTermsAndCondition:
+              currentUserData.isDealerAcceptedTermsAndCondition,
+        );
+        await _setLoginPreference(authmodel);
+        emit(
+          AuthCubitAuthenticateState(
+            userModel: currentUserData,
+            loginMesaage: snapshot['message'],
+          ),
+        );
+        //   return true;
+      } else {
+        emit(AuthErrorState(errorMessage: snapshot['message'] ?? ''));
+        Future.delayed(Duration(seconds: 2)).then((value) {
+          emit(AuthErrorState(errorMessage: ''));
+        });
+      }
+    } else {
+      emit(AuthErrorState(errorMessage: "No Internet Connection!"));
+      Future.delayed(Duration(seconds: 2)).then((value) {
+        emit(AuthErrorState(errorMessage: ''));
+      });
+    }
+  }
+
+  Future<void> dealerRensendOTP(int userId) async {
+    final response = await VResendOtpRepo.resendOTP(userId);
+    if (response.isNotEmpty) {
+      if (response['error'] == false) {
+        _startTimer();
+      } else {
+        emit(AuthErrorState(errorMessage: response['message']));
+      }
+    } else {
+      emit(AuthErrorState(errorMessage: "Error while resending OTP"));
+    }
+  }
+
+  //.  --- RESEND OTP LOGIN
+
+  Timer? timer;
+
+  void _startTimer() {
+    try {
+      if (state is! AuthCubitSendOTPState) return;
+
+      timer?.cancel();
+      int time = 60;
+
+      emit(
+        (state as AuthCubitSendOTPState).copyWith(
+          isEnabledResendOTPButton: false,
+          runTime: time,
+        ),
+      );
+
+      timer = Timer.periodic(const Duration(seconds: 1), (t) {
+        time--;
+        if (time <= 0) {
+          emit(
+            (state as AuthCubitSendOTPState).copyWith(
+              isEnabledResendOTPButton: true,
+              runTime: 0,
+            ),
+          );
+          t.cancel();
+          return;
+        }
+        final newState = state;
+        if (newState is AuthCubitSendOTPState) {
+          emit(
+            newState.copyWith(isEnabledResendOTPButton: false, runTime: time),
+          );
+        }
+        // else {
+        //   log('isssue .....');
+        //   log(state.toString());
+        // }
+      });
+    } catch (e) {
+      emit(AuthCubitUnAuthenticatedState());
+      //d
+    }
+  }
+
+  void dispose() {
+    timer?.cancel();
   }
 }

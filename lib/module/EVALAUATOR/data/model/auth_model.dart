@@ -1,6 +1,6 @@
 class AuthUserModel {
   String? mobileNumber;
-  String? password;
+  // String? password;
   String? token;
   String? userName;
   String? userId;
@@ -10,7 +10,7 @@ class AuthUserModel {
 
   AuthUserModel({
     this.mobileNumber,
-    this.password,
+    // this.password,
     this.token,
     this.userId,
     this.userName,

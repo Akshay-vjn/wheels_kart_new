@@ -22,13 +22,13 @@ class VOtpLoginRepo {
       if (decodedata['status'] == 200) {
         return {
           'error': decodedata['error'],
-          'message': decodedata['messages'],
+          'message': decodedata['message'],
           'employeeId': decodedata['data']['employeeId'],
         };
       } else {
         return {
           'error': decodedata['error'],
-          'message': decodedata['messages'],
+          'message': decodedata['message'],
         };
       }
     } catch (e) {

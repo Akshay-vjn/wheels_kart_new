@@ -128,11 +128,11 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
           List data = snapshot['data'];
           varientList = data.map((e) => VarientModel.fromJson(e)).toList();
           selectedVarient = varientId;
-          selectedVarientIndex=varientList.indexWhere((element) => element.variantId==varientId,);
+          selectedVarientIndex = varientList.indexWhere(
+            (element) => element.variantId == varientId,
+          );
           disableVarientView = true;
-          setState(() {
-            
-          });
+          setState(() {});
 
           // int? selectedVarientIndex;
           // String? selectedVarient;
@@ -498,7 +498,7 @@ class _EvSelectFuealTypeScreenState extends State<EvSelectFuealTypeScreen> {
                             child: Text(
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              varientList[selectedTransmissionIndex!].fullName,
+                              varientList[selectedVarientIndex!].fullName,
                               style: EvAppStyle.style(
                                 size: AppDimensions.fontSize17(context),
                                 context: context,

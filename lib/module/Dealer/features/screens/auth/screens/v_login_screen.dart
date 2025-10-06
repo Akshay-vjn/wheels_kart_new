@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/common/utils/validator.dart';
@@ -9,6 +10,7 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/otp_sheet.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/terms_and_condion_accept_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_registration_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
@@ -23,10 +25,10 @@ class VLoginScreen extends StatefulWidget {
 class _VLoginScreenState extends State<VLoginScreen>
     with TickerProviderStateMixin {
   final _mobileNumberController = TextEditingController();
-  final _passwordController = TextEditingController();
+  // final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _mobileFocusNode = FocusNode();
-  final _passwordFocusNode = FocusNode();
+  // final _passwordFocusNode = FocusNode();
 
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -75,11 +77,11 @@ class _VLoginScreenState extends State<VLoginScreen>
       }
     });
 
-    _passwordFocusNode.addListener(() {
-      if (_passwordFocusNode.hasFocus) {
-        HapticFeedback.selectionClick();
-      }
-    });
+    // _passwordFocusNode.addListener(() {
+    //   if (_passwordFocusNode.hasFocus) {
+    //     HapticFeedback.selectionClick();
+    //   }
+    // });
   }
 
   @override
@@ -87,9 +89,9 @@ class _VLoginScreenState extends State<VLoginScreen>
     _fadeController.dispose();
     _slideController.dispose();
     _mobileFocusNode.dispose();
-    _passwordFocusNode.dispose();
+    // _passwordFocusNode.dispose();
     _mobileNumberController.dispose();
-    _passwordController.dispose();
+    // _passwordController.dispose();
     super.dispose();
   }
 
@@ -109,25 +111,27 @@ class _VLoginScreenState extends State<VLoginScreen>
                   state: VSnackState.ERROR,
                 );
               }
-            case AuthCubitAuthenticateState():
+            case AuthCubitSendOTPState():
               {
-                HapticFeedback.mediumImpact();
+                if (state.isEnabledResendOTPButton != false &&
+                    state.runTime == null) {
+                  HapticFeedback.mediumImpact();
 
-                Navigator.of(context).pushAndRemoveUntil(
-                  AppRoutes.createRoute(VTermsAndCondionAcceptScreen()),
-                  (context) => false,
-                );
-                // await context.read<AppAuthController>().updateLoginPreference(
-                //   AuthUserModel(isDealerAcceptedTermsAndCondition: true),
-                // );
-                // showToastMessage(
-                //   context,
-                //   "Login Successful, Welcome to Wheels Kart",
-                // );
-                // Navigator.of(context).pushAndRemoveUntil(
-                //   AppRoutes.createRoute(VNavScreen()),
-                //   (context) => false,
-                // );
+                  showModalBottomSheet(
+                    backgroundColor: VColors.WHITE,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusSize18,
+                      ),
+                    ),
+                    context: context,
+                    builder:
+                        (context) => OtpSheet(
+                          mobilNumber: _mobileNumberController.text.trim(),
+                          userId: state.userId,
+                        ),
+                  );
+                }
               }
             default:
               {}
@@ -296,10 +300,12 @@ class _VLoginScreenState extends State<VLoginScreen>
                     onTap: () async {
                       if (_formKey.currentState!.validate()) {
                         HapticFeedback.mediumImpact();
-                        await context.read<AppAuthController>().sendOtpForDealer(
-                          context,
-                          _mobileNumberController.text.trim(),
-                        );
+                        await context
+                            .read<AppAuthController>()
+                            .sendOtpForDealer(
+                              context,
+                              _mobileNumberController.text.trim(),
+                            );
                       } else {
                         HapticFeedback.lightImpact();
                       }

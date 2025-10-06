@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pinput/pinput.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
+import 'package:wheels_kart/common/config/pushnotification_controller.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/dimensions.dart';
+import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
@@ -16,11 +18,12 @@ import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart'
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_texfield.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
 
-class OtpSheet extends StatelessWidget {
+class EvOtpSheet extends StatelessWidget {
   final String mobilNumber;
   final int userId;
-  OtpSheet({super.key, required this.mobilNumber, required this.userId});
+  EvOtpSheet({super.key, required this.mobilNumber, required this.userId});
   final _otpController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   @override
@@ -34,7 +37,7 @@ class OtpSheet extends StatelessWidget {
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       child: BlocConsumer<AppAuthController, AppAuthControllerState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           switch (state) {
             case AuthErrorState():
               {
@@ -49,9 +52,11 @@ class OtpSheet extends StatelessWidget {
               {
                 HapticFeedback.mediumImpact();
 
+                await PushNotificationConfig().initNotification(context);
+                showToastMessage(context, state.loginMesaage);
                 Navigator.of(context).pushAndRemoveUntil(
-                  AppRoutes.createRoute(VTermsAndCondionAcceptScreen()),
-                  (route) => false,
+                  AppRoutes.createRoute(EvDashboardScreen()),
+                  (context) => false,
                 );
               }
             default:
@@ -150,7 +155,7 @@ class OtpSheet extends StatelessWidget {
                                   HapticFeedback.mediumImpact();
                                   await context
                                       .read<AppAuthController>()
-                                      .dealerRensendOTP(userId);
+                                      .evaluatorRensendOTP(userId);
                                 },
                                 child: Text(
                                   "RESEND OTP",
@@ -168,11 +173,11 @@ class OtpSheet extends StatelessWidget {
                             alignment: Alignment.bottomRight,
                             child: Text(
                               "00:${state.runTime.toString()}",
-                              style: VStyle.poppins(
+                              style: EvAppStyle.poppins(
                                 context: context,
                                 fontWeight: FontWeight.bold,
                                 size: 15,
-                                color: VColors.ACCENT,
+                                color: EvAppColors.DEFAULT_ORANGE,
                               ),
                             ),
                           );
@@ -191,12 +196,14 @@ class OtpSheet extends StatelessWidget {
                     onTap: () async {
                       if (_formKey.currentState!.validate()) {
                         HapticFeedback.mediumImpact();
-                        await context.read<AppAuthController>().vendorVerifyOtp(
-                          context,
-                          mobilNumber,
-                          _otpController.text.trim(),
-                          userId,
-                        );
+                        await context
+                            .read<AppAuthController>()
+                            .evaluatorVerifyOtp(
+                              context,
+                              mobilNumber,
+                              _otpController.text.trim(),
+                              userId,
+                            );
                       } else {
                         HapticFeedback.lightImpact();
                       }

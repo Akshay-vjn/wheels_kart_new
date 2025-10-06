@@ -49,7 +49,9 @@ class _SplashScreenState extends State<SplashScreen>
     _startAnimationSequence();
 
     Future.delayed(const Duration(milliseconds: 2500)).then((value) async {
-      BlocProvider.of<AppAuthController>(context).checkForLogin(context);
+      BlocProvider.of<AppAuthController>(
+        context,
+      ).checkTheTokenValidity(context);
     });
   }
 
@@ -136,30 +138,37 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _startAnimationSequence() async {
-    // Start background and particle animations immediately
-    _backgroundController.forward();
-    // _particleController.repeat();
+    try {
+      if (mounted) {
+        // Start background and particle animations immediately
+        _backgroundController.forward();
+        // _particleController.repeat();
 
-    // Start logo animation after a short delay
-    await Future.delayed(const Duration(milliseconds: 400));
-    _logoController.forward();
+        // Start logo animation after a short delay
+        await Future.delayed(const Duration(milliseconds: 400));
+        _logoController.forward();
 
-    // Start text animation after logo
-    await Future.delayed(const Duration(milliseconds: 800));
-    _textController.forward();
+        // Start text animation after logo
+        await Future.delayed(const Duration(milliseconds: 800));
+        _textController.forward();
 
-    // Show loading after text
-    await Future.delayed(const Duration(milliseconds: 800));
+        // Show loading after text
+        await Future.delayed(const Duration(milliseconds: 800));
 
-    _loadingController.forward();
+        _loadingController.forward();
+      }
+    } catch (e) {}
   }
 
   @override
   void dispose() {
-    _logoController.dispose();
-    _textController.dispose();
-    _loadingController.dispose();
-    _backgroundController.dispose();
+    if (mounted) {
+      _logoController.dispose();
+      _textController.dispose();
+      _loadingController.dispose();
+      _backgroundController.dispose();
+    }
+
     // _particleController.dispose();
     super.dispose();
   }
@@ -171,6 +180,7 @@ class _SplashScreenState extends State<SplashScreen>
         switch (state) {
           case AuthCubitAuthenticateState():
             {
+              log("working.....");
               if (state.userModel.userType == "EVALUATOR" ||
                   state.userModel.userType == "ADMIN") {
                 await PushNotificationConfig().initNotification(context);

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:wheels_kart/common/config/pushnotification_controller.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_otp_sheet.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_registration_Screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
@@ -28,7 +29,6 @@ class EvLoginScreen extends StatefulWidget {
 class _EvLoginScreenState extends State<EvLoginScreen>
     with TickerProviderStateMixin {
   final _mobileNumberController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   late AnimationController _slideAnimationController;
@@ -111,13 +111,10 @@ class _EvLoginScreenState extends State<EvLoginScreen>
 
   void _setupFormListener() {
     _mobileNumberController.addListener(_validateForm);
-    _passwordController.addListener(_validateForm);
   }
 
   void _validateForm() {
-    final isValid =
-        _mobileNumberController.text.length == 10 &&
-        _passwordController.text.length >= 6;
+    final isValid = _mobileNumberController.text.length == 10;
     if (isValid != _isFormValid) {
       setState(() {
         _isFormValid = isValid;
@@ -131,7 +128,6 @@ class _EvLoginScreenState extends State<EvLoginScreen>
     _fadeAnimationController.dispose();
     _scaleAnimationController.dispose();
     _mobileNumberController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -152,15 +148,34 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                   enablePop: true,
                 );
               }
-            case AuthCubitAuthenticateState():
+            case AuthCubitSendOTPState():
               {
-                await PushNotificationConfig().initNotification(context);
-                HapticFeedback.mediumImpact();
-                showToastMessage(context, state.loginMesaage);
-                Navigator.of(context).pushAndRemoveUntil(
-                  AppRoutes.createRoute(EvDashboardScreen()),
-                  (context) => false,
-                );
+                if (state.isEnabledResendOTPButton != false &&
+                    state.runTime == null) {
+                  HapticFeedback.mediumImpact();
+
+                  showModalBottomSheet(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.radiusSize18,
+                      ),
+                    ),
+                    backgroundColor: EvAppColors.white,
+                    context: context,
+                    builder:
+                        (context) => EvOtpSheet(
+                          mobilNumber: _mobileNumberController.text.trim(),
+                          userId: state.userId,
+                        ),
+                  );
+                }
+
+                // await PushNotificationConfig().initNotification(context);
+                // showToastMessage(context, state.loginMesaage);
+                // Navigator.of(context).pushAndRemoveUntil(
+                //   AppRoutes.createRoute(EvDashboardScreen()),
+                //   (context) => false,
+                // );
               }
             case AuthLodingState():
               {
@@ -284,7 +299,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
 
                           // Form Section
                           Expanded(
-                            flex: 3,
+                            flex: 2,
                             child: SlideTransition(
                               position: _slideAnimation,
                               child: Container(
@@ -351,59 +366,9 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                       },
                                     ),
 
-                                    const SizedBox(height: 20),
+                                    // const SizedBox(height: 20),
 
                                     // Password Field
-                                    BlocBuilder<
-                                      EvLoginBlocBloc,
-                                      EvLoginBlocState
-                                    >(
-                                      builder:
-                                          (
-                                            context,
-                                            state,
-                                          ) => _buildEnhancedTextField(
-                                            controller: _passwordController,
-                                            label: 'Password',
-                                            hint: 'Enter your password',
-                                            prefixIcon: Iconsax.lock,
-                                            isPassword: true,
-                                            obscureText: state.isPasswordHide,
-                                            suffixIcon: InkWell(
-                                              onTap: () {
-                                                HapticFeedback.lightImpact();
-                                                if (state.isPasswordHide) {
-                                                  context
-                                                      .read<EvLoginBlocBloc>()
-                                                      .add(HidePassword());
-                                                } else {
-                                                  context
-                                                      .read<EvLoginBlocBloc>()
-                                                      .add(ShowPassword());
-                                                }
-                                              },
-                                              child: Icon(
-                                                state.isPasswordHide
-                                                    ? Iconsax.eye
-                                                    : Iconsax.eye_slash,
-                                                color:
-                                                    EvAppColors
-                                                        .kAppSecondaryColor,
-                                                size: 20,
-                                              ),
-                                            ),
-                                            validator: (value) {
-                                              if (value?.isEmpty ?? true) {
-                                                return 'Please enter your password';
-                                              }
-                                              if (value!.length < 6) {
-                                                return 'Password must be at least 6 characters';
-                                              }
-                                              return null;
-                                            },
-                                          ),
-                                    ),
-
                                     AppSpacer(heightPortion: .05),
 
                                     // Forgot Password
@@ -439,16 +404,15 @@ class _EvLoginScreenState extends State<EvLoginScreen>
 
                                           await context
                                               .read<AppAuthController>()
-                                              .loginUser(
+                                              .sendOtpForEvaluator(
                                                 context,
                                                 _mobileNumberController.text,
-                                                _passwordController.text,
                                               );
                                         } else {
                                           HapticFeedback.heavyImpact();
                                         }
                                       },
-                                      title: 'SIGN IN',
+                                      title: 'GET OTP',
                                       isEnabled: _isFormValid,
                                     ),
 

@@ -11,15 +11,38 @@ final class AuthErrorState extends AppAuthControllerState {
   AuthErrorState({required this.errorMessage});
 }
 
+final class AuthCubitSendOTPState extends AppAuthControllerState {
+  int userId;
+  final bool? isEnabledResendOTPButton;
+   int? runTime;
+
+  AuthCubitSendOTPState({
+    this.isEnabledResendOTPButton,
+    this.runTime,
+    required this.userId,
+  });
+
+  AuthCubitSendOTPState copyWith({
+    int? userId,
+    bool? isEnabledResendOTPButton,
+    int? runTime,
+  }) {
+    return AuthCubitSendOTPState(
+      isEnabledResendOTPButton:
+          isEnabledResendOTPButton ?? this.isEnabledResendOTPButton,
+      runTime: runTime ?? this.userId,
+      userId: userId ?? this.userId,
+    );
+  }
+}
+
 final class AuthCubitAuthenticateState extends AppAuthControllerState {
   AuthUserModel userModel;
   String loginMesaage;
-  int userId;
 
   AuthCubitAuthenticateState({
     required this.userModel,
     required this.loginMesaage,
-    required this.userId,
   });
 }
 
