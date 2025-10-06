@@ -1,9 +1,7 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
-import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/common/utils/validator.dart';
@@ -11,12 +9,9 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/account/screens/terms_and_condition_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/terms_and_condion_accept_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_registration_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_backbutton.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 
 class VLoginScreen extends StatefulWidget {
   VLoginScreen({super.key});
@@ -279,19 +274,18 @@ class _VLoginScreenState extends State<VLoginScreen>
                 validator: (value) => Validator.validateMobileNumber(value),
               ),
 
-              const SizedBox(height: 24),
+              // const SizedBox(height: 24),
 
               // Password Field
-              _buildEnhancedTextField(
-                controller: _passwordController,
-                focusNode: _passwordFocusNode,
-                label: "Password",
-                hint: "Enter your password",
-                isPassword: true,
-                prefixIcon: Icons.lock_outline,
-                validator: (value) => Validator.validateRequired(value),
-              ),
-
+              // _buildEnhancedTextField(
+              //   controller: _passwordController,
+              //   focusNode: _passwordFocusNode,
+              //   label: "Password",
+              //   hint: "Enter your password",
+              //   isPassword: true,
+              //   prefixIcon: Icons.lock_outline,
+              //   validator: (value) => Validator.validateRequired(value),
+              // ),
               const SizedBox(height: 25),
 
               // Sign In Button
@@ -302,10 +296,9 @@ class _VLoginScreenState extends State<VLoginScreen>
                     onTap: () async {
                       if (_formKey.currentState!.validate()) {
                         HapticFeedback.mediumImpact();
-                        await context.read<AppAuthController>().loginVendor(
+                        await context.read<AppAuthController>().sendOtpForDealer(
                           context,
                           _mobileNumberController.text.trim(),
-                          _passwordController.text.trim(),
                         );
                       } else {
                         HapticFeedback.lightImpact();
@@ -477,7 +470,7 @@ class _VLoginScreenState extends State<VLoginScreen>
                       child: VLoadingIndicator(),
                     )
                     : Text(
-                      "SIGN IN",
+                      "GET OTP",
                       style: VStyle.style(
                         context: context,
                         fontWeight: FontWeight.bold,

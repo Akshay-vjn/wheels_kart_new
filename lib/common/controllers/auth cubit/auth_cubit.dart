@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wheels_kart/common/components/delete_account_success_screen.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_otp_login_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_register_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/fetch_profile_repo.dart';
@@ -104,13 +105,13 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
           (userData.userType == "EVALUATOR" || userData.userType == "ADMIN")) {
         await loginUser(context, userData.mobileNumber!, userData.password!);
       } else {
-        await loginVendor(
-          context,
-          userData.mobileNumber!,
-          userData.password!,
-          id: userData.userId,
-          name: userData.userName,
-        );
+        // await sendOtp(
+        //   context,
+        //   userData.mobileNumber!,
+        //   // userData.password!,
+        //   // id: userData.userId,
+        //   // name: userData.userName,
+        // );
       }
     } else {
       emit(AuthCubitUnAuthenticatedState());
@@ -206,6 +207,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
         await _setLoginPreference(authmodel);
         emit(
           AuthCubitAuthenticateState(
+            userId: 0,
             userModel: authmodel,
             loginMesaage: snapshot['message'],
           ),
@@ -267,44 +269,43 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
   }
 
   // LOGIN VENDOR
-  Future<bool> loginVendor(
+  Future<int?> sendOtpForDealer(
     BuildContext context,
     String mobileNumber,
-    String password, {
-    String? name,
-    String? id,
-  }) async {
+  ) async {
     emit(AuthLodingState());
-    final snapshot = await VLoginRepo.loginVendor(mobileNumber, password);
+    final snapshot = await VOtpLoginRepo.sendOtp(mobileNumber);
     if (snapshot.isNotEmpty) {
       if (snapshot['error'] == false) {
-        log(snapshot['data'].toString());
+        log(snapshot['employeeId'].toString());
         final currentUserData = await getUserData;
-        final authmodel = AuthUserModel(
-          mobileNumber: mobileNumber,
-          password: password,
-          token: snapshot['token'],
-          userName: name ?? "",
-          userId: id ?? "",
-          userType: "VENDOR",
-          isDealerAcceptedTermsAndCondition:
-              currentUserData.isDealerAcceptedTermsAndCondition,
-        );
-        await _setLoginPreference(authmodel);
+        //   final authmodel = AuthUserModel(
+        //     mobileNumber: mobileNumber,
+        //     password: password,
+        //     token: snapshot['token'],
+        //     userName: name ?? "",
+        //     userId: id ?? "",
+        //     userType: "VENDOR",
+        //     isDealerAcceptedTermsAndCondition:
+        //         currentUserData.isDealerAcceptedTermsAndCondition,
+        //   );
+        //   await _setLoginPreference(authmodel);
         emit(
           AuthCubitAuthenticateState(
-            userModel: authmodel,
+            userModel: currentUserData,
             loginMesaage: snapshot['message'],
+            userId: int.parse(snapshot['employeeId']),
           ),
         );
-        return true;
+        //   return true;
+        return int.parse(snapshot['employeeId']);
       } else {
         emit(AuthErrorState(errorMessage: snapshot['message'] ?? ''));
-        return false;
+        return null;
       }
     } else {
       emit(AuthErrorState(errorMessage: "No Internet Connection!"));
-      return false;
+      return null;
     }
   }
 

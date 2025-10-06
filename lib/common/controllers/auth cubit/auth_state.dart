@@ -4,9 +4,7 @@ sealed class AppAuthControllerState {}
 
 final class AppAuthControllerInitialState extends AppAuthControllerState {}
 
-final class AuthLodingState extends AppAuthControllerState {
- 
-}
+final class AuthLodingState extends AppAuthControllerState {}
 
 final class AuthErrorState extends AppAuthControllerState {
   String errorMessage;
@@ -16,9 +14,13 @@ final class AuthErrorState extends AppAuthControllerState {
 final class AuthCubitAuthenticateState extends AppAuthControllerState {
   AuthUserModel userModel;
   String loginMesaage;
+  int userId;
 
-  AuthCubitAuthenticateState(
-      {required this.userModel, required this.loginMesaage});
+  AuthCubitAuthenticateState({
+    required this.userModel,
+    required this.loginMesaage,
+    required this.userId,
+  });
 }
 
 final class AuthCubitUnAuthenticatedState extends AppAuthControllerState {}
