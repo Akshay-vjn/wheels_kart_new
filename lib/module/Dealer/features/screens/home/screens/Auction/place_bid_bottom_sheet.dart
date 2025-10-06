@@ -167,7 +167,10 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
             border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
           ),
           child: Padding(
-            padding:  widget.paymentStatus == "No"?EdgeInsetsGeometry.symmetric(vertical: 28,horizontal: 15): const EdgeInsets.all(28),
+            padding:
+                widget.paymentStatus == "No"
+                    ? EdgeInsetsGeometry.symmetric(vertical: 28, horizontal: 15)
+                    : const EdgeInsets.all(28),
             child:
                 widget.paymentStatus == "No"
                     ? SizedBox(
