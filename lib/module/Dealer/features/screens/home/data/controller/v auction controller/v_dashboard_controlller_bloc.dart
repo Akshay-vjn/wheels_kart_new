@@ -33,8 +33,9 @@ class VAuctionControlllerBloc
 
           emit(
             VAuctionControllerSuccessState(
+              // listOfAllClosedAuctionFromServer: [],
               filterdAutionList: list,
-              listOfAllAuctionFromServer: list,
+              listOfAllLiveAuctionFromServer: list,
               enableRefreshButton: false,
             ),
           );
@@ -65,23 +66,23 @@ class VAuctionControlllerBloc
             emit(
               VAuctionControllerSuccessState(
                 filterdAutionList: list,
-                listOfAllAuctionFromServer: list,
+                listOfAllLiveAuctionFromServer: list,
                 enableRefreshButton: false,
               ),
             );
           } else {
             emit(
               VAuctionControllerSuccessState(
-                filterdAutionList: cuuremtSate.listOfAllAuctionFromServer,
-                listOfAllAuctionFromServer:
-                    cuuremtSate.listOfAllAuctionFromServer,
+                filterdAutionList: cuuremtSate.listOfAllLiveAuctionFromServer,
+                listOfAllLiveAuctionFromServer:
+                    cuuremtSate.listOfAllLiveAuctionFromServer,
                 enableRefreshButton: true,
               ),
             );
           }
         } else {
           debugPrint("--------Auction Updated");
-          for (var car in cuuremtSate.listOfAllAuctionFromServer) {
+          for (var car in cuuremtSate.listOfAllLiveAuctionFromServer) {
             if (car.evaluationId == event.newBid.evaluationId) {
               final bid = event.newBid;
               final reversed = bid.vendorBids.toList();
@@ -101,7 +102,7 @@ class VAuctionControlllerBloc
           emit(
             VAuctionControllerSuccessState(
               filterdAutionList: updatedList,
-              listOfAllAuctionFromServer: updatedList,
+              listOfAllLiveAuctionFromServer: updatedList,
               enableRefreshButton: cuuremtSate.enableRefreshButton,
             ),
           );
@@ -133,7 +134,7 @@ class VAuctionControlllerBloc
       // Base list to filter from: always start from the full server list so
       // filters are applied consistently (AND semantics across categories).
       final List<VCarModel> baseList = List<VCarModel>.from(
-        currentState.listOfAllAuctionFromServer,
+        currentState.listOfAllLiveAuctionFromServer,
       );
 
       // If filters is null or empty => reset filtered list to full list (optionally apply sort)
@@ -183,7 +184,7 @@ class VAuctionControlllerBloc
           emit(
             currentState.copyWith(
               filterdAutionList: List<VCarModel>.from(
-                currentState.listOfAllAuctionFromServer,
+                currentState.listOfAllLiveAuctionFromServer,
               ),
             ),
           );
@@ -191,7 +192,7 @@ class VAuctionControlllerBloc
         }
 
         final searchedResult =
-            currentState.listOfAllAuctionFromServer.where((element) {
+            currentState.listOfAllLiveAuctionFromServer.where((element) {
               final brand = element.brandName.trim().toLowerCase();
               final model = element.modelName.trim().toLowerCase();
               final year = element.manufacturingYear.trim().toLowerCase();

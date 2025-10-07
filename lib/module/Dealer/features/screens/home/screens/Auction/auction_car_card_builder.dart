@@ -57,7 +57,9 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
 
           case VAuctionControllerSuccessState():
             {
-              final carList = state.filterdAutionList;
+              // final list = state.filterdAutionList;
+
+              final liveAuctions = state.filterdAutionList;
 
               return RefreshIndicator.adaptive(
                 onRefresh: () async {
@@ -73,7 +75,7 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                       physics: AlwaysScrollableScrollPhysics(),
                       padding: EdgeInsets.only(top: 10),
                       child:
-                          carList.isEmpty
+                          liveAuctions.isEmpty
                               ? AppEmptyText(text: "No auctions found!")
                               : AnimationLimiter(
                                 child: Column(
@@ -89,7 +91,7 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                                               child: FadeInAnimation(child: p0),
                                             ),
                                         children:
-                                            carList
+                                            liveAuctions
                                                 .map(
                                                   (e) => VAuctionVehicleCard(
                                                     myId: CURRENT_DEALER_ID,

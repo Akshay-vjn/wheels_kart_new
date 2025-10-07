@@ -1,5 +1,5 @@
-
 import 'dart:developer';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
@@ -13,6 +13,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20auction%20controller/v_dashboard_controlller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/Auction/auction_car_card_builder.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/Closed/v_closed_auction_builder.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/OCB/v_ocb_car_builder.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/widgets/filter/build_filter_and_sort_view.dart';
 
@@ -113,7 +114,11 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
-                  children: [VAuctionCarBuilder(), VOCBCarBuilder()],
+                  children: [
+                    VAuctionCarBuilder(),
+                    VOCBCarBuilder(),
+                    // VClosedAuctionBuilder(),
+                  ],
                 ),
               ),
             ],
@@ -356,6 +361,8 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
       ),
       child: TabBar(
         controller: _tabController,
+        // isScrollable: true,
+        // tabAlignment: TabAlignment.start, // padding: EdgeInsets.all(0),
         indicator: BoxDecoration(
           gradient: LinearGradient(
             colors: [Colors.blue.shade400, Colors.blue.shade600],
@@ -410,6 +417,17 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
               ],
             ),
           ),
+          // Tab(
+          //   height: 50,
+          //   child: Row(
+          //     mainAxisSize: MainAxisSize.min,
+          //     children: [
+          //       Icon(Icons.close_rounded, size: 20),
+          //       SizedBox(width: 8),
+          //       Text("Closed"),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

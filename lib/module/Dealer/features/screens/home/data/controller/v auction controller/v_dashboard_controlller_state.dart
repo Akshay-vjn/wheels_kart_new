@@ -13,26 +13,32 @@ final class VVAuctionControllerErrorState extends VAuctionControlllerState {
 }
 
 final class VAuctionControllerSuccessState extends VAuctionControlllerState {
-  final List<VCarModel> listOfAllAuctionFromServer;
+  final List<VCarModel> listOfAllLiveAuctionFromServer;
+  // final List<VCarModel> listOfAllClosedAuctionFromServer;
 
   final List<VCarModel> filterdAutionList;
 
   final bool enableRefreshButton;
 
   VAuctionControllerSuccessState({
-    required this.listOfAllAuctionFromServer,
+    required this.listOfAllLiveAuctionFromServer,
     required this.enableRefreshButton,
     required this.filterdAutionList,
+    // required this.listOfAllClosedAuctionFromServer,
   });
 
   VAuctionControllerSuccessState copyWith({
-    List<VCarModel>? listOfAllAuctionFromServer,
+    List<VCarModel>? listOfAllLiveAuctionFromServer,
     List<VCarModel>? filterdAutionList,
     bool? enableRefreshButton,
+    // List<VCarModel>? listOfAllClosedAuctionFromServer,
   }) {
     return VAuctionControllerSuccessState(
-      listOfAllAuctionFromServer:
-          listOfAllAuctionFromServer ?? this.listOfAllAuctionFromServer,
+      // listOfAllClosedAuctionFromServer:
+      //     listOfAllClosedAuctionFromServer ??
+      //     this.listOfAllClosedAuctionFromServer,
+      listOfAllLiveAuctionFromServer:
+          listOfAllLiveAuctionFromServer ?? this.listOfAllLiveAuctionFromServer,
       enableRefreshButton: enableRefreshButton ?? this.enableRefreshButton,
       filterdAutionList: filterdAutionList ?? this.filterdAutionList,
     );
