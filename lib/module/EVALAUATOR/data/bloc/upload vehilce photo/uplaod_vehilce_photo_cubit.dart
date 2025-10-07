@@ -158,6 +158,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
       MaterialPageRoute(
         builder:
             (_) => CameraScreen(
+              isFromVhiclePhotoScreen: true,
               onImageCaptured: (file) {
                 // immediate UI update
                 selectedImageFile = file;

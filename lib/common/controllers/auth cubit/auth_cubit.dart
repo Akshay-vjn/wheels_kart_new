@@ -3,17 +3,23 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wheels_kart/common/components/delete_account_success_screen.dart';
+import 'package:wheels_kart/common/dimensions.dart';
+import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_otp_login_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_resend_otp_repo.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_verify_otp_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/otp_sheet.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_api_const.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/auth_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_register_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_resend_otp_repo.dart';
@@ -24,6 +30,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/v_login_
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/ev_verify_otp_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/login/fetch_profile_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_login_screen.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_otp_sheet.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
 
 part 'auth_state.dart';
@@ -220,16 +227,19 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
 
     if (snapshot['error'] == false && snapshot.isNotEmpty) {
       emit(AppAuthControllerInitialState());
-      vSnackBarMessage(
+      showSnakBar(
         context,
         "Congratulation!.Registration successful, you can login now.",
+        isError: false,
+        enablePop: true,
       );
+
       Navigator.of(
         context,
       ).pushReplacement(AppRoutes.createRoute(EvLoginScreen()));
       return true;
     } else {
-      vSnackBarMessage(context, snapshot['message'], state: VSnackState.ERROR);
+      showSnakBar(context, snapshot['message'], isError: true, enablePop: true);
       emit(AuthErrorState(errorMessage: snapshot['message']));
       return false;
     }
@@ -245,8 +255,28 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
 
     if (snapshot['error'] == false) {
       log(snapshot['employeeId'].toString());
+
+      HapticFeedback.mediumImpact();
+
+      showModalBottomSheet(
+        isDismissible: false,
+        context: context,
+        isScrollControlled: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
+        ),
+        backgroundColor: EvAppColors.white,
+        builder:
+            (context) => EvOtpSheet(
+              mobilNumber: mobileNumber.trim(),
+              userId: int.parse(snapshot['employeeId']),
+            ),
+      );
+
       emit(
         AuthCubitSendOTPState(
+          sheetErrorMessage: null,
+          isLoadingVerifyOTP: false,
           runTime: null,
           isEnabledResendOTPButton: true,
           userId: int.parse(snapshot['employeeId']),
@@ -254,9 +284,18 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
       );
     } else if (snapshot['error'] == true) {
       log(snapshot['message']);
+      showSnakBar(context, snapshot['message'], isError: true, enablePop: true);
+
       emit(AuthErrorState(errorMessage: snapshot['message']));
     } else {
       log('error');
+      showSnakBar(
+        context,
+        'No Internet Connection !',
+        isError: true,
+        enablePop: true,
+      );
+
       emit(AuthErrorState(errorMessage: 'No Internet Connection !'));
     }
   }
@@ -269,7 +308,8 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     int userId, {
     String? name,
   }) async {
-    emit(AuthLodingState());
+    final currentState = state as AuthCubitSendOTPState;
+    emit(currentState.copyWith(isLoadingVerifyOTP: true));
     final snapshot = await EvVerifyOtpRepo.verifyOtp(userId, otp);
     if (snapshot.isNotEmpty) {
       if (snapshot['error'] == false) {
@@ -289,43 +329,108 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
           await _setLoginPreference(authmodel);
           emit(
             AuthCubitAuthenticateState(
+              userId: int.parse(profileSnapshot['data']['userId']),
               userModel: authmodel,
               loginMesaage: snapshot['message'],
             ),
           );
         } else if (profileSnapshot['error'] == true) {
-          emit(AuthErrorState(errorMessage: profileSnapshot['message']));
-        } else {
           emit(
-            AuthErrorState(
-              errorMessage: 'Profile not matching for this credential',
+            currentState.copyWith(
+              isLoadingVerifyOTP: false,
+              sheetErrorMessage: profileSnapshot['message'],
+            ),
+          );
+          // emit(
+          //   AuthErrorState(
+          //     userId: userId,
+          //     errorMessage: profileSnapshot['message'],
+          //   ),
+          // );
+        } else {
+          // emit(
+          //   AuthErrorState(
+          //     userId: userId,
+          //     errorMessage: 'Profile not matching for this credential',
+          //   ),
+          // );
+          emit(
+            currentState.copyWith(
+              isLoadingVerifyOTP: false,
+              sheetErrorMessage: 'Profile not matching for this credential',
             ),
           );
         }
       } else {
-        emit(AuthErrorState(errorMessage: snapshot['message'] ?? ''));
+        // emit(
+        //   AuthErrorState(
+        //     userId: userId,
+        //     errorMessage: snapshot['message'] ?? '',
+        //   ),
+        // );
+        emit(
+          currentState.copyWith(
+            isLoadingVerifyOTP: false,
+            sheetErrorMessage: snapshot['message'] ?? '',
+          ),
+        );
         Future.delayed(Duration(seconds: 2)).then((value) {
-          emit(AuthErrorState(errorMessage: ''));
+          emit(
+            currentState.copyWith(
+              isLoadingVerifyOTP: false,
+              sheetErrorMessage: null,
+            ),
+          );
         });
       }
     } else {
-      emit(AuthErrorState(errorMessage: "No Internet Connection!"));
+      emit(
+        currentState.copyWith(
+          isLoadingVerifyOTP: false,
+          sheetErrorMessage: "No Internet Connection!",
+        ),
+      );
       Future.delayed(Duration(seconds: 2)).then((value) {
-        emit(AuthErrorState(errorMessage: ''));
+        emit(
+          currentState.copyWith(
+            isLoadingVerifyOTP: false,
+            sheetErrorMessage: null,
+          ),
+        );
       });
     }
   }
 
   Future<void> evaluatorRensendOTP(int userId) async {
+    final currentSTate = state as AuthCubitSendOTPState;
     final response = await EvResendOtpRepo.resendOTP(userId);
     if (response.isNotEmpty) {
       if (response['error'] == false) {
         _startTimer();
       } else {
-        emit(AuthErrorState(errorMessage: response['message']));
+        emit(
+          currentSTate.copyWith(
+            isEnabledResendOTPButton: true,
+            sheetErrorMessage: response['message'],
+            isLoadingVerifyOTP: false,
+          ),
+        );
+        // emit(AuthErrorState(userId: userId, errorMessage: response['message']));
       }
     } else {
-      emit(AuthErrorState(errorMessage: "Error while resending OTP"));
+      emit(
+        currentSTate.copyWith(
+          isEnabledResendOTPButton: true,
+          sheetErrorMessage: "Error while resending OTP",
+          isLoadingVerifyOTP: false,
+        ),
+      );
+      // emit(
+      //   AuthErrorState(
+      //     userId: userId,
+      //     errorMessage: "Error while resending OTP",
+      //   ),
+      // );
     }
   }
 
@@ -378,17 +483,46 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     if (snapshot.isNotEmpty) {
       if (snapshot['error'] == false) {
         log(snapshot['employeeId'].toString());
+
+        HapticFeedback.mediumImpact();
+
+        showModalBottomSheet(
+          isDismissible: false,
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: VColors.WHITE,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
+          ),
+          builder:
+              (context) => OtpSheet(
+                mobilNumber: mobileNumber.trim(),
+                userId: int.parse(snapshot['employeeId']),
+              ),
+        );
         emit(
           AuthCubitSendOTPState(
+            isLoadingVerifyOTP: false,
+            sheetErrorMessage: null,
             runTime: null,
             isEnabledResendOTPButton: true,
             userId: int.parse(snapshot['employeeId']),
           ),
         );
       } else {
+        vSnackBarMessage(
+          context,
+          snapshot['message'],
+          state: VSnackState.ERROR,
+        );
         emit(AuthErrorState(errorMessage: snapshot['message'] ?? ''));
       }
     } else {
+      vSnackBarMessage(
+        context,
+        "No Internet Connection!",
+        state: VSnackState.ERROR,
+      );
       emit(AuthErrorState(errorMessage: "No Internet Connection!"));
     }
   }
@@ -401,11 +535,11 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
     int userId, {
     String? name,
   }) async {
-    emit(AuthLodingState());
+    final currentState = state as AuthCubitSendOTPState;
+    emit(currentState.copyWith(isLoadingVerifyOTP: true));
     final snapshot = await VVerifyOtpRepo.verifyOtp(userId, otp);
     if (snapshot.isNotEmpty) {
       if (snapshot['error'] == false) {
-        log(snapshot['token'].toString());
         final currentUserData = await getUserData;
         final authmodel = AuthUserModel(
           mobileNumber: mobileNumber,
@@ -420,35 +554,85 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
         await _setLoginPreference(authmodel);
         emit(
           AuthCubitAuthenticateState(
-            userModel: currentUserData,
+            userModel: authmodel,
+            userId: userId,
+
             loginMesaage: snapshot['message'],
           ),
         );
         //   return true;
       } else {
-        emit(AuthErrorState(errorMessage: snapshot['message'] ?? ''));
+        emit(
+          currentState.copyWith(
+            isLoadingVerifyOTP: false,
+            sheetErrorMessage: snapshot['message'] ?? '',
+          ),
+        );
+        // emit(
+        //   AuthErrorState(
+        //     userId: userId,
+        //     errorMessage: snapshot['message'] ?? '',
+        //   ),
+        // );
         Future.delayed(Duration(seconds: 2)).then((value) {
-          emit(AuthErrorState(errorMessage: ''));
+          emit(
+            currentState.copyWith(
+              isLoadingVerifyOTP: false,
+              sheetErrorMessage: null,
+            ),
+          );
         });
       }
     } else {
-      emit(AuthErrorState(errorMessage: "No Internet Connection!"));
+      emit(
+        currentState.copyWith(
+          isLoadingVerifyOTP: false,
+          sheetErrorMessage: "No Internet Connection!",
+        ),
+      );
+
       Future.delayed(Duration(seconds: 2)).then((value) {
-        emit(AuthErrorState(errorMessage: ''));
+        emit(
+          currentState.copyWith(
+            isLoadingVerifyOTP: false,
+            sheetErrorMessage: null,
+          ),
+        );
       });
     }
   }
 
   Future<void> dealerRensendOTP(int userId) async {
+    final currentSTate = state as AuthCubitSendOTPState;
     final response = await VResendOtpRepo.resendOTP(userId);
+
     if (response.isNotEmpty) {
       if (response['error'] == false) {
         _startTimer();
       } else {
-        emit(AuthErrorState(errorMessage: response['message']));
+        emit(
+          currentSTate.copyWith(
+            isEnabledResendOTPButton: true,
+            sheetErrorMessage: response['message'],
+            isLoadingVerifyOTP: false,
+          ),
+        );
+        // emit(AuthErrorState(userId: userId, errorMessage: response['message']));
       }
     } else {
-      emit(AuthErrorState(errorMessage: "Error while resending OTP"));
+      emit(
+        currentSTate.copyWith(
+          isEnabledResendOTPButton: true,
+          sheetErrorMessage: "Error while resending OTP",
+          isLoadingVerifyOTP: false,
+        ),
+      );
+      // emit(
+      //   AuthErrorState(
+      //     userId: userId,
+      //     errorMessage: "Error while resending OTP",
+      //   ),
+      // );
     }
   }
 
@@ -458,14 +642,17 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
 
   void _startTimer() {
     try {
+      log("------ in tirmer");
       if (state is! AuthCubitSendOTPState) return;
-
+      log("------ in tirmer");
       timer?.cancel();
       int time = 60;
+      final userId = state.userId;
 
       emit(
         (state as AuthCubitSendOTPState).copyWith(
           isEnabledResendOTPButton: false,
+
           runTime: time,
         ),
       );
@@ -473,12 +660,23 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
       timer = Timer.periodic(const Duration(seconds: 1), (t) {
         time--;
         if (time <= 0) {
-          emit(
-            (state as AuthCubitSendOTPState).copyWith(
-              isEnabledResendOTPButton: true,
-              runTime: 0,
-            ),
-          );
+          if (state is AuthCubitSendOTPState) {
+            emit(
+              (state as AuthCubitSendOTPState).copyWith(
+                isEnabledResendOTPButton: true,
+                runTime: 0,
+              ),
+            );
+          } else {
+            // emit(
+            //   AuthCubitSendOTPState(
+            //     isEnabledResendOTPButton: true,
+            //     runTime: 0,
+            //     userId: userId,
+            //   ),
+            // );
+          }
+
           t.cancel();
           return;
         }
@@ -494,6 +692,7 @@ class AppAuthController extends Cubit<AppAuthControllerState> {
         // }
       });
     } catch (e) {
+      timer?.cancel();
       emit(AuthCubitUnAuthenticatedState());
       //d
     }

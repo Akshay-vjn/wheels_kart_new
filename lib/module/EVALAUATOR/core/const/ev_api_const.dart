@@ -21,6 +21,8 @@ class EvApiConst {
   static const String fetchDahsbord = "login/dashboard";
   static const String fetchProfile = "login/profile";
   static const String login = "login";
+  static const String verifyOTP = "login/verify";
+  static const String resendOTP = "login/resend";
   static const String register = "inspections/register";
 
   static const String fetchDocTypes = 'masters/documenttypes';
@@ -35,5 +37,5 @@ class EvApiConst {
   static const String fetchCarVarient = "variants";
   static const String fetchCity = "city";
 
-  static const String deleteAccount="login/deleteevaluator";
+  static const String deleteAccount = "login/deleteevaluator";
 }

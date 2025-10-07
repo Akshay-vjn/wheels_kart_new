@@ -13,19 +13,25 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/utils/v_messages.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/terms_and_condion_accept_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_button.dart';
 import 'package:wheels_kart/module/Dealer/features/widgets/v_custom_texfield.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
 
-class EvOtpSheet extends StatelessWidget {
+class EvOtpSheet extends StatefulWidget {
   final String mobilNumber;
   final int userId;
   EvOtpSheet({super.key, required this.mobilNumber, required this.userId});
+
+  @override
+  State<EvOtpSheet> createState() => _EvOtpSheetState();
+}
+
+class _EvOtpSheetState extends State<EvOtpSheet> {
   final _otpController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return AnimatedPadding(
@@ -41,12 +47,15 @@ class EvOtpSheet extends StatelessWidget {
           switch (state) {
             case AuthErrorState():
               {
-                HapticFeedback.heavyImpact();
-                vSnackBarMessage(
-                  context,
-                  state.errorMessage,
-                  state: VSnackState.ERROR,
-                );
+                if (state.errorMessage.isNotEmpty) {
+                  HapticFeedback.heavyImpact();
+                  showSnakBar(
+                    context,
+                    state.errorMessage,
+                    isError: true,
+                    enablePop: true,
+                  );
+                }
               }
             case AuthCubitAuthenticateState():
               {
@@ -73,72 +82,89 @@ class EvOtpSheet extends StatelessWidget {
             ),
             child: Form(
               key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppSpacer(heightPortion: .02),
-                  Text(
-                    textAlign: TextAlign.center,
-                    "We sent 6 digit verification code to",
-                    style: VStyle.style(
-                      context: context,
-                      size: AppDimensions.fontSize15(context),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    textAlign: TextAlign.center,
-                    "+91 $mobilNumber",
-                    style: VStyle.style(
-                      context: context,
-                      size: AppDimensions.fontSize17(context),
-                      color: VColors.SECONDARY,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  AppSpacer(heightPortion: .025),
-
-                  Pinput(
-                    length: 6,
-                    controller: _otpController,
-                    defaultPinTheme: _pintheme(
-                      context,
-                      TextFieldState.OUTOFFOCUS,
-                    ),
-                    errorPinTheme: _pintheme(context, TextFieldState.ERROR),
-                    focusedPinTheme: _pintheme(context, TextFieldState.FOCUSED),
-                    disabledPinTheme: _pintheme(
-                      context,
-                      TextFieldState.OUTOFFOCUS,
-                    ),
-                    submittedPinTheme: _pintheme(
-                      context,
-                      TextFieldState.OUTOFFOCUS,
-                    ),
-                    followingPinTheme: _pintheme(
-                      context,
-                      TextFieldState.FOCUSED,
-                    ),
-                  ),
-
-                  AppSpacer(heightPortion: .03),
-                  if (state is AuthErrorState) ...[
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        state.errorMessage,
-                        style: VStyle.poppins(
-                          size: 12,
-                          context: context,
-                          color: VColors.ERROR,
-                        ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppSpacer(heightPortion: .02),
+                    Text(
+                      textAlign: TextAlign.center,
+                      "We sent 6 digit verification code to",
+                      style: VStyle.style(
+                        context: context,
+                        size: AppDimensions.fontSize15(context),
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ],
-                  BlocBuilder<AppAuthController, AppAuthControllerState>(
-                    builder: (context, state) {
-                      if (state is AuthCubitSendOTPState) {
-                        if (state.isEnabledResendOTPButton == true) {
+                    Text(
+                      textAlign: TextAlign.center,
+                      "+91 ${widget.mobilNumber}",
+                      style: VStyle.style(
+                        context: context,
+                        size: AppDimensions.fontSize17(context),
+                        color: VColors.SECONDARY,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    AppSpacer(heightPortion: .025),
+
+                    Pinput(
+                      length: 6,
+                      controller: _otpController,
+                      defaultPinTheme: _pintheme(
+                        context,
+                        TextFieldState.OUTOFFOCUS,
+                      ),
+                      errorPinTheme: _pintheme(context, TextFieldState.ERROR),
+                      focusedPinTheme: _pintheme(
+                        context,
+                        TextFieldState.FOCUSED,
+                      ),
+                      disabledPinTheme: _pintheme(
+                        context,
+                        TextFieldState.OUTOFFOCUS,
+                      ),
+                      submittedPinTheme: _pintheme(
+                        context,
+                        TextFieldState.OUTOFFOCUS,
+                      ),
+                      followingPinTheme: _pintheme(
+                        context,
+                        TextFieldState.FOCUSED,
+                      ),
+                    ),
+
+                    AppSpacer(heightPortion: .03),
+                    if (state is AuthCubitSendOTPState &&
+                        state.sheetErrorMessage != null) ...[
+                      Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                          state.sheetErrorMessage!,
+                          style: VStyle.poppins(
+                            size: 12,
+                            context: context,
+                            color: VColors.ERROR,
+                          ),
+                        ),
+                      ),
+                    ],
+                    BlocBuilder<AppAuthController, AppAuthControllerState>(
+                      builder: (context, state) {
+                        if (state.isEnabledResendOTPButton == false) {
+                          return Align(
+                            alignment: Alignment.bottomRight,
+                            child: Text(
+                              "00:${state.runTime.toString()}",
+                              style: EvAppStyle.poppins(
+                                context: context,
+                                fontWeight: FontWeight.bold,
+                                size: 15,
+                                color: EvAppColors.DEFAULT_ORANGE,
+                              ),
+                            ),
+                          );
+                        } else {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -155,7 +181,7 @@ class EvOtpSheet extends StatelessWidget {
                                   HapticFeedback.mediumImpact();
                                   await context
                                       .read<AppAuthController>()
-                                      .evaluatorRensendOTP(userId);
+                                      .evaluatorRensendOTP(widget.userId);
                                 },
                                 child: Text(
                                   "RESEND OTP",
@@ -168,52 +194,39 @@ class EvOtpSheet extends StatelessWidget {
                               ),
                             ],
                           );
-                        } else {
-                          return Align(
-                            alignment: Alignment.bottomRight,
-                            child: Text(
-                              "00:${state.runTime.toString()}",
-                              style: EvAppStyle.poppins(
-                                context: context,
-                                fontWeight: FontWeight.bold,
-                                size: 15,
-                                color: EvAppColors.DEFAULT_ORANGE,
-                              ),
-                            ),
-                          );
                         }
-                      } else {
-                        return SizedBox();
-                      }
-                    },
-                  ),
+                      },
+                    ),
 
-                  AppSpacer(heightPortion: .01),
+                    AppSpacer(heightPortion: .01),
 
-                  _buildEnhancedButton(
-                    comtext: context,
-                    isLoading: state is AuthLodingState,
-                    onTap: () async {
-                      if (_formKey.currentState!.validate()) {
-                        HapticFeedback.mediumImpact();
-                        await context
-                            .read<AppAuthController>()
-                            .evaluatorVerifyOtp(
-                              context,
-                              mobilNumber,
-                              _otpController.text.trim(),
-                              userId,
-                            );
-                      } else {
-                        HapticFeedback.lightImpact();
-                      }
-                    },
-                  ),
-                  // VCustomButton(
-                  //   bgColor: VColors.SECONDARY,
-                  //   width: w(context) * .7, title: "VERIFY"),
-                  AppSpacer(heightPortion: .01),
-                ],
+                    _buildEnhancedButton(
+                      comtext: context,
+                      isLoading:
+                          state is AuthCubitSendOTPState &&
+                          state.isLoadingVerifyOTP,
+                      onTap: () async {
+                        if (_formKey.currentState!.validate()) {
+                          HapticFeedback.mediumImpact();
+                          await context
+                              .read<AppAuthController>()
+                              .evaluatorVerifyOtp(
+                                context,
+                                widget.mobilNumber,
+                                _otpController.text.trim(),
+                                widget.userId,
+                              );
+                        } else {
+                          HapticFeedback.lightImpact();
+                        }
+                      },
+                    ),
+                    // VCustomButton(
+                    //   bgColor: VColors.SECONDARY,
+                    //   width: w(context) * .7, title: "VERIFY"),
+                    AppSpacer(heightPortion: .01),
+                  ],
+                ),
               ),
             ),
           );
@@ -236,7 +249,7 @@ class EvOtpSheet extends StatelessWidget {
         }
       case TextFieldState.OUTOFFOCUS:
         {
-          borderColor = VColors.SECONDARY.withAlpha(120);
+          borderColor = VColors.SECONDARY;
         }
     }
     return PinTheme(

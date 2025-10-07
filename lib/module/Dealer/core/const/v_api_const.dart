@@ -3,6 +3,8 @@ class VApiConst {
   static const String socket = "ws://82.112.238.223:3050";
 
   static const vendorLogin = "vendorlogin";
+  static const vendorVerifyOTP = "vendorlogin/verify";
+  static const vendorResendOTP = "vendorlogin/resend";
   static const vendorRegister = "vendorlogin/register";
   static const vendorSavePushToken = "vendorlogin/settoken";
   static const auctionData = "vendorlogin/dashboard";

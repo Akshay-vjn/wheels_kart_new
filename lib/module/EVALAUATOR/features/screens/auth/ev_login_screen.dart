@@ -16,6 +16,7 @@ import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_scre
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/app%20navigation%20cubit/app_navigation_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/login%20page%20bloc/login_bloc_bloc.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
 import '../../../../../common/utils/custome_show_messages.dart';
 
@@ -137,53 +138,51 @@ class _EvLoginScreenState extends State<EvLoginScreen>
       backgroundColor: Colors.grey[50],
       body: BlocListener<AppAuthController, AppAuthControllerState>(
         listener: (context, state) async {
-          switch (state) {
-            case AuthErrorState():
-              {
-                HapticFeedback.heavyImpact();
-                showSnakBar(
-                  context,
-                  state.errorMessage,
-                  isError: true,
-                  enablePop: true,
-                );
-              }
-            case AuthCubitSendOTPState():
-              {
-                if (state.isEnabledResendOTPButton != false &&
-                    state.runTime == null) {
-                  HapticFeedback.mediumImpact();
+          // switch (state) {
+          //   case AuthErrorState():
+          //     {
+          //       if (state.errorMessage.isNotEmpty) {
+          //         HapticFeedback.heavyImpact();
+          //         showSnakBar(
+          //           context,
+          //           state.errorMessage,
+          //           isError: true,
+          //           enablePop: true,
+          //         );
+          //       }
+          //     }
+          //   // case AuthCubitSendOTPState():
+          //   //   {
+          //   //     if (state.isEnabledResendOTPButton != false &&
+          //   //         state.runTime == null) {
+          //   //       // Navigator.pop(context);
+          //   //       HapticFeedback.mediumImpact();
 
-                  showModalBottomSheet(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusSize18,
-                      ),
-                    ),
-                    backgroundColor: EvAppColors.white,
-                    context: context,
-                    builder:
-                        (context) => EvOtpSheet(
-                          mobilNumber: _mobileNumberController.text.trim(),
-                          userId: state.userId,
-                        ),
-                  );
-                }
-
-                // await PushNotificationConfig().initNotification(context);
-                // showToastMessage(context, state.loginMesaage);
-                // Navigator.of(context).pushAndRemoveUntil(
-                //   AppRoutes.createRoute(EvDashboardScreen()),
-                //   (context) => false,
-                // );
-              }
-            case AuthLodingState():
-              {
-                showCustomLoadingDialog(context);
-              }
-            default:
-              {}
-          }
+          //   //       showModalBottomSheet(
+          //   //         isDismissible: false,
+          //   //         context: context,
+          //   //         isScrollControlled: true,
+          //   //         shape: RoundedRectangleBorder(
+          //   //           borderRadius: BorderRadius.circular(
+          //   //             AppDimensions.radiusSize18,
+          //   //           ),
+          //   //         ),
+          //   //         backgroundColor: EvAppColors.white,
+          //   //         builder:
+          //   //             (context) => EvOtpSheet(
+          //   //               mobilNumber: _mobileNumberController.text.trim(),
+          //   //               userId: state.userId!,
+          //   //             ),
+          //   //       );
+          //   //     }
+          //   //   }
+          //   case AuthLodingState():
+          //     {
+          //       showCustomLoadingDialog(context);
+          //     }
+          //   default:
+          //     {}
+          // }
         },
         child: SafeArea(
           bottom: false,
@@ -394,26 +393,36 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                     // const Spacer(),
 
                                     // Login Button
-                                    _buildEnhancedButton(
-                                      onTap: () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          HapticFeedback.mediumImpact();
-                                          context
-                                              .read<EvAppNavigationCubit>()
-                                              .handleBottomnavigation(0);
+                                    BlocBuilder<
+                                      AppAuthController,
+                                      AppAuthControllerState
+                                    >(
+                                      builder: (context, state) {
+                                        return _buildEnhancedButton(
+                                          isLoading: state is AuthLodingState,
+                                          onTap: () async {
+                                            if (_formKey.currentState!
+                                                .validate()) {
+                                              HapticFeedback.mediumImpact();
+                                              context
+                                                  .read<EvAppNavigationCubit>()
+                                                  .handleBottomnavigation(0);
 
-                                          await context
-                                              .read<AppAuthController>()
-                                              .sendOtpForEvaluator(
-                                                context,
-                                                _mobileNumberController.text,
-                                              );
-                                        } else {
-                                          HapticFeedback.heavyImpact();
-                                        }
+                                              await context
+                                                  .read<AppAuthController>()
+                                                  .sendOtpForEvaluator(
+                                                    context,
+                                                    _mobileNumberController
+                                                        .text,
+                                                  );
+                                            } else {
+                                              HapticFeedback.heavyImpact();
+                                            }
+                                          },
+                                          title: 'GET OTP',
+                                          isEnabled: _isFormValid,
+                                        );
                                       },
-                                      title: 'GET OTP',
-                                      isEnabled: _isFormValid,
                                     ),
 
                                     const SizedBox(height: 5),
@@ -592,6 +601,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
   Widget _buildEnhancedButton({
     required VoidCallback onTap,
     required String title,
+    required bool isLoading,
     bool isEnabled = true,
   }) {
     return AnimatedContainer(
@@ -609,26 +619,29 @@ class _EvLoginScreenState extends State<EvLoginScreen>
             borderRadius: BorderRadius.circular(AppDimensions.radiusSize18),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              style: EvAppStyle.style(
-                context: context,
-                fontWeight: FontWeight.w600,
-                color: isEnabled ? Colors.white : Colors.grey[600],
-                size: AppDimensions.fontSize16(context),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              Iconsax.arrow_right_3,
-              color: isEnabled ? Colors.white : Colors.grey[600],
-              size: 20,
-            ),
-          ],
-        ),
+        child:
+            isLoading
+                ? EVAppLoadingIndicator()
+                : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: EvAppStyle.style(
+                        context: context,
+                        fontWeight: FontWeight.w600,
+                        color: isEnabled ? Colors.white : Colors.grey[600],
+                        size: AppDimensions.fontSize16(context),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Iconsax.arrow_right_3,
+                      color: isEnabled ? Colors.white : Colors.grey[600],
+                      size: 20,
+                    ),
+                  ],
+                ),
       ),
     );
   }

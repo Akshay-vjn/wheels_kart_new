@@ -8,10 +8,14 @@ import 'package:flutter/services.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class CameraScreen extends StatefulWidget {
+  bool? isFromVhiclePhotoScreen;
   final Function(File) onImageCaptured;
 
-  const CameraScreen({Key? key, required this.onImageCaptured})
-    : super(key: key);
+  CameraScreen({
+    Key? key,
+    required this.onImageCaptured,
+    this.isFromVhiclePhotoScreen,
+  }) : super(key: key);
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
@@ -277,11 +281,15 @@ class _CameraScreenState extends State<CameraScreen>
     _captureAnimationController.dispose();
 
     // Reset system UI and orientation
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+
+    if (widget.isFromVhiclePhotoScreen == null) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
+
     super.dispose();
   }
 
@@ -467,11 +475,29 @@ class _CameraScreenState extends State<CameraScreen>
                 ),
               )
               : Container(
-                color: Colors.black,
-                child: Center(
+                color: const Color.fromRGBO(0, 0, 0, 1),
+                child: SafeArea(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Row(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new,
+                                color: Colors.black87,
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ),
+                        ],
+                      ),
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(

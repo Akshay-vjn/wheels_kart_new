@@ -101,41 +101,45 @@ class _VLoginScreenState extends State<VLoginScreen>
       backgroundColor: Colors.white,
       body: BlocListener<AppAuthController, AppAuthControllerState>(
         listener: (context, state) async {
-          switch (state) {
-            case AuthErrorState():
-              {
-                HapticFeedback.heavyImpact();
-                vSnackBarMessage(
-                  context,
-                  state.errorMessage,
-                  state: VSnackState.ERROR,
-                );
-              }
-            case AuthCubitSendOTPState():
-              {
-                if (state.isEnabledResendOTPButton != false &&
-                    state.runTime == null) {
-                  HapticFeedback.mediumImpact();
+          // switch (state) {
+          //   case AuthErrorState():
+          //     {
+          //       if (state.errorMessage.isNotEmpty) {
+          //         HapticFeedback.heavyImpact();
+          //         vSnackBarMessage(
+          //           context,
+          //           state.errorMessage,
+          //           state: VSnackState.ERROR,
+          //         );
+          //       }
+          //     }
+          //   case AuthCubitSendOTPState():
+          //     {
+          //       if (state.isEnabledResendOTPButton != false &&
+          //           state.runTime == null) {
+          //         HapticFeedback.mediumImpact();
 
-                  showModalBottomSheet(
-                    backgroundColor: VColors.WHITE,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppDimensions.radiusSize18,
-                      ),
-                    ),
-                    context: context,
-                    builder:
-                        (context) => OtpSheet(
-                          mobilNumber: _mobileNumberController.text.trim(),
-                          userId: state.userId,
-                        ),
-                  );
-                }
-              }
-            default:
-              {}
-          }
+          //         showModalBottomSheet(
+          //           isDismissible: false,
+          //           context: context,
+          //           isScrollControlled: true,
+          //           backgroundColor: VColors.WHITE,
+          //           shape: RoundedRectangleBorder(
+          //             borderRadius: BorderRadius.circular(
+          //               AppDimensions.radiusSize18,
+          //             ),
+          //           ),
+          //           builder:
+          //               (context) => OtpSheet(
+          //                 mobilNumber: _mobileNumberController.text.trim(),
+          //                 userId: state.userId!,
+          //               ),
+          //         );
+          //       }
+          //     }
+          //   default:
+          //     {}
+          // }
         },
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),

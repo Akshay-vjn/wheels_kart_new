@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
+import 'package:wheels_kart/common/utils/responsive_helper.dart';
+import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
@@ -69,8 +71,191 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
     super.dispose();
   }
 
-  Future<void> _pickImage(String documentType) async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+  Future<void> _showPickImageSheet(String documentType) async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => Container(
+            // margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Handle bar
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Title
+                    Text(
+                      "Select Image Source",
+                      style: EvAppStyle.poppins(
+                        fontWeight: FontWeight.w600,
+                        size: 18,
+                        color: VColors.BLACK,
+                        context: context,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+
+                    // Subtitle
+                    Text(
+                      "Choose how you want to upload your $documentType",
+                      textAlign: TextAlign.center,
+                      style: EvAppStyle.poppins(
+                        fontWeight: FontWeight.w400,
+                        size: 13,
+                        color: Colors.grey[600],
+                        context: context,
+                      ),
+                    ),
+                    SizedBox(height: 24),
+
+                    // Options
+                    Row(
+                      children: [
+                        // Camera Option
+                        Expanded(
+                          child: InkWell(
+                            onTap: () async {
+                              await _pickImage(
+                                documentType,
+                                ImageSource.camera,
+                              );
+                              Navigator.pop(context);
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 24),
+                              decoration: BoxDecoration(
+                                color: EvAppColors.black,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: EvAppColors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.camera_alt_rounded,
+                                      size: 32,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    "Camera",
+                                    style: EvAppStyle.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      size: 14,
+                                      color: Colors.white,
+                                      context: context,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16),
+
+                        // Gallery Option
+                        Expanded(
+                          child: InkWell(
+                            onTap: () async {
+                              await _pickImage(
+                                documentType,
+                                ImageSource.gallery,
+                              );
+                              Navigator.pop(context);
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 24),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Colors.grey[300]!,
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: EvAppColors.black.withOpacity(
+                                        0.05,
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.photo_library_rounded,
+                                      size: 32,
+                                      color: EvAppColors.black,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    "Gallery",
+                                    style: EvAppStyle.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      size: 14,
+                                      color: EvAppColors.black,
+                                      context: context,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ),
+          ),
+    );
+  }
+
+  Future<void> _pickImage(String documentType, ImageSource imageSource) async {
+    final XFile? image = await _picker.pickImage(source: imageSource);
     if (image != null) {
       if (documentType == 'RC') {
         if (rcDocument.length < 2) {
@@ -597,7 +782,9 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed:
-                  images.length < 2 ? () => _pickImage(documentType) : null,
+                  images.length < 2
+                      ? () => _showPickImageSheet(documentType)
+                      : null,
               icon: Icon(Icons.camera_alt, color: EvAppColors.DARK_PRIMARY),
               label: Text(
                 images.length < 2 ? 'Take Photo' : 'Maximum photos uploaded',
