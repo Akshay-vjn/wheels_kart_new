@@ -438,53 +438,54 @@ class _VWhishlistCardState extends State<VWhishlistCard>
           ),
         ),
         // Current bid
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              children: [
-                Text(
-                  widget.model.auctionType == "OCB"
-                      ? "OCB Pirce"
-                      : _isColsed || _isCancelled
-                      ? "Closing Bid"
-                      : "Current Bid",
-                  style: VStyle.style(
-                    context: context,
-                    size: 10,
-                    color: VColors.GREY,
-                    fontWeight: FontWeight.w500,
+        if (_isSold || _isOpened)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    widget.model.auctionType == "OCB"
+                        ? "OCB Pirce"
+                        : _isColsed || _isCancelled
+                        ? "Closing Bid"
+                        : "Current Bid",
+                    style: VStyle.style(
+                      context: context,
+                      size: 10,
+                      color: VColors.GREY,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-                AppSpacer(widthPortion: .01),
+                  AppSpacer(widthPortion: .01),
 
-                Text(
-                  _isCancelled
-                      ? ""
-                      : _isColsed
-                      ? "(Closed)"
-                      : "(${_endTime})",
-                  style: VStyle.style(
-                    color: _isColsed ? VColors.GREY : VColors.BLACK,
-                    context: context,
-                    fontWeight: FontWeight.w600,
-                    size: 10,
+                  Text(
+                    _isCancelled
+                        ? ""
+                        : _isColsed
+                        ? "(Closed)"
+                        : "(${_endTime})",
+                    style: VStyle.style(
+                      color: _isColsed ? VColors.GREY : VColors.BLACK,
+                      context: context,
+                      fontWeight: FontWeight.w600,
+                      size: 10,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(
-              "₹${widget.model.currentBid}",
-              style: VStyle.style(
-                context: context,
-                size: 14,
-                color: VColors.GREENHARD,
-                fontWeight: FontWeight.w700,
+                ],
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 2),
+              Text(
+                "₹${widget.model.currentBid}",
+                style: VStyle.style(
+                  context: context,
+                  size: 14,
+                  color: VColors.GREENHARD,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
       ],
     );
   }

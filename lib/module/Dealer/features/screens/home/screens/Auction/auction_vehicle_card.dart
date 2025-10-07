@@ -234,17 +234,18 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                             children: [
                               _buildDetailsGrid(),
 
-                              // if (_isOpened || _isSold) ...[
-                              AppSpacer(heightPortion: .01),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  _buildTimerViewChip(),
-                                  _buildBidPriceChip(),
-                                ],
-                              ),
-                              AppSpacer(heightPortion: .01),
+                              if (_isOpened || _isSold) ...[
+                                AppSpacer(heightPortion: .01),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildTimerViewChip(),
+                                    _buildBidPriceChip(),
+                                  ],
+                                ),
+                                AppSpacer(heightPortion: .01),
+                              ],
 
                               if (_isOpened && !_isColsed) ...[
                                 _buildBidButton(),

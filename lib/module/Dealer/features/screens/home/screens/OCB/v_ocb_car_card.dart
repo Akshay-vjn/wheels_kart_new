@@ -196,8 +196,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
                             children: [
                               _buildDetailsGrid(),
 
-                              if (widget.vehicle.bidStatus == "Open" ||
-                                  widget.vehicle.bidStatus == "Sold") ...[
+                              if (_isOpened || _isSold) ...[
                                 AppSpacer(heightPortion: .01),
                                 Row(
                                   mainAxisAlignment:

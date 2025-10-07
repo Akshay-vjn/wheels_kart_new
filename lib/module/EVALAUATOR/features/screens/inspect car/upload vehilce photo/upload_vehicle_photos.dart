@@ -42,44 +42,6 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
   StreamSubscription? _anglesSub;
   StreamSubscription? _uploadCubitSub;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   SystemChrome.setPreferredOrientations([
-  //     DeviceOrientation.landscapeLeft,
-  //     DeviceOrientation.landscapeRight,
-  //   ]);
-
-  //   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-
-  //   _slideAnimController = AnimationController(
-  //     duration: const Duration(milliseconds: 300),
-  //     vsync: this,
-  //   );
-
-  //   _pageController = PageController(
-  //     initialPage:
-  //         (context.read<UplaodVehilcePhotoCubit>().state.currentPageIndex ?? 0),
-  //   );
-
-  //   final uploadCubit = context.read<UplaodVehilcePhotoCubit>();
-  //   final anglesCubit = context.read<FetchPictureAnglesCubit>();
-  //   final uploadedCubit = context.read<FetchUploadedVehilcePhotosCubit>();
-
-  //   uploadCubit.onClearAll();
-  //   anglesCubit.onFetchPictureAngles(context);
-  //   uploadedCubit.onFetchUploadVehiclePhotos(context, widget.inspectionId);
-
-  //   _anglesSub = anglesCubit.stream.listen((state) {
-  //     if (state is FetchPictureAnglesSuccessState) {
-  //       if (state.flattenedAngles!.isNotEmpty) {
-  //         uploadCubit.onSelectAngle(state.flattenedAngles!.first.angleId, 0);
-  //       }
-  //     }
-  //   });
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -113,7 +75,11 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
     _anglesSub = anglesCubit.stream.listen((state) {
       if (state is FetchPictureAnglesSuccessState) {
         if (state.flattenedAngles!.isNotEmpty) {
-          uploadCubit.onSelectAngle(state.flattenedAngles!.first.angleId, 0);
+          uploadCubit.onSelectAngle(
+            state.flattenedAngles!.first.angleId,
+            state.flattenedAngles!.first.angleName,
+            0,
+          );
         }
       }
     });
@@ -146,14 +112,14 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
     if (current > 0) _animateBothTo(current - 1);
   }
 
-  void _jumpToAngle(int index) {
-    final anglesLen =
-        context.read<FetchPictureAnglesCubit>().state.flattenedAngles!.length;
-    if (index >= 0 && index < anglesLen) {
-      _leftController.jumpToPage(index);
-      _rightController.jumpToPage(index);
-    }
-  }
+  // void _jumpToAngle(int index) {
+  //   final anglesLen =
+  //       context.read<FetchPictureAnglesCubit>().state.flattenedAngles!.length;
+  //   if (index >= 0 && index < anglesLen) {
+  //     _leftController.jumpToPage(index);
+  //     _rightController.jumpToPage(index);
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -473,6 +439,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                 // Update business state exactly once
                 context.read<UplaodVehilcePhotoCubit>().onSelectAngle(
                   angleState.flattenedAngles![index].angleId,
+                  angleState.flattenedAngles![index].angleName,
                   index,
                 );
                 // Mirror to the right without triggering another onPageChanged
@@ -669,6 +636,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                                         .state
                                         .currentPageIndex ??
                                     0),
+                                angle.angleName,
                               );
                             },
                             child: Container(
@@ -949,6 +917,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                           .state
                           .currentPageIndex ??
                       0),
+                  angle.angleName,
                 );
                 // _goToNextAngle();
               },
@@ -1245,6 +1214,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                             .state
                             .currentPageIndex ??
                         0),
+                    angle.angleName,
                   );
                   // _goToNextAngle();
                 },
@@ -1339,6 +1309,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                                     .state
                                     .currentPageIndex ??
                                 0),
+                            angle.angleName,
                           );
                         },
                         child: Text(
@@ -1376,6 +1347,7 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                               .state
                               .currentPageIndex ??
                           0),
+                      item.angleName,
                     );
                   }
                 },

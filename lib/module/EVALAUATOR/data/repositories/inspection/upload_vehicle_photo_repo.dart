@@ -17,7 +17,9 @@ class UploadVehiclePhotoRepo {
     final state = context.read<AppAuthController>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
-        final url = Uri.parse('${EvApiConst.baseUrl}${EvApiConst.uploadVehiclePhoto}');
+        final url = Uri.parse(
+          '${EvApiConst.baseUrl}${EvApiConst.uploadVehiclePhoto}',
+        );
         final List<Map<String, dynamic>> data = [];
         data.add(photo);
         Response response = await http.post(

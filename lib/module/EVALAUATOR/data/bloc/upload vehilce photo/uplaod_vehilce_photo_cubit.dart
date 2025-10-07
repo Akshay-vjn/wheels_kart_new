@@ -110,11 +110,13 @@ enum UploadStatus { idle, queued, uploading, success, error }
 
 class UploadItem {
   final String angleId;
+  final String angleName;
   File? file;
   UploadStatus status;
   String? error;
   UploadItem({
     required this.angleId,
+    required this.angleName,
     this.file,
     this.status = UploadStatus.idle,
     this.error,
@@ -140,11 +142,14 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     emit(UplaodVehilcePhotoSuccessState(null, null, 0));
   }
 
-  void onSelectAngle(String angleId, int index) {
+  void onSelectAngle(String angleId, String angleName, int index) {
     selectedAngleId = angleId;
     selectedImageFile = null;
     // ensure an upload item exists for this angle
-    _uploadItems.putIfAbsent(angleId, () => UploadItem(angleId: angleId));
+    _uploadItems.putIfAbsent(
+      angleId,
+      () => UploadItem(angleId: angleId, angleName: angleName),
+    );
     emit(UplaodVehilcePhotoSuccessState(angleId, null, index));
   }
 
@@ -152,6 +157,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     BuildContext context,
     String inspectionId,
     int index,
+    String angleName,
   ) async {
     // open camera screen which returns a File via callback
     Navigator.of(context).push(
@@ -164,6 +170,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
                 selectedImageFile = file;
                 if (selectedAngleId != null) {
                   _uploadItems[selectedAngleId!] = UploadItem(
+                    angleName: angleName,
                     angleId: selectedAngleId!,
                     file: file,
                     status: UploadStatus.queued,
@@ -179,6 +186,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
                   file,
                   inspectionId,
                   index,
+                  angleName,
                 );
               },
             ),
@@ -192,6 +200,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     File file,
     String inspectionId,
     int index,
+    String angleName,
   ) async {
     // mark queued -> emit
     _uploadItems[angleId]?.status = UploadStatus.queued;
@@ -200,7 +209,9 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     );
 
     // run upload asynchronously but don't await where caller needs to continue
-    unawaited(_startUpload(context, angleId, file, inspectionId, index));
+    unawaited(
+      _startUpload(context, angleId, file, inspectionId, index, angleName),
+    );
   }
 
   Future<void> _startUpload(
@@ -209,6 +220,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     File file,
     String inspectionId,
     int index,
+    String angleName,
   ) async {
     try {
       _uploadItems[angleId]?.status = UploadStatus.uploading;
@@ -222,7 +234,6 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
 
       final encoded = await _convertFileToBase64(file);
 
-      final angleName = angleId; // adjust if you need the angle name
       final json = {
         "pictureType": "FINAL",
         "pictureName":
@@ -289,6 +300,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     String inspectionId,
     String angleId,
     int index,
+    String angleName,
   ) {
     final item = _uploadItems[angleId];
     if (item == null || item.file == null) return;
@@ -296,7 +308,16 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     emit(
       UplaodVehilcePhotoSuccessState(selectedAngleId, selectedImageFile, index),
     );
-    unawaited(_startUpload(context, angleId, item.file!, inspectionId, index));
+    unawaited(
+      _startUpload(
+        context,
+        angleId,
+        item.file!,
+        inspectionId,
+        index,
+        angleName,
+      ),
+    );
   }
 
   // Optional: cancel queued upload (if still queued)

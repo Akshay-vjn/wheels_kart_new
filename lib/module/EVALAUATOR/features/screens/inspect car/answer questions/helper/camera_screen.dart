@@ -105,6 +105,9 @@ class _CameraScreenState extends State<CameraScreen>
       // Get zoom capabilities
       _maxZoomLevel = await _cameraController!.getMaxZoomLevel();
       _minZoomLevel = await _cameraController!.getMinZoomLevel();
+      // NEW: compute allowed zoom steps and apply 1x
+      _zoomSteps = _computeZoomSteps();
+      await _applyZoom(_zoomSteps.first);
 
       if (!mounted) return;
       setState(() {
@@ -274,6 +277,74 @@ class _CameraScreenState extends State<CameraScreen>
     return CustomPaint(size: Size.infinite, painter: GridPainter());
   }
 
+  Widget _buildZoomControls() {
+    if (_zoomSteps.isEmpty) return const SizedBox.shrink();
+    return Positioned(
+      right: 20,
+      // bottom: 20,
+      top: 20,
+      child: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: Colors.white24, width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children:
+                _zoomSteps.map((z) {
+                  final selected = (z - _currentZoomLevel).abs() < 0.05;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: GestureDetector(
+                      onTap: () => _applyZoom(z),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: selected ? Colors.white : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white24, width: 1),
+                        ),
+                        child: Text(
+                          '${z.toStringAsFixed(z.truncateToDouble() == z ? 0 : 1)}x',
+                          style: TextStyle(
+                            color: selected ? Colors.black : Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // add under zoom fields
+  List<double> _zoomSteps = [1.0]; // will be recalculated after init
+
+  Future<void> _applyZoom(double level) async {
+    if (!_isCameraInitialized) return;
+    final clamped = level.clamp(_minZoomLevel, _maxZoomLevel);
+    await _cameraController!.setZoomLevel(clamped);
+    setState(() => _currentZoomLevel = clamped);
+  }
+
+  // build step list like [1x, 2x, 3x, 5x] but never above max
+  List<double> _computeZoomSteps() {
+    final candidates = <double>[1, 2, 3, 5, 10];
+    return candidates.where((z) => z <= _maxZoomLevel + 1e-6).toList()..sort();
+  }
+
   @override
   void dispose() {
     _cameraController?.dispose();
@@ -300,8 +371,8 @@ class _CameraScreenState extends State<CameraScreen>
       body:
           _isCameraInitialized
               ? GestureDetector(
-                onScaleStart: _onScaleStart,
-                onScaleUpdate: _onScaleUpdate,
+                // onScaleStart: _onScaleStart,
+                // onScaleUpdate: _onScaleUpdate,
                 onTapDown: _onTapDown,
                 child: Stack(
                   children: [
@@ -360,39 +431,39 @@ class _CameraScreenState extends State<CameraScreen>
                               ),
 
                               // Instructions
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black45,
-                                  borderRadius: BorderRadius.circular(25),
-                                  border: Border.all(
-                                    color: Colors.white24,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.pinch,
-                                      color: Colors.white70,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    const Text(
-                                      'Pinch to zoom • Tap to focus',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              // Container(
+                              //   padding: const EdgeInsets.symmetric(
+                              //     horizontal: 16,
+                              //     vertical: 8,
+                              //   ),
+                              //   decoration: BoxDecoration(
+                              //     color: Colors.black45,
+                              //     borderRadius: BorderRadius.circular(25),
+                              //     border: Border.all(
+                              //       color: Colors.white24,
+                              //       width: 1,
+                              //     ),
+                              //   ),
+                              //   child: Row(
+                              //     mainAxisSize: MainAxisSize.min,
+                              //     children: [
+                              //       const Icon(
+                              //         Icons.pinch,
+                              //         color: Colors.white70,
+                              //         size: 16,
+                              //       ),
+                              //       const SizedBox(width: 6),
+                              //       const Text(
+                              //         'Tap to focus',
+                              //         style: TextStyle(
+                              //           color: Colors.white70,
+                              //           fontSize: 12,
+                              //           fontWeight: FontWeight.w500,
+                              //         ),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -411,7 +482,7 @@ class _CameraScreenState extends State<CameraScreen>
                       bottom: 0,
                       // bottom: 0,
                       // left: 0,
-                      right: 40,
+                      right: 120,
                       // top: 0,
                       child: Center(
                         child: AnimatedBuilder(
@@ -471,6 +542,9 @@ class _CameraScreenState extends State<CameraScreen>
                         ),
                       ),
                     ),
+
+                    // Zoom controls (1x, 2x, ...)
+                    _buildZoomControls(),
                   ],
                 ),
               )
@@ -482,18 +556,37 @@ class _CameraScreenState extends State<CameraScreen>
                     children: [
                       Row(
                         children: [
-                          Container(
-                            margin: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back_ios_new,
-                                color: Colors.black87,
+                          // Container(
+                          //   margin: const EdgeInsets.all(8),
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.grey[100],
+                          //     borderRadius: BorderRadius.circular(12),
+                          //   ),
+                          //   child: IconButton(
+                          //     icon: const Icon(
+                          //       Icons.arrow_back_ios_new,
+                          //       color: Colors.black87,
+                          //     ),
+                          //     onPressed: () => Navigator.of(context).pop(),
+                          //   ),
+                          // ),
+                          GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.black45,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white24,
+                                  width: 1,
+                                ),
                               ),
-                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 24,
+                              ),
                             ),
                           ),
                         ],
