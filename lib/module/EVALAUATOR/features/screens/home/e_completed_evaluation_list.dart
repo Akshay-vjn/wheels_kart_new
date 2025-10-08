@@ -526,9 +526,10 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
             _buildActionButton(
               label: "Edit Inspection",
               icon: Icons.edit,
-              isEnabled:
-                  model.status.toLowerCase() == 'new' ||
-                  model.status.toLowerCase() == 'assigned',
+              isEnabled: model.status.toLowerCase() != "approved",
+              // isEnabled:
+              //     model.status.toLowerCase() == 'new' ||
+              //     model.status.toLowerCase() == 'assigned',
               isCompleted: false,
               onTap: () => _onClicEditInspection(model),
               backgroundColor: EvAppColors.DEFAULT_BLUE_GREY,

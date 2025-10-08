@@ -680,10 +680,10 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (hasServerPhoto)
-                      _buildDeleteButton(angle, serverPhoto)
-                    else
-                      _buildUploadButton(angle, isUploading),
+                    // if (hasServerPhoto)
+                    //   _buildDeleteButton(angle, serverPhoto)
+                    // else
+                    _buildUploadButton(angle, isUploading),
                     const SizedBox(height: 16),
                     _buildNavigationButtons(),
                   ],
@@ -706,15 +706,23 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
     if (hasLocalPhoto && uiItem?.file != null) {
       return Image.file(uiItem!.file!, fit: BoxFit.contain);
     } else if (hasServerPhoto) {
-      return CachedNetworkImage(
-        cacheKey:
-            serverPhoto.createdAt != null
-                ? serverPhoto.createdAt!.date.toIso8601String()
-                : DateTime.now().toIso8601String(),
-        imageUrl: serverPhoto.picture,
-        fit: BoxFit.contain,
-        placeholder: (c, u) => const Center(child: CircularProgressIndicator()),
-        errorWidget: (c, u, e) => _buildPlaceholder(),
+      return Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          CachedNetworkImage(
+            cacheKey:
+                serverPhoto.createdAt != null
+                    ? serverPhoto.createdAt!.date.toIso8601String()
+                    : DateTime.now().toIso8601String(),
+            imageUrl: serverPhoto.picture,
+            fit: BoxFit.contain,
+            placeholder:
+                (c, u) => const Center(child: CircularProgressIndicator()),
+            errorWidget: (c, u, e) => _buildPlaceholder(),
+          ),
+
+          _buildDeleteButton(angle, serverPhoto),
+        ],
       );
     } else {
       return _buildPlaceholder();
@@ -943,22 +951,28 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
   }
 
   Widget _buildDeleteButton(AngleItem angle, VehiclePhotoModel serverPhoto) {
-    return ElevatedButton.icon(
-      onPressed: () => _showDeleteConfirmation(angle, serverPhoto),
-      icon: const Icon(Icons.delete_outline, color: EvAppColors.white),
-      label: Text(
-        "Delete & Retake",
-        style: EvAppStyle.style(
-          context: context,
-          color: Colors.white,
-          size: AppDimensions.fontSize16(context),
-          fontWeight: FontWeight.w600,
+    return Positioned(
+      left: 20,
+      top: 13,
+      child: ElevatedButton(
+        onPressed: () => _showDeleteConfirmation(angle, serverPhoto),
+        // label: Text(
+        //   "Delete & Retake",
+        //   style: EvAppStyle.style(
+        //     context: context,
+        //     color: Colors.white,
+        //     size: AppDimensions.fontSize16(context),
+        //     fontWeight: FontWeight.w600,
+        //   ),
+        // ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red,
+          // padding: const EdgeInsets.symmetric(vertical: ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.red,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: const Icon(Icons.delete_outline, color: EvAppColors.white),
       ),
     );
   }
@@ -1206,16 +1220,16 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
                     serverPhoto.pictureId,
                   );
                   // For now, immediately open camera for retake
-                  await context.read<UplaodVehilcePhotoCubit>().onSelectImage(
-                    context,
-                    widget.inspectionId,
-                    (context
-                            .read<UplaodVehilcePhotoCubit>()
-                            .state
-                            .currentPageIndex ??
-                        0),
-                    angle.angleName,
-                  );
+                  // await context.read<UplaodVehilcePhotoCubit>().onSelectImage(
+                  //   context,
+                  //   widget.inspectionId,
+                  //   (context
+                  //           .read<UplaodVehilcePhotoCubit>()
+                  //           .state
+                  //           .currentPageIndex ??
+                  //       0),
+                  //   angle.angleName,
+                  // );
                   // _goToNextAngle();
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

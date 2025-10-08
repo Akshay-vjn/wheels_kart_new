@@ -200,37 +200,31 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
     }
   }
 
-  Future<void> _checkCarPhotosAllUplaoded() async {
-    // PHOTOS
-    final stateOfUploadedPhotos =
-        BlocProvider.of<FetchUploadedVehilcePhotosCubit>(context).state;
+  Future<void> _checkCarPhotosAllUploaded() async {
+    final uploadedState = context.read<FetchUploadedVehilcePhotosCubit>().state;
+    final anglesState = context.read<FetchPictureAnglesCubit>().state;
 
-    final stateOfCarAngles =
-        BlocProvider.of<FetchPictureAnglesCubit>(context).state;
-
-    if (stateOfUploadedPhotos is FetchUploadedVehilcePhotosSuccessSate &&
-        stateOfCarAngles is FetchPictureAnglesSuccessState) {
-      final allAngles =
-          stateOfCarAngles.pictureAnglesByCategory.values
-              .expand((list) => list)
-              .toList();
-      final uploadedPhotos = stateOfUploadedPhotos.vehiclePhtotos;
-
-      // context.read<InspectionProgressCubit>().setPhotosCompleted(
-      //   angles.every(
-      //     (angle) =>
-      //         uploadedPhotos.any((photo) => photo.angleId == angle.angleId),
-      //   ),
-      // );
-      context.read<InspectionProgressCubit>().setPhotosCompleted(
-        allAngles.every(
-          (angle) =>
-              uploadedPhotos.any((photo) => photo.angleId == angle.angleId),
-        ),
-      );
-    } else {
+    if (uploadedState is! FetchUploadedVehilcePhotosSuccessSate ||
+        anglesState is! FetchPictureAnglesSuccessState) {
       log("Photo Not initialized.");
+      return;
     }
+
+    // If you have flattenedAngles, prefer: final requiredAngles = anglesState.flattenedAngles!;
+    final requiredAngles =
+        anglesState.pictureAnglesByCategory.values
+            .expand((list) => list)
+            .toList();
+    final uploaded = uploadedState.vehiclePhtotos;
+
+    // Build fast lookup sets
+    final requiredIds = requiredAngles.map((a) => a.angleId).toSet();
+    final uploadedIds = uploaded.map((p) => p.angleId).toSet();
+
+    // Condition: all required angles present (extra uploads are allowed)
+    final allPresent = requiredIds.difference(uploadedIds).isEmpty;
+
+    context.read<InspectionProgressCubit>().setPhotosCompleted(allPresent);
   }
 
   Future<void> _checkCarVideoAllUplaoded() async {
@@ -271,7 +265,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   Future<void> _checkTheProgress() async {
     await _checkQuestionsAreAnswersOrNot();
     await _checkDocumetsAllUplaoded();
-    await _checkCarPhotosAllUplaoded();
+    await _checkCarPhotosAllUploaded();
     await _checkCarVideoAllUplaoded();
   }
 
@@ -514,7 +508,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
               title: "Inspection Report",
               subtitle: "Complete evaluation checklist",
               icon: CupertinoIcons.checkmark_seal_fill,
-              isCompleted: progressState.isVideosCompleted,
+              isCompleted: progressState.isQuestionsCompleted,
               onTap: () => _navigateToReport(),
               stepNumber: 3,
             ),
@@ -647,13 +641,16 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Text(
-                              title,
-                              style: EvAppStyle.style(
-                                context: context,
-                                size: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[800],
+                            Flexible(
+                              child: Text(
+                                maxLines: 2,
+                                title,
+                                style: EvAppStyle.style(
+                                  context: context,
+                                  size: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                ),
                               ),
                             ),
                           ],
@@ -807,7 +804,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
           ),
         )
         .then((value) {
-          _checkCarPhotosAllUplaoded();
+          _checkCarPhotosAllUploaded();
         });
   }
 

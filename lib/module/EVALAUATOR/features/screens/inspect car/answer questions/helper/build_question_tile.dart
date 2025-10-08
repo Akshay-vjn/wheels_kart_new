@@ -94,7 +94,10 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
 
   Future<void> _initializePrefillData() async {
     Functions.onPrefillTheQuestion(context, widget.index, widget.prefillModel!);
-
+    if (widget.question.questionType == "Descriptive") {
+      helperVariable['descriptiveController'].text =
+          widget.prefillModel!.answer;
+    }
     if (widget.prefillModel!.comment != null) {
       helperVariable['commentController'].text = widget.prefillModel!.comment;
     }
@@ -510,8 +513,9 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
 
       return Visibility(
         visible:
-            (currentIndexVariables.answer != null) &&
-            currentIndexVariables.answer == question.invalidAnswers,
+            ((currentIndexVariables.answer != null) &&
+                (currentIndexVariables.answer == question.invalidAnswers)) &&
+            inValidOptions.isNotEmpty,
         child: _buildSection(
           title:
               question.invalidOptionsTitle.isNotEmpty
@@ -619,7 +623,7 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
               //     return 'Enter the comment';
               //   }
               // }
-              
+
               return null;
             },
             controller: helperVariable["commentController"],
@@ -645,12 +649,32 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
               question.invalidAnswers == uploadData.answer;
           bool isDescriptiveQuestion = question.questionType == "Descriptive";
 
-          bool isOptional =
-              isDescriptiveQuestion
-                  ? question.picture == "Required Optional"
-                  : !isSelectedInValid
-                  ? true
-                  : question.picture == "Required Optional";
+          // bool isOptional =
+          //     isDescriptiveQuestion
+          //         ? question.picture == "Required Optional"
+          //         : !isSelectedInValid
+          //         ? true
+          //         : question.picture == "Required Optional";
+
+          bool isOptional = false;
+
+          if (isDescriptiveQuestion) {
+            if (question.picture == 'Required Optional') {
+              isOptional = true;
+            } else if (question.picture == 'Required Mandatory') {
+              isOptional = false;
+            }
+          } else {
+            if (question.picture == 'Required Mandatory') {
+              isOptional = false;
+            } else if (question.picture == 'Required Optional') {
+              if (isSelectedInValid) {
+                isOptional = true;
+              } else {
+                isOptional = false;
+              }
+            }
+          }
 
           return _takePictureView(isOptional, widget.index);
         }
@@ -1123,6 +1147,23 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
       bool isDescriptiveQuestion = question.questionType == "Descriptive";
       bool isSelectedInValid = question.invalidAnswers == uploadData.answer;
       bool? isImageOptioanl;
+      // if (isDescriptiveQuestion) {
+      //   if (question.picture == 'Required Optional') {
+      //     isImageOptioanl = true;
+      //   } else if (question.picture == 'Required Mandatory') {
+      //     isImageOptioanl = false;
+      //   }
+      // } else {
+      //   if (!isSelectedInValid) {
+      //     isImageOptioanl = true;
+      //   } else {
+      //     if (question.picture == 'Required Optional') {
+      //       isImageOptioanl = true;
+      //     } else if (question.picture == 'Required Mandatory') {
+      //       isImageOptioanl = false;
+      //     }
+      //   }
+      // }
       if (isDescriptiveQuestion) {
         if (question.picture == 'Required Optional') {
           isImageOptioanl = true;
@@ -1130,24 +1171,16 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           isImageOptioanl = false;
         }
       } else {
-        if (!isSelectedInValid) {
-          isImageOptioanl = true;
-        } else {
-          if (question.picture == 'Required Optional') {
+        if (question.picture == 'Required Mandatory') {
+          isImageOptioanl = false;
+        } else if (question.picture == 'Required Optional') {
+          if (isSelectedInValid) {
             isImageOptioanl = true;
-          } else if (question.picture == 'Required Mandatory') {
+          } else {
             isImageOptioanl = false;
           }
         }
       }
-      // OLD CODE
-
-      // bool? isImageOptioanl;
-      // if (question.picture == 'Required Optional') {
-      //   isImageOptioanl = true;
-      // } else if (question.picture == 'Required Mandatory') {
-      //   isImageOptioanl = false;
-      // }
 
       if (isCommentMandotory) {
         if (commentKey.currentState!.validate()) {

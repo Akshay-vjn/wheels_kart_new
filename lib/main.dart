@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/block_providers.dart';
-import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/firebase_options.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
@@ -9,9 +8,13 @@ import 'package:wheels_kart/module/spash_screen.dart';
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
 
-void main() async { 
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Optional: turn off analytics in debug builds
+  // if (kDebugMode) {
+  //   await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(false);
+  // }
   runApp(const MyApp());
 }
 
@@ -23,7 +26,11 @@ class MyApp extends StatelessWidget {
     // AppAuthController().clearPreferenceData(context);
     return blocProviders(
       MaterialApp(
-        navigatorObservers: [routeObserver],
+        navigatorObservers: [
+          routeObserver,
+          // For firebase analytics
+          // FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+        ],
         debugShowCheckedModeBanner: false,
         title: 'Wheels Kart',
         theme: ThemeData(

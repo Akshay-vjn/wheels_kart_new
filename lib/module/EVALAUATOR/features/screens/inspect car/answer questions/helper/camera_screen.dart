@@ -95,11 +95,11 @@ class _CameraScreenState extends State<CameraScreen>
 
       _cameraController = CameraController(
         rearCamera,
+
         ResolutionPreset.high,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.jpeg,
       );
-
       await _cameraController!.initialize();
 
       // Get zoom capabilities
@@ -330,7 +330,7 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   // add under zoom fields
-  List<double> _zoomSteps = [1.0]; // will be recalculated after init
+  List<double> _zoomSteps = [1]; // will be recalculated after init
 
   Future<void> _applyZoom(double level) async {
     if (!_isCameraInitialized) return;
@@ -371,8 +371,8 @@ class _CameraScreenState extends State<CameraScreen>
       body:
           _isCameraInitialized
               ? GestureDetector(
-                // onScaleStart: _onScaleStart,
-                // onScaleUpdate: _onScaleUpdate,
+                onScaleStart: _onScaleStart,
+                onScaleUpdate: _onScaleUpdate,
                 onTapDown: _onTapDown,
                 child: Stack(
                   children: [

@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/data/repo/v_set_push_token_repo.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart'
+    show consolidateHttpClientResponseBytes;
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -136,14 +139,27 @@ class PushNotificationConfig {
         ?.createNotificationChannel(_androidChannel);
   }
 
-  void _showNotificationFromMessage(RemoteMessage message) {
+  void _showNotificationFromMessage(RemoteMessage message) async {
     final notification = message.notification;
+
+    // Try to get image URL (data key 'image' is common)
+    String? imageUrl =
+        message.data['image'] ??
+        message.notification?.apple?.imageUrl; // if you send it this way
+
+    String? localImagePath;
+    if (imageUrl != null && imageUrl.isNotEmpty && Platform.isIOS) {
+      localImagePath = await _downloadToFile(imageUrl, 'push_image.jpg');
+    }
     if (notification != null) {
       _showNotification(
         id: notification.hashCode,
+
         title: notification.title,
         body: notification.body,
         payload: jsonEncode(message.data),
+        iosImagePath: localImagePath,
+        androidImageUrl: imageUrl,
       );
     }
   }
@@ -153,13 +169,19 @@ class PushNotificationConfig {
     String? title,
     String? body,
     String? payload,
+    String? iosImagePath,
+    String? androidImageUrl,
   }) async {
     _localNotificationsPlugin.show(
       id,
       title,
       body,
       NotificationDetails(
-        iOS: const DarwinNotificationDetails(
+        iOS: DarwinNotificationDetails(
+          attachments:
+              (iosImagePath != null)
+                  ? [DarwinNotificationAttachment(iosImagePath)]
+                  : null,
           // sound: 'notification_sound.wav'
         ),
         android: AndroidNotificationDetails(
@@ -168,11 +190,37 @@ class PushNotificationConfig {
           icon: '@mipmap/ic_launcher',
           importance: Importance.max,
           priority: Priority.high,
+          styleInformation:
+              (androidImageUrl != null && androidImageUrl.isNotEmpty)
+                  ? BigPictureStyleInformation(
+                    FilePathAndroidBitmap(
+                      androidImageUrl,
+                    ), // if you prefer download first, use a file path
+                    contentTitle: title,
+                    summaryText: body,
+                  )
+                  : null,
           // sound: RawResourceAndroidNotificationSound('notification_sound')
         ),
       ),
       payload: payload,
     );
+  }
+
+  Future<String?> _downloadToFile(String url, String filename) async {
+    try {
+      final httpClient = HttpClient();
+      final request = await httpClient.getUrl(Uri.parse(url));
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        final bytes = await consolidateHttpClientResponseBytes(response);
+        final dir = await getTemporaryDirectory();
+        final file = File('${dir.path}/$filename');
+        await file.writeAsBytes(bytes);
+        return file.path;
+      }
+    } catch (_) {}
+    return null;
   }
 
   static void handleNotificationClick(String? payload) {

@@ -5,8 +5,9 @@ sealed class VAuctionControlllerEvent {}
 
 class OnFetchVendorAuctionApi extends VAuctionControlllerEvent {
   final BuildContext context;
+  final String tab;
 
-  OnFetchVendorAuctionApi({required this.context});
+  OnFetchVendorAuctionApi({required this.context, required this.tab});
 }
 
 class ConnectWebSocket extends VAuctionControlllerEvent {

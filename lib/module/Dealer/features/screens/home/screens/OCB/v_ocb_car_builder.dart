@@ -62,7 +62,10 @@ class _VOCBCarBuilderState extends State<VOCBCarBuilder> {
                       padding: EdgeInsets.only(top: 10),
                       child:
                           carList.isEmpty
-                              ? AppEmptyText(text: "No OCB cars found!")
+                              ? SizedBox(
+                                height: h(context) * .5,
+                                child: AppEmptyText(text: "No OCB cars found!"),
+                              )
                               : AnimationLimiter(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,

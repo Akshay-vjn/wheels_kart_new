@@ -42,7 +42,9 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
   initScreen() async {
     _auctionControllerBloc = context.read<VAuctionControlllerBloc>();
     _auctionControllerBloc.add(ConnectWebSocket(context: context));
-    _auctionControllerBloc.add(OnFetchVendorAuctionApi(context: context));
+    _auctionControllerBloc.add(
+      OnFetchVendorAuctionApi(context: context, tab: 'Auction'),
+    );
   }
 
   @override
@@ -65,7 +67,7 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                 onRefresh: () async {
                   context.read<FilterAcutionAndOcbCubit>().clearFilter();
                   return context.read<VAuctionControlllerBloc>().add(
-                    OnFetchVendorAuctionApi(context: context),
+                    OnFetchVendorAuctionApi(context: context, tab: "Auction"),
                   );
                 },
                 child: Stack(
@@ -76,7 +78,12 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                       padding: EdgeInsets.only(top: 10),
                       child:
                           liveAuctions.isEmpty
-                              ? AppEmptyText(text: "No auctions found!")
+                              ? SizedBox(
+                                height: h(context) * .5,
+                                child: AppEmptyText(
+                                  text: "No  live auctions found!",
+                                ),
+                              )
                               : AnimationLimiter(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -119,7 +126,10 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                           icon: Icon(Icons.keyboard_double_arrow_up_rounded),
                           onPressed: () {
                             return context.read<VAuctionControlllerBloc>().add(
-                              OnFetchVendorAuctionApi(context: context),
+                              OnFetchVendorAuctionApi(
+                                context: context,
+                                tab: "Auction",
+                              ),
                             );
                           },
                         )

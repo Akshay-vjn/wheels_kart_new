@@ -29,13 +29,28 @@ class VAuctionControlllerBloc
       if (response.isNotEmpty) {
         if (response['error'] == false) {
           final data = response['data'] as List;
+          List<VCarModel> finallist = [];
           final list = data.map((e) => VCarModel.fromJson(e)).toList();
+          if (event.tab == "Auction") {
+            finallist =
+                list.where((element) {
+                  final now = DateTime.now();
+                  final time = element.bidClosingTime;
+                  return now.isBefore(time ?? DateTime.now());
+                }).toList();
+          } else {
+            finallist =
+                list.where((element) {
+                  final now = DateTime.now();
+                  final time = element.bidClosingTime;
+                  return now.isAfter(time ?? DateTime.now());
+                }).toList();
+          }
 
           emit(
             VAuctionControllerSuccessState(
-              // listOfAllClosedAuctionFromServer: [],
-              filterdAutionList: list,
-              listOfAllLiveAuctionFromServer: list,
+              filterdAutionList: finallist,
+              listOfAllLiveAuctionFromServer: finallist,
               enableRefreshButton: false,
             ),
           );

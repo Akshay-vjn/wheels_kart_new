@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/inspection%20progress%20controller/inspection_progress_controller_state.dart';
 
@@ -13,6 +15,7 @@ class InspectionProgressCubit extends Cubit<InspectionProgressState> {
   }
 
   void setPhotosCompleted(bool completed) {
+    log(completed.toString());
     emit(state.copyWith(isPhotosCompleted: completed));
   }
 

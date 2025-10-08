@@ -41,7 +41,7 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
 
     _headerAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
@@ -101,7 +101,7 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         body: DefaultTabController(
-          length: 2,
+          length: 3,
           initialIndex: tabIndex,
           child: Column(
             children: [
@@ -117,7 +117,7 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
                   children: [
                     VAuctionCarBuilder(),
                     VOCBCarBuilder(),
-                    // VClosedAuctionBuilder(),
+                    VClosedAuctionBuilder(),
                   ],
                 ),
               ),
@@ -309,14 +309,14 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
                 ),
 
                 const SizedBox(height: 16),
-
+                // if (_tabController.index != 2)
                 // Enhanced Filter Widget with better styling
                 FilterAndSortWidget(
                   onFiltersAndSortApplied: (filter, sort) {
                     context
                         .read<FilterAcutionAndOcbCubit>()
                         .onApplyFilterAndSort(filter, sort);
-                    if (tabIndex == 0) {
+                    if (tabIndex == 0 || tabIndex == 2) {
                       _auctionBloc.add(
                         OnApplyFilterAndSortInAuction(
                           sortBy: sort,
@@ -395,39 +395,66 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
         splashFactory: NoSplash.splashFactory,
         overlayColor: MaterialStateProperty.all(Colors.transparent),
         tabs: const [
-          Tab(
-            height: 50,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.gavel_outlined, size: 20),
-                SizedBox(width: 8),
-                Text("Auctions"),
-              ],
+          SizedBox(
+            // width: 120,
+            child: Tab(
+              height: 50,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.gavel_outlined, size: 20),
+                  SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      "Auctions",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          Tab(
-            height: 50,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.shopping_cart_outlined, size: 20),
-                SizedBox(width: 8),
-                Text("OCB"),
-              ],
+          SizedBox(
+            // width: 120,
+            child: Tab(
+              height: 50,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.shopping_cart_outlined, size: 20),
+                  SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      "OCB",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          // Tab(
-          //   height: 50,
-          //   child: Row(
-          //     mainAxisSize: MainAxisSize.min,
-          //     children: [
-          //       Icon(Icons.close_rounded, size: 20),
-          //       SizedBox(width: 8),
-          //       Text("Closed"),
-          //     ],
-          //   ),
-          // ),
+          SizedBox(
+            // width: 120,
+            child: Tab(
+              height: 50,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cyclone_sharp, size: 20),
+                  SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      "Closed",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:wheels_kart/common/config/pushnotification_controller.dart';
+import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_otp_sheet.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/auth/ev_registration_Screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
@@ -352,7 +353,7 @@ class _EvLoginScreenState extends State<EvLoginScreen>
                                       label: 'Mobile Number',
                                       hint: 'Enter your 10-digit mobile number',
                                       prefixIcon: Iconsax.mobile,
-                                      keyboardType: TextInputType.phone,
+                                      keyboardType: TextInputType.number,
                                       maxLength: 10,
                                       validator: (value) {
                                         if (value?.isEmpty ?? true) {
@@ -621,7 +622,11 @@ class _EvLoginScreenState extends State<EvLoginScreen>
         ),
         child:
             isLoading
-                ? EVAppLoadingIndicator()
+                ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: VLoadingIndicator(),
+                )
                 : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
