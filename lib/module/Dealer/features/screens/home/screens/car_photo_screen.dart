@@ -26,13 +26,11 @@ class VCarPhotoScreen extends StatefulWidget {
 }
 
 class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: VColors.WHITEBGCOLOR,
-    
+
       appBar: AppBar(
         backgroundColor: VColors.WHITE,
         surfaceTintColor: VColors.WHITE,
@@ -55,18 +53,14 @@ class _VCarPhotoScreenState extends State<VCarPhotoScreen> {
           if (state is VDetailsControllerSuccessState) {
             return Column(
               children: [
-                _tabSection(state ),
-    
+                _tabSection(state),
+
                 Container(
                   height: 1,
                   width: w(context),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
-                        VColors.WHITE,
-                        VColors.DARK_GREY,
-                        VColors.WHITE,
-                      ],
+                      colors: [VColors.WHITE, VColors.DARK_GREY, VColors.WHITE],
                     ),
                   ),
                 ),

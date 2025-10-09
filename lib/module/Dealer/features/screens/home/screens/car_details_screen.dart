@@ -111,6 +111,21 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     super.dispose();
   }
 
+  String _getOwnerPrefix(String numberOfOwners) {
+    if (numberOfOwners.isEmpty) return '';
+    final numberOfOwner = int.parse(numberOfOwners);
+    if (numberOfOwner == 1) {
+      return "${numberOfOwners}st";
+    }
+    if (numberOfOwner == 2) {
+      return "${numberOfOwners}nd";
+    }
+    if (numberOfOwner == 3) {
+      return "${numberOfOwners}rd";
+    }
+    return "${numberOfOwners}th";
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -165,14 +180,84 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                               detail.carDetails.evaluationId,
                               detail.carDetails.variant,
                             ),
-                            AppSpacer(heightPortion: .01),
-                            _buildCarSpecification(detail.carDetails),
+                            // AppSpacer(heightPortion: .01),
+                            // _buildCarSpecification(detail.carDetails),
                             AppSpacer(heightPortion: .01),
 
                             _buildCard(
                               index: 0,
                               icon: CupertinoIcons.doc_fill,
+                              cardTitle: "Car overview",
+                              hideIcon: true,
+                              childres: [
+                                AppSpacer(heightPortion: .01),
+                                _buildCarOverViewTile([
+                                  {
+                                    "title": "Reg year",
+                                    "content":
+                                        detail.carDetails.registrationDate
+                                            .toString(),
+                                  },
+                                  {
+                                    "title": "Fuel",
+                                    "content":
+                                        detail.carDetails.fuelType.toString(),
+                                  },
+                                  {
+                                    "title": "KM driven",
+                                    "content":
+                                        detail.carDetails.kmsDriven.toString(),
+                                  },
+                                ]),
+                                _buildDevider(),
+                                _buildCarOverViewTile([
+                                  {
+                                    "title": "Transmission",
+                                    "content":
+                                        detail.carDetails.transmission
+                                            .toString(),
+                                  },
+                                  {
+                                    "title": "Engine capacity",
+                                    "content":
+                                        "${detail.carDetails.cubicCapacity}cc",
+                                  },
+                                  {
+                                    "title": "Ownership",
+                                    "content": _getOwnerPrefix(
+                                      detail.carDetails.noOfOwners.toString(),
+                                    ),
+                                  },
+                                ]),
+                                _buildDevider(),
+                                _buildCarOverViewTile([
+                                  {
+                                    "title": "Make year",
+                                    "content":
+                                        detail.carDetails.yearOfManufacture
+                                            .toString(),
+                                  },
+                                  {
+                                    "title": "Spare key",
+                                    "content":
+                                        detail.carDetails.noOfKeys.isEmpty
+                                            ? "NO"
+                                            : "YES",
+                                  },
+                                  {
+                                    "title": "Reg number",
+                                    "content":
+                                        "******${detail.carDetails.registrationNumber.substring(0, 4)}",
+                                  },
+                                ]),
+                              ],
+                            ),
+
+                            _buildCard(
+                              index: 1,
+                              icon: CupertinoIcons.doc_fill,
                               cardTitle: "Documents",
+                              hideIcon: true,
                               childres: [
                                 _buildQuestionAndAnswerTile(
                                   "RC availability",
@@ -197,38 +282,6 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 _buildDevider(),
 
                                 Text(
-                                  "Other informations",
-                                  style: VStyle.style(
-                                    context: context,
-                                    fontWeight: FontWeight.bold,
-                                    color: VColors.GREENHARD,
-                                    size: AppDimensions.fontSize18(context),
-                                  ),
-                                ),
-
-                                AppSpacer(heightPortion: .01),
-
-                                _buildQuestionAndAnswerTile(
-                                  "Engine Type",
-                                  detail.carDetails.engineType,
-                                ),
-                                _buildQuestionAndAnswerTile(
-                                  "Car Length",
-                                  detail.carDetails.carLength,
-                                ),
-                                _buildQuestionAndAnswerTile(
-                                  "Cubic Capacity",
-                                  detail.carDetails.cubicCapacity,
-                                ),
-
-                                _buildQuestionAndAnswerTile(
-                                  "No. of Keys",
-                                  detail.carDetails.noOfKeys,
-                                ),
-
-                                _buildDevider(),
-
-                                Text(
                                   "Registration and fitness",
                                   style: VStyle.style(
                                     context: context,
@@ -242,7 +295,36 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 _buildQuestionAndAnswerTile(
                                   "Manufacture Date",
                                   detail.carDetails.manufactureDate,
-                                ),
+                                ), // _buildDevider(),
+                                // Text(
+                                //   "Other informations",
+                                //   style: VStyle.style(
+                                //     context: context,
+                                //     fontWeight: FontWeight.bold,
+                                //     color: VColors.GREENHARD,
+                                //     size: AppDimensions.fontSize18(context),
+                                //   ),
+                                // ),
+
+                                // AppSpacer(heightPortion: .01),
+
+                                // _buildQuestionAndAnswerTile(
+                                //   "Engine Type",
+                                //   detail.carDetails.engineType,
+                                // ),
+                                // _buildQuestionAndAnswerTile(
+                                //   "Car Length",
+                                //   detail.carDetails.carLength,
+                                // ),
+                                // _buildQuestionAndAnswerTile(
+                                //   "Cubic Capacity",
+                                //   detail.carDetails.cubicCapacity,
+                                // ),
+
+                                // _buildQuestionAndAnswerTile(
+                                //   "No. of Keys",
+                                //   detail.carDetails.noOfKeys,
+                                // ),
                                 _buildQuestionAndAnswerTile(
                                   "Registration Date",
                                   detail.carDetails.registrationDate,
@@ -258,8 +340,25 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   detail.sections.asMap().entries.map((map) {
                                     final index = map.key;
                                     final section = map.value;
+                                    final defectsCount =
+                                        section.entries
+                                            .where(
+                                              (element) =>
+                                                  (element.answer
+                                                          .toUpperCase() ==
+                                                      "NOT OK") ||
+                                                  (element.answer
+                                                          .toUpperCase() ==
+                                                      "NO"),
+                                            )
+                                            .toList()
+                                            .length;
                                     return _buildCard(
-                                      index: index + 1,
+                                      defectCount:
+                                          defectsCount == 0
+                                              ? null
+                                              : defectsCount,
+                                      index: index + 2,
                                       hideIcon: true,
                                       icon: Icons.abc,
                                       cardTitle: section.portionName,
@@ -835,53 +934,53 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     );
   }
 
-  Widget _buildCarSpecification(CarDetails carDetails) {
-    final style = VStyle.style(context: context, fontWeight: FontWeight.bold);
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(color: VColors.SECONDARY.withAlpha(20)),
-      width: w(context),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          carDetails.transmission.isEmpty
-              ? SizedBox.shrink()
-              : Text(carDetails.transmission.toUpperCase(), style: style),
-          carDetails.transmission.isEmpty
-              ? SizedBox.shrink()
-              : AppSpacer(widthPortion: .01),
+  // Widget _buildCarSpecification(CarDetails carDetails) {
+  //   final style = VStyle.style(context: context, fontWeight: FontWeight.bold);
+  //   return Container(
+  //     padding: EdgeInsets.symmetric(vertical: 10),
+  //     decoration: BoxDecoration(color: VColors.SECONDARY.withAlpha(20)),
+  //     width: w(context),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //       children: [
+  //         carDetails.transmission.isEmpty
+  //             ? SizedBox.shrink()
+  //             : Text(carDetails.transmission.toUpperCase(), style: style),
+  //         carDetails.transmission.isEmpty
+  //             ? SizedBox.shrink()
+  //             : AppSpacer(widthPortion: .01),
 
-          carDetails.kmsDriven.isEmpty
-              ? SizedBox.shrink()
-              : Text("${carDetails.kmsDriven}", style: style),
-          carDetails.kmsDriven.isEmpty
-              ? SizedBox.shrink()
-              : AppSpacer(widthPortion: .01),
+  //         carDetails.kmsDriven.isEmpty
+  //             ? SizedBox.shrink()
+  //             : Text("${carDetails.kmsDriven}", style: style),
+  //         carDetails.kmsDriven.isEmpty
+  //             ? SizedBox.shrink()
+  //             : AppSpacer(widthPortion: .01),
 
-          carDetails.noOfOwners.isEmpty
-              ? SizedBox.shrink()
-              : Text("No. of owners ${carDetails.noOfOwners}", style: style),
-          carDetails.noOfOwners.isEmpty
-              ? SizedBox.shrink()
-              : AppSpacer(widthPortion: .01),
+  //         carDetails.noOfOwners.isEmpty
+  //             ? SizedBox.shrink()
+  //             : Text("No. of owners ${carDetails.noOfOwners}", style: style),
+  //         carDetails.noOfOwners.isEmpty
+  //             ? SizedBox.shrink()
+  //             : AppSpacer(widthPortion: .01),
 
-          carDetails.fuelType.isEmpty
-              ? SizedBox.shrink()
-              : Text(carDetails.fuelType, style: style),
-          carDetails.fuelType.isEmpty
-              ? SizedBox.shrink()
-              : AppSpacer(widthPortion: .01),
+  //         carDetails.fuelType.isEmpty
+  //             ? SizedBox.shrink()
+  //             : Text(carDetails.fuelType, style: style),
+  //         carDetails.fuelType.isEmpty
+  //             ? SizedBox.shrink()
+  //             : AppSpacer(widthPortion: .01),
 
-          carDetails.registrationNumber.isEmpty
-              ? SizedBox.shrink()
-              : Text(
-                carDetails.registrationNumber.substring(0, 6),
-                style: style,
-              ),
-        ],
-      ),
-    );
-  }
+  //         carDetails.registrationNumber.isEmpty
+  //             ? SizedBox.shrink()
+  //             : Text(
+  //               carDetails.registrationNumber.substring(0, 6),
+  //               style: style,
+  //             ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildCard({
     required IconData icon,
@@ -889,6 +988,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     required List<Widget> childres,
     bool hideIcon = false,
     required int index,
+    int? defectCount,
   }) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
@@ -932,18 +1032,35 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                         ),
                       ],
                     ),
-                    InkWell(
-                      onTap: () {
-                        context.read<VDetailsControllerBloc>().add(
-                          OnCollapesCard(index: index),
-                        );
-                      },
-                      child: Icon(
-                        state.enables[index]
-                            ? SolarIconsOutline.roundAltArrowUp
-                            : SolarIconsOutline.roundAltArrowDown,
-                        color: VColors.GREENHARD,
-                      ),
+
+                    Row(
+                      children: [
+                        if (defectCount != null) ...[
+                          Text(
+                            "Defects ${defectCount.toString()}",
+                            style: VStyle.poppins(
+                              context: context,
+                              fontWeight: FontWeight.w600,
+                              color: VColors.ERROR,
+                            ),
+                          ),
+                          AppSpacer(widthPortion: .023),
+                        ],
+
+                        InkWell(
+                          onTap: () {
+                            context.read<VDetailsControllerBloc>().add(
+                              OnCollapesCard(index: index),
+                            );
+                          },
+                          child: Icon(
+                            state.enables[index]
+                                ? SolarIconsOutline.roundAltArrowUp
+                                : SolarIconsOutline.roundAltArrowDown,
+                            color: VColors.GREENHARD,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -984,7 +1101,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
       icon = Icon(SolarIconsBold.closeCircle, color: VColors.ERROR);
       color = VColors.ERROR;
     } else {
-      icon = Icon(SolarIconsOutline.infoCircle, color: VColors.ACCENT);
+      icon = Icon(SolarIconsBold.checkCircle, color: VColors.PRIMARY);
       color = VColors.ACCENT;
 
       subtitle ??= answer;
@@ -1183,5 +1300,94 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                   )
                   .toList(),
         );
+  }
+
+  _buildCarOverViewTile(List<Map<String, dynamic>> data) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 5, left: 10, right: 5),
+      child: Row(
+        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data[0]['title'],
+                  style: VStyle.poppins(
+                    context: context,
+                    fontWeight: FontWeight.w500,
+                    color: VColors.DARK_GREY,
+                  ),
+                ),
+                Text(
+                  data[0]['content'],
+                  style: VStyle.poppins(
+                    context: context,
+                    fontWeight: FontWeight.bold,
+                    color: VColors.BLACK,
+                    size: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data[1]['title'],
+                  style: VStyle.poppins(
+                    context: context,
+                    fontWeight: FontWeight.w500,
+                    color: VColors.DARK_GREY,
+                  ),
+                ),
+                Text(
+                  data[1]['content'],
+                  style: VStyle.poppins(
+                    context: context,
+                    fontWeight: FontWeight.bold,
+                    color: VColors.BLACK,
+                    size: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data[2]['title'],
+                  style: VStyle.poppins(
+                    context: context,
+                    fontWeight: FontWeight.w500,
+                    color: VColors.DARK_GREY,
+                  ),
+                ),
+                Text(
+                  data[2]['content'],
+                  style: VStyle.poppins(
+                    context: context,
+                    fontWeight: FontWeight.bold,
+                    color: VColors.BLACK,
+                    size: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,7 +1,7 @@
 class VCarDetailModel {
   final CarDetails carDetails;
   final List<CarImage> images;
-  final List<Section> sections;
+  List<Section> sections;
   final List<String> vendorIds;
   final List<CarVideos> carVideos;
 
@@ -106,7 +106,7 @@ class CarDetails {
     registrationNumber: json["Registration Number"] ?? 'N/A',
     registrationDate: json["Registration Date"] ?? 'N/A',
     kmsDriven: json["KMS Driven"] ?? 'N/A',
-    noOfOwners: json["No Of Owners"] ?? 'N/A',
+    noOfOwners: json["No Of Owners"] ?? '',
     roadTaxPaid: json["Road Tax Paid"] ?? 'N/A',
     roadTaxValidity: json["Road Tax Validity"] ?? 'N/A',
     insuranceType: json["Insurance Type"] ?? 'N/A',
@@ -115,7 +115,7 @@ class CarDetails {
     carLength: json["Car Length"] ?? 'N/A',
     cubicCapacity: json["Cubic Capacity"] ?? 'N/A',
     manufactureDate: json["Manufacture Date"] ?? 'N/A',
-    noOfKeys: json["No Of Keys"] ?? 'N/A',
+    noOfKeys: json["No Of Keys"] ?? '',
     city: json["City"] ?? 'N/A',
     currentBid: json["currentBid"] ?? "N/A",
   );
@@ -149,7 +149,7 @@ class CarDetails {
 
 class Section {
   final String portionName;
-  final List<Entry> entries;
+  List<Entry> entries;
 
   Section({required this.portionName, required this.entries});
 

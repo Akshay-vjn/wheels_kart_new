@@ -6,7 +6,6 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
@@ -17,11 +16,9 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VClosedAuctionCard extends StatefulWidget {
@@ -234,18 +231,19 @@ class _VAuctionVehicleCardState extends State<VClosedAuctionCard>
                             children: [
                               _buildDetailsGrid(),
 
-                              if (_isOpened || _isSold) ...[
-                                AppSpacer(heightPortion: .01),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    _buildTimerViewChip(),
-                                    _buildBidPriceChip(),
-                                  ],
-                                ),
-                                AppSpacer(heightPortion: .01),
-                              ],
+                              // if (_isOpened || _isSold) ...[
+                              //   AppSpacer(heightPortion: .01),
+                              //   Row(
+                              //     mainAxisAlignment:
+                              //         MainAxisAlignment.spaceBetween,
+                              //     children: [
+                              //       _buildTimerViewChip(),
+                              //       _buildBidPriceChip(),
+                              //     ],
+                              //   ),
+                              //   AppSpacer(heightPortion: .01),
+                              // ],
+                              AppSpacer(heightPortion: .01),
 
                               if (_isOpened && !_isColsed) ...[
                                 _buildBidButton(),

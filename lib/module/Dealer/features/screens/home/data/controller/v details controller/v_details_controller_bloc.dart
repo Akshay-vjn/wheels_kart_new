@@ -31,9 +31,27 @@ class VDetailsControllerBloc
       if (response.isNotEmpty) {
         if (response['error'] == false) {
           final data = response['data'] as Map;
-          final datas = VCarDetailModel.fromJson(data as Map<String, dynamic>);
-          List<bool> enalbes = [true];
-          final bools = datas.sections.map((e) => true).toList();
+          final mainData = VCarDetailModel.fromJson(
+            data as Map<String, dynamic>,
+          );
+
+          mainData.sections.forEach((section) {
+            section.entries.sort((a, b) {
+              final aAns = (a.answer).trim().toUpperCase();
+              final bAns = (b.answer).trim().toUpperCase();
+
+              // "Good" = answer is NOT "NOT OK" AND NOT "NO"
+              final aGood = aAns != 'NOT OK' && aAns != 'NO';
+              final bGood = bAns != 'NOT OK' && bAns != 'NO';
+
+              if (aGood && !bGood) return -1;
+              if (!aGood && bGood) return 1;
+              return 0; // keep relative order (non-deterministic because Dart sort is not stable)
+            });
+          });
+          final datas = mainData;
+          List<bool> enalbes = [true, false];
+          final bools = datas.sections.map((e) => false).toList();
           emit(
             VDetailsControllerSuccessState(
               enables: [...enalbes, ...bools],
@@ -254,5 +272,4 @@ class VDetailsControllerBloc
   // BlocProvider.value(
   //               value: context.read<VAuctionControlllerBloc>(),
   //               child:
-  
 }
