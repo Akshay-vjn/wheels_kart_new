@@ -70,9 +70,9 @@ class VCarModel {
       // json["currentBid"].isEmpty ? "0.00" : json["currentBid"] ?? '0.00',
       bidStatus: json["bidStatus"] ?? '',
       bidClosingTime:
-          json["bidClosingTime"] == null
-              ? null
-              : DateTime.parse(json["bidClosingTime"]),
+      json["bidClosingTime"] == null
+          ? null
+          : DateTime.parse(json["bidClosingTime"]),
       wishlisted: json["wishlisted"] ?? 0,
       status: json["status"] ?? '',
       vendorIds: list == null ? [] : list.map((e) => e.toString()).toList(),

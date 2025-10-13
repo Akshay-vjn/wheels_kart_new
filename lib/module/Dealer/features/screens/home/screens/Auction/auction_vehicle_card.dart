@@ -27,11 +27,13 @@ import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 class VAuctionVehicleCard extends StatefulWidget {
   final VCarModel vehicle;
   final String myId;
+  final VoidCallback? onTimerExpired;
 
   const VAuctionVehicleCard({
     required this.myId,
     super.key,
     required this.vehicle,
+    this.onTimerExpired,
   });
 
   @override
@@ -44,6 +46,8 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
   late bool _isLiked;
+  bool _hasNotifiedExpired = false; // Track if we've already notified about expiration
+  
   @override
   void initState() {
     _endTime = "00:00:00";
@@ -99,21 +103,43 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
       if (difference.isNegative) {
         _endTime = "00:00:00";
+        
+        // Notify parent that timer has expired (only once)
+        if (!_hasNotifiedExpired && widget.onTimerExpired != null) {
+          _hasNotifiedExpired = true;
+          log("⏰ [Auction Card] Timer expired for vehicle: ${widget.vehicle.inspectionId}");
+          // Schedule the callback to run after the current frame
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onTimerExpired?.call();
+          });
+        }
       } else {
-        final hour = difference.inHours % 60;
+        // Fixed: Remove % 60 from hours to show correct total hours
+        final hour = difference.inHours;
         final min = difference.inMinutes % 60;
         final sec = difference.inSeconds % 60;
 
         // Format with leading zeros if needed
+        final hourStr = hour.toString().padLeft(2, '0');
         final minStr = min.toString().padLeft(2, '0');
         final secStr = sec.toString().padLeft(2, '0');
 
-        _endTime = "$hour:$minStr:$secStr";
+        _endTime = "$hourStr:$minStr:$secStr";
       }
 
       setState(() {});
     } else {
       _endTime = "00:00:00";
+      
+      // Notify parent that timer has expired (only once)
+      if (!_hasNotifiedExpired && widget.onTimerExpired != null) {
+        _hasNotifiedExpired = true;
+        log("⏰ [Auction Card] Timer expired for vehicle: ${widget.vehicle.inspectionId}");
+        // Schedule the callback to run after the current frame
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.onTimerExpired?.call();
+        });
+      }
     }
   }
 
@@ -151,9 +177,9 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   List<String> get _getOtherBidders =>
       _haveTheBidders
           ? widget.vehicle.vendorIds.sublist(
-            0,
-            widget.vehicle.vendorIds.length - 1,
-          )
+        0,
+        widget.vehicle.vendorIds.length - 1,
+      )
           : [];
 
   bool get _isIamInThisBid =>
@@ -169,11 +195,13 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   // status Check------
   bool get _isSold => widget.vehicle.bidStatus == "Sold";
   bool get _isCancelled => widget.vehicle.bidStatus == "Cancelled";
-  bool get _isOpened =>
-      (widget.vehicle.bidStatus == "Open") && (_endTime != "00:00:00");
+  // Trust the server's bidStatus - if server says "Open", show it as open with timer
+  bool get _isOpened => widget.vehicle.bidStatus == "Open";
   bool get _isNotStarted => widget.vehicle.bidStatus == "Not Started";
 
-  bool get _isColsed => (_endTime == "00:00:00") || _isSold;
+  // Trust the server's bidStatus instead of client-side timer
+  // If bidStatus is "Open", it's still live even if bidClosingTime has passed
+  bool get _isColsed => _isSold || _isCancelled;
 
   bool get _soldToMe => widget.myId == widget.vehicle.soldTo;
 
@@ -238,7 +266,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                 AppSpacer(heightPortion: .01),
                                 Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     _buildTimerViewChip(),
                                     _buildBidPriceChip(),
@@ -256,9 +284,9 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                 DottedBorder(
                                   options: RoundedRectDottedBorderOptions(
                                     color:
-                                        _soldToMe
-                                            ? VColors.SUCCESS
-                                            : VColors.GREY,
+                                    _soldToMe
+                                        ? VColors.SUCCESS
+                                        : VColors.GREY,
                                     radius: Radius.circular(10),
                                   ),
                                   child: Container(
@@ -272,7 +300,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                                           : "Auction closed – Item sold",
                                       style: VStyle.style(
                                         color:
-                                            _soldToMe ? VColors.SUCCESS : null,
+                                        _soldToMe ? VColors.SUCCESS : null,
                                         context: context,
                                         fontWeight: FontWeight.bold,
                                         size: 15,
@@ -366,19 +394,19 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           children: [
             widget.vehicle.frontImage.isNotEmpty
                 ? Hero(
-                  tag: widget.vehicle.evaluationId,
-                  child: CachedNetworkImage(
-                    imageUrl: widget.vehicle.frontImage,
-                    fit: BoxFit.cover,
-                    placeholder:
-                        (context, url) => Container(
-                          color: VColors.LIGHT_GREY,
-                          child: const Center(child: VLoadingIndicator()),
-                        ),
-                    errorWidget:
-                        (context, url, error) => _buildPlaceholderIcon(),
-                  ),
-                )
+              tag: widget.vehicle.evaluationId,
+              child: CachedNetworkImage(
+                imageUrl: widget.vehicle.frontImage,
+                fit: BoxFit.cover,
+                placeholder:
+                    (context, url) => Container(
+                  color: VColors.LIGHT_GREY,
+                  child: const Center(child: VLoadingIndicator()),
+                ),
+                errorWidget:
+                    (context, url, error) => _buildPlaceholderIcon(),
+              ),
+            )
                 : _buildPlaceholderIcon(),
 
             // Gradient overlay for better text visibility
@@ -518,16 +546,16 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
         widget.vehicle.regNo.isNotEmpty
             ? _buildEnhancedDetailChip(
-              Icons.confirmation_number_rounded,
-              widget.vehicle.regNo.replaceRange(
-                6,
-                widget.vehicle.regNo.length,
-                // '●●●●●●',
-                "",
-              ),
-              const Color.fromARGB(255, 32, 138, 164),
-              isFullWidth: false,
-            )
+          Icons.confirmation_number_rounded,
+          widget.vehicle.regNo.replaceRange(
+            6,
+            widget.vehicle.regNo.length,
+            // '●●●●●●',
+            "",
+          ),
+          const Color.fromARGB(255, 32, 138, 164),
+          isFullWidth: false,
+        )
             : SizedBox.shrink(),
       ],
     );
@@ -763,31 +791,98 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     );
   }
 
+  // Widget _buildBidButton() {
+  //   // Don't show bid button if user is winning
+  //   // if (_isIamInThisBid && _isHigestBidderIsMe) return SizedBox.shrink();
+  //
+  //   // Don't show if user is not in bid and WhatsApp button is already shown
+  //   // if (!_isIamInThisBid) return SizedBox.shrink();
+  //
+  //   String buttonText;
+  //   Color buttonColor;
+  //   IconData buttonIcon;
+  //
+  //   if (!_isIamInThisBid) {
+  //     // New auction state
+  //     buttonText = "Place Your Bid";
+  //     buttonColor = VColors.PRIMARY;
+  //     buttonIcon = Icons.gavel_outlined;
+  //   } else {
+  //     // Losing state - user is in bid but not winning
+  //     buttonText = "Increase Your Bid";
+  //     buttonColor = VColors.WARNING; // or VColors.PRIMARY
+  //     buttonIcon = Icons.arrow_upward;
+  //   }
+  //
+  //   return InkWell(
+  //     onTap: () {
+  //       VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+  //         paymentStatus: widget.vehicle.paymentStatus,
+  //         from: "AUCTION",
+  //         context: context,
+  //         inspectionId: widget.vehicle.inspectionId,
+  //       );
+  //     },
+  //     child: Container(
+  //       // width: double.infinity,
+  //       height: 50,
+  //       margin: const EdgeInsets.symmetric(horizontal: 8),
+  //
+  //       decoration: BoxDecoration(
+  //         gradient: LinearGradient(
+  //           colors: [buttonColor.withAlpha(150), buttonColor],
+  //         ),
+  //         borderRadius: BorderRadius.circular(25),
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: buttonColor.withAlpha(60),
+  //             blurRadius: 8,
+  //             offset: const Offset(0, 2),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           Icon(buttonIcon, color: VColors.WHITE, size: 20),
+  //           const SizedBox(width: 8),
+  //           Text(
+  //             buttonText,
+  //             style: VStyle.style(
+  //               context: context,
+  //               color: VColors.WHITE,
+  //               size: 16,
+  //               fontWeight: FontWeight.w600,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget _buildBidButton() {
-    // Don't show bid button if user is winning
-    // if (_isIamInThisBid && _isHigestBidderIsMe) return SizedBox.shrink();
-
-    // Don't show if user is not in bid and WhatsApp button is already shown
-    // if (!_isIamInThisBid) return SizedBox.shrink();
+    // Check if timer is zero or auction is closed
+    bool isTimerZero = _endTime == "00:00:00";
+    bool isButtonDisabled = isTimerZero || _isColsed;
 
     String buttonText;
     Color buttonColor;
     IconData buttonIcon;
 
     if (!_isIamInThisBid) {
-      // New auction state
-      buttonText = "Place Your Bid";
-      buttonColor = VColors.PRIMARY;
-      buttonIcon = Icons.gavel_outlined;
+      buttonText = isButtonDisabled ? "Closed" : "Place Your Bid";
+      buttonColor = isButtonDisabled ? VColors.GREY : VColors.PRIMARY;
+      buttonIcon = isButtonDisabled ? Icons.lock : Icons.gavel_outlined;
     } else {
-      // Losing state - user is in bid but not winning
-      buttonText = "Increase Your Bid";
-      buttonColor = VColors.WARNING; // or VColors.PRIMARY
-      buttonIcon = Icons.arrow_upward;
+      buttonText = isButtonDisabled ? "Closed" : "Increase Your Bid";
+      buttonColor = isButtonDisabled ? VColors.GREY : VColors.WARNING;
+      buttonIcon = isButtonDisabled ? Icons.lock : Icons.arrow_upward;
     }
 
     return InkWell(
-      onTap: () {
+      onTap: isButtonDisabled
+          ? null // Disable tap when button is disabled
+          : () {
         VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
           paymentStatus: widget.vehicle.paymentStatus,
           from: "AUCTION",
@@ -796,10 +891,8 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         );
       },
       child: Container(
-        // width: double.infinity,
         height: 50,
         margin: const EdgeInsets.symmetric(horizontal: 8),
-
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [buttonColor.withAlpha(150), buttonColor],
@@ -807,7 +900,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: buttonColor.withAlpha(60),
+              color: buttonColor.withAlpha(isButtonDisabled ? 20 : 60),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -816,13 +909,17 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(buttonIcon, color: VColors.WHITE, size: 20),
+            Icon(
+              buttonIcon,
+              color: isButtonDisabled ? VColors.DARK_GREY : VColors.WHITE,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Text(
               buttonText,
               style: VStyle.style(
                 context: context,
-                color: VColors.WHITE,
+                color: isButtonDisabled ? VColors.DARK_GREY : VColors.WHITE,
                 size: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -834,11 +931,11 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   }
 
   Widget _buildEnhancedDetailChip(
-    IconData icon,
-    String text,
-    Color color, {
-    bool isFullWidth = false,
-  }) {
+      IconData icon,
+      String text,
+      Color color, {
+        bool isFullWidth = false,
+      }) {
     return Container(
       width: isFullWidth ? double.infinity : null,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -919,43 +1016,21 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     Color color;
     String title;
 
-    switch (status) {
-      case "Open":
-        {
-          if (!_isColsed) {
-            title = "OPEN";
-            color = VColors.SUCCESS;
-            break;
-          } else {
-            title = "CLOSED";
-            color = EvAppColors.DARK_SECONDARY;
-            break;
-          }
-        }
-      case "Sold":
-        {
-          title = "SOLD";
-          color = VColors.ERROR;
-          break;
-        }
-      case "Not Started":
-        {
-          title = "NOT STARTED";
-          color = VColors.DARK_GREY;
-          break;
-        }
-      case "Cancelled":
-        {
-          title = "CANCELLED";
-          color = VColors.REDHARD;
-          break;
-        }
-      default:
-        {
-          title = "";
-          color = VColors.DARK_GREY;
-          break;
-        }
+    // For live auction tab, check timer and status
+    if (status == "Cancelled") {
+      title = "CANCELLED";
+      color = VColors.REDHARD;
+    } else if (status == "Sold" || _isSold) {
+      title = "SOLD";
+      color = VColors.ERROR;
+    } else if (_endTime == "00:00:00") {
+      // Timer reached zero, show CLOSED
+      title = "CLOSED";
+      color = EvAppColors.DARK_SECONDARY;
+    } else {
+      // Default to OPEN for items in live auction tab
+      title = "OPEN";
+      color = VColors.SUCCESS;
     }
     // You can customize this based on vehicle status
     return Container(
@@ -1045,7 +1120,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           child: RichText(
             text: TextSpan(
               text:
-                  "Auction closed. You are the highest bidder. Our team will be in touch shortly.",
+              "Auction closed. You are the highest bidder. Our team will be in touch shortly.",
               style: VStyle.style(context: context, color: VColors.DARK_GREY),
               children: [
                 TextSpan(
@@ -1064,8 +1139,17 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   }
 
   String _getOwnerPrefix(String numberOfOwners) {
-    if (numberOfOwners.isEmpty) return '';
-    final numberOfOwner = int.parse(numberOfOwners);
+    // Handle empty or invalid strings
+    if (numberOfOwners.isEmpty || numberOfOwners == 'N/A' || numberOfOwners == 'null') {
+      return '';
+    }
+
+    // Try to parse, return empty if not a valid number
+    final numberOfOwner = int.tryParse(numberOfOwners);
+    if (numberOfOwner == null) {
+      return '';
+    }
+
     if (numberOfOwner == 1) {
       return "$numberOfOwners st owner";
     }

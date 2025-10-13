@@ -28,10 +28,32 @@ class VAuctionData {
         final decodedata = jsonDecode(response.body);
 
         if (decodedata['status'] == 200) {
+          // Handle both old and new API response formats
+          final data = decodedata['data'];
+          
+          // New format: data contains 'live' and 'closed' arrays
+          if (data is Map && data.containsKey('live') && data.containsKey('closed')) {
+            return {
+              'error': decodedata['error'],
+              'message': decodedata['message'],
+              'live': data['live'] ?? [],
+              'closed': data['closed'] ?? [],
+            };
+          } 
+          // Old format: data is a direct list
+          else if (data is List) {
+            return {
+              'error': decodedata['error'],
+              'message': decodedata['message'],
+              'data': data,
+            };
+          }
+          
+          // Default case
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
-            'data': decodedata['data'],
+            'data': data,
           };
         } else {
           return {

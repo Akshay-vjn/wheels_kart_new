@@ -34,3 +34,9 @@ class OnSearchAuction extends VAuctionControlllerEvent {
 
   OnSearchAuction({required this.query});
 }
+
+class RemoveExpiredAuction extends VAuctionControlllerEvent {
+  final String inspectionId;
+
+  RemoveExpiredAuction({required this.inspectionId});
+}

@@ -1,20 +1,17 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
-import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
-import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
-import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/ocb%20controller/my_ocb_controller_bloc.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/widgets/auction_tile.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/widgets/ocb_tile.dart';
 
 class BoughtOcbHistoryTab extends StatefulWidget {
-  const BoughtOcbHistoryTab({super.key});
+  final String myId; // Pass your dealer ID
+
+  const BoughtOcbHistoryTab({super.key, required this.myId});
 
   @override
   State<BoughtOcbHistoryTab> createState() => _BoughtOcbHistoryTabState();
@@ -23,40 +20,88 @@ class BoughtOcbHistoryTab extends StatefulWidget {
 class _BoughtOcbHistoryTabState extends State<BoughtOcbHistoryTab> {
   @override
   void initState() {
-    context.read<MyOcbControllerBloc>().add(OnFetchMyOCBList(context: context));
     super.initState();
+
+    // Fetch OCB purchases
+    context.read<MyOcbControllerBloc>().add(
+      OnFetchMyOCBList(context: context),
+    );
+
+    // Fetch my auctions
+    context.read<VMyAuctionControllerBloc>().add(
+      OnGetMyAuctions(context: context),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MyOcbControllerBloc, MyOcbControllerState>(
-      builder: (context, state) {
-        switch (state) {
-          case MyOcbControllerErrorState():
-            {
-              return Center(child: AppEmptyText(text: state.error));
+      builder: (context, ocbState) {
+        return BlocBuilder<VMyAuctionControllerBloc, VMyAuctionControllerState>(
+          builder: (context, auctionState) {
+            // Get OCB purchases
+            final ocbList = ocbState is MyOncControllerSuccessState
+                ? ocbState.myOcbList
+                : [];
+
+            // Get owned auctions
+            final ownedAuctions =
+            auctionState is VMyAuctionControllerSuccessState
+                ? auctionState.listOfMyAuctions
+                .where((element) =>
+            element.bidStatus == "Sold" &&
+                element.soldTo == widget.myId)
+                .toList()
+                : [];
+
+            // Loading states
+            final isLoadingOcb = ocbState is! MyOncControllerSuccessState;
+            final isLoadingAuctions =
+            auctionState is! VMyAuctionControllerSuccessState;
+
+            // Show error if OCB failed
+            if (ocbState is MyOcbControllerErrorState) {
+              return Center(child: AppEmptyText(text: ocbState.error));
             }
-          case MyOncControllerSuccessState():
-            {
-              final list = state.myOcbList;
-              return list.isEmpty
-                  ? Center(child: AppEmptyText(text: "No OCB Purchase found!"))
-                  : ListView.separated(
-                    itemCount: list.length,
-                    separatorBuilder:
-                        (context, index) => AppSpacer(heightPortion: .01),
-                    padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-                    itemBuilder: (context, index) {
-                      final ocb = list[index];
-                      return OcbTile( ocb:ocb);
-                    },
+
+            // Show loading if either is loading
+            if (isLoadingOcb || isLoadingAuctions) {
+              return const Center(child: VLoadingIndicator());
+            }
+
+            // Show empty state if no items
+            final totalItems = ownedAuctions.length + ocbList.length;
+            if (totalItems == 0) {
+              return Center(
+                  child: AppEmptyText(text: "No purchases found!"));
+            }
+
+            // Combined list view
+            return ListView.separated(
+              itemCount: totalItems,
+              separatorBuilder: (context, index) =>
+              const AppSpacer(heightPortion: .01),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              itemBuilder: (context, index) {
+                // Show owned auctions first
+                if (index < ownedAuctions.length) {
+                  final auction = ownedAuctions[index];
+                  return AuctionTile(
+                    myId: widget.myId,
+                    auction: auction,
+                    index: index,
                   );
-            }
-          default:
-            {
-              return Center(child: VLoadingIndicator());
-            }
-        }
+                }
+                // Then OCB purchases
+                else {
+                  final ocbIndex = index - ownedAuctions.length;
+                  final ocb = ocbList[ocbIndex];
+                  return OcbTile(ocb: ocb);
+                }
+              },
+            );
+          },
+        );
       },
     );
   }

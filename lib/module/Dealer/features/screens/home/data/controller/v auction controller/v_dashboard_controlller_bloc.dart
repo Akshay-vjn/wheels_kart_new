@@ -28,23 +28,38 @@ class VAuctionControlllerBloc
       final response = await VAuctionData.getAuctionData(event.context);
       if (response.isNotEmpty) {
         if (response['error'] == false) {
-          final data = response['data'] as List;
           List<VCarModel> finallist = [];
-          final list = data.map((e) => VCarModel.fromJson(e)).toList();
-          if (event.tab == "Auction") {
-            finallist =
-                list.where((element) {
-                  final now = DateTime.now();
-                  final time = element.bidClosingTime;
-                  return now.isBefore(time ?? DateTime.now());
-                }).toList();
-          } else {
-            finallist =
-                list.where((element) {
-                  final now = DateTime.now();
-                  final time = element.bidClosingTime;
-                  return now.isAfter(time ?? DateTime.now());
-                }).toList();
+          
+          // Check if the response has the new format with 'live' and 'closed' keys
+          if (response.containsKey('live') && response.containsKey('closed')) {
+            // New API format: use live or closed array based on tab
+            if (event.tab == "Auction") {
+              final liveData = response['live'] as List;
+              finallist = liveData.map((e) => VCarModel.fromJson(e)).toList();
+            } else {
+              final closedData = response['closed'] as List;
+              finallist = closedData.map((e) => VCarModel.fromJson(e)).toList();
+            }
+          } 
+          // Old API format: filter by date
+          else if (response.containsKey('data')) {
+            final data = response['data'] as List;
+            final list = data.map((e) => VCarModel.fromJson(e)).toList();
+            if (event.tab == "Auction") {
+              finallist =
+                  list.where((element) {
+                    final now = DateTime.now();
+                    final time = element.bidClosingTime;
+                    return now.isBefore(time ?? DateTime.now());
+                  }).toList();
+            } else {
+              finallist =
+                  list.where((element) {
+                    final now = DateTime.now();
+                    final time = element.bidClosingTime;
+                    return now.isAfter(time ?? DateTime.now());
+                  }).toList();
+            }
           }
 
           emit(
@@ -70,22 +85,56 @@ class VAuctionControlllerBloc
 
       if (cuuremtSate is VAuctionControllerSuccessState) {
         if (event.newBid.trigger != null && event.newBid.trigger == "new") {
-          debugPrint("--------New Auction Listed");
+          debugPrint("🆕 [WebSocket] New Auction Listed - Auto-fetching data...");
 
-          final response = await VAuctionData.getAuctionData(event.context);
+          try {
+            // Automatically fetch new auction data
+            final response = await VAuctionData.getAuctionData(event.context);
+            
+            if (response.isNotEmpty && response['error'] == false) {
+              List<VCarModel> finallist = [];
+              
+              // Check if the response has the new format with 'live' and 'closed' keys
+              if (response.containsKey('live') && response.containsKey('closed')) {
+                // New API format: use live array
+                final liveData = response['live'] as List;
+                finallist = liveData.map((e) => VCarModel.fromJson(e)).toList();
+              } 
+              // Old API format: filter by date
+              else if (response.containsKey('data')) {
+                final data = response['data'] as List;
+                final list = data.map((e) => VCarModel.fromJson(e)).toList();
+                finallist = list.where((element) {
+                  final now = DateTime.now();
+                  final time = element.bidClosingTime;
+                  return now.isBefore(time ?? DateTime.now());
+                }).toList();
+              }
 
-          if (response.isNotEmpty && response['error'] == false) {
-            final data = response['data'] as List;
-            final list = data.map((e) => VCarModel.fromJson(e)).toList();
-
-            emit(
-              VAuctionControllerSuccessState(
-                filterdAutionList: list,
-                listOfAllLiveAuctionFromServer: list,
-                enableRefreshButton: false,
-              ),
-            );
-          } else {
+              debugPrint("✅ [WebSocket] New auction fetched - Total live auctions: ${finallist.length}");
+              
+              emit(
+                VAuctionControllerSuccessState(
+                  filterdAutionList: finallist,
+                  listOfAllLiveAuctionFromServer: finallist,
+                  enableRefreshButton: false,
+                ),
+              );
+            } else {
+              debugPrint("⚠️ [WebSocket] Failed to fetch new auction - Showing refresh button");
+              // Fallback: show refresh button if auto-fetch fails
+              emit(
+                VAuctionControllerSuccessState(
+                  filterdAutionList: cuuremtSate.listOfAllLiveAuctionFromServer,
+                  listOfAllLiveAuctionFromServer:
+                      cuuremtSate.listOfAllLiveAuctionFromServer,
+                  enableRefreshButton: true,
+                ),
+              );
+            }
+          } catch (e) {
+            debugPrint("❌ [WebSocket] Error auto-fetching new auction: $e");
+            // Fallback: show refresh button if error occurs
             emit(
               VAuctionControllerSuccessState(
                 filterdAutionList: cuuremtSate.listOfAllLiveAuctionFromServer,
@@ -96,11 +145,19 @@ class VAuctionControlllerBloc
             );
           }
         } else {
-          debugPrint("--------Auction Updated");
+          debugPrint("🔄 [WebSocket] Auction Updated - EvaluationId: ${event.newBid.evaluationId}");
+          bool foundAuction = false;
+          
           for (var car in cuuremtSate.listOfAllLiveAuctionFromServer) {
             if (car.evaluationId == event.newBid.evaluationId) {
+              foundAuction = true;
               final bid = event.newBid;
               final reversed = bid.vendorBids.toList();
+
+              debugPrint("✅ [WebSocket] Updating auction ${car.evaluationId}:");
+              debugPrint("   - Old bid: ${car.currentBid} -> New bid: ${bid.currentBid}");
+              debugPrint("   - Old status: ${car.bidStatus} -> New status: ${bid.bidStatus}");
+              debugPrint("   - Vendor count: ${reversed.length}");
 
               car.bidStatus = bid.bidStatus;
               car.soldName = bid.soldName;
@@ -114,6 +171,11 @@ class VAuctionControlllerBloc
               updatedList.add(car);
             }
           }
+          
+          if (!foundAuction) {
+            debugPrint("⚠️ [WebSocket] Auction ${event.newBid.evaluationId} not found in current list");
+          }
+          
           emit(
             VAuctionControllerSuccessState(
               filterdAutionList: updatedList,
@@ -121,8 +183,10 @@ class VAuctionControlllerBloc
               enableRefreshButton: cuuremtSate.enableRefreshButton,
             ),
           );
-          debugPrint("Updating Done------------");
+          debugPrint("✅ [WebSocket] Update completed successfully");
         }
+      } else {
+        debugPrint("⚠️ [WebSocket] Cannot update - Bloc not in Success state");
       }
     });
 
@@ -224,73 +288,173 @@ class VAuctionControlllerBloc
         debugPrint("OnSearchAuction: state is not Success, ignoring");
       }
     });
+
+    // Remove Expired Auction
+
+    on<RemoveExpiredAuction>((event, emit) {
+      final currentState = state;
+
+      if (currentState is VAuctionControllerSuccessState) {
+        debugPrint("🗑️ [Auction] Removing expired auction: ${event.inspectionId}");
+        
+        // Remove from both the filtered list and the full list
+        final updatedFilteredList = currentState.filterdAutionList
+            .where((vehicle) => vehicle.inspectionId != event.inspectionId)
+            .toList();
+        
+        final updatedFullList = currentState.listOfAllLiveAuctionFromServer
+            .where((vehicle) => vehicle.inspectionId != event.inspectionId)
+            .toList();
+
+        debugPrint("✅ [Auction] Expired auction removed. Remaining count: ${updatedFilteredList.length}");
+
+        emit(
+          VAuctionControllerSuccessState(
+            filterdAutionList: updatedFilteredList,
+            listOfAllLiveAuctionFromServer: updatedFullList,
+            enableRefreshButton: currentState.enableRefreshButton,
+          ),
+        );
+      } else {
+        debugPrint("⚠️ [Auction] Cannot remove - Bloc not in Success state");
+      }
+    });
   }
 
   Timer? _heartbeatTimer;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 5;
 
   void _connectWebSocket(
     ConnectWebSocket event,
     Emitter<VAuctionControlllerState> emit,
   ) {
-    channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
+    try {
+      debugPrint("🔌 [WebSocket] Connecting to: ${VApiConst.socket}");
+      channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
+      debugPrint("✅ [WebSocket] Connection initiated successfully");
 
-    // Send heartbeat every 30 seconds
-
-    _heartbeatTimer?.cancel();
-    _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (_) {
-      try {
-        channel.sink.add(jsonEncode({"type": "ping"}));
-      } catch (e) {
-        debugPrint("Ping failed: $e");
-      }
-    });
-
-    _subscription = channel.stream.listen(
-      (data) {
-        debugPrint("triggered ----------------");
-
-        try {
-          final decoded = (data is String) ? data : utf8.decode(data);
-          final jsonData = jsonDecode(decoded);
-          debugPrint("Converted ----------------");
-
-          add(
-            UpdatePrice(
-              newBid: LiveBidModel.fromJson(jsonData),
-              context: event.context,
-            ),
-          );
-        } catch (e) {
-          debugPrint("Error decoding WebSocket data: $e");
+      // Send heartbeat every 30 seconds
+      _heartbeatTimer?.cancel();
+      _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (_) {
+        // Don't send ping if bloc is closed
+        if (isClosed) {
+          debugPrint("⚠️ [WebSocket] Bloc closed, stopping heartbeat");
+          _heartbeatTimer?.cancel();
+          return;
         }
-      },
-      onError: (error) {
-        debugPrint("WebSocket error: $error");
-        _reconnect(event);
-      },
-      onDone: () {
-        debugPrint("WebSocket closed. Reconnecting...");
-        _reconnect(event);
-      },
-      cancelOnError: true,
-    );
+        
+        try {
+          final pingMessage = jsonEncode({"type": "ping"});
+          channel.sink.add(pingMessage);
+          debugPrint("💓 [WebSocket] Heartbeat sent: $pingMessage");
+        } catch (e) {
+          debugPrint("❌ [WebSocket] Ping failed: $e");
+        }
+      });
+
+      _subscription = channel.stream.listen(
+        (data) {
+          // Check if bloc is still active before processing
+          if (isClosed) {
+            debugPrint("⚠️ [WebSocket] Bloc is closed, ignoring incoming data");
+            return;
+          }
+
+          debugPrint("📥 [WebSocket] Data received");
+
+          try {
+            final decoded = (data is String) ? data : utf8.decode(data);
+            debugPrint("📝 [WebSocket] Decoded data: $decoded");
+            
+            final jsonData = jsonDecode(decoded);
+            debugPrint("✅ [WebSocket] JSON parsed successfully");
+            debugPrint("📊 [WebSocket] Parsed data: $jsonData");
+
+            // Reset reconnect attempts on successful message
+            _reconnectAttempts = 0;
+
+            // Only add event if bloc is not closed
+            if (!isClosed) {
+              add(
+                UpdatePrice(
+                  newBid: LiveBidModel.fromJson(jsonData),
+                  context: event.context,
+                ),
+              );
+              debugPrint("🔄 [WebSocket] UpdatePrice event dispatched");
+            } else {
+              debugPrint("⚠️ [WebSocket] Bloc closed, event not dispatched");
+            }
+          } catch (e, stackTrace) {
+            debugPrint("❌ [WebSocket] Error decoding data: $e");
+            debugPrint("📋 [WebSocket] Stack trace: $stackTrace");
+          }
+        },
+        onError: (error, stackTrace) {
+          if (!isClosed) {
+            debugPrint("❌ [WebSocket] Connection error: $error");
+            debugPrint("📋 [WebSocket] Error stack trace: $stackTrace");
+            _reconnect(event);
+          }
+        },
+        onDone: () {
+          if (!isClosed) {
+            debugPrint("🔌 [WebSocket] Connection closed");
+            _reconnect(event);
+          }
+        },
+        cancelOnError: true,
+      );
+      
+      debugPrint("👂 [WebSocket] Listening for messages...");
+    } catch (e, stackTrace) {
+      debugPrint("❌ [WebSocket] Failed to connect: $e");
+      debugPrint("📋 [WebSocket] Stack trace: $stackTrace");
+      _reconnect(event);
+    }
   }
 
   void _reconnect(ConnectWebSocket event) {
     _subscription?.cancel();
-    Future.delayed(Duration(seconds: 3), () {
-      add(ConnectWebSocket(context: event.context));
+    _reconnectAttempts++;
+    
+    // Don't reconnect if bloc is closed
+    if (isClosed) {
+      debugPrint("⚠️ [WebSocket] Bloc is closed, skipping reconnection");
+      return;
+    }
+    
+    if (_reconnectAttempts > _maxReconnectAttempts) {
+      debugPrint("⚠️ [WebSocket] Max reconnection attempts ($_maxReconnectAttempts) reached. Stopping reconnection.");
+      return;
+    }
+    
+    final delay = Duration(seconds: 3 * _reconnectAttempts); // Exponential backoff
+    debugPrint("🔄 [WebSocket] Reconnecting in ${delay.inSeconds} seconds (Attempt $_reconnectAttempts/$_maxReconnectAttempts)...");
+    
+    Future.delayed(delay, () {
+      // Check again before reconnecting
+      if (!isClosed) {
+        debugPrint("🔄 [WebSocket] Attempting reconnection...");
+        add(ConnectWebSocket(context: event.context));
+      } else {
+        debugPrint("⚠️ [WebSocket] Bloc closed during delay, skipping reconnection");
+      }
     });
   }
 
   @override
   Future<void> close() {
-    debugPrint(
-      "------------Closing Bloc and WebSocket. ------------ Dashboard Bloc",
-    );
+    debugPrint("🔴 [WebSocket] Closing Bloc and WebSocket connection");
     _heartbeatTimer?.cancel();
     _subscription?.cancel();
-    channel.sink.close();
+    try {
+      channel.sink.close();
+      debugPrint("✅ [WebSocket] Connection closed successfully");
+    } catch (e) {
+      debugPrint("⚠️ [WebSocket] Error closing connection: $e");
+    }
     return super.close();
   }
 

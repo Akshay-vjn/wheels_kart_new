@@ -209,7 +209,6 @@ import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_losing_tab.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_owned_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_winning_tab.dart';
 
 class AuctionHistoryTab extends StatefulWidget {
@@ -241,7 +240,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
     super.initState();
 
     // Initialize controllers
-    auctionTabController = TabController(length: 3, vsync: this);
+    auctionTabController = TabController(length: 2, vsync: this);
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -398,7 +397,6 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
         tabs: [
           _buildTab("WINNING", Icons.trending_up_rounded, VColors.SECONDARY, 0),
           _buildTab("LOSING", Icons.trending_down_rounded, VColors.ERROR, 1),
-          _buildTab("OWNED", Icons.emoji_events_rounded, VColors.GREENHARD, 2),
         ],
       ),
     );
@@ -475,7 +473,6 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
         children: [
           _buildTabContent(AuctionWinningTab(myId: widget.myId)),
           _buildTabContent(AuctionLosingTab(myId: widget.myId)),
-          _buildTabContent(AuctionOwnedTab(myId: widget.myId)),
         ],
       ),
     );
@@ -625,8 +622,6 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
         return VColors.SECONDARY;
       case 1:
         return VColors.ERROR;
-      case 2:
-        return VColors.GREENHARD;
       default:
         return VColors.SECONDARY;
     }

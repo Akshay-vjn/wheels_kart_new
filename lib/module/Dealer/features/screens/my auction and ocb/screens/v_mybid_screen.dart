@@ -541,7 +541,7 @@ class _VMyBidTabState extends State<VMyBidTab>
                       create: (context) => VMyAuctionControllerBloc(),
                       child: AuctionHistoryTab(myId: CURRENT_DEALER_ID),
                     ),
-                    const BoughtOcbHistoryTab(),
+                    BoughtOcbHistoryTab(myId: CURRENT_DEALER_ID),
                   ],
                 ),
               ),
@@ -585,7 +585,7 @@ class _VMyBidTabState extends State<VMyBidTab>
               ),
               Padding(
                 padding: EdgeInsetsGeometry.only(bottom: 10, top: 10),
-                child: Text('Bought (OCB)'),
+                child: Text('Bought'),
               ),
             ],
           ),

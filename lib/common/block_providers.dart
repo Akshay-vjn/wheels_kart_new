@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/documents_controller/documents_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/payment%20history%20controller/payment_history_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/account/data/controller/rsd%20controller/rsd_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/filter_auction_and_ocb/filter_acution_and_ocb_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/ocb%20controller/v_ocb_controller_bloc.dart';
@@ -102,6 +103,9 @@ blocProviders(Widget child) => MultiBlocProvider(
     ),
     BlocProvider<PaymentHistoryControllerCubit>(
       create: (_) => PaymentHistoryControllerCubit(),
+    ),
+    BlocProvider<RsdControllerCubit>(
+      create: (_) => RsdControllerCubit(),
     ),
     BlocProvider<DocumentsControllerCubit>(
       create: (_) => DocumentsControllerCubit(),

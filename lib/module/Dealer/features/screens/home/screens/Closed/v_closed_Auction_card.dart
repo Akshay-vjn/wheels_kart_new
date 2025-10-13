@@ -6,6 +6,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
@@ -16,9 +17,11 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VClosedAuctionCard extends StatefulWidget {
@@ -97,15 +100,17 @@ class _VAuctionVehicleCardState extends State<VClosedAuctionCard>
       if (difference.isNegative) {
         _endTime = "00:00:00";
       } else {
-        final hour = difference.inHours % 60;
+        // Fixed: Remove % 60 from hours to show correct total hours
+        final hour = difference.inHours;
         final min = difference.inMinutes % 60;
         final sec = difference.inSeconds % 60;
 
         // Format with leading zeros if needed
+        final hourStr = hour.toString().padLeft(2, '0');
         final minStr = min.toString().padLeft(2, '0');
         final secStr = sec.toString().padLeft(2, '0');
 
-        _endTime = "$hour:$minStr:$secStr";
+        _endTime = "$hourStr:$minStr:$secStr";
       }
 
       setState(() {});
@@ -231,19 +236,18 @@ class _VAuctionVehicleCardState extends State<VClosedAuctionCard>
                             children: [
                               _buildDetailsGrid(),
 
-                              // if (_isOpened || _isSold) ...[
-                              //   AppSpacer(heightPortion: .01),
-                              //   Row(
-                              //     mainAxisAlignment:
-                              //         MainAxisAlignment.spaceBetween,
-                              //     children: [
-                              //       _buildTimerViewChip(),
-                              //       _buildBidPriceChip(),
-                              //     ],
-                              //   ),
-                              //   AppSpacer(heightPortion: .01),
-                              // ],
-                              AppSpacer(heightPortion: .01),
+                              if (_isOpened || _isSold) ...[
+                                AppSpacer(heightPortion: .01),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildTimerViewChip(),
+                                    _buildBidPriceChip(),
+                                  ],
+                                ),
+                                AppSpacer(heightPortion: .01),
+                              ],
 
                               if (_isOpened && !_isColsed) ...[
                                 _buildBidButton(),
@@ -917,43 +921,17 @@ class _VAuctionVehicleCardState extends State<VClosedAuctionCard>
     Color color;
     String title;
 
-    switch (status) {
-      case "Open":
-        {
-          if (!_isColsed) {
-            title = "OPEN";
-            color = VColors.SUCCESS;
-            break;
-          } else {
-            title = "CLOSED";
-            color = EvAppColors.DARK_SECONDARY;
-            break;
-          }
-        }
-      case "Sold":
-        {
-          title = "SOLD";
-          color = VColors.ERROR;
-          break;
-        }
-      case "Not Started":
-        {
-          title = "NOT STARTED";
-          color = VColors.DARK_GREY;
-          break;
-        }
-      case "Cancelled":
-        {
-          title = "CANCELLED";
-          color = VColors.REDHARD;
-          break;
-        }
-      default:
-        {
-          title = "";
-          color = VColors.DARK_GREY;
-          break;
-        }
+    // For closed auction tab, prioritize showing CLOSED, SOLD, or CANCELLED
+    if (status == "Cancelled") {
+      title = "CANCELLED";
+      color = VColors.REDHARD;
+    } else if (status == "Sold" || _isSold) {
+      title = "SOLD";
+      color = VColors.ERROR;
+    } else {
+      // Default to CLOSED for items in closed auction tab
+      title = "CLOSED";
+      color = EvAppColors.DARK_SECONDARY;
     }
     // You can customize this based on vehicle status
     return Container(
@@ -1062,8 +1040,17 @@ class _VAuctionVehicleCardState extends State<VClosedAuctionCard>
   }
 
   String _getOwnerPrefix(String numberOfOwners) {
-    if (numberOfOwners.isEmpty) return '';
-    final numberOfOwner = int.parse(numberOfOwners);
+    // Handle empty or invalid strings
+    if (numberOfOwners.isEmpty || numberOfOwners == 'N/A' || numberOfOwners == 'null') {
+      return '';
+    }
+    
+    // Try to parse, return empty if not a valid number
+    final numberOfOwner = int.tryParse(numberOfOwners);
+    if (numberOfOwner == null) {
+      return '';
+    }
+    
     if (numberOfOwner == 1) {
       return "$numberOfOwners st owner";
     }

@@ -112,8 +112,17 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
   }
 
   String _getOwnerPrefix(String numberOfOwners) {
-    if (numberOfOwners.isEmpty) return '';
-    final numberOfOwner = int.parse(numberOfOwners);
+    // Handle empty or invalid strings
+    if (numberOfOwners.isEmpty || numberOfOwners == 'N/A' || numberOfOwners == 'null') {
+      return '';
+    }
+    
+    // Try to parse, return empty if not a valid number
+    final numberOfOwner = int.tryParse(numberOfOwners);
+    if (numberOfOwner == null) {
+      return '';
+    }
+    
     if (numberOfOwner == 1) {
       return "${numberOfOwners}st";
     }

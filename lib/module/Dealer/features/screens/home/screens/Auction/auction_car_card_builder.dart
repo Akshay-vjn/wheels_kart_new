@@ -103,6 +103,14 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                                                   (e) => VAuctionVehicleCard(
                                                     myId: CURRENT_DEALER_ID,
                                                     vehicle: e,
+                                                    onTimerExpired: () {
+                                                      // Remove the expired auction from the list
+                                                      context.read<VAuctionControlllerBloc>().add(
+                                                        RemoveExpiredAuction(
+                                                          inspectionId: e.inspectionId,
+                                                        ),
+                                                      );
+                                                    },
                                                   ),
                                                 )
                                                 .toList(),

@@ -25,6 +25,7 @@ class VApiConst {
   static const deleteAccount = "vendorlogin/deletevendor";
 
   static const transactionHistory = "vendorlogin/payments";
+  static const rsdHistory = "vendorlogin/rsd";
 
   static const recievedDocuments = "vendorlogin/collecteddocuments";
 
