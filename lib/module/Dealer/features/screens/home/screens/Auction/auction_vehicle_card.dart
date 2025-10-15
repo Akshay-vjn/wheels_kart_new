@@ -6,7 +6,6 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:solar_icons/solar_icons.dart';
 import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
@@ -17,11 +16,9 @@ import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/favorates/data/controller/wishlist%20controller/v_wishlist_controller_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/auctionu%20update%20controller/v_auction_update_controller_cubit.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/v%20details%20controller/v_details_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/car_details_screen.dart';
-import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/v_mybid_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 
 class VAuctionVehicleCard extends StatefulWidget {
@@ -44,13 +41,13 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  bool _isPressed = false;
   late bool _isLiked;
   bool _hasNotifiedExpired = false; // Track if we've already notified about expiration
   
   @override
   void initState() {
-    _endTime = "00:00:00";
+    // Calculate initial time immediately to prevent flicker (without setState)
+    _endTime = _calculateTimeRemaining();
 
     _isLiked = widget.vehicle.wishlisted == 1 ? true : false;
     super.initState();
@@ -61,7 +58,8 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-
+    
+    // Start periodic timer
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       getMinutesToStop();
     });
@@ -76,43 +74,28 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   }
 
   void _onTapDown(TapDownDetails details) {
-    setState(() => _isPressed = true);
     _animationController.forward();
   }
 
   void _onTapUp(TapUpDetails details) {
-    setState(() => _isPressed = false);
     _animationController.reverse();
-    // log(widget.vehicle.soldTo.toString());
-    // if ((!_isColsed || _isNotStarted) && !_isCancelled) {
     onPressCard();
-    // }
   }
 
   void _onTapCancel() {
-    setState(() => _isPressed = false);
     _animationController.reverse();
   }
 
   late String _endTime;
 
-  void getMinutesToStop() {
+  // Calculate the remaining time without calling setState
+  String _calculateTimeRemaining() {
     if (widget.vehicle.bidClosingTime != null) {
       final now = DateTime.now();
       final difference = widget.vehicle.bidClosingTime!.difference(now);
 
       if (difference.isNegative) {
-        _endTime = "00:00:00";
-        
-        // Notify parent that timer has expired (only once)
-        if (!_hasNotifiedExpired && widget.onTimerExpired != null) {
-          _hasNotifiedExpired = true;
-          log("⏰ [Auction Card] Timer expired for vehicle: ${widget.vehicle.inspectionId}");
-          // Schedule the callback to run after the current frame
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            widget.onTimerExpired?.call();
-          });
-        }
+        return "00:00:00";
       } else {
         // Fixed: Remove % 60 from hours to show correct total hours
         final hour = difference.inHours;
@@ -124,23 +107,32 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         final minStr = min.toString().padLeft(2, '0');
         final secStr = sec.toString().padLeft(2, '0');
 
-        _endTime = "$hourStr:$minStr:$secStr";
+        return "$hourStr:$minStr:$secStr";
       }
-
-      setState(() {});
     } else {
-      _endTime = "00:00:00";
-      
-      // Notify parent that timer has expired (only once)
-      if (!_hasNotifiedExpired && widget.onTimerExpired != null) {
-        _hasNotifiedExpired = true;
-        log("⏰ [Auction Card] Timer expired for vehicle: ${widget.vehicle.inspectionId}");
-        // Schedule the callback to run after the current frame
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onTimerExpired?.call();
-        });
-      }
+      return "00:00:00";
     }
+  }
+
+  void getMinutesToStop() {
+    final newTime = _calculateTimeRemaining();
+    final isExpired = newTime == "00:00:00";
+    
+    _endTime = newTime;
+
+    // Notify parent that timer has expired (only once)
+    if (isExpired && !_hasNotifiedExpired && widget.onTimerExpired != null) {
+      _hasNotifiedExpired = true;
+      log("⏰ [Auction Card] Timer expired for vehicle: ${widget.vehicle.inspectionId}");
+      // Schedule the callback to run after the current frame, but only if still mounted
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          widget.onTimerExpired?.call();
+        }
+      });
+    }
+
+    setState(() {});
   }
 
   void onPressCard() async {
@@ -197,7 +189,6 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   bool get _isCancelled => widget.vehicle.bidStatus == "Cancelled";
   // Trust the server's bidStatus - if server says "Open", show it as open with timer
   bool get _isOpened => widget.vehicle.bidStatus == "Open";
-  bool get _isNotStarted => widget.vehicle.bidStatus == "Not Started";
 
   // Trust the server's bidStatus instead of client-side timer
   // If bidStatus is "Open", it's still live even if bidClosingTime has passed
@@ -228,13 +219,13 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: VColors.REDHARD.withOpacity(0.08),
+                      color: VColors.REDHARD.withValues(alpha: 0.08),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                       spreadRadius: 0,
                     ),
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                       spreadRadius: 0,
@@ -386,7 +377,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [VColors.LIGHT_GREY.withOpacity(0.3), VColors.LIGHT_GREY],
+            colors: [VColors.LIGHT_GREY.withValues(alpha: 0.3), VColors.LIGHT_GREY],
           ),
         ),
         child: Stack(
@@ -415,7 +406,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.1)],
+                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.1)],
                 ),
               ),
             ),
@@ -436,15 +427,15 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!_isColsed) _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
-            AppSpacer(widthPortion: .02),
+            // if (!_isColsed) _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
+            // AppSpacer(widthPortion: .02),
             _buildAuctionStatus(),
           ],
         ),
         AppSpacer(heightPortion: .01),
-        Text(
-          widget.vehicle.manufacturingYear + " " + widget.vehicle.brandName,
-          style: VStyle.poppins(
+          Text(
+            "${widget.vehicle.manufacturingYear} ${widget.vehicle.brandName}",
+            style: VStyle.poppins(
             context: context,
             color: VColors.BLACK,
             size: 14,
@@ -531,7 +522,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         AppSpacer(widthPortion: .01),
         _buildEnhancedDetailChip(
           Icons.speed_rounded,
-          '${widget.vehicle.kmsDriven}',
+          widget.vehicle.kmsDriven,
           VColors.SECONDARY,
         ),
         AppSpacer(widthPortion: .01),
@@ -766,8 +757,8 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.1),
-        border: Border.all(color: statusColor.withOpacity(0.3), width: 1),
+        color: statusColor.withValues(alpha: 0.1),
+        border: Border.all(color: statusColor.withValues(alpha: 0.3), width: 1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -978,11 +969,11 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   Widget _buildFavoriteButton() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

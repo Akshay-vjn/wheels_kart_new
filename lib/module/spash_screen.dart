@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:wheels_kart/common/components/force_update_dialog.dart';
+
 import 'package:wheels_kart/common/config/pushnotification_controller.dart';
-import 'package:wheels_kart/common/services/force_update_service.dart';
-import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/auth/screens/terms_and_condion_accept_screen.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
@@ -13,7 +11,10 @@ import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const_images.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
 import 'package:wheels_kart/module/decision_screen.dart';
-import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
+import 'package:wheels_kart/common/controllers/auth cubit/auth_cubit.dart';
+
+import 'package:wheels_kart/common/components/force_update_dialog.dart';
+import 'package:wheels_kart/common/services/force_update_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -42,30 +43,40 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _initializeAnimations();
     _startAnimationSequence();
-    _checkForUpdate();
+    _handleStartupFlow();
   }
 
-  Future<void> _checkForUpdate() async {
+  // ✅ Combined update-check + login navigation
+  Future<void> _handleStartupFlow() async {
+    await Future.delayed(const Duration(milliseconds: 2500));
+
+    // ✅ Force update check
+    final updateService = ForceUpdateService.create();
+    final updateInfo = await updateService.checkForUpdate();
+
+    if (!mounted) return;
+
+    if (updateInfo.status == UpdateStatus.forceUpdateRequired) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => ForceUpdateDialog(
+          updateInfo: updateInfo,
+          onUpdate: () async {
+            await updateService.openStore(updateInfo.storeUrl);
+          },
+        ),
+      );
+      return; // block next steps
+    }
+
+    // ✅ Continue existing login flow
     try {
-      await ForceUpdateService().initialize();
-      await Future.delayed(const Duration(milliseconds: 2500));
-
-      if (!mounted) return;
-
-      final updateRequired = await ForceUpdateService().isUpdateRequired();
-      if (updateRequired) {
-        await showForceUpdateDialog(context);
-      } else {
-        if (mounted) {
-          BlocProvider.of<AppAuthController>(context)
-              .checkTheTokenValidity(context);
-        }
-      }
+      BlocProvider.of<AppAuthController>(context)
+          .checkTheTokenValidity(context);
     } catch (_) {
-      if (mounted) {
-        BlocProvider.of<AppAuthController>(context)
-            .checkTheTokenValidity(context);
-      }
+      BlocProvider.of<AppAuthController>(context)
+          .checkTheTokenValidity(context);
     }
   }
 
@@ -198,15 +209,15 @@ class _SplashScreenState extends State<SplashScreen>
           animation: _backgroundAnimation,
           builder: (context, child) {
             return Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    const Color(0xFF1A1A2E),
-                    const Color(0xFF16213E),
-                    const Color(0xFF0F3460),
-                    const Color(0xFF16213E).withOpacity(0.9),
+                    Color(0xFF1A1A2E),
+                    Color(0xFF16213E),
+                    Color(0xFF0F3460),
+                    Color(0xFF16213E),
                   ],
                 ),
               ),
@@ -307,7 +318,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              SpinKitChasingDots(color: VColors.WHITE),
+                              const SpinKitChasingDots(color: Colors.white),
                             ],
                           ),
                         );

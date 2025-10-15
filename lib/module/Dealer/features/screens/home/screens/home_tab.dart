@@ -406,7 +406,7 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
                   SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      "Auctions",
+                      "Live",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

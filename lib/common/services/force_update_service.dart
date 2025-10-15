@@ -1,104 +1,142 @@
 import 'dart:io';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart';
+import 'package:wheels_kart/common/services/remote_config_service.dart';
 
-/// Service to check if the app needs a forced update
+/// Enum for update status
+enum UpdateStatus {
+  noUpdateRequired,
+  forceUpdateRequired,
+}
+
+/// Model to hold update info
+class UpdateInfo {
+  final UpdateStatus status;
+  final String currentVersion;
+  final String minimumVersion;
+  final String message;
+  final String storeUrl;
+
+  UpdateInfo({
+    required this.status,
+    required this.currentVersion,
+    required this.minimumVersion,
+    required this.message,
+    required this.storeUrl,
+  });
+}
+
+/// Main service class
 class ForceUpdateService {
-  static final ForceUpdateService _instance = ForceUpdateService._internal();
-  factory ForceUpdateService() => _instance;
-  ForceUpdateService._internal();
+  final RemoteConfigService _remoteConfigService;
 
-  FirebaseRemoteConfig? _remoteConfig;
+  ForceUpdateService(this._remoteConfigService);
 
-  /// Initialize Firebase Remote Config
-  Future<void> initialize() async {
+  /// Factory constructor for easier usage
+  factory ForceUpdateService.create() {
+    return ForceUpdateService(RemoteConfigService());
+  }
+
+  /// Checks if a force update is required
+  Future<UpdateInfo> checkForUpdate() async {
     try {
-      _remoteConfig = FirebaseRemoteConfig.instance;
-      await _remoteConfig!.setConfigSettings(
-        RemoteConfigSettings(
-          fetchTimeout: Duration(seconds: 10),
-          minimumFetchInterval: Duration(hours: 1), // Production fetch interval
-        ),
+      // Initialize remote config if not already done
+      await _remoteConfigService.initialize();
+      
+      // Fetch latest remote config values
+      await _remoteConfigService.refresh();
+
+      // Get current app version
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version;
+
+      // Get remote config values
+      final minimumVersion = _remoteConfigService.getMinimumVersion();
+      final forceUpdateRequired = _remoteConfigService.getForceUpdateRequired();
+
+      // Get platform-specific store URL
+      final storeUrl = Platform.isAndroid
+          ? _remoteConfigService.getAndroidStoreUrl()
+          : _remoteConfigService.getIosStoreUrl();
+
+      if (kDebugMode) {
+        print('=== Force Update Check ===');
+        print('Current Version: $currentVersion');
+        print('Minimum Version: $minimumVersion');
+        print('Force Update Required: $forceUpdateRequired');
+      }
+
+      // Determine if force update is needed
+      if (forceUpdateRequired && _isVersionLower(currentVersion, minimumVersion)) {
+        if (kDebugMode) print('Result: FORCE UPDATE REQUIRED');
+        return UpdateInfo(
+          status: UpdateStatus.forceUpdateRequired,
+          currentVersion: currentVersion,
+          minimumVersion: minimumVersion,
+          message: _remoteConfigService.getUpdateMessage(),
+          storeUrl: storeUrl,
+        );
+      }
+
+      // No update required
+      if (kDebugMode) print('Result: NO UPDATE REQUIRED');
+      return UpdateInfo(
+        status: UpdateStatus.noUpdateRequired,
+        currentVersion: currentVersion,
+        minimumVersion: minimumVersion,
+        message: '',
+        storeUrl: storeUrl,
       );
-      await _remoteConfig!.setDefaults({
-        'android_min_version': '1.0.0',
-        'ios_min_version': '1.0.0',
-        'force_update_enabled': true,
-      });
-      await _remoteConfig!.fetchAndActivate();
-    } catch (_) {
-      // Fail silently in production to avoid blocking users
+    } catch (e) {
+      print('Error checking for update: $e');
+      // Return default no-update info on error
+      return UpdateInfo(
+        status: UpdateStatus.noUpdateRequired,
+        currentVersion: '1.0.0',
+        minimumVersion: '1.0.0',
+        message: '',
+        storeUrl: '',
+      );
     }
   }
 
-  /// Check if the current app version is below the minimum required version
-  Future<bool> isUpdateRequired() async {
+  /// Compare two version strings (e.g., "1.2.3" vs "1.3.0")
+  /// Returns true if current version is lower than required version
+  bool _isVersionLower(String currentVersion, String requiredVersion) {
     try {
-      if (_remoteConfig == null) {
-        await initialize();
+      final current = currentVersion.split('.').map(int.parse).toList();
+      final required = requiredVersion.split('.').map(int.parse).toList();
+
+      // Pad with zeros
+      while (current.length < required.length) {
+        current.add(0);
+      }
+      while (required.length < current.length) {
+        required.add(0);
       }
 
-      if (!(_remoteConfig?.getBool('force_update_enabled') ?? false)) {
-        return false;
+      // Compare each segment
+      for (int i = 0; i < current.length; i++) {
+        if (current[i] < required[i]) return true;
+        if (current[i] > required[i]) return false;
       }
-
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      String currentVersion = packageInfo.version;
-
-      String minVersion = Platform.isAndroid
-          ? _remoteConfig!.getString('android_min_version')
-          : Platform.isIOS
-          ? _remoteConfig!.getString('ios_min_version')
-          : '';
-
-      if (minVersion.isEmpty) return false;
-
-      return _isVersionLower(currentVersion, minVersion);
-    } catch (_) {
+      return false; // Versions are equal
+    } catch (e) {
+      print('Error comparing versions: $e');
       return false;
     }
   }
 
-  /// Compare two version strings (returns true if current < minimum)
-  bool _isVersionLower(String currentVersion, String minVersion) {
+  /// Open the store URL
+  Future<void> openStore(String storeUrl) async {
     try {
-      List<int> current =
-      currentVersion.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-      List<int> minimum =
-      minVersion.split('.').map((e) => int.tryParse(e) ?? 0).toList();
-
-      int length = current.length > minimum.length ? current.length : minimum.length;
-      while (current.length < length) current.add(0);
-      while (minimum.length < length) minimum.add(0);
-
-      for (int i = 0; i < length; i++) {
-        if (current[i] < minimum[i]) return true;
-        if (current[i] > minimum[i]) return false;
+      final uri = Uri.parse(storeUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
-
-      return false;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  /// Get the store URL based on platform
-  String getStoreUrl() {
-    if (Platform.isAndroid) {
-      return 'https://play.google.com/store/apps/details?id=com.crisant.wheelskart';
-    } else if (Platform.isIOS) {
-      return 'https://apps.apple.com/app/idYOUR_APP_ID';
-    }
-    return '';
-  }
-
-  /// Get current app version
-  Future<String> getCurrentVersion() async {
-    try {
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      return packageInfo.version;
-    } catch (_) {
-      return '0.0.0';
+    } catch (e) {
+      print('Error opening store: $e');
     }
   }
 }

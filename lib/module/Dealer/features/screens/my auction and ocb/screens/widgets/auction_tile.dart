@@ -960,10 +960,10 @@ class _AuctionTileState extends State<AuctionTile>
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              width: isSoldToMe ? 1.5 : 1,
-              color: _primaryColor.withOpacity(isSoldToMe ? 0.8 : 0.3),
-            ),
+            // border: Border.all(
+            //   width: isSoldToMe ? 1.5 : 1,
+            //   color: _primaryColor.withOpacity(isSoldToMe ? 0.8 : 0.3),
+            // ),
             // gradient: _buildCardGradient(),
           ),
           child: Column(children: [_buildMainContent(), _buildStatusSection()]),
@@ -1124,45 +1124,72 @@ class _AuctionTileState extends State<AuctionTile>
     );
   }
 
+  // Widget _buildWinnerBadge() {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  //     decoration: BoxDecoration(
+  //       color: VColors.SUCCESS.withAlpha(180),
+  //       borderRadius: BorderRadius.circular(8),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: VColors.SUCCESS.withAlpha(40),
+  //           blurRadius: 4,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Row(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         const Icon(Icons.circle, size: 6, color: Colors.white),
+  //         const SizedBox(width: 4),
+  //         Text(
+  //           "WINNER",
+  //           style: VStyle.style(
+  //             context: context,
+  //             size: 10,
+  //             color: Colors.white,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _buildWinnerBadge() {
     return AnimatedBuilder(
       animation: _shimmerAnimation,
       builder: (context, child) {
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                VColors.GREENHARD.withOpacity(0.1),
-                VColors.GREENHARD.withOpacity(0.2),
-                VColors.GREENHARD.withOpacity(0.1),
-              ],
-              stops: [
-                (_shimmerAnimation.value - 1).clamp(0.0, 1.0),
-                _shimmerAnimation.value.clamp(0.0, 1.0),
-                (_shimmerAnimation.value + 1).clamp(0.0, 1.0),
-              ],
-            ),
+            color: VColors.GREENHARD.withAlpha(180), // solid base with alpha
             borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: VColors.GREENHARD.withAlpha(40),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.military_tech, color: VColors.GREENHARD, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.military_tech, size: 16, color: Colors.white),
+              const SizedBox(width: 6),
               Flexible(
                 child: Text(
+                  "Congratulations! You won this auction!",
                   overflow: TextOverflow.ellipsis,
-
                   maxLines: 2,
-                  "🎉 Congratulations! You won this auction!",
-                  style: VStyle.style(
+                  style: VStyle.poppins(
                     context: context,
-                    color: VColors.GREENHARD,
-                    fontWeight: FontWeight.w700,
-                    size: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    size: 12,
                   ),
                 ),
               ),
@@ -1172,7 +1199,6 @@ class _AuctionTileState extends State<AuctionTile>
       },
     );
   }
-
   Widget _buildStatusSection() {
     return Container(
       decoration: BoxDecoration(

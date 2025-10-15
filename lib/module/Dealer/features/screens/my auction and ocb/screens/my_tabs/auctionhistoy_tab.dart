@@ -1,205 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:wheels_kart/common/components/app_empty_text.dart';
-// import 'package:wheels_kart/common/components/app_margin.dart';
-// import 'package:wheels_kart/common/components/app_spacer.dart';
-// import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
-// import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
-// import 'package:wheels_kart/module/Dealer/core/v_style.dart';
-
-// import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
-// import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_losing_tab.dart';
-// import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_owned_tab.dart';
-// import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_winning_tab.dart';
-
-// class AuctionHistoryTab extends StatefulWidget {
-//   final String myId;
-//   const AuctionHistoryTab({super.key, required this.myId});
-
-//   @override
-//   State<AuctionHistoryTab> createState() => _AuctionHistoryTabState();
-// }
-
-// class _AuctionHistoryTabState extends State<AuctionHistoryTab>
-//     with TickerProviderStateMixin {
-//   late TabController auctionTaContoller;
-//   late final VMyAuctionControllerBloc _auctionControllerBloc;
-//   @override
-//   void initState() {
-//     auctionTaContoller = TabController(length: 3, vsync: this);
-
-//     _auctionControllerBloc = context.read<VMyAuctionControllerBloc>();
-
-//     _auctionControllerBloc.add(ConnectWebSocket(myId: widget.myId));
-//     _auctionControllerBloc.add(OnGetMyAuctions(context: context));
-//     super.initState();
-//     auctionTaContoller.addListener(() {
-//       setState(() {
-//         currentIndex = auctionTaContoller.index;
-//       });
-//     });
-//   }
-
-//   @override
-//   void dispose() {
-//     _auctionControllerBloc.close();
-//     // TODO: implement dispose
-//     super.dispose();
-//   }
-
-//   int currentIndex = 0;
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<VMyAuctionControllerBloc, VMyAuctionControllerState>(
-//       builder: (context, state) {
-//         switch (state) {
-//           case VMyAuctionControllerSuccessState():
-//             {
-//               return DefaultTabController(
-//                 length: 3,
-//                 child: AppMargin(
-//                   child: Column(
-//                     children: [
-//                       AppSpacer(heightPortion: .01),
-//                       TabBar(
-//                         controller: auctionTaContoller,
-//                         labelStyle: VStyle.style(
-//                           context: context,
-//                           fontWeight: FontWeight.w900,
-//                           size: 12,
-//                         ),
-//                         unselectedLabelStyle: VStyle.style(
-//                           context: context,
-//                           fontWeight: FontWeight.bold,
-//                           size: 12,
-//                         ),
-//                         indicatorSize: TabBarIndicatorSize.tab,
-//                         dividerHeight: 0,
-//                         indicatorWeight: 0,
-//                         indicatorPadding: EdgeInsetsGeometry.all(4),
-//                         indicator: BoxDecoration(
-//                           boxShadow: [
-//                             BoxShadow(
-//                               color: _getTabShadoColor().withAlpha(50),
-//                               blurRadius: 10,
-//                               spreadRadius: 2,
-//                               offset: Offset(1, 1),
-//                             ),
-//                           ],
-//                           border: Border.all(
-//                             width: .5,
-//                             color: _getTabShadoColor(),
-//                           ),
-//                           color: VColors.WHITE,
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                         tabs: [
-//                           Tab(
-//                             child: Row(
-//                               mainAxisAlignment: MainAxisAlignment.center,
-//                               children: [
-//                                 Text(
-//                                   "WINNING",
-//                                   style: VStyle.style(
-//                                     context: context,
-//                                     color: VColors.SECONDARY,
-//                                   ),
-//                                 ),
-//                                 AppSpacer(widthPortion: .02),
-//                                 Icon(
-//                                   Icons.trending_up,
-//                                   size: 20,
-//                                   color: VColors.SECONDARY,
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                           Tab(
-//                             child: Row(
-//                               mainAxisAlignment: MainAxisAlignment.center,
-//                               children: [
-//                                 Text(
-//                                   "LOSING",
-//                                   style: VStyle.style(
-//                                     context: context,
-//                                     color: VColors.ERROR,
-//                                   ),
-//                                 ),
-//                                 AppSpacer(widthPortion: .02),
-//                                 Icon(
-//                                   Icons.trending_down,
-//                                   size: 20,
-//                                   color: VColors.ERROR,
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                           Tab(
-//                             child: Row(
-//                               mainAxisAlignment: MainAxisAlignment.center,
-//                               children: [
-//                                 Text(
-//                                   "OWNED",
-//                                   style: VStyle.style(
-//                                     context: context,
-//                                     color: VColors.GREENHARD,
-//                                   ),
-//                                 ),
-//                                 AppSpacer(widthPortion: .02),
-//                                 Icon(
-//                                   Icons.emoji_events,
-//                                   size: 20,
-//                                   color: VColors.GREENHARD,
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       AppSpacer(heightPortion: .01),
-//                       Expanded(
-//                         child: TabBarView(
-//                           controller: auctionTaContoller,
-//                           children: [
-//                             AuctionWinningTab(myId: widget.myId),
-//                             AuctionLosingTab(myId: widget.myId),
-//                             AuctionOwnedTab(myId: widget.myId),
-//                           ],
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               );
-//             }
-//           case VMyAuctionControllerErrorState():
-//             {
-//               return Center(child: AppEmptyText(text: state.error));
-//             }
-//           default:
-//             {
-//               return Center(child: VLoadingIndicator());
-//             }
-//         }
-//       },
-//     );
-//   }
-
-//   Color _getTabShadoColor() {
-//     switch (currentIndex) {
-//       case 0:
-//         return VColors.SECONDARY;
-//       case 1:
-//         return VColors.ERROR;
-//       case 2:
-//         return VColors.GREENHARD;
-//       default:
-//         {
-//           return VColors.SECONDARY;
-//         }
-//     }
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
@@ -210,6 +8,7 @@ import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_losing_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_winning_tab.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auction%20tabs/auction_owned_tab.dart';
 
 class AuctionHistoryTab extends StatefulWidget {
   final String myId;
@@ -240,7 +39,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
     super.initState();
 
     // Initialize controllers
-    auctionTabController = TabController(length: 2, vsync: this);
+    auctionTabController = TabController(length: 3, vsync: this); // <-- changed to 3
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -295,9 +94,6 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
       setState(() {
         currentIndex = auctionTabController.index;
       });
-
-      // Add haptic feedback
-      // HapticFeedback.selectionClick();
     }
   }
 
@@ -367,15 +163,6 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withOpacity(0.05),
-        //     blurRadius: 8,
-        //     offset: const Offset(0, 2),
-        //   ),
-        // ],
-      ),
       child: TabBar(
         controller: auctionTabController,
         indicator: BoxDecoration(
@@ -397,6 +184,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
         tabs: [
           _buildTab("WINNING", Icons.trending_up_rounded, VColors.SECONDARY, 0),
           _buildTab("LOSING", Icons.trending_down_rounded, VColors.ERROR, 1),
+          _buildTab("OWNED", Icons.emoji_events_rounded, VColors.GREENHARD, 2), // <-- OWNED tab
         ],
       ),
     );
@@ -423,9 +211,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
                   padding: EdgeInsets.all(isSelected ? 4 : 2),
                   decoration: BoxDecoration(
                     color:
-                        isSelected
-                            ? color.withOpacity(0.1)
-                            : Colors.transparent,
+                    isSelected ? color.withOpacity(0.1) : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -441,8 +227,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
                     style: VStyle.style(
                       context: context,
                       color: isSelected ? color : color.withOpacity(0.6),
-                      fontWeight:
-                          isSelected ? FontWeight.w700 : FontWeight.w600,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                       size: isSelected ? 12 : 11,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -473,6 +258,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
         children: [
           _buildTabContent(AuctionWinningTab(myId: widget.myId)),
           _buildTabContent(AuctionLosingTab(myId: widget.myId)),
+          _buildTabContent(AuctionOwnedTab(myId: widget.myId)), // <-- OWNED tab content
         ],
       ),
     );
@@ -491,7 +277,6 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Custom loading animation
           AnimatedBuilder(
             animation: _pulseAnimation,
             builder: (context, child) {
@@ -509,9 +294,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
               );
             },
           ),
-
           const SizedBox(height: 24),
-
           Text(
             'Loading Your Auctions',
             style: VStyle.style(
@@ -521,9 +304,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
               fontWeight: FontWeight.w600,
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             'Connecting to live auction data...',
             style: VStyle.style(
@@ -544,7 +325,6 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Error icon with animation
           AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
@@ -566,9 +346,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
               );
             },
           ),
-
           const SizedBox(height: 24),
-
           Text(
             'Oops! Something went wrong',
             style: VStyle.style(
@@ -578,9 +356,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
               fontWeight: FontWeight.w600,
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             error,
             style: VStyle.style(
@@ -590,10 +366,7 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
             ),
             textAlign: TextAlign.center,
           ),
-
           const SizedBox(height: 24),
-
-          // Retry button
           ElevatedButton.icon(
             onPressed: () {
               _connectToWebSocket();
@@ -622,6 +395,8 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
         return VColors.SECONDARY;
       case 1:
         return VColors.ERROR;
+      case 2:
+        return VColors.GREENHARD;
       default:
         return VColors.SECONDARY;
     }

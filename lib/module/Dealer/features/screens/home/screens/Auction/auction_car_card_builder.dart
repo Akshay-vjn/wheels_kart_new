@@ -1,10 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:wheels_kart/common/components/app_empty_text.dart';
-import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
@@ -15,7 +12,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/screens/Auction/
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 
 class VAuctionCarBuilder extends StatefulWidget {
-  VAuctionCarBuilder({super.key});
+  const VAuctionCarBuilder({super.key});
 
   @override
   State<VAuctionCarBuilder> createState() => _VAuctionCarBuilderState();
@@ -105,11 +102,15 @@ class _VAuctionCarBuilderState extends State<VAuctionCarBuilder> {
                                                     vehicle: e,
                                                     onTimerExpired: () {
                                                       // Remove the expired auction from the list
-                                                      context.read<VAuctionControlllerBloc>().add(
-                                                        RemoveExpiredAuction(
-                                                          inspectionId: e.inspectionId,
-                                                        ),
-                                                      );
+                                                      // Check if bloc is still active before adding event
+                                                      final bloc = context.read<VAuctionControlllerBloc>();
+                                                      if (!bloc.isClosed) {
+                                                        bloc.add(
+                                                          RemoveExpiredAuction(
+                                                            inspectionId: e.inspectionId,
+                                                          ),
+                                                        );
+                                                      }
                                                     },
                                                   ),
                                                 )

@@ -73,31 +73,56 @@ class FilterAcutionAndOcbCubit extends Cubit<FilterAcutionAndOcbState> {
   ];
   // final List<String> _transmission = ["Manual", "Automatic", "CVT"];
   void initWithFilterData(BuildContext context) async {
+    if (isClosed) return; // Check if cubit is still active
+    
     emit(FilterAcutionAndOcbIntializingState());
     _listOfAuctions = [];
     _listOfOCB = [];
     _city = [];
+    
+    // Fetch all data without using context across async gaps
     final autionResponse = await VAuctionData.getAuctionData(context);
+    if (isClosed) return; // Check again after async operation
+    
     final ocbResponse = await VFetchOcbListRepo.getOcbList(context);
+    if (isClosed) return;
+    
     final cityResponse = await VFetchCitiesRepo.getCityList(context);
+    if (isClosed) return;
+    
     final makeAndModelResponse =
         await FetchMakeAndModelForFilterRepo.getFetchMakeAndModel(context);
+    if (isClosed) return;
 
     if (autionResponse.isNotEmpty && autionResponse['error'] == false) {
-      final data = autionResponse['data'] as List;
-      _listOfAuctions = data.map((e) => VCarModel.fromJson(e)).toList();
+      // Handle new API format with 'live' and 'closed' keys
+      if (autionResponse.containsKey('live') && autionResponse.containsKey('closed')) {
+        final liveData = (autionResponse['live'] as List?) ?? [];
+        final closedData = (autionResponse['closed'] as List?) ?? [];
+        
+        // Combine live and closed auctions for filter data
+        final liveAuctions = liveData.map((e) => VCarModel.fromJson(e)).toList();
+        final closedAuctions = closedData.map((e) => VCarModel.fromJson(e)).toList();
+        
+        _listOfAuctions = [...liveAuctions, ...closedAuctions];
+      } 
+      // Handle old API format with 'data' key
+      else if (autionResponse.containsKey('data')) {
+        final data = (autionResponse['data'] as List?) ?? [];
+        _listOfAuctions = data.map((e) => VCarModel.fromJson(e)).toList();
+      }
     }
     if (ocbResponse.isNotEmpty && ocbResponse['error'] == false) {
-      final data = ocbResponse['data'] as List;
+      final data = (ocbResponse['data'] as List?) ?? [];
       _listOfOCB = data.map((e) => VCarModel.fromJson(e)).toList();
     }
     if (cityResponse.isNotEmpty && cityResponse['error'] == false) {
-      final data = cityResponse['data'] as List;
+      final data = (cityResponse['data'] as List?) ?? [];
       _city = data.map((e) => CityModel.fromJson(e)).toList();
     }
     if (makeAndModelResponse.isNotEmpty &&
         makeAndModelResponse['error'] == false) {
-      final data = makeAndModelResponse['data'] as List;
+      final data = (makeAndModelResponse['data'] as List?) ?? [];
       _makeAndModelList =
           data.map((e) => MakeAndModelForFilterModel.fromJson(e)).toList();
     }

@@ -17,14 +17,14 @@ class ConnectWebSocket extends VAuctionControlllerEvent {
 }
 
 class UpdatePrice extends VAuctionControlllerEvent {
-  BuildContext context;
+  final BuildContext context;
   final LiveBidModel newBid;
   UpdatePrice({required this.newBid, required this.context});
 }
 
 class OnApplyFilterAndSortInAuction extends VAuctionControlllerEvent {
   final String? sortBy;
-  Map<FilterCategory, List<dynamic>>? filterBy;
+  final Map<FilterCategory, List<dynamic>>? filterBy;
 
   OnApplyFilterAndSortInAuction({required this.sortBy, this.filterBy});
 }

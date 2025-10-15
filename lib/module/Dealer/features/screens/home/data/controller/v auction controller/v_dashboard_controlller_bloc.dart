@@ -1,18 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:math';
 
-import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/filter_auction_and_ocb/filter_acution_and_ocb_cubit.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_dashboard_repo.dart';
-import 'package:wheels_kart/module/EVALAUATOR/data/model/car_models_model.dart';
 
 part 'v_dashboard_controlller_event.dart';
 part 'v_dashboard_controlller_state.dart';
