@@ -117,7 +117,7 @@ class RsdTab extends StatelessWidget {
             ),
           ),
           title: Text(
-            'RSD Payment #${rsd.rsdId}',
+            'RSD Payment',
             style: VStyle.style(
               context: context,
               size: 16,

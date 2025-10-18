@@ -69,6 +69,7 @@ class _OcbTileState extends State<OcbTile> with SingleTickerProviderStateMixin {
           hideBidPrice: true,
           inspectionId: widget.ocb.inspectionId,
           isShowingInHistoryScreen: true,
+          isOwnedCar: true, // This will use the owned details API
         ),
       ),
     );

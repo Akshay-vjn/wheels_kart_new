@@ -36,6 +36,7 @@ class VCarDetailsScreen extends StatelessWidget {
   final String auctionType;
   final bool isShowingInHistoryScreen;
   final String paymentStatus;
+  final bool isOwnedCar;
   const VCarDetailsScreen({
     super.key,
     required this.hideBidPrice,
@@ -45,6 +46,7 @@ class VCarDetailsScreen extends StatelessWidget {
     required this.auctionType,
     this.isShowingInHistoryScreen = false,
     required this.paymentStatus,
+    this.isOwnedCar = false,
   });
 
   @override
@@ -59,6 +61,7 @@ class VCarDetailsScreen extends StatelessWidget {
         isLiked: isLiked,
         auctionType: auctionType,
         isShowingInHistoryScreen: isShowingInHistoryScreen,
+        isOwnedCar: isOwnedCar,
       ),
     );
   }
@@ -72,6 +75,7 @@ class CarDetailsScreen extends StatefulWidget {
   final String auctionType;
   final bool isShowingInHistoryScreen;
   final String paymentStatus;
+  final bool isOwnedCar;
   const CarDetailsScreen({
     super.key,
     required this.hideBidPrice,
@@ -81,6 +85,7 @@ class CarDetailsScreen extends StatefulWidget {
     required this.auctionType,
     this.isShowingInHistoryScreen = false,
     required this.paymentStatus,
+    this.isOwnedCar = false,
   });
 
   @override
@@ -88,6 +93,7 @@ class CarDetailsScreen extends StatefulWidget {
 }
 
 class _CarDetailsScreenState extends State<CarDetailsScreen> {
+  bool _isPaymentDetailsExpanded = true;
   late final VDetailsControllerBloc _detailControllerBloc;
   @override
   void initState() {
@@ -96,7 +102,11 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
 
     _detailControllerBloc = context.read<VDetailsControllerBloc>();
     _detailControllerBloc.add(
-      OnFetchDetails(context: context, inspectionId: widget.inspectionId),
+      OnFetchDetails(
+        context: context, 
+        inspectionId: widget.inspectionId,
+        isOwnedCar: widget.isOwnedCar,
+      ),
     );
     _detailControllerBloc.add(ConnectWebSocket());
     super.initState();
@@ -344,6 +354,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 ),
                               ],
                             ),
+                            
                             Column(
                               children:
                                   detail.sections.asMap().entries.map((map) {
@@ -450,6 +461,10 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                     );
                                   }).toList(),
                             ),
+                            
+                            // Payment Details Section
+                            _buildPaymentDetailsCard(detail),
+                            
                             AppSpacer(heightPortion: .03),
                           ]),
                         ),
@@ -1090,6 +1105,279 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
         },
       ),
     );
+  }
+
+
+  Widget _buildPaymentDetailsCard(VCarDetailModel detail) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+      padding: EdgeInsets.all(10),
+      width: w(context),
+      decoration: BoxDecoration(
+        color: VColors.WHITE,
+        boxShadow: [
+          BoxShadow(
+            color: VColors.DARK_GREY.withAlpha(50),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(AppDimensions.radiusSize10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Payment Details",
+                style: VStyle.style(
+                  context: context,
+                  fontWeight: FontWeight.bold,
+                  color: VColors.GREENHARD,
+                  size: AppDimensions.fontSize18(context),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _isPaymentDetailsExpanded = !_isPaymentDetailsExpanded;
+                  });
+                },
+                child: Icon(
+                  _isPaymentDetailsExpanded
+                      ? SolarIconsOutline.roundAltArrowUp
+                      : SolarIconsOutline.roundAltArrowDown,
+                  color: VColors.GREENHARD,
+                ),
+              ),
+            ],
+          ),
+          _isPaymentDetailsExpanded
+              ? AppSpacer(heightPortion: .015)
+              : SizedBox.shrink(),
+          _isPaymentDetailsExpanded
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: detail.paymentDetails.isNotEmpty
+                      ? detail.paymentDetails.map((payment) => _buildPaymentDetailCard(payment)).toList()
+                      : [
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: VColors.LIGHT_GREY.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: VColors.DARK_GREY.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.info_outline, color: VColors.DARK_GREY, size: 20),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    "No payment details available for this vehicle",
+                                    style: VStyle.style(
+                                      context: context,
+                                      color: VColors.DARK_GREY,
+                                      size: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                )
+              : SizedBox.shrink(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentDetailCard(PaymentDetail payment) {
+    final Color statusColor = _getPaymentStatusColor(payment.paymentType);
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: VColors.DARK_GREY.withAlpha(120),
+          width: 0.5,
+        ),
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.grey.withOpacity(0.05),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with date
+          Row(
+            children: [
+              const Icon(
+                CupertinoIcons.calendar,
+                size: 14,
+                color: VColors.DARK_GREY,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                payment.createdAt?.date ?? 'N/A',
+                style: VStyle.style(
+                  color: VColors.DARK_GREY,
+                  context: context,
+                  size: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Row 1: Payment Mode | Payment Type
+          Row(
+            children: [
+              Flexible(
+                child: _buildPaymentDetailItem(
+                  context,
+                  "Payment Mode",
+                  payment.paymentMode ?? 'N/A',
+                  CupertinoIcons.creditcard,
+                  dataColor: VColors.DARK_GREY,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: _buildPaymentDetailItem(
+                  context,
+                  "Payment Type",
+                  payment.paymentType ?? 'N/A',
+                  CupertinoIcons.creditcard,
+                  dataColor: statusColor,
+                ),
+              ),
+            ],
+          ),
+          // Row 2: Paid Amount (full width)
+          const SizedBox(height: 8),
+          _buildPaymentDetailItem(
+            context,
+            "Paid Amount",
+            "₹${payment.paidAmount ?? 'N/A'}",
+            CupertinoIcons.checkmark_circle,
+            dataColor: VColors.SUCCESS,
+          ),
+          // Row 3: Balance Amount (full width)
+          if (payment.balanceAmount != null) ...[
+            const SizedBox(height: 8),
+            _buildPaymentDetailItem(
+              context,
+              "Balance Amount",
+              "₹${payment.balanceAmount}",
+              CupertinoIcons.clock,
+              dataColor: Colors.orange,
+            ),
+          ],
+          // Row 4: Transaction ID (full width)
+          if (payment.transactionId != null) ...[
+            const SizedBox(height: 8),
+            _buildPaymentDetailItem(
+              context,
+              "Transaction ID",
+              payment.transactionId!,
+              CupertinoIcons.barcode,
+              dataColor: VColors.DARK_GREY,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Build payment detail item
+  Widget _buildPaymentDetailItem(
+    BuildContext context,
+    String title,
+    String data,
+    IconData icon, {
+    Color? dataColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: (dataColor ?? VColors.DARK_GREY).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: dataColor ?? VColors.DARK_GREY,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: VStyle.style(
+                    context: context,
+                    fontWeight: FontWeight.w500,
+                    size: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  data,
+                  style: VStyle.style(
+                    context: context,
+                    fontWeight: FontWeight.w600,
+                    size: 14,
+                    color: dataColor ?? VColors.DARK_GREY,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getPaymentStatusColor(String? paymentType) {
+    switch (paymentType?.toLowerCase()) {
+      case 'advance':
+        return VColors.GREENHARD;
+      case 'full':
+      case 'completed':
+      case 'success':
+      case 'paid':
+        return VColors.GREENHARD;
+      case 'pending':
+        return Colors.orange;
+      case 'failed':
+      case 'cancelled':
+        return VColors.ERROR;
+      default:
+        return VColors.DARK_GREY;
+    }
   }
 
   Widget _buildQuestionAndAnswerTile(

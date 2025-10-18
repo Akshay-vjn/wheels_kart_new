@@ -36,7 +36,7 @@ class ForceUpdateDialog extends StatelessWidget {
                 ),
                 child: const Icon(
                   Icons.system_update_outlined,
-                  color: Color(0xFF1B34AF),
+                  color: Color(0xFF122864),
                   size: 32,
                 ),
               ),
@@ -70,7 +70,7 @@ class ForceUpdateDialog extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onUpdate,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3858EF),
+                    backgroundColor: const Color(0xFF0A6FE7),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(

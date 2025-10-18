@@ -6,8 +6,13 @@ sealed class VDetailsControllerEvent {}
 class OnFetchDetails extends VDetailsControllerEvent {
   final String inspectionId;
   final BuildContext context;
+  final bool isOwnedCar;
 
-  OnFetchDetails({required this.inspectionId, required this.context});
+  OnFetchDetails({
+    required this.inspectionId, 
+    required this.context,
+    this.isOwnedCar = false,
+  });
 }
 
 class OnChangeImageIndex extends VDetailsControllerEvent {

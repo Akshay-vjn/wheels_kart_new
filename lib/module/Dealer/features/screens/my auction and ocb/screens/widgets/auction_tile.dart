@@ -998,13 +998,14 @@ class _AuctionTileState extends State<AuctionTile>
     Navigator.of(context).push(
       AppRoutes.createRoute(
         VCarDetailsScreen(
-          paymentStatus: "N/A",
+          paymentStatus: widget.auction.paymentStatus ?? "N/A",
           isLiked: false,
           auctionType: "AUCTION",
           frontImage: widget.auction.frontImage,
           hideBidPrice: true,
           inspectionId: widget.auction.inspectionId,
           isShowingInHistoryScreen: true,
+          isOwnedCar: true, // This will use the owned details API
         ),
       ),
     );
@@ -1025,7 +1026,14 @@ class _AuctionTileState extends State<AuctionTile>
               Expanded(flex: 3, child: _buildDetailsSection()),
             ],
           ),
-          if (isSoldToMe) ...[const SizedBox(height: 12), _buildWinnerBadge()],
+          if (isSoldToMe) ...[
+            const SizedBox(height: 12), 
+            _buildWinnerBadge(),
+            if (widget.auction.paymentStatus != null && widget.auction.paymentStatus!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _buildPaymentStatusBadge(),
+            ],
+          ],
         ],
       ),
     );
@@ -1199,6 +1207,95 @@ class _AuctionTileState extends State<AuctionTile>
       },
     );
   }
+
+  Widget _buildPaymentStatusBadge() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: _getPaymentStatusColor().withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _getPaymentStatusColor().withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _getPaymentStatusIcon(),
+            size: 16,
+            color: _getPaymentStatusColor(),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              _getPaymentStatusText(),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              style: VStyle.poppins(
+                context: context,
+                color: _getPaymentStatusColor(),
+                fontWeight: FontWeight.w600,
+                size: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getPaymentStatusColor() {
+    switch (widget.auction.paymentStatus?.toLowerCase()) {
+      case 'completed':
+      case 'success':
+      case 'paid':
+        return VColors.GREENHARD;
+      case 'pending':
+        return Colors.orange;
+      case 'failed':
+      case 'cancelled':
+        return VColors.ERROR;
+      default:
+        return VColors.DARK_GREY;
+    }
+  }
+
+  IconData _getPaymentStatusIcon() {
+    switch (widget.auction.paymentStatus?.toLowerCase()) {
+      case 'completed':
+      case 'success':
+      case 'paid':
+        return Icons.check_circle;
+      case 'pending':
+        return Icons.schedule;
+      case 'failed':
+      case 'cancelled':
+        return Icons.error;
+      default:
+        return Icons.payment;
+    }
+  }
+
+  String _getPaymentStatusText() {
+    switch (widget.auction.paymentStatus?.toLowerCase()) {
+      case 'completed':
+      case 'success':
+      case 'paid':
+        return 'Payment Completed';
+      case 'pending':
+        return 'Payment Pending';
+      case 'failed':
+        return 'Payment Failed';
+      case 'cancelled':
+        return 'Payment Cancelled';
+      default:
+        return 'Payment Status: ${widget.auction.paymentStatus ?? 'N/A'}';
+    }
+  }
+
   Widget _buildStatusSection() {
     return Container(
       decoration: BoxDecoration(

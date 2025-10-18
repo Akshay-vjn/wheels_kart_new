@@ -15,6 +15,7 @@ class VMyAuctionModel {
   String? bidStatus;
   String? soldTo;
   String? soldName;
+  String? paymentStatus;
   List<YourBid> yourBids;
 
   VMyAuctionModel({
@@ -34,6 +35,7 @@ class VMyAuctionModel {
     required this.bidStatus,
     required this.soldTo,
     required this.soldName,
+    required this.paymentStatus,
     required this.yourBids,
   });
 
@@ -56,6 +58,7 @@ class VMyAuctionModel {
         bidStatus: json["bidStatus"] ?? '',
         soldTo: json["soldTo"] ?? '',
         soldName: json["soldName"] ?? '',
+        paymentStatus: json["paymentStatus"] ?? '',
         yourBids: List<YourBid>.from(
           json["yourBids"].map((x) => YourBid.fromJson(x)),
         ),
@@ -78,6 +81,7 @@ class VMyAuctionModel {
     "bidStatus": bidStatus,
     "soldTo": soldTo,
     "soldName": soldName,
+    "paymentStatus": paymentStatus,
     "yourBids": List<dynamic>.from(yourBids.map((x) => x.toJson())),
   };
 }

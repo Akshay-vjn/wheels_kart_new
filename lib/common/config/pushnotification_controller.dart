@@ -151,10 +151,20 @@ class PushNotificationConfig {
     if (imageUrl != null && imageUrl.isNotEmpty && Platform.isIOS) {
       localImagePath = await _downloadToFile(imageUrl, 'push_image.jpg');
     }
+    // if (imageUrl != null && imageUrl.isNotEmpty) {
+    //   localImagePath = await _downloadToFile(imageUrl, 'push_image.jpg');
+    // }
     if (notification != null) {
+      // _showNotification(
+      //   id: notification.hashCode,
+      //   title: notification.title,
+      //   body: notification.body,
+      //   payload: jsonEncode(message.data),
+      //   iosImagePath: localImagePath,
+      //   androidImagePath: localImagePath, // ✅ Pass local path for Android too
+      // );
       _showNotification(
         id: notification.hashCode,
-
         title: notification.title,
         body: notification.body,
         payload: jsonEncode(message.data),
@@ -163,7 +173,14 @@ class PushNotificationConfig {
       );
     }
   }
-
+  // Future<void> _showNotification({
+  //   int id = 0,
+  //   String? title,
+  //   String? body,
+  //   String? payload,
+  //   String? iosImagePath,
+  //   String? androidImagePath, // ✅ Now expects local file path
+  // }) async {
   Future<void> _showNotification({
     int id = 0,
     String? title,
@@ -202,6 +219,22 @@ class PushNotificationConfig {
                   : null,
           // sound: RawResourceAndroidNotificationSound('notification_sound')
         ),
+        // android: AndroidNotificationDetails(
+        //   _androidChannel.id,
+        //   _androidChannel.name,
+        //   icon: '@mipmap/ic_launcher',
+        //   importance: Importance.max,
+        //   priority: Priority.high,
+        //   styleInformation:
+        //   (localImagePath != null && localImagePath.isNotEmpty)
+        //       ? BigPictureStyleInformation(
+        //     FilePathAndroidBitmap(localImagePath), // ✅ Now uses local file path
+        //     contentTitle: title,
+        //     summaryText: body,
+        //   )
+        //       : null,
+        // ),
+
       ),
       payload: payload,
     );

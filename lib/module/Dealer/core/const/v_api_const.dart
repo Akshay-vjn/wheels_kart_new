@@ -11,6 +11,7 @@ class VApiConst {
   static const ocbData = "vendorlogin/ocb";
 
   static const details = "vendorlogin/details";
+  static const ownedDetails = "vendorlogin/owndetails";
   static const profile = "vendorlogin/profile";
   static const editProfile = "vendorlogin/editprofile";
   static const addOrRemoveFromWisglist = "vendorlogin/wishlist";

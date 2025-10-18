@@ -9,6 +9,7 @@ import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_detail_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_car_detail_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_fetch_owned_car_detail_repo.dart';
 part 'v_details_controller_event.dart';
 part 'v_details_controller_state.dart';
 
@@ -22,18 +23,38 @@ class VDetailsControllerBloc
     on<OnFetchDetails>((event, emit) async {
       emit(VDetailsControllerLoadingState());
 
-      final response = await VFetchCarDetailRepo.onGetCarDetails(
-        event.context,
-        // "55"
-        event.inspectionId,
-      );
+      final response = event.isOwnedCar
+          ? await VFetchOwnedCarDetailRepo.onGetOwnedCarDetails(
+              event.context,
+              event.inspectionId,
+            )
+          : await VFetchCarDetailRepo.onGetCarDetails(
+              event.context,
+              event.inspectionId,
+            );
 
       if (response.isNotEmpty) {
         if (response['error'] == false) {
           final data = response['data'] as Map;
-          final mainData = VCarDetailModel.fromJson(
-            data as Map<String, dynamic>,
-          );
+          
+          // Debug: Print the actual API response structure (can be removed in production)
+          // print("=== OWNED DETAILS API RESPONSE DEBUG ===");
+          // print("Response keys: ${data.keys.toList()}");
+          // print("Has paymentDetails: ${data.containsKey('paymentDetails')}");
+          // print("PaymentDetails type: ${data['paymentDetails'].runtimeType}");
+          // print("PaymentDetails value: ${data['paymentDetails']}");
+          // print("=== END OWNED DETAILS API DEBUG ===");
+          
+          VCarDetailModel mainData;
+          try {
+            mainData = VCarDetailModel.fromJson(
+              data as Map<String, dynamic>,
+            );
+          } catch (e) {
+            print("Error parsing VCarDetailModel: $e");
+            print("Data that caused error: $data");
+            rethrow;
+          }
 
           mainData.sections.forEach((section) {
             section.entries.sort((a, b) {
@@ -52,6 +73,8 @@ class VDetailsControllerBloc
           final datas = mainData;
           List<bool> enalbes = [true, false];
           final bools = datas.sections.map((e) => false).toList();
+          // Add payment details card (index 999) - starts collapsed
+          bools.add(false);
           emit(
             VDetailsControllerSuccessState(
               enables: [...enalbes, ...bools],

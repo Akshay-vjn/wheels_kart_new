@@ -8,43 +8,26 @@ import 'package:http/http.dart';
 import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 
-class VFetchCarDetailRepo {
-  static Future<Map<String, dynamic>> onGetCarDetails(
-      BuildContext context,
-      String inspectionId,
-      ) async {
+class VFetchOwnedCarDetailRepo {
+  static Future<Map<String, dynamic>> onGetOwnedCarDetails(
+    BuildContext context,
+    String inspectionId,
+  ) async {
     final state = context.read<AppAuthController>().state;
     if (state is AuthCubitAuthenticateState) {
       try {
-        final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.details}');
-
-        print("🔍 Fetching inspection ID: $inspectionId");
+        final url = Uri.parse('${VApiConst.baseUrl}${VApiConst.ownedDetails}');
 
         Response response = await http.post(
           url,
           body: {"inspectionId": inspectionId},
           headers: {
+            // 'Content-Type': 'application/json',
             'Authorization': state.userModel.token!,
           },
         );
 
         final decodedata = jsonDecode(response.body);
-
-        // FRESH DEBUG
-        print("\n🚀 === API RESPONSE FOR ID: $inspectionId ===");
-        if (decodedata.containsKey('data')) {
-          final data = decodedata['data'];
-          print("✅ Data keys: ${data.keys.toList()}");
-          print("🔑 Has paymentDetails: ${data.containsKey('paymentDetails')}");
-
-          if (data.containsKey('paymentDetails')) {
-            print("💰 PaymentDetails found!");
-            print("📄 Payment data: ${data['paymentDetails']}");
-          } else {
-            print("❌ NO paymentDetails in response");
-          }
-        }
-        print("=== END API RESPONSE ===\n");
 
         if (decodedata['status'] == 200) {
           return {
@@ -59,7 +42,7 @@ class VFetchCarDetailRepo {
           };
         }
       } catch (e) {
-        log('repo - catch error - Dealer - DASHBOARD => ${e.toString()}F');
+        log('repo - catch error - Dealer - OWNED DETAILS => ${e.toString()}');
         return {};
       }
     } else {

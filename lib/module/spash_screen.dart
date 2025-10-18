@@ -46,11 +46,11 @@ class _SplashScreenState extends State<SplashScreen>
     _handleStartupFlow();
   }
 
-  // ✅ Combined update-check + login navigation
+  // Combined update-check + login navigation
   Future<void> _handleStartupFlow() async {
     await Future.delayed(const Duration(milliseconds: 2500));
 
-    // ✅ Force update check
+    //  Force update check
     final updateService = ForceUpdateService.create();
     final updateInfo = await updateService.checkForUpdate();
 
@@ -70,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen>
       return; // block next steps
     }
 
-    // ✅ Continue existing login flow
+    //  Continue existing login flow
     try {
       BlocProvider.of<AppAuthController>(context)
           .checkTheTokenValidity(context);

@@ -4,6 +4,7 @@ class VCarDetailModel {
   List<Section> sections;
   final List<String> vendorIds;
   final List<CarVideos> carVideos;
+  final List<PaymentDetail> paymentDetails;
 
   VCarDetailModel({
     required this.carDetails,
@@ -11,21 +12,31 @@ class VCarDetailModel {
     required this.sections,
     required this.vendorIds,
     required this.carVideos,
+    required this.paymentDetails,
   });
 
   factory VCarDetailModel.fromJson(Map<String, dynamic> json) =>
       VCarDetailModel(
-        carVideos: List<CarVideos>.from(
-          json["videos"].map((x) => CarVideos.fromJson(x)),
-        ),
+        carVideos: json["videos"] != null 
+            ? List<CarVideos>.from(
+                json["videos"].map((x) => CarVideos.fromJson(x)),
+              )
+            : [],
         carDetails: CarDetails.fromJson(json["carDetails"]),
-        images: List<CarImage>.from(
-          json["images"].map((x) => CarImage.fromJson(x)),
-        ),
-        sections: List<Section>.from(
-          json["sections"].map((x) => Section.fromJson(x)),
-        ),
-        vendorIds: List<String>.from(json["vendorIds"].map((x) => x)),
+        images: json["images"] != null 
+            ? List<CarImage>.from(
+                json["images"].map((x) => CarImage.fromJson(x)),
+              )
+            : [],
+        sections: json["sections"] != null 
+            ? List<Section>.from(
+                json["sections"].map((x) => Section.fromJson(x)),
+              )
+            : [],
+        vendorIds: json["vendorIds"] != null 
+            ? List<String>.from(json["vendorIds"].map((x) => x))
+            : [],
+        paymentDetails: _parsePaymentDetails(json["paymentDetails"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -34,7 +45,28 @@ class VCarDetailModel {
     "images": List<dynamic>.from(images.map((x) => x.toJson())),
     "sections": List<dynamic>.from(sections.map((x) => x.toJson())),
     "vendorIds": List<dynamic>.from(vendorIds.map((x) => x)),
+    "paymentDetails": List<dynamic>.from(paymentDetails.map((x) => x.toJson())),
   };
+
+  static List<PaymentDetail> _parsePaymentDetails(dynamic paymentData) {
+    if (paymentData == null) return [];
+    
+    try {
+      if (paymentData is List) {
+        return List<PaymentDetail>.from(
+          paymentData.map((x) => PaymentDetail.fromJson(x)),
+        );
+      } else if (paymentData is Map<String, dynamic>) {
+        return [PaymentDetail.fromJson(paymentData)];
+      } else {
+        print("Warning: paymentDetails is neither List nor Map: ${paymentData.runtimeType}");
+        return [];
+      }
+    } catch (e) {
+      print("Error parsing paymentDetails: $e");
+      return [];
+    }
+  }
 }
 
 class CarDetails {
@@ -220,6 +252,76 @@ class Entry {
     "answer": answer,
     "comment": comment,
     "responseImages": List<dynamic>.from(responseImages.map((x) => x)),
+  };
+}
+
+class PaymentDetail {
+  final String? paymentId;
+  final String? paymentType;
+  final String? paidAmount;
+  final String? balanceAmount;
+  final String? transactionId;
+  final String? paymentMode;
+  final PaymentDate? createdAt;
+
+  PaymentDetail({
+    this.paymentId,
+    this.paymentType,
+    this.paidAmount,
+    this.balanceAmount,
+    this.transactionId,
+    this.paymentMode,
+    this.createdAt,
+  });
+
+  factory PaymentDetail.fromJson(Map<String, dynamic> json) {
+    return PaymentDetail(
+      paymentId: json["paymentId"]?.toString(),
+      paymentType: json["paymentType"],
+      paidAmount: json["paidAmount"]?.toString(),
+      balanceAmount: json["balanceAmount"]?.toString(),
+      transactionId: json["transactionId"]?.toString(),
+      paymentMode: json["paymentMode"],
+      createdAt: json["created_at"] != null 
+          ? PaymentDate.fromJson(json["created_at"])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "paymentId": paymentId,
+    "paymentType": paymentType,
+    "paidAmount": paidAmount,
+    "balanceAmount": balanceAmount,
+    "transactionId": transactionId,
+    "paymentMode": paymentMode,
+    "created_at": createdAt?.toJson(),
+  };
+}
+
+class PaymentDate {
+  final String? date;
+  final int? timezoneType;
+  final String? timezone;
+
+  PaymentDate({
+    this.date,
+    this.timezoneType,
+    this.timezone,
+  });
+
+  factory PaymentDate.fromJson(Map<String, dynamic> json) {
+    return PaymentDate(
+      date: json["date"],
+      timezoneType: json["timezone_type"],
+      timezone: json["timezone"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "date": date,
+    "timezone_type": timezoneType,
+    "timezone": timezone,
   };
 }
 
