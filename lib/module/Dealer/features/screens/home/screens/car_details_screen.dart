@@ -266,7 +266,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   {
                                     "title": "Reg number",
                                     "content":
-                                        "******${detail.carDetails.registrationNumber.substring(0, 4)}",
+                                        "${detail.carDetails.registrationNumber.substring(0, 4)}******",
                                   },
                                 ]),
                               ],

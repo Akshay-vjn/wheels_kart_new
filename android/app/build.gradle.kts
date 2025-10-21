@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.wheels_kart"
-    compileSdk = 36   // ✅ Updated from 33 → 36
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -32,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId = "com.crisant.wheelskart"
-        minSdk = flutter.minSdkVersion             // ✅ Safe minimum for Firebase & Flutter
-        targetSdk = 36          // ✅ Updated from 33 → 36
+        minSdk = flutter.minSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

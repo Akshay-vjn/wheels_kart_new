@@ -72,34 +72,6 @@ class PaymentsTab extends StatelessWidget {
               collapsedShape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              leading: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      VColors.SUCCESS,
-                      VColors.SUCCESS.withOpacity(0.7),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: VColors.SUCCESS.withOpacity(0.3),
-                      spreadRadius: 0,
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  CupertinoIcons.money_dollar_circle,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
               title: Text(
                 payment.inspection,
                 style: VStyle.style(
@@ -170,7 +142,7 @@ class PaymentsTab extends StatelessWidget {
                   context,
                   "Paid Amount",
                   "₹${payment.paidAmount}",
-                  CupertinoIcons.money_dollar,
+                  Icons.currency_rupee,
                   dataColor: VColors.SUCCESS,
                 ),
                 if (payment.balanceAmount.isNotEmpty) ...[

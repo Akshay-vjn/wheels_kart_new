@@ -88,34 +88,6 @@ class RsdTab extends StatelessWidget {
           collapsedShape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          leading: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  statusColor,
-                  statusColor.withOpacity(0.7),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: statusColor.withOpacity(0.3),
-                  spreadRadius: 0,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Icon(
-              CupertinoIcons.shield_lefthalf_fill,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
           title: Text(
             'RSD Payment',
             style: VStyle.style(
@@ -164,7 +136,7 @@ class RsdTab extends StatelessWidget {
                     context,
                     "RSD Amount",
                     rsd.formattedAmount,
-                    CupertinoIcons.money_dollar,
+                    Icons.currency_rupee,
                     dataColor: VColors.SUCCESS,
                   ),
                 ),

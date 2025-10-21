@@ -669,9 +669,9 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
               isOptional = false;
             } else if (question.picture == 'Required Optional') {
               if (isSelectedInValid) {
-                isOptional = true;
+                isOptional = false; // NOT OK: Images mandatory
               } else {
-                isOptional = false;
+                isOptional = true;  // OK: Images optional (as before)
               }
             }
           }
@@ -1175,9 +1175,9 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           isImageOptioanl = false;
         } else if (question.picture == 'Required Optional') {
           if (isSelectedInValid) {
-            isImageOptioanl = true;
+            isImageOptioanl = false; // NOT OK: Images mandatory
           } else {
-            isImageOptioanl = false;
+            isImageOptioanl = true;  // OK: Images optional (as before)
           }
         }
       }
