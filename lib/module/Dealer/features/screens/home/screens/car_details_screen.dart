@@ -462,8 +462,13 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   }).toList(),
                             ),
                             
-                            // Payment Details Section
-                            _buildPaymentDetailsCard(detail),
+                            // Remarks Section - Show if remarks are available
+                            // Debug: Always show remarks card for testing
+                            _buildRemarksCard(detail.carDetails.remarks),
+                            
+                            // Payment Details Section - Show ONLY in bought tab (OCB with isOwnedCar: true)
+                            if (widget.auctionType == "OCB" && widget.isOwnedCar)
+                              _buildPaymentDetailsCard(detail),
                             
                             AppSpacer(heightPortion: .03),
                           ]),
@@ -627,11 +632,12 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                   currentState
                                                       .detail
                                                       .carDetails;
-                                              OcbPurchaceControlleCubit.showBuySheet(
-                                                context,
-                                                details.currentBid ?? '0',
-                                                widget.inspectionId,
-                                                "DETAILS",
+                                              OcbPurchaceControlleCubit.showDiologueForOcbPurchase(
+                                                paymentStatus: widget.paymentStatus,
+                                                from: "DETAILS",
+                                                context: context,
+                                                inspectionId: widget.inspectionId,
+                                                currentBid: details.currentBid ?? '0',
                                               );
                                             }
                                           },
@@ -1681,6 +1687,82 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRemarksCard(String remarks) {
+    // Debug: Log the remarks value
+    log('Remarks value: "$remarks"');
+    log('Remarks isEmpty: ${remarks.isEmpty}');
+    
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+      decoration: BoxDecoration(
+        color: VColors.WHITE,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: VColors.DARK_GREY.withOpacity(0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            offset: Offset(0, 2),
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(
+                  CupertinoIcons.doc_text,
+                  color: VColors.GREENHARD,
+                  size: 20,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  "Remarks",
+                  style: VStyle.style(
+                    context: context,
+                    fontWeight: FontWeight.bold,
+                    size: 16,
+                    color: VColors.BLACK,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: VColors.LIGHT_GREY.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: VColors.DARK_GREY.withOpacity(0.1),
+                  width: 0.5,
+                ),
+              ),
+              child: Text(
+                remarks.isEmpty ? "No remarks available" : remarks,
+                style: VStyle.style(
+                  context: context,
+                  size: 14,
+                  color: VColors.DARK_GREY,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
         ],

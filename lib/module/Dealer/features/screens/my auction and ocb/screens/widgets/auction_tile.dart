@@ -1005,7 +1005,7 @@ class _AuctionTileState extends State<AuctionTile>
           hideBidPrice: true,
           inspectionId: widget.auction.inspectionId,
           isShowingInHistoryScreen: true,
-          isOwnedCar: true, // This will use the owned details API
+          isOwnedCar: false, // Revert to basic car details API
         ),
       ),
     );

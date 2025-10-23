@@ -2,6 +2,7 @@ import 'package:wheels_kart/module/EVALAUATOR/data/model/created_at_model.dart';
 
 class VProfileModel {
     String vendorId;
+    String bidderId;
     String vendorName;
     String vendorMobileNumber;
     String vendorEmail;
@@ -12,6 +13,7 @@ class VProfileModel {
 
     VProfileModel({
         required this.vendorId,
+        required this.bidderId,
         required this.vendorName,
         required this.vendorMobileNumber,
         required this.vendorEmail,
@@ -22,18 +24,20 @@ class VProfileModel {
     });
 
     factory VProfileModel.fromJson(Map<String, dynamic> json) => VProfileModel(
-        vendorId: json["vendorId"],
-        vendorName: json["vendorName"],
-        vendorMobileNumber: json["vendorMobileNumber"],
-        vendorEmail: json["vendorEmail"],
-        vendorCity: json["vendorCity"],
-        vendorStatus: json["vendorStatus"],
+        vendorId: json["vendorId"] ?? '',
+        bidderId: json["bidderId"] ?? '',
+        vendorName: json["vendorName"] ?? '',
+        vendorMobileNumber: json["vendorMobileNumber"] ?? '',
+        vendorEmail: json["vendorEmail"] ?? '',
+        vendorCity: json["vendorCity"] ?? '',
+        vendorStatus: json["vendorStatus"] ?? '',
         createdAt: CreatedAt.fromJson(json["created_at"]),
         modifiedAt: DateTime.parse(json["modified_at"]),
     );
 
     Map<String, dynamic> toJson() => {
         "vendorId": vendorId,
+        "bidderId": bidderId,
         "vendorName": vendorName,
         "vendorMobileNumber": vendorMobileNumber,
         "vendorEmail": vendorEmail,

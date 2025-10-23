@@ -11,6 +11,7 @@ import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/fil
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/inspection_start_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20car%20make/fetch_car_make_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/update%20remarks/update_remarks_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/master/fetch_the_instruction_repo.dart';
 
@@ -582,9 +583,12 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
         } else if (snapshot['error'] == false) {
           Navigator.of(context).push(
             AppRoutes.createRoute(
-              InspectionStartScreen(
-                inspectionId: inspectionModel.inspectionId,
-                instructionData: snapshot['data'][0]['instructions'],
+              BlocProvider(
+                create: (context) => UpdateRemarksCubit(),
+                child: InspectionStartScreen(
+                  inspectionId: inspectionModel.inspectionId,
+                  instructionData: snapshot['data'][0]['instructions'],
+                ),
               ),
             ),
           );
@@ -593,9 +597,12 @@ class _EvLiveLeadsTabState extends State<EvLiveLeadsTab>
         Navigator.of(context).pop(); // Close loading dialog
         Navigator.of(context).push(
           AppRoutes.createRoute(
-            InspectionStartScreen(
-              instructionData: null,
-              inspectionId: inspectionModel.inspectionId,
+            BlocProvider(
+              create: (context) => UpdateRemarksCubit(),
+              child: InspectionStartScreen(
+                instructionData: null,
+                inspectionId: inspectionModel.inspectionId,
+              ),
             ),
           ),
         );

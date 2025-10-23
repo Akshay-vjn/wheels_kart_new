@@ -523,11 +523,12 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
         ? SizedBox.shrink()
         : InkWell(
           onTap: () {
-            OcbPurchaceControlleCubit.showBuySheet(
-              context,
-              widget.vehicle.currentBid ?? '',
-              widget.vehicle.inspectionId,
-              "OCB",
+            OcbPurchaceControlleCubit.showDiologueForOcbPurchase(
+              paymentStatus: widget.vehicle.paymentStatus,
+              from: "OCB",
+              context: context,
+              inspectionId: widget.vehicle.inspectionId,
+              currentBid: widget.vehicle.currentBid ?? '',
             );
           },
           child: Container(

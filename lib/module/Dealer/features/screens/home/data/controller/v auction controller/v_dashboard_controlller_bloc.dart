@@ -319,8 +319,13 @@ class VAuctionControlllerBloc
   }
 
   Timer? _heartbeatTimer;
+  Timer? _pongTimeoutTimer;
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 5;
+  bool _isPongReceived = true;
+  DateTime? _lastPingTime;
+  static const int _pingInterval = 30; // seconds
+  static const int _pongTimeout = 10; // seconds
 
   void _connectWebSocket(
     ConnectWebSocket event,
@@ -331,24 +336,8 @@ class VAuctionControlllerBloc
       channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
       debugPrint("✅ [WebSocket] Connection initiated successfully");
 
-      // Send heartbeat every 30 seconds
-      _heartbeatTimer?.cancel();
-      _heartbeatTimer = Timer.periodic(Duration(seconds: 30), (_) {
-        // Don't send ping if bloc is closed
-        if (isClosed) {
-          debugPrint("⚠️ [WebSocket] Bloc closed, stopping heartbeat");
-          _heartbeatTimer?.cancel();
-          return;
-        }
-        
-        try {
-          final pingMessage = jsonEncode({"type": "ping"});
-          channel.sink.add(pingMessage);
-          debugPrint("💓 [WebSocket] Heartbeat sent: $pingMessage");
-        } catch (e) {
-          debugPrint("❌ [WebSocket] Ping failed: $e");
-        }
-      });
+      // Start ping-pong mechanism
+      _startPingPong();
 
       _subscription = channel.stream.listen(
         (data) {
@@ -367,6 +356,12 @@ class VAuctionControlllerBloc
             final jsonData = jsonDecode(decoded);
             debugPrint("✅ [WebSocket] JSON parsed successfully");
             debugPrint("📊 [WebSocket] Parsed data: $jsonData");
+
+            // Handle ping-pong responses
+            if (jsonData['type'] == 'pong') {
+              _handlePongResponse();
+              return; // Don't process as bid update
+            }
 
             // Reset reconnect attempts on successful message
             _reconnectAttempts = 0;
@@ -441,10 +436,68 @@ class VAuctionControlllerBloc
     });
   }
 
+  void _startPingPong() {
+    _heartbeatTimer?.cancel();
+    _pongTimeoutTimer?.cancel();
+    _isPongReceived = true;
+    
+    _heartbeatTimer = Timer.periodic(Duration(seconds: _pingInterval), (_) {
+      if (isClosed) {
+        debugPrint("⚠️ [WebSocket] Bloc closed, stopping ping-pong");
+        _heartbeatTimer?.cancel();
+        _pongTimeoutTimer?.cancel();
+        return;
+      }
+      
+      _sendPing();
+    });
+  }
+
+  void _sendPing() {
+    try {
+      final pingMessage = jsonEncode({
+        "type": "ping",
+        "timestamp": DateTime.now().millisecondsSinceEpoch,
+      });
+      
+      channel.sink.add(pingMessage);
+      _lastPingTime = DateTime.now();
+      _isPongReceived = false;
+      
+      debugPrint("💓 [WebSocket] Ping sent: $pingMessage");
+      
+      // Start pong timeout timer
+      _pongTimeoutTimer?.cancel();
+      _pongTimeoutTimer = Timer(Duration(seconds: _pongTimeout), () {
+        if (!_isPongReceived && !isClosed) {
+          debugPrint("⏰ [WebSocket] Pong timeout - reconnecting...");
+          // Note: We can't reconnect without context, so we'll just log the issue
+          debugPrint("⚠️ [WebSocket] Pong timeout detected but no context available for reconnection");
+        }
+      });
+      
+    } catch (e) {
+      debugPrint("❌ [WebSocket] Ping failed: $e");
+      if (!isClosed) {
+        // Note: We can't reconnect without context, so we'll just log the issue
+        debugPrint("⚠️ [WebSocket] Ping failed but no context available for reconnection");
+      }
+    }
+  }
+
+  void _handlePongResponse() {
+    _isPongReceived = true;
+    _pongTimeoutTimer?.cancel();
+    
+    final responseTime = DateTime.now().difference(_lastPingTime ?? DateTime.now());
+    debugPrint("🏓 [WebSocket] Pong received - Response time: ${responseTime.inMilliseconds}ms");
+  }
+
   @override
   Future<void> close() {
     debugPrint("🔴 [WebSocket] Closing Bloc and WebSocket connection");
     _heartbeatTimer?.cancel();
+    _pongTimeoutTimer?.cancel();
     _subscription?.cancel();
     try {
       channel.sink.close();

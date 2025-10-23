@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solar_icons/solar_icons.dart';
@@ -22,7 +23,7 @@ class VCollectedDocumentsScreen extends StatefulWidget {
 class _VCollectedDocumentsScreenState extends State<VCollectedDocumentsScreen> {
   @override
   void initState() {
-    context.read<DocumentsControllerCubit>().onGetPaymentHistory(context);
+    context.read<DocumentsControllerCubit>().onGetCollectedDocuments(context);
     super.initState();
   }
 
@@ -47,6 +48,7 @@ class _VCollectedDocumentsScreenState extends State<VCollectedDocumentsScreen> {
         child: AppMargin(
           child: BlocBuilder<DocumentsControllerCubit, DocumentsControllerState>(
             builder: (context, state) {
+              log('VCollectedDocumentsScreen: Current state: ${state.runtimeType}');
               switch (state) {
                 case DocumentsControllErrorState():
                   {
@@ -55,6 +57,10 @@ class _VCollectedDocumentsScreenState extends State<VCollectedDocumentsScreen> {
                 case DocumentsControllerSuccessState():
                   {
                     final documents = state.documets;
+                    log('VCollectedDocumentsScreen: Success state - Documents count: ${documents.length}');
+                    if (documents.isEmpty) {
+                      return AppEmptyText(text: 'No documents found');
+                    }
                     return ListView.separated(
                       separatorBuilder: (context, index) => AppSpacer(heightPortion: .005,),
                       itemCount: documents.length,
@@ -82,72 +88,228 @@ class _VCollectedDocumentsScreenState extends State<VCollectedDocumentsScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: ListTile(
-                              leading: Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors:
-                                        data.isCollected.toLowerCase() == "yes"
-                                            ? [
-                                              VColors.SUCCESS,
-                                              VColors.SUCCESS.withOpacity(0.7),
-                                            ]
-                                            : [
-                                              VColors.ERROR,
-                                              VColors.ERROR.withOpacity(0.7),
-                                            ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(24),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          data.isCollected.toLowerCase() == "yes"
-                                              ? VColors.SUCCESS.withOpacity(0.3)
-                                              : VColors.ERROR.withOpacity(0.3),
-                                      spreadRadius: 0,
-                                      blurRadius: 8,
-                                      offset: Offset(0, 2),
+                              leading: Stack(
+                                children: [
+                                  // Document image
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: VColors.DARK_GREY.withAlpha(120),
+                                        width: 1,
+                                      ),
                                     ),
-                                  ],
-                                ),
-                                child:
-                                    data.isCollected.toLowerCase() == "yes"
-                                        ? Icon(
-                                          SolarIconsOutline.checkCircle,
-                                          color: VColors.WHITE,
-                                        )
-                                        : Icon(
-                                          SolarIconsOutline.closeCircle,
-                                          color: VColors.WHITE,
-                                        ),
-                              ),
-          
-                              title: Text(data.inspection),
-                              subtitle: Text(
-                                IntlHelper.formteDate(data.collectedDate),
-                              ),
-          
-                              trailing: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: VColors.DARK_GREY.withAlpha(20),
-                                ),
-                                child: Text(
-                                  data.documentName,
-                                  style: VStyle.style(
-                                    context: context,
-                                    size: 20,
-                                    fontWeight: FontWeight.bold,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: data.image.isNotEmpty
+                                          ? Image.network(
+                                              data.image,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Container(
+                                                  color: VColors.DARK_GREY.withAlpha(20),
+                                                  child: Icon(
+                                                    SolarIconsOutline.document,
+                                                    color: VColors.DARK_GREY,
+                                                    size: 24,
+                                                  ),
+                                                );
+                                              },
+                                              loadingBuilder: (context, child, loadingProgress) {
+                                                if (loadingProgress == null) return child;
+                                                return Container(
+                                                  color: VColors.DARK_GREY.withAlpha(20),
+                                                  child: Center(
+                                                    child: SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        valueColor: AlwaysStoppedAnimation<Color>(VColors.PRIMARY),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : Container(
+                                              color: VColors.DARK_GREY.withAlpha(20),
+                                              child: Icon(
+                                                SolarIconsOutline.document,
+                                                color: VColors.DARK_GREY,
+                                                size: 24,
+                                              ),
+                                            ),
+                                    ),
                                   ),
+                                  // Status indicator
+                                  Positioned(
+                                    bottom: -2,
+                                    right: -2,
+                                    child: Container(
+                                      width: 16,
+                                      height: 16,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors:
+                                              data.isCollected.toLowerCase() == "yes"
+                                                  ? [
+                                                    VColors.SUCCESS,
+                                                    VColors.SUCCESS.withOpacity(0.7),
+                                                  ]
+                                                  : [
+                                                    VColors.ERROR,
+                                                    VColors.ERROR.withOpacity(0.7),
+                                                  ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: VColors.WHITE,
+                                          width: 1,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                data.isCollected.toLowerCase() == "yes"
+                                                    ? VColors.SUCCESS.withOpacity(0.3)
+                                                    : VColors.ERROR.withOpacity(0.3),
+                                            spreadRadius: 0,
+                                            blurRadius: 4,
+                                            offset: Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
+                                      child: data.isCollected.toLowerCase() == "yes"
+                                          ? Icon(
+                                            SolarIconsOutline.checkCircle,
+                                            color: VColors.WHITE,
+                                            size: 10,
+                                          )
+                                          : Icon(
+                                            SolarIconsOutline.closeCircle,
+                                            color: VColors.WHITE,
+                                            size: 10,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+          
+                              title: Text(
+                                data.inspection,
+                                style: VStyle.style(
+                                  context: context,
+                                  fontWeight: FontWeight.w600,
+                                  size: 16,
                                 ),
                               ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    IntlHelper.formteDate(data.collectedDate),
+                                    style: VStyle.style(
+                                      context: context,
+                                      color: VColors.DARK_GREY,
+                                      size: 14,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: data.isCollected.toLowerCase() == "yes"
+                                          ? VColors.SUCCESS.withAlpha(20)
+                                          : VColors.ERROR.withAlpha(20),
+                                    ),
+                                    child: Text(
+                                      data.documentName,
+                                      style: VStyle.style(
+                                        context: context,
+                                        size: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: data.isCollected.toLowerCase() == "yes"
+                                            ? VColors.SUCCESS
+                                            : VColors.ERROR,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+          
+                              trailing: data.image.isNotEmpty
+                                  ? IconButton(
+                                      onPressed: () {
+                                        // TODO: Implement image preview functionality
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => Dialog(
+                                            child: Container(
+                                              padding: EdgeInsets.all(16),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    'Document Preview',
+                                                    style: VStyle.style(
+                                                      context: context,
+                                                      fontWeight: FontWeight.bold,
+                                                      size: 18,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 16),
+                                                  ClipRRect(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                    child: Image.network(
+                                                      data.image,
+                                                      fit: BoxFit.contain,
+                                                      errorBuilder: (context, error, stackTrace) {
+                                                        return Container(
+                                                          height: 200,
+                                                          color: VColors.DARK_GREY.withAlpha(20),
+                                                          child: Center(
+                                                            child: Column(
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                              children: [
+                                                                Icon(
+                                                                  SolarIconsOutline.document,
+                                                                  color: VColors.DARK_GREY,
+                                                                  size: 48,
+                                                                ),
+                                                                SizedBox(height: 8),
+                                                                Text('Failed to load image'),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 16),
+                                                  ElevatedButton(
+                                                    onPressed: () => Navigator.pop(context),
+                                                    child: Text('Close'),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      icon: Icon(
+                                        SolarIconsOutline.eye,
+                                        color: VColors.PRIMARY,
+                                      ),
+                                    )
+                                  : null,
                             ),
                           ),
                         );

@@ -238,11 +238,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wheels_kart/common/components/app_margin.dart';
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/module/Dealer/core/components/v_loading.dart';
 import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/enhanced_ocb_controller/enhanced_ocb_controller.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/controller/my%20auction%20controller/v_my_auction_controller_bloc.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/auctionhistoy_tab.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/screens/my_tabs/bought_ocb_history_tab.dart';
@@ -457,7 +457,10 @@ class _VMyBidTabState extends State<VMyBidTab>
                       create: (context) => VMyAuctionControllerBloc(),
                       child: AuctionHistoryTab(myId: CURRENT_DEALER_ID),
                     ),
-                    BoughtOcbHistoryTab(myId: CURRENT_DEALER_ID),
+                    BlocProvider(
+                      create: (context) => EnhancedOcbController(),
+                      child: BoughtOcbHistoryTab(myId: CURRENT_DEALER_ID),
+                    ),
                   ],
                 ),
               ),

@@ -28,7 +28,7 @@ class VApiConst {
   static const transactionHistory = "vendorlogin/payments";
   static const rsdHistory = "vendorlogin/rsd";
 
-  static const recievedDocuments = "vendorlogin/collecteddocuments";
+  static const receivedDocuments = "vendorlogin/collecteddocuments";
 
   static const fetchCity = "masters/city";
   static const fetchMakeModel = "masters/makemodel";

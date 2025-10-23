@@ -19,8 +19,12 @@ class RemoteConfigService {
 
       // Default values
       await _remoteConfig!.setDefaults({
-        'force_update_required': false,
-        'minimum_version': '1.0.0',
+        'force_update_required': false,           // Global fallback
+        'minimum_version': '1.0.0',              // Global fallback
+        'ios_minimum_version': '4.0.0',          // iOS-specific
+        'android_minimum_version': '3.8.0',      // Android-specific
+        'ios_force_update_required': false,      // iOS-specific
+        'android_force_update_required': false,  // Android-specific
         'update_message': 'Your app version is outdated. Please update to continue using the app.',
         'android_store_url': 'https://play.google.com/store/apps/details?id=com.crisant.wheelskart',
         'ios_store_url': 'https://apps.apple.com/app/6749476545',
@@ -33,6 +37,10 @@ class RemoteConfigService {
         print('Remote Config initialized (immediate fetch)');
         print('force_update_required: ${getForceUpdateRequired()}');
         print('minimum_version: ${getMinimumVersion()}');
+        print('ios_minimum_version: ${getIosMinimumVersion()}');
+        print('android_minimum_version: ${getAndroidMinimumVersion()}');
+        print('ios_force_update_required: ${getIosForceUpdateRequired()}');
+        print('android_force_update_required: ${getAndroidForceUpdateRequired()}');
       }
     } catch (e) {
       print('Error initializing Remote Config: $e');
@@ -65,6 +73,30 @@ class RemoteConfigService {
   String getIosStoreUrl() {
     return _remoteConfig?.getString('ios_store_url') ??
         'https://apps.apple.com/app/id123456789';
+  }
+
+  /// Returns iOS-specific minimum version
+  String getIosMinimumVersion() {
+    return _remoteConfig?.getString('ios_minimum_version') ?? 
+           getMinimumVersion(); // fallback to global
+  }
+
+  /// Returns Android-specific minimum version  
+  String getAndroidMinimumVersion() {
+    return _remoteConfig?.getString('android_minimum_version') ?? 
+           getMinimumVersion(); // fallback to global
+  }
+
+  /// Returns iOS-specific force update flag
+  bool getIosForceUpdateRequired() {
+    return _remoteConfig?.getBool('ios_force_update_required') ?? 
+           getForceUpdateRequired(); // fallback to global
+  }
+
+  /// Returns Android-specific force update flag
+  bool getAndroidForceUpdateRequired() {
+    return _remoteConfig?.getBool('android_force_update_required') ?? 
+           getForceUpdateRequired(); // fallback to global
   }
 
   /// Refresh remote config values

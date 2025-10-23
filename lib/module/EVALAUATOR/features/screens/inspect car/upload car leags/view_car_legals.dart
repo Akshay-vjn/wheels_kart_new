@@ -5,6 +5,7 @@ import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20documents/fetch_documents_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/update%20remarks/update_remarks_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/document_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/upload%20car%20leags/upload_car_legals.dart';
 
@@ -459,7 +460,12 @@ class _ViewCarLegalsState extends State<ViewCarLegals> {
     // Handle update legals functionality
     // You can navigate to an update screen or show a dialog
     Navigator.of(context).pushReplacement(
-      AppRoutes.createRoute(UploadCarLegals(inspectionId: inspectionId)),
+      AppRoutes.createRoute(
+        BlocProvider(
+          create: (context) => UpdateRemarksCubit(),
+          child: UploadCarLegals(inspectionId: inspectionId),
+        ),
+      ),
     );
   }
 }

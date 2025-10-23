@@ -15,29 +15,37 @@ class VCarDetailModel {
     required this.paymentDetails,
   });
 
-  factory VCarDetailModel.fromJson(Map<String, dynamic> json) =>
-      VCarDetailModel(
-        carVideos: json["videos"] != null 
-            ? List<CarVideos>.from(
-                json["videos"].map((x) => CarVideos.fromJson(x)),
-              )
-            : [],
-        carDetails: CarDetails.fromJson(json["carDetails"]),
-        images: json["images"] != null 
-            ? List<CarImage>.from(
-                json["images"].map((x) => CarImage.fromJson(x)),
-              )
-            : [],
-        sections: json["sections"] != null 
-            ? List<Section>.from(
-                json["sections"].map((x) => Section.fromJson(x)),
-              )
-            : [],
-        vendorIds: json["vendorIds"] != null 
-            ? List<String>.from(json["vendorIds"].map((x) => x))
-            : [],
-        paymentDetails: _parsePaymentDetails(json["paymentDetails"]),
-      );
+  factory VCarDetailModel.fromJson(Map<String, dynamic> json) {
+    // Debug: Check for inspection_remarks at root level
+    print("🔍 VCarDetailModel.fromJson - Root keys: ${json.keys.toList()}");
+    print("🔍 Has inspection_remarks at root: ${json.containsKey('inspection_remarks')}");
+    if (json.containsKey('inspection_remarks')) {
+      print("🔍 Root level inspection_remarks: ${json['inspection_remarks']}");
+    }
+    
+    return VCarDetailModel(
+      carVideos: json["videos"] != null 
+          ? List<CarVideos>.from(
+              json["videos"].map((x) => CarVideos.fromJson(x)),
+            )
+          : [],
+      carDetails: CarDetails.fromJson(json["carDetails"], json["inspection_remarks"]),
+      images: json["images"] != null 
+          ? List<CarImage>.from(
+              json["images"].map((x) => CarImage.fromJson(x)),
+            )
+          : [],
+      sections: json["sections"] != null 
+          ? List<Section>.from(
+              json["sections"].map((x) => Section.fromJson(x)),
+            )
+          : [],
+      vendorIds: json["vendorIds"] != null 
+          ? List<String>.from(json["vendorIds"].map((x) => x))
+          : [],
+      paymentDetails: _parsePaymentDetails(json["paymentDetails"]),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "videos": List<dynamic>.from(carVideos.map((x) => x.toJson())),
@@ -91,6 +99,7 @@ class CarDetails {
   final String manufactureDate;
   final String noOfKeys;
   final String city;
+  final String remarks;
   DateTime? bidClosingTime;
   String? currentBid;
   final String evaluationId;
@@ -119,10 +128,11 @@ class CarDetails {
     required this.manufactureDate,
     required this.noOfKeys,
     required this.city,
+    required this.remarks,
     required this.currentBid,
   });
 
-  factory CarDetails.fromJson(Map<String, dynamic> json) => CarDetails(
+  factory CarDetails.fromJson(Map<String, dynamic> json, [String? rootRemarks]) => CarDetails(
     bidClosingTime:
         json['bidClosingTime'] == null
             ? null
@@ -149,6 +159,7 @@ class CarDetails {
     manufactureDate: json["Manufacture Date"] ?? 'N/A',
     noOfKeys: json["No Of Keys"] ?? '',
     city: json["City"] ?? 'N/A',
+    remarks: rootRemarks ?? json["inspection_remarks"] ?? '',
     currentBid: json["currentBid"] ?? "N/A",
   );
 
@@ -175,6 +186,7 @@ class CarDetails {
     "Manufacture Date": manufactureDate,
     "No Of Keys": noOfKeys,
     "City": city,
+    "inspection_remarks": remarks,
     "Current Bid": currentBid,
   };
 }

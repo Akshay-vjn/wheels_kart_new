@@ -51,9 +51,14 @@ class ForceUpdateService {
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version;
 
-      // Get remote config values
-      final minimumVersion = _remoteConfigService.getMinimumVersion();
-      final forceUpdateRequired = _remoteConfigService.getForceUpdateRequired();
+      // Get platform-specific values
+      final minimumVersion = Platform.isAndroid
+          ? _remoteConfigService.getAndroidMinimumVersion()
+          : _remoteConfigService.getIosMinimumVersion();
+          
+      final forceUpdateRequired = Platform.isAndroid
+          ? _remoteConfigService.getAndroidForceUpdateRequired()
+          : _remoteConfigService.getIosForceUpdateRequired();
 
       // Get platform-specific store URL
       final storeUrl = Platform.isAndroid
@@ -62,6 +67,7 @@ class ForceUpdateService {
 
       if (kDebugMode) {
         print('=== Force Update Check ===');
+        print('Platform: ${Platform.isAndroid ? "Android" : "iOS"}');
         print('Current Version: $currentVersion');
         print('Minimum Version: $minimumVersion');
         print('Force Update Required: $forceUpdateRequired');

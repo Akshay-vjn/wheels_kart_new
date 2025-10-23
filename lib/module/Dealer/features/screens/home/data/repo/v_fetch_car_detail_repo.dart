@@ -36,6 +36,16 @@ class VFetchCarDetailRepo {
           final data = decodedata['data'];
           print("✅ Data keys: ${data.keys.toList()}");
           print("🔑 Has paymentDetails: ${data.containsKey('paymentDetails')}");
+          print("🔑 Has carDetails: ${data.containsKey('carDetails')}");
+          
+          if (data.containsKey('carDetails')) {
+            final carDetails = data['carDetails'];
+            print("🚗 CarDetails keys: ${carDetails.keys.toList()}");
+            print("📝 Has inspection_remarks: ${carDetails.containsKey('inspection_remarks')}");
+            if (carDetails.containsKey('inspection_remarks')) {
+              print("📝 Inspection remarks: ${carDetails['inspection_remarks']}");
+            }
+          }
 
           if (data.containsKey('paymentDetails')) {
             print("💰 PaymentDetails found!");

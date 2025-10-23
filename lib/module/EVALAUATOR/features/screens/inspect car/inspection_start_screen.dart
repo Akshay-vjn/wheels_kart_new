@@ -28,6 +28,7 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20inspe
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20picture%20angles/fetch_picture_angles_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/update%20remarks/update_remarks_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_data_model.dart';
 
 class InspectionStartScreen extends StatefulWidget {
@@ -54,6 +55,9 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   // bool isPicturedAllUploaded = false;
   // bool isVideoAllUploaded = false;
 
+  // Remarks controller
+  TextEditingController remarksController = TextEditingController();
+
   late AnimationController _progressController;
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -73,6 +77,10 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
+    // Add listener to remarks controller to update button state
+    remarksController.addListener(() {
+      setState(() {});
+    });
     initScreen();
   }
 
@@ -93,6 +101,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   void dispose() {
     _progressController.dispose();
     _fadeController.dispose();
+    remarksController.dispose();
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -362,6 +371,12 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                       const SizedBox(height: 15),
                       _buildInspectionSteps(),
                       const SizedBox(height: 20),
+                      widget.hideCompleteButon
+                          ? SizedBox.shrink()
+                          : _buildRemarksField(),
+                      widget.hideCompleteButon
+                          ? SizedBox.shrink()
+                          : const SizedBox(height: 20),
                       widget.hideCompleteButon
                           ? SizedBox.shrink()
                           : _buildSubmitButton(),
@@ -796,6 +811,95 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
     );
   }
 
+  Widget _buildRemarksField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Remarks',
+          style: EvAppStyle.style(
+            context: context,
+            size: AppDimensions.fontSize16(context),
+            fontWeight: FontWeight.w600,
+            color: EvAppColors.DEFAULT_BLUE_DARK,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: EvAppColors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: EvAppColors.grey.withOpacity(0.3)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                offset: const Offset(0, 2),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+          child: TextFormField(
+            controller: remarksController,
+            maxLines: 3,
+            textCapitalization: TextCapitalization.sentences,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            style: EvAppStyle.style(
+              context: context,
+              color: EvAppColors.black,
+              size: AppDimensions.fontSize13(context),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        BlocBuilder<UpdateRemarksCubit, UpdateRemarksState>(
+          builder: (context, state) {
+            if (state is UpdateRemarksLoadingState) {
+              return EVAppLoadingIndicator();
+            }
+            return SizedBox(
+              width: double.infinity,
+              height: 45,
+              child: ElevatedButton(
+                onPressed: remarksController.text.trim().isNotEmpty ? _updateRemarks : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: remarksController.text.trim().isNotEmpty 
+                      ? EvAppColors.DEFAULT_ORANGE 
+                      : EvAppColors.grey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Update Remarks',
+                  style: EvAppStyle.style(
+                    context: context,
+                    color: EvAppColors.white,
+                    size: AppDimensions.fontSize13(context),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  void _updateRemarks() {
+    if (remarksController.text.trim().isNotEmpty) {
+      context.read<UpdateRemarksCubit>().updateRemarks(
+        context,
+        widget.inspectionId,
+        remarksController.text.trim(),
+      );
+    }
+  }
+
   void _navigateToPhotos() {
     Navigator.of(context)
         .push(
@@ -838,7 +942,10 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
         Navigator.of(context)
             .push(
               AppRoutes.createRoute(
-                UploadCarLegals(inspectionId: widget.inspectionId),
+                BlocProvider(
+                  create: (context) => UpdateRemarksCubit(),
+                  child: UploadCarLegals(inspectionId: widget.inspectionId),
+                ),
               ),
             )
             .then((value) {
@@ -849,7 +956,10 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
       Navigator.of(context)
           .push(
             AppRoutes.createRoute(
-              UploadCarLegals(inspectionId: widget.inspectionId),
+              BlocProvider(
+                create: (context) => UpdateRemarksCubit(),
+                child: UploadCarLegals(inspectionId: widget.inspectionId),
+              ),
             ),
           )
           .then((value) {

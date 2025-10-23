@@ -231,6 +231,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/bloc/update%20remarks/update_remarks_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/master/fetch_the_instruction_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/inspection_start_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_button.dart';
@@ -922,10 +923,13 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
         } else if (snapshot['error'] == false) {
           Navigator.of(context).push(
             AppRoutes.createRoute(
-              InspectionStartScreen(
-                hideCompleteButon: true,
-                inspectionId: model.inspectionId,
-                instructionData: snapshot['data'][0]['instructions'],
+              BlocProvider(
+                create: (context) => UpdateRemarksCubit(),
+                child: InspectionStartScreen(
+                  hideCompleteButon: true,
+                  inspectionId: model.inspectionId,
+                  instructionData: snapshot['data'][0]['instructions'],
+                ),
               ),
             ),
           );
@@ -934,10 +938,13 @@ class _EvCompletedLeadTabState extends State<EvCompletedLeadTab>
         Navigator.of(context).pop(); // Close loading dialog
         Navigator.of(context).push(
           AppRoutes.createRoute(
-            InspectionStartScreen(
-              hideCompleteButon: true,
-              instructionData: null,
-              inspectionId: model.inspectionId,
+            BlocProvider(
+              create: (context) => UpdateRemarksCubit(),
+              child: InspectionStartScreen(
+                hideCompleteButon: true,
+                instructionData: null,
+                inspectionId: model.inspectionId,
+              ),
             ),
           ),
         );

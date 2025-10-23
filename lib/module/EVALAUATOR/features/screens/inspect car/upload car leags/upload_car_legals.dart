@@ -484,6 +484,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -924,6 +925,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
       ),
     );
   }
+
 
   Future<Map<String, dynamic>> _genarateImageJson(
     File file,

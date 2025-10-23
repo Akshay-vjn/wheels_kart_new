@@ -13,11 +13,16 @@ class VGetDocumentsRepo {
     BuildContext context,
   ) async {
     final state = context.read<AppAuthController>().state;
+    log('VGetDocumentsRepo: Auth state: ${state.runtimeType}');
+    
     if (state is AuthCubitAuthenticateState) {
       try {
         final url = Uri.parse(
-          '${VApiConst.baseUrl}${VApiConst.recievedDocuments}',
+          '${VApiConst.baseUrl}${VApiConst.receivedDocuments}',
         );
+        
+        log('VGetDocumentsRepo: Making request to: $url');
+        log('VGetDocumentsRepo: Token: ${state.userModel.token}');
 
         Response response = await http.post(
           url,
@@ -27,25 +32,31 @@ class VGetDocumentsRepo {
           },
         );
 
+        log('VGetDocumentsRepo: Response status: ${response.statusCode}');
+        log('VGetDocumentsRepo: Response body: ${response.body}');
+
         final decodedata = jsonDecode(response.body);
 
         if (decodedata['status'] == 200) {
+          log('VGetDocumentsRepo: Success response');
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
             'data': decodedata['data'],
           };
         } else {
+          log('VGetDocumentsRepo: Error response: ${decodedata['message']}');
           return {
             'error': decodedata['error'],
             'message': decodedata['message'],
           };
         }
       } catch (e) {
-        log('repo - catch error - Recievd Documents => ${e.toString()}F');
+        log('VGetDocumentsRepo: Exception - ${e.toString()}');
         return {};
       }
     } else {
+      log('VGetDocumentsRepo: User not authenticated');
       return {};
     }
   }

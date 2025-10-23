@@ -185,7 +185,7 @@ class _VAccountTabState extends State<VAccountTab>
 
           AppSpacer(heightPortion: .02),
 
-          // Name and Status
+          // Name and Bidder ID
           Text(
             model.vendorName,
             style: VStyle.style(
@@ -193,6 +193,19 @@ class _VAccountTabState extends State<VAccountTab>
               fontWeight: FontWeight.bold,
               size: AppDimensions.fontSize18(context),
               color: VColors.SECONDARY,
+            ),
+          ),
+
+          AppSpacer(heightPortion: .003),
+
+          // Bidder ID
+          Text(
+            "ID: ${model.bidderId}",
+            style: VStyle.style(
+              context: context,
+              fontWeight: FontWeight.w600,
+              size: AppDimensions.fontSize18(context),
+              color: VColors.SECONDARY.withOpacity(0.7),
             ),
           ),
 

@@ -934,11 +934,12 @@ class _VWhishlistCardState extends State<VWhishlistCard>
       child: InkWell(
         onTap: () {
           if (widget.model.auctionType == "OCB") {
-            OcbPurchaceControlleCubit.showBuySheet(
-              context,
-              widget.model.currentBid ?? '',
-              widget.model.inspectionId,
-              "WISHLIST",
+            OcbPurchaceControlleCubit.showDiologueForOcbPurchase(
+              paymentStatus: widget.model.paymentStatus,
+              from: "WISHLIST",
+              context: context,
+              inspectionId: widget.model.inspectionId,
+              currentBid: widget.model.currentBid ?? '',
             );
           } else {
             VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(

@@ -29,6 +29,29 @@ class VFetchOwnedCarDetailRepo {
 
         final decodedata = jsonDecode(response.body);
 
+        // DEBUG: Check for inspection_remarks in owned car details
+        print("\n🚀 === OWNED CAR API RESPONSE FOR ID: $inspectionId ===");
+        if (decodedata.containsKey('data')) {
+          final data = decodedata['data'];
+          print("✅ Data keys: ${data.keys.toList()}");
+          print("🔑 Has carDetails: ${data.containsKey('carDetails')}");
+          print("🔑 Has inspection_remarks at root: ${data.containsKey('inspection_remarks')}");
+          
+          if (data.containsKey('carDetails')) {
+            final carDetails = data['carDetails'];
+            print("🚗 CarDetails keys: ${carDetails.keys.toList()}");
+            print("📝 Has inspection_remarks: ${carDetails.containsKey('inspection_remarks')}");
+            if (carDetails.containsKey('inspection_remarks')) {
+              print("📝 Inspection remarks: ${carDetails['inspection_remarks']}");
+            }
+          }
+          
+          if (data.containsKey('inspection_remarks')) {
+            print("📝 Root level inspection_remarks: ${data['inspection_remarks']}");
+          }
+        }
+        print("=== END OWNED CAR API RESPONSE ===\n");
+
         if (decodedata['status'] == 200) {
           return {
             'error': decodedata['error'],
