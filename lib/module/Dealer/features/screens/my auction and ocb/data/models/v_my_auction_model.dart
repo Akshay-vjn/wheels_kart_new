@@ -16,6 +16,11 @@ class VMyAuctionModel {
   String? soldTo;
   String? soldName;
   String? paymentStatus;
+  String? noOfOwners;
+  String? currentBid;
+  String? wishlisted;
+  String? status;
+  String? yourStatus;
   List<YourBid> yourBids;
 
   VMyAuctionModel({
@@ -36,6 +41,11 @@ class VMyAuctionModel {
     required this.soldTo,
     required this.soldName,
     required this.paymentStatus,
+    this.noOfOwners,
+    this.currentBid,
+    this.wishlisted,
+    this.status,
+    this.yourStatus,
     required this.yourBids,
   });
 
@@ -51,7 +61,7 @@ class VMyAuctionModel {
         kmsDriven: json["kmsDriven"] ?? '',
         regNo: json["regNo"] ?? '',
         city: json["City"] ?? '',
-        bidAmount: json["bidAmount"] ?? '',
+        bidAmount: json["bidAmount"] ?? json["currentBid"] ?? '',
         bidTime:
             json["bidTime"] == null ? null : DateTime.parse(json["bidTime"]),
         bidClosingTime:json["bidClosingTime"]==null?null: DateTime.parse(json["bidClosingTime"]),
@@ -59,6 +69,11 @@ class VMyAuctionModel {
         soldTo: json["soldTo"] ?? '',
         soldName: json["soldName"] ?? '',
         paymentStatus: json["paymentStatus"] ?? '',
+        noOfOwners: json["noOfOwners"] ?? '',
+        currentBid: json["currentBid"] ?? '',
+        wishlisted: json["wishlisted"]?.toString() ?? '0',
+        status: json["status"] ?? '',
+        yourStatus: json["yourStatus"] ?? '',
         yourBids: List<YourBid>.from(
           json["yourBids"].map((x) => YourBid.fromJson(x)),
         ),
@@ -76,12 +91,17 @@ class VMyAuctionModel {
     "regNo": regNo,
     "City": city,
     "bidAmount": bidAmount,
-    "bidTime": bidTime!.toIso8601String(),
-    "bidClosingTime": bidClosingTime!.toIso8601String(),
+    "bidTime": bidTime?.toIso8601String(),
+    "bidClosingTime": bidClosingTime?.toIso8601String(),
     "bidStatus": bidStatus,
     "soldTo": soldTo,
     "soldName": soldName,
     "paymentStatus": paymentStatus,
+    "noOfOwners": noOfOwners,
+    "currentBid": currentBid,
+    "wishlisted": wishlisted,
+    "status": status,
+    "yourStatus": yourStatus,
     "yourBids": List<dynamic>.from(yourBids.map((x) => x.toJson())),
   };
 }

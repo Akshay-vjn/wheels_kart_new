@@ -132,6 +132,10 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
     switch (state) {
       case VMyAuctionControllerSuccessState():
         return _buildSuccessContent();
+      case VMyAuctionControllerOwnedSuccessState():
+        return _buildSuccessContent(); // Use same content for owned state
+      case VMyAuctionControllerOwnedLoadingState():
+        return _buildSuccessContent(); // Show tabs even when loading owned
       case VMyAuctionControllerErrorState():
         return _buildErrorContent(state.error);
       default:

@@ -19,6 +19,7 @@ class VApiConst {
 
   static const myAuctions = "vendorlogin/bidhistory";
   static const myOCB = "vendorlogin/ocbhistory";
+  static const myOwned = "vendorlogin/owned";
 
   static const buyOCB = "vendorlogin/buynow";
   static const updateAuciton = "vendorlogin/bid";

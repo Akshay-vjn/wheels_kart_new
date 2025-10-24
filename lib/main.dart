@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/block_providers.dart';
+import 'package:wheels_kart/common/managers/app_lifecycle_manager.dart';
 import 'package:wheels_kart/firebase_options.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
@@ -11,6 +12,10 @@ final RouteObserver<ModalRoute<void>> routeObserver =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Initialize app lifecycle manager for websocket auto-reconnection
+  AppLifecycleManager().initialize();
+  
   // Optional: turn off analytics in debug builds
   // if (kDebugMode) {
   //   await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(false);

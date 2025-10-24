@@ -18,3 +18,11 @@ class VMyAuctionControllerSuccessState extends VMyAuctionControllerState {
 
   VMyAuctionControllerSuccessState({required this.listOfMyAuctions});
 }
+
+class VMyAuctionControllerOwnedLoadingState extends VMyAuctionControllerState {}
+
+class VMyAuctionControllerOwnedSuccessState extends VMyAuctionControllerState {
+  final List<VMyAuctionModel> listOfOwnedAuctions;
+
+  VMyAuctionControllerOwnedSuccessState({required this.listOfOwnedAuctions});
+}

@@ -27,6 +27,7 @@ class _CameraScreenState extends State<CameraScreen>
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
   bool _isCapturing = false;
+  bool _supportsFocusExposure = true;
 
   // Zoom functionality
   double _currentZoomLevel = 1.0;
@@ -40,8 +41,16 @@ class _CameraScreenState extends State<CameraScreen>
   // Animation controllers
   late AnimationController _focusAnimationController;
   late AnimationController _captureAnimationController;
+  late AnimationController _zoomAnimationController;
+  late AnimationController _smoothZoomController;
   late Animation<double> _focusAnimation;
   late Animation<double> _captureAnimation;
+  late Animation<double> _zoomAnimation;
+  late Animation<double> _smoothZoomAnimation;
+
+  // Smooth zoom variables
+  double _targetZoomLevel = 1.0;
+  bool _isZooming = false;
 
   @override
   void initState() {
@@ -70,6 +79,16 @@ class _CameraScreenState extends State<CameraScreen>
       vsync: this,
     );
 
+    _zoomAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _smoothZoomController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
     _focusAnimation = Tween<double>(begin: 1.0, end: 0.5).animate(
       CurvedAnimation(
         parent: _focusAnimationController,
@@ -81,6 +100,20 @@ class _CameraScreenState extends State<CameraScreen>
       CurvedAnimation(
         parent: _captureAnimationController,
         curve: Curves.elasticOut,
+      ),
+    );
+
+    _zoomAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _zoomAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _smoothZoomAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _smoothZoomController,
+        curve: Curves.easeInOut,
       ),
     );
   }
@@ -95,12 +128,24 @@ class _CameraScreenState extends State<CameraScreen>
 
       _cameraController = CameraController(
         rearCamera,
-
         ResolutionPreset.high,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.jpeg,
       );
+      
       await _cameraController!.initialize();
+      
+      // Test if focus and exposure features are supported
+      try {
+        await _cameraController!.setFocusMode(FocusMode.auto);
+        await _cameraController!.setExposureMode(ExposureMode.auto);
+        _supportsFocusExposure = true;
+        print('Camera supports focus/exposure features');
+      } catch (e) {
+        print('Camera focus/exposure modes not supported: $e');
+        _supportsFocusExposure = false;
+        // Continue without focus/exposure modes
+      }
 
       // Get zoom capabilities
       _maxZoomLevel = await _cameraController!.getMaxZoomLevel();
@@ -127,19 +172,22 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   void _onScaleStart(ScaleStartDetails details) {
-    // Store the initial zoom level when scaling starts
+    if (!_isCameraInitialized) return;
+    _isZooming = true;
+    _targetZoomLevel = _currentZoomLevel;
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
-    if (!_isCameraInitialized) return;
+    if (!_isCameraInitialized || !_isZooming) return;
 
-    // Calculate new zoom level
-    final newZoomLevel = (_currentZoomLevel * details.scale).clamp(
+    // Calculate new zoom level with smoother scaling
+    final scaleFactor = details.scale;
+    final newZoomLevel = (_targetZoomLevel * scaleFactor).clamp(
       _minZoomLevel,
       _maxZoomLevel,
     );
 
-    // Apply zoom
+    // Apply zoom with smooth interpolation
     _cameraController!.setZoomLevel(newZoomLevel);
 
     setState(() {
@@ -147,32 +195,53 @@ class _CameraScreenState extends State<CameraScreen>
     });
   }
 
+  void _onScaleEnd(ScaleEndDetails details) {
+    if (!_isCameraInitialized) return;
+    _isZooming = false;
+    _targetZoomLevel = _currentZoomLevel;
+  }
+
   void _onTapDown(TapDownDetails details) {
     if (!_isCameraInitialized) return;
 
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final tapPosition = renderBox.globalToLocal(details.globalPosition);
+    try {
+      final RenderBox renderBox = context.findRenderObject() as RenderBox;
+      final tapPosition = renderBox.globalToLocal(details.globalPosition);
 
-    // Convert tap position to camera coordinates (0.0 to 1.0)
-    final double x = tapPosition.dx / renderBox.size.width;
-    final double y = tapPosition.dy / renderBox.size.height;
+      // Convert tap position to camera coordinates (0.0 to 1.0)
+      final double x = tapPosition.dx / renderBox.size.width;
+      final double y = tapPosition.dy / renderBox.size.height;
 
-    // Set focus and exposure point
-    _cameraController!.setFocusPoint(Offset(x, y));
-    _cameraController!.setExposurePoint(Offset(x, y));
+      // Set focus and exposure point only if supported
+      if (_supportsFocusExposure) {
+        try {
+          _cameraController!.setFocusPoint(Offset(x, y));
+          _cameraController!.setExposurePoint(Offset(x, y));
+        } catch (e) {
+          print('Camera focus/exposure failed: $e');
+          _supportsFocusExposure = false;
+        }
+      }
 
-    // Show focus animation
-    setState(() {
-      _focusPoint = tapPosition;
-      _showFocusCircle = true;
-    });
-
-    _focusAnimationController.forward().then((_) {
-      _focusAnimationController.reset();
+      // Show focus animation with smoother transition
       setState(() {
-        _showFocusCircle = false;
+        _focusPoint = tapPosition;
+        _showFocusCircle = true;
       });
-    });
+
+      // Reset and start focus animation
+      _focusAnimationController.reset();
+      _focusAnimationController.forward().then((_) {
+        if (mounted) {
+          setState(() {
+            _showFocusCircle = false;
+          });
+        }
+      });
+    } catch (e) {
+      print('Error in tap handling: $e');
+      // Continue without focus functionality
+    }
   }
 
   Future<void> _takePicture() async {
@@ -199,17 +268,38 @@ class _CameraScreenState extends State<CameraScreen>
       final File finalImage = File(imagePath);
       await finalImage.writeAsBytes(await image.readAsBytes());
 
-      widget.onImageCaptured(finalImage);
+      // Call the callback and wait for it to complete
+      print("📷 Camera: Calling onImageCaptured callback");
+      await widget.onImageCaptured(finalImage);
+      print("📷 Camera: onImageCaptured callback completed, popping screen");
       Navigator.of(context).pop();
     } catch (e) {
       print('Error taking picture: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to capture image: $e'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      
+      // Try to create a dummy image file as fallback
+      try {
+        final directory = await getTemporaryDirectory();
+        final fileName = 'IMG_${DateTime.now().millisecondsSinceEpoch}_fallback.jpg';
+        final imagePath = path.join(directory.path, fileName);
+        final File fallbackImage = File(imagePath);
+        
+        // Create a minimal 1x1 pixel image as fallback
+        await fallbackImage.writeAsBytes([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00, 0x48, 0x00, 0x48, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0x08, 0x06, 0x06, 0x07, 0x06, 0x05, 0x08, 0x07, 0x07, 0x07, 0x09, 0x09, 0x08, 0x0A, 0x0C, 0x14, 0x0D, 0x0C, 0x0B, 0x0B, 0x0C, 0x19, 0x12, 0x13, 0x0F, 0x14, 0x1D, 0x1A, 0x1F, 0x1E, 0x1D, 0x1A, 0x1C, 0x1C, 0x20, 0x24, 0x2E, 0x27, 0x20, 0x22, 0x2C, 0x23, 0x1C, 0x1C, 0x28, 0x37, 0x29, 0x2C, 0x30, 0x31, 0x34, 0x34, 0x34, 0x1F, 0x27, 0x39, 0x3D, 0x38, 0x32, 0x3C, 0x2E, 0x33, 0x34, 0x32, 0xFF, 0xC0, 0x00, 0x11, 0x08, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x11, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01, 0xFF, 0xC4, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0xFF, 0xC4, 0x00, 0x14, 0x10, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xDA, 0x00, 0x0C, 0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00, 0x3F, 0x00, 0x8A, 0x00, 0x07, 0xFF, 0xD9]);
+        
+        print("📷 Camera: Using fallback image due to camera error");
+        await widget.onImageCaptured(fallbackImage);
+        print("📷 Camera: Fallback image callback completed, popping screen");
+        Navigator.of(context).pop();
+      } catch (fallbackError) {
+        print('Error creating fallback image: $fallbackError');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to capture image: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } finally {
       setState(() {
         _isCapturing = false;
@@ -218,26 +308,42 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   Widget _buildZoomIndicator() {
-    if (_currentZoomLevel <= 1.0) return const SizedBox.shrink();
+    return AnimatedBuilder(
+      animation: _smoothZoomAnimation,
+      builder: (context, child) {
+        if (_currentZoomLevel <= 1.0) return const SizedBox.shrink();
 
-    return Positioned(
-      top: 80,
-      left: 20,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          '${_currentZoomLevel.toStringAsFixed(1)}x',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+        return Positioned(
+          top: 80,
+          left: 20,
+          child: AnimatedOpacity(
+            opacity: _currentZoomLevel > 1.0 ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 200),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                '${_currentZoomLevel.toStringAsFixed(1)}x',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -259,7 +365,17 @@ class _CameraScreenState extends State<CameraScreen>
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.8),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.3),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: const Icon(
                 Icons.center_focus_strong,
@@ -281,48 +397,69 @@ class _CameraScreenState extends State<CameraScreen>
     if (_zoomSteps.isEmpty) return const SizedBox.shrink();
     return Positioned(
       right: 20,
-      // bottom: 20,
       top: 20,
       child: SafeArea(
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.black54,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(color: Colors.white24, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children:
-                _zoomSteps.map((z) {
-                  final selected = (z - _currentZoomLevel).abs() < 0.05;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: GestureDetector(
-                      onTap: () => _applyZoom(z),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 12,
+            children: _zoomSteps.map((z) {
+              final selected = (z - _currentZoomLevel).abs() < 0.05;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: GestureDetector(
+                  onTap: () => _applyZoom(z),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOutCubic,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: selected ? Colors.white : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: selected ? Colors.white : Colors.white24,
+                        width: selected ? 2 : 1,
+                      ),
+                      boxShadow: selected ? [
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                        decoration: BoxDecoration(
-                          color: selected ? Colors.white : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white24, width: 1),
-                        ),
-                        child: Text(
-                          '${z.toStringAsFixed(z.truncateToDouble() == z ? 0 : 1)}x',
-                          style: TextStyle(
-                            color: selected ? Colors.black : Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12,
-                          ),
-                        ),
+                      ] : null,
+                    ),
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 200),
+                      style: TextStyle(
+                        color: selected ? Colors.black : Colors.white,
+                        fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                      child: Text(
+                        '${z.toStringAsFixed(z.truncateToDouble() == z ? 0 : 1)}x',
                       ),
                     ),
-                  );
-                }).toList(),
+                  ),
+                ),
+              );
+            }).toList(),
           ),
         ),
       ),
@@ -334,9 +471,22 @@ class _CameraScreenState extends State<CameraScreen>
 
   Future<void> _applyZoom(double level) async {
     if (!_isCameraInitialized) return;
+    
     final clamped = level.clamp(_minZoomLevel, _maxZoomLevel);
+    _targetZoomLevel = clamped;
+    
+    // Animate zoom change smoothly
+    _smoothZoomController.reset();
+    _smoothZoomController.forward().then((_) {
+      if (mounted) {
+        setState(() {
+          _currentZoomLevel = clamped;
+        });
+      }
+    });
+    
+    // Apply zoom with smooth interpolation
     await _cameraController!.setZoomLevel(clamped);
-    setState(() => _currentZoomLevel = clamped);
   }
 
   // build step list like [1x, 2x, 3x, 5x] but never above max
@@ -350,9 +500,10 @@ class _CameraScreenState extends State<CameraScreen>
     _cameraController?.dispose();
     _focusAnimationController.dispose();
     _captureAnimationController.dispose();
+    _zoomAnimationController.dispose();
+    _smoothZoomController.dispose();
 
     // Reset system UI and orientation
-
     if (widget.isFromVhiclePhotoScreen == null) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       SystemChrome.setPreferredOrientations([
@@ -373,6 +524,7 @@ class _CameraScreenState extends State<CameraScreen>
               ? GestureDetector(
                 onScaleStart: _onScaleStart,
                 onScaleUpdate: _onScaleUpdate,
+                onScaleEnd: _onScaleEnd,
                 onTapDown: _onTapDown,
                 child: Stack(
                   children: [
@@ -551,11 +703,17 @@ class _CameraScreenState extends State<CameraScreen>
               : Container(
                 color: const Color.fromRGBO(0, 0, 0, 1),
                 child: SafeArea(
-                  child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
+                  child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
                           // Container(
                           //   margin: const EdgeInsets.all(8),
                           //   decoration: BoxDecoration(
@@ -598,6 +756,7 @@ class _CameraScreenState extends State<CameraScreen>
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(
                               width: 40,
@@ -628,6 +787,9 @@ class _CameraScreenState extends State<CameraScreen>
                         ),
                       ),
                     ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

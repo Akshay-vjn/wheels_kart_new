@@ -14,6 +14,7 @@ import 'package:image/image.dart' as img;
 
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/functions.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/widget_build_check_box.dart';
+import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/e_answer_question_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_textfield.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
@@ -25,12 +26,14 @@ class BuildQuestionTile extends StatefulWidget {
   final QuestionModelData question;
   final InspectionPrefillModel? prefillModel;
   final int index;
+  final ScrollController? scrollController;
 
   const BuildQuestionTile({
     super.key,
     required this.question,
     this.prefillModel,
     required this.index,
+    this.scrollController,
   });
 
   @override
@@ -38,7 +41,7 @@ class BuildQuestionTile extends StatefulWidget {
 }
 
 class _BuildQuestionTileState extends State<BuildQuestionTile>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -53,6 +56,34 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
 
   bool isLoadingImage = true;
   bool _isExpanded = true;
+  bool _isCapturingImage = false;
+  double? _pendingScrollPosition;
+  FocusNode? _addPictureFocusNode;
+  bool _disableTextFields = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  ScrollController? _getScrollController() {
+    // Use the passed scroll controller or try to find one
+    return widget.scrollController ?? _findScrollController();
+  }
+
+  ScrollController? _findScrollController() {
+    // Find scroll controller by looking up the widget tree
+    ScrollController? scrollController;
+    context.visitAncestorElements((element) {
+      if (element.widget is SingleChildScrollView) {
+        final scrollView = element.widget as SingleChildScrollView;
+        if (scrollView.controller != null) {
+          scrollController = scrollView.controller;
+          return false; // Stop searching
+        }
+      }
+      return true; // Continue searching
+    });
+    return scrollController;
+  }
 
   @override
   void initState() {
@@ -77,6 +108,9 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
 
     _animationController.forward();
 
+    // Initialize focus node for add picture button
+    _addPictureFocusNode = FocusNode();
+
     if (widget.prefillModel != null) {
       _initializePrefillData();
     } else {
@@ -85,8 +119,36 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
   }
 
   @override
+  void didUpdateWidget(BuildQuestionTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // If we were capturing an image and the widget just rebuilt due to BLoC state change,
+    // restore the scroll position and focus on add picture button
+    if (_isCapturingImage && _pendingScrollPosition != null) {
+      print("🔄 Widget updated during image capture, restoring scroll position");
+      
+      final scrollController = _getScrollController();
+      if (scrollController != null) {
+        // Use a longer delay to ensure text field focus changes are complete
+        Future.delayed(const Duration(milliseconds: 300), () {
+          _restoreScrollPosition(scrollController, _pendingScrollPosition);
+          // Focus on add picture button after scroll restoration
+          _addPictureFocusNode?.requestFocus();
+        });
+      }
+    }
+  }
+
+  /// Focus on add picture button when returning from camera
+  void _focusOnAddPictureButton() {
+    print("📸 Focusing on add picture button");
+    _addPictureFocusNode?.requestFocus();
+  }
+
+  @override
   void dispose() {
     _animationController.dispose();
+    _addPictureFocusNode?.dispose();
     helperVariable['commentController']?.dispose();
     helperVariable['descriptiveController']?.dispose();
     super.dispose();
@@ -129,13 +191,14 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return SlideTransition(
       position: _slideAnimation,
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: BlocBuilder<
-          EvSubmitAnswerControllerCubit,
-          EvSubmitAnswerControllerState
+            EvSubmitAnswerControllerCubit,
+            EvSubmitAnswerControllerState
         >(builder: (context, state) => _buildQuestionCard(state)),
       ),
     );
@@ -307,26 +370,26 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       child:
-          _isExpanded
-              ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.question.questionType == "MCQ") ...[
-                    _buildSubQuestionViewForMcq(widget.index),
-                    _buildAnswerForMcq(widget.index),
-                    _buildValidOptionView(widget.index),
-                    _buildInValidOptionView(widget.index),
-                  ],
-                  if (widget.question.questionType == "Descriptive") ...[
-                    _buildDescriptiveQuestion(widget.index),
-                  ],
-                  if (widget.question.picture != "Not Required") ...[
-                    _buildImageSection(),
-                  ],
-                  _commentBoxView(widget.index),
-                ],
-              )
-              : const SizedBox.shrink(),
+      _isExpanded
+          ? Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.question.questionType == "MCQ") ...[
+            _buildSubQuestionViewForMcq(widget.index),
+            _buildAnswerForMcq(widget.index),
+            _buildValidOptionView(widget.index),
+            _buildInValidOptionView(widget.index),
+          ],
+          if (widget.question.questionType == "Descriptive") ...[
+            _buildDescriptiveQuestion(widget.index),
+          ],
+          if (widget.question.picture != "Not Required") ...[
+            _buildImageSection(),
+          ],
+          _commentBoxView(widget.index),
+        ],
+      )
+          : const SizedBox.shrink(),
     );
   }
 
@@ -372,34 +435,34 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
             spacing: 8,
             runSpacing: 8,
             children:
-                subQuestions
-                    .asMap()
-                    .entries
-                    .map(
-                      (e) => BlocBuilder<
-                        EvSubmitAnswerControllerCubit,
-                        EvSubmitAnswerControllerState
-                      >(
-                        builder: (context, state) {
-                          return _buildChipButton(
-                            title: e.value,
-                            isSelected:
-                                (currentIndexVariables.subQuestionAnswer !=
-                                    null) &&
-                                (currentIndexVariables.subQuestionAnswer ==
-                                    e.value),
-                            onTap: () {
-                              Functions.onSelectSubQuestion(
-                                context,
-                                questionIndex,
-                                e.value,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    )
-                    .toList(),
+            subQuestions
+                .asMap()
+                .entries
+                .map(
+                  (e) => BlocBuilder<
+                  EvSubmitAnswerControllerCubit,
+                  EvSubmitAnswerControllerState
+              >(
+                builder: (context, state) {
+                  return _buildChipButton(
+                    title: e.value,
+                    isSelected:
+                    (currentIndexVariables.subQuestionAnswer !=
+                        null) &&
+                        (currentIndexVariables.subQuestionAnswer ==
+                            e.value),
+                    onTap: () {
+                      Functions.onSelectSubQuestion(
+                        context,
+                        questionIndex,
+                        e.value,
+                      );
+                    },
+                  );
+                },
+              ),
+            )
+                .toList(),
           ),
         ),
       );
@@ -421,33 +484,33 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           spacing: 8,
           runSpacing: 8,
           children:
-              answers
-                  .asMap()
-                  .entries
-                  .map(
-                    (e) => BlocBuilder<
-                      EvSubmitAnswerControllerCubit,
-                      EvSubmitAnswerControllerState
-                    >(
-                      builder: (context, state) {
-                        return _buildChipButton(
-                          title: e.value,
-                          isSelected:
-                              currentIndexVariables.answer != null &&
-                              currentIndexVariables.answer == e.value,
-                          onTap: () {
-                            Functions.onSelectAnswertion(
-                              context,
-                              questionIndex,
-                              e.value,
-                            );
-                          },
-                          isPrimary: true,
-                        );
-                      },
-                    ),
-                  )
-                  .toList(),
+          answers
+              .asMap()
+              .entries
+              .map(
+                (e) => BlocBuilder<
+                EvSubmitAnswerControllerCubit,
+                EvSubmitAnswerControllerState
+            >(
+              builder: (context, state) {
+                return _buildChipButton(
+                  title: e.value,
+                  isSelected:
+                  currentIndexVariables.answer != null &&
+                      currentIndexVariables.answer == e.value,
+                  onTap: () {
+                    Functions.onSelectAnswertion(
+                      context,
+                      questionIndex,
+                      e.value,
+                    );
+                  },
+                  isPrimary: true,
+                );
+              },
+            ),
+          )
+              .toList(),
         ),
       );
     }
@@ -464,38 +527,38 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
 
       return Visibility(
         visible:
-            (currentIndexVariables.answer != null) &&
+        (currentIndexVariables.answer != null) &&
             (currentIndexVariables.answer == question.answers.first &&
                 question.validOptions.isNotEmpty),
         child: _buildSection(
           title:
-              question.validOptionsTitle.isNotEmpty
-                  ? question.validOptionsTitle
-                  : 'Please select the option',
+          question.validOptionsTitle.isNotEmpty
+              ? question.validOptionsTitle
+              : 'Please select the option',
           child: Column(
             children:
-                validOptions
-                    .asMap()
-                    .entries
-                    .map(
-                      (e) => BuildCheckBox(
-                        isSelected:
-                            currentIndexVariables.validOption == null
-                                ? false
-                                : currentIndexVariables.validOption!.contains(
-                                  e.value,
-                                ),
-                        title: e.value,
-                        onChanged: (p0) {
-                          Functions.onSelectValidOption(
-                            context,
-                            questionIndex,
-                            e.value,
-                          );
-                        },
-                      ),
-                    )
-                    .toList(),
+            validOptions
+                .asMap()
+                .entries
+                .map(
+                  (e) => BuildCheckBox(
+                isSelected:
+                currentIndexVariables.validOption == null
+                    ? false
+                    : currentIndexVariables.validOption!.contains(
+                  e.value,
+                ),
+                title: e.value,
+                onChanged: (p0) {
+                  Functions.onSelectValidOption(
+                    context,
+                    questionIndex,
+                    e.value,
+                  );
+                },
+              ),
+            )
+                .toList(),
           ),
         ),
       );
@@ -513,38 +576,38 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
 
       return Visibility(
         visible:
-            ((currentIndexVariables.answer != null) &&
-                (currentIndexVariables.answer == question.invalidAnswers)) &&
+        ((currentIndexVariables.answer != null) &&
+            (currentIndexVariables.answer == question.invalidAnswers)) &&
             inValidOptions.isNotEmpty,
         child: _buildSection(
           title:
-              question.invalidOptionsTitle.isNotEmpty
-                  ? question.invalidOptionsTitle
-                  : 'Please select the option',
+          question.invalidOptionsTitle.isNotEmpty
+              ? question.invalidOptionsTitle
+              : 'Please select the option',
           child: Column(
             children:
-                inValidOptions
-                    .asMap()
-                    .entries
-                    .map(
-                      (e) => BuildCheckBox(
-                        isSelected:
-                            currentIndexVariables.invalidOption == null
-                                ? false
-                                : currentIndexVariables.invalidOption!.contains(
-                                  e.value,
-                                ),
-                        title: e.value,
-                        onChanged: (p0) {
-                          Functions.onSelectInValidOption(
-                            context,
-                            questionIndex,
-                            e.value,
-                          );
-                        },
-                      ),
-                    )
-                    .toList(),
+            inValidOptions
+                .asMap()
+                .entries
+                .map(
+                  (e) => BuildCheckBox(
+                isSelected:
+                currentIndexVariables.invalidOption == null
+                    ? false
+                    : currentIndexVariables.invalidOption!.contains(
+                  e.value,
+                ),
+                title: e.value,
+                onChanged: (p0) {
+                  Functions.onSelectInValidOption(
+                    context,
+                    questionIndex,
+                    e.value,
+                  );
+                },
+              ),
+            )
+                .toList(),
           ),
         ),
       );
@@ -628,9 +691,9 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
             },
             controller: helperVariable["commentController"],
             hintText:
-                commentTitle.isEmpty
-                    ? 'Enter the comment in any...'
-                    : commentTitle,
+            commentTitle.isEmpty
+                ? 'Enter the comment in any...'
+                : commentTitle,
           ),
         ),
       );
@@ -702,9 +765,9 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
             ),
             shrinkWrap: true,
             itemCount:
-                isLoadingImage
-                    ? listOfImages.length + 2
-                    : listOfImages.length + 1,
+            isLoadingImage
+                ? listOfImages.length + 2
+                : listOfImages.length + 1,
             itemBuilder: (context, index) {
               if (isLoadingImage && index == 0) {
                 return _buildImageLoadingPlaceholder();
@@ -742,49 +805,61 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
   }
 
   Widget _buildAddImageButton(int questionIndex, bool hasImages) {
-    return InkWell(
-      onTap: () => _openCamera(questionIndex),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.3),
-            width: 2,
-            style: BorderStyle.solid,
+    return Focus(
+      focusNode: _addPictureFocusNode,
+      onFocusChange: (hasFocus) {
+        if (hasFocus) {
+          print("📸 Add picture button focused");
+        }
+      },
+      child: InkWell(
+        onTap: () => _openCamera(questionIndex),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _addPictureFocusNode?.hasFocus == true
+                  ? EvAppColors.DEFAULT_BLUE_DARK
+                  : EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.3),
+              width: _addPictureFocusNode?.hasFocus == true ? 3 : 2,
+              style: BorderStyle.solid,
+            ),
+            color: _addPictureFocusNode?.hasFocus == true
+                ? EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.1)
+                : EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.05),
           ),
-          color: EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.05),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add_a_photo,
-              size: 32,
-              color: EvAppColors.DEFAULT_BLUE_DARK,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              hasImages ? 'Add More' : 'Add Picture',
-              style: EvAppStyle.style(
-                context: context,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add_a_photo,
+                size: 32,
                 color: EvAppColors.DEFAULT_BLUE_DARK,
-                fontWeight: FontWeight.w600,
-                size: AppDimensions.fontSize12(context),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                hasImages ? 'Add More' : 'Add Picture',
+                style: EvAppStyle.style(
+                  context: context,
+                  color: EvAppColors.DEFAULT_BLUE_DARK,
+                  fontWeight: FontWeight.w600,
+                  size: AppDimensions.fontSize12(context),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildImagePreview(
-    List listOfImages,
-    int imageIndex,
-    int questionIndex,
-  ) {
+      List listOfImages,
+      int imageIndex,
+      int questionIndex,
+      ) {
     return Stack(
       children: [
         InkWell(
@@ -793,15 +868,15 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
               context: context,
               builder:
                   (context) => Material(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: EvAppColors.black,
-                        image: DecorationImage(
-                          image: MemoryImage(listOfImages[imageIndex]),
-                        ),
-                      ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: EvAppColors.black,
+                    image: DecorationImage(
+                      image: MemoryImage(listOfImages[imageIndex]),
                     ),
                   ),
+                ),
+              ),
             );
           },
           child: Container(
@@ -810,12 +885,12 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
               border: Border.all(color: Colors.grey[300]!),
               color: Colors.white,
               image:
-                  listOfImages[imageIndex] == null
-                      ? null
-                      : DecorationImage(
-                        fit: BoxFit.cover,
-                        image: MemoryImage(listOfImages[imageIndex]),
-                      ),
+              listOfImages[imageIndex] == null
+                  ? null
+                  : DecorationImage(
+                fit: BoxFit.cover,
+                image: MemoryImage(listOfImages[imageIndex]),
+              ),
             ),
           ),
         ),
@@ -824,10 +899,13 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           right: 8,
           child: GestureDetector(
             onTap: () {
-              setState(() {
-                listOfImages.removeAt(imageIndex);
+              // Use a more stable state update to prevent scroll jumping
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() {
+                  listOfImages.removeAt(imageIndex);
+                });
+                Functions.resetButtonStatus(context, questionIndex);
               });
-              Functions.resetButtonStatus(context, questionIndex);
             },
             child: Container(
               padding: const EdgeInsets.all(4),
@@ -905,18 +983,18 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color:
-                isSelected
-                    ? (isPrimary
-                        ? EvAppColors.DEFAULT_BLUE_DARK
-                        : EvAppColors.kGreen)
-                    : Colors.transparent,
+            isSelected
+                ? (isPrimary
+                ? EvAppColors.DEFAULT_BLUE_DARK
+                : EvAppColors.kGreen)
+                : Colors.transparent,
             border: Border.all(
               color:
-                  isSelected
-                      ? (isPrimary
-                          ? EvAppColors.DEFAULT_BLUE_DARK
-                          : EvAppColors.kGreen)
-                      : Colors.grey[300]!,
+              isSelected
+                  ? (isPrimary
+                  ? EvAppColors.DEFAULT_BLUE_DARK
+                  : EvAppColors.kGreen)
+                  : Colors.grey[300]!,
               width: 1.5,
             ),
           ),
@@ -970,34 +1048,34 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor:
-              hasError ? EvAppColors.kRed : EvAppColors.DEFAULT_BLUE_DARK,
+          hasError ? EvAppColors.kRed : EvAppColors.DEFAULT_BLUE_DARK,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 2,
         ),
         onPressed:
-            isLoading
-                ? null
-                : () => onSubmitQuestionEachQuestion(context, widget.index),
+        isLoading
+            ? null
+            : () => onSubmitQuestionEachQuestion(context, widget.index),
         child:
-            isLoading
-                ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-                : Text(
-                  hasError ? "Retry" : "Save Answer",
-                  style: EvAppStyle.style(
-                    context: context,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+        isLoading
+            ? const SizedBox(
+          height: 20,
+          width: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        )
+            : Text(
+          hasError ? "Retry" : "Save Answer",
+          style: EvAppStyle.style(
+            context: context,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
@@ -1006,10 +1084,10 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     final descriptiveKey =
-        helperVariable['descriptiveKey'] as GlobalKey<FormState>;
+    helperVariable['descriptiveKey'] as GlobalKey<FormState>;
 
     final descriptiveController =
-        helperVariable['descriptiveController'] as TextEditingController;
+    helperVariable['descriptiveController'] as TextEditingController;
 
     if (currentState is SuccessFetchQuestionsState) {
       final question = currentState.listOfQuestions[index];
@@ -1079,30 +1157,161 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
     }
   }
 
+  void _restoreScrollPosition(ScrollController? scrollController, double? savedPosition) {
+    if (scrollController != null && savedPosition != null) {
+      print("🔄 Restoring scroll position: $savedPosition");
+      
+      // Try multiple times to ensure scroll restoration works after BLoC rebuild
+      _attemptScrollRestoration(scrollController, savedPosition, 0);
+    } else {
+      print("❌ Scroll controller or saved position is null");
+      // Try to restore using global position as backup
+      if (scrollController != null) {
+        _restoreScrollPositionWithGlobalBackup(scrollController);
+      }
+    }
+  }
+
+  void _attemptScrollRestoration(ScrollController scrollController, double targetPosition, int attempt) {
+    const maxAttempts = 8; // Increased attempts
+    const delayMs = 300; // Increased delay
+    
+    if (attempt >= maxAttempts) {
+      print("❌ Max scroll restoration attempts reached, using global backup");
+      _restoreScrollPositionWithGlobalBackup(scrollController);
+      return;
+    }
+    
+    print("🔄 Scroll restoration attempt ${attempt + 1}/$maxAttempts");
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients && mounted) {
+        final currentPosition = scrollController.offset;
+        print("📊 Current position: $currentPosition, Target: $targetPosition");
+        
+        if ((currentPosition - targetPosition).abs() > 10) {
+          print("✅ Animating to position: $targetPosition");
+          scrollController.animateTo(
+            targetPosition,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+          
+          // Check if restoration was successful after animation
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (scrollController.hasClients && mounted) {
+              final newPosition = scrollController.offset;
+              print("📊 Post-animation position: $newPosition, Target: $targetPosition");
+              
+              if ((newPosition - targetPosition).abs() > 10) {
+                print("🔄 Scroll restoration not successful, retrying...");
+                _attemptScrollRestoration(scrollController, targetPosition, attempt + 1);
+              } else {
+                print("✅ Scroll restoration successful");
+              }
+            }
+          });
+        } else {
+          print("✅ Scroll position already correct");
+        }
+      } else {
+        print("❌ Scroll controller not available, retrying...");
+        Future.delayed(Duration(milliseconds: delayMs), () {
+          _attemptScrollRestoration(scrollController, targetPosition, attempt + 1);
+        });
+      }
+    });
+  }
+
+  void _restoreScrollPositionWithGlobalBackup(ScrollController scrollController) {
+    final globalPosition = ScrollPositionManager.getCurrentScrollPosition();
+    if (globalPosition > 0) {
+      print("🔄 Using global position as backup: $globalPosition");
+      // Use a small delay to ensure the widget is ready
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (scrollController.hasClients && mounted) {
+          scrollController.animateTo(
+            globalPosition,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
   void _openCamera(int questionIndex) async {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     if (currentState is SuccessFetchQuestionsState) {
+      // Set flags to track image capture operation
+      setState(() {
+        _isCapturingImage = true;
+      });
+      
+      // Save current scroll position before opening camera
+      final scrollController = _getScrollController();
+      double? savedPosition;
+      if (scrollController != null) {
+        savedPosition = scrollController.offset;
+        _pendingScrollPosition = savedPosition;
+        print("📸 Saved scroll position: $savedPosition");
+        // Also save to global position tracker
+        ScrollPositionManager.setScrollPosition(savedPosition);
+      }
+
       Navigator.of(context).push(
         AppRoutes.createRoute(
           CameraScreen(
             onImageCaptured: (file) async {
+              print("📷 Image captured callback triggered");
               final listOfImages = helperVariable["listOfImages"];
 
-              final bytes = await file.readAsBytes();
-              img.Image? image = img.decodeImage(bytes);
-              if (image == null) {
-                throw Exception("Unable to decode image");
+              try {
+                final bytes = await file.readAsBytes();
+                print("📷 Image bytes read: ${bytes.length} bytes");
+
+                img.Image? image = img.decodeImage(bytes);
+                if (image == null) {
+                  print("❌ Failed to decode image");
+                  throw Exception("Unable to decode image");
+                }
+                print("📷 Image decoded: ${image.width}x${image.height}");
+
+                if (image.width > 800) {
+                  image = img.copyResize(image, width: 800);
+                  print("📷 Image resized to 800px width");
+                }
+                final compressed = img.encodeJpg(image, quality: 80);
+                print("📷 Image compressed: ${compressed.length} bytes");
+
+                // Add image to list first
+                setState(() {
+                  listOfImages.add(compressed);
+                });
+                print("📷 Image added to list, total images: ${listOfImages.length}");
+
+                // Reset button status (this triggers BLoC state change)
+                Functions.resetButtonStatus(context, questionIndex);
+                print("📷 Button status reset");
+
+                // Clear image capture flag
+                setState(() {
+                  _isCapturingImage = false;
+                });
+
+                // Restore scroll position and focus on add picture button AFTER BLoC state change completes
+                Future.delayed(const Duration(milliseconds: 400), () {
+                  _restoreScrollPosition(scrollController, savedPosition);
+                  
+                  // Focus on add picture button after scroll restoration
+                  Future.delayed(const Duration(milliseconds: 200), () {
+                    _focusOnAddPictureButton();
+                  });
+                });
+              } catch (e) {
+                print("❌ Error in image processing: $e");
               }
-              if (image.width > 800) {
-                image = img.copyResize(image, width: 800);
-              }
-              final compressed = img.encodeJpg(image, quality: 80);
-              //---------------
-              setState(() {
-                listOfImages.add(compressed);
-              });
-              Functions.resetButtonStatus(context, questionIndex);
             },
           ),
         ),
@@ -1134,15 +1343,15 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
   }
 
   void checkCommentAndImage(
-    int index,
-    QuestionModelData question,
-    UploadInspectionModel uploadData,
-    bool isCommentMandotory,
-  ) async {
+      int index,
+      QuestionModelData question,
+      UploadInspectionModel uploadData,
+      bool isCommentMandotory,
+      ) async {
     try {
       final commentKey = helperVariable["commentKey"] as GlobalKey<FormState>;
       final commentController =
-          helperVariable['commentController'] as TextEditingController;
+      helperVariable['commentController'] as TextEditingController;
       final listOFImages = helperVariable['listOfImages'] as List<Uint8List?>;
       bool isDescriptiveQuestion = question.questionType == "Descriptive";
       bool isSelectedInValid = question.invalidAnswers == uploadData.answer;

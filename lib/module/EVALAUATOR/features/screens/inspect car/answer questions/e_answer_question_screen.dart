@@ -14,6 +14,7 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20inspe
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20inspections/fetch_inspections_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch%20questions/fetch_questions_bloc.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20controller/submit_answer_controller_cubit.dart';
+import 'package:wheels_kart/main.dart';
 
 class EvAnswerQuestionScreen extends StatefulWidget {
   final String portionId;
@@ -35,18 +36,38 @@ class EvAnswerQuestionScreen extends StatefulWidget {
   State<EvAnswerQuestionScreen> createState() => _EvAnswerQuestionScreenState();
 }
 
+// Global scroll position manager
+class ScrollPositionManager {
+  static double _globalScrollPosition = 0.0;
+  
+  static double getCurrentScrollPosition() {
+    return _globalScrollPosition;
+  }
+  
+  static void setScrollPosition(double position) {
+    _globalScrollPosition = position;
+  }
+}
+
 class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen>
-    with TickerProviderStateMixin {
+with TickerProviderStateMixin, RouteAware {
   List<Map<String, dynamic>> helperVariables = [];
   late AnimationController _progressController;
   late Animation<double> _progressAnimation;
   bool calledBackFunction = false;
+  late ScrollController _scrollController;
+  double _savedScrollPosition = 0.0;
+  static final GlobalKey<_EvAnswerQuestionScreenState> _globalKey = GlobalKey();
 
   @override
   void initState() {
     // context.read<EvSubmitAnswerControllerCubit>().init(0);
 
     super.initState();
+
+    // Initialize scroll controller with position listener
+    _scrollController = ScrollController();
+    _scrollController.addListener(_saveScrollPosition);
 
     // Initialize progress animation
     _progressController = AnimationController(
@@ -79,11 +100,117 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen>
     log("system id ${widget.systemId}");
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    // Called when returning to this screen (e.g., from camera)
+    // Restore scroll position when returning from camera
+    print("🔄 didPopNext: Returning from camera, restoring scroll position");
+    
+    // Ensure text fields remain unfocused when returning from camera
+    _unfocusAllTextFields();
+    
+    // Restore scroll position with a delay to ensure text field focus changes are complete
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _restoreScrollPosition();
+    });
+  }
+
   bool initializeState = false;
+
+  void _saveScrollPosition() {
+    _savedScrollPosition = _scrollController.offset;
+    ScrollPositionManager.setScrollPosition(_scrollController.offset);
+    print("💾 Saved scroll position: $_savedScrollPosition");
+  }
+
+  /// Aggressively unfocus all text fields to prevent refocus after camera
+  Future<void> _unfocusAllTextFields() async {
+    print("🚫 Main screen: Unfocusing all text fields");
+    
+    // Method 1: Unfocus current focus scope
+    FocusScope.of(context).unfocus();
+    
+    // Method 2: Unfocus primary focus
+    FocusManager.instance.primaryFocus?.unfocus();
+    
+    // Method 3: Ensure unfocus is complete
+    await Future.delayed(const Duration(milliseconds: 50));
+    
+    // Method 4: Final unfocus to be absolutely sure
+    FocusScope.of(context).unfocus();
+    
+    print("✅ Main screen: All text fields unfocused");
+  }
+
+  void _restoreScrollPosition() {
+    final globalPosition = ScrollPositionManager.getCurrentScrollPosition();
+    final localPosition = _savedScrollPosition;
+    print("🔄 _restoreScrollPosition called - Global: $globalPosition, Local: $localPosition, Has clients: ${_scrollController.hasClients}");
+    
+    // Use global position first, fallback to local position
+    final targetPosition = globalPosition > 0 ? globalPosition : localPosition;
+    
+    if (targetPosition > 0) {
+      _attemptScrollRestoration(targetPosition, 0);
+    } else {
+      print("❌ No valid scroll position to restore");
+    }
+  }
+
+  void _attemptScrollRestoration(double targetPosition, int attempt) {
+    const maxAttempts = 5; // Increased attempts
+    const delayMs = 300; // Increased delay
+    
+    if (attempt >= maxAttempts) {
+      print("❌ Max scroll restoration attempts reached");
+      return;
+    }
+    
+    print("🔄 Scroll restoration attempt ${attempt + 1}/$maxAttempts - Target: $targetPosition");
+    
+    // Unfocus any text fields before attempting restoration
+    FocusScope.of(context).unfocus();
+    
+    if (_scrollController.hasClients) {
+      print("✅ Scroll controller available, animating to position: $targetPosition");
+      _scrollController.animateTo(
+        targetPosition,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      
+      // Check if restoration was successful after animation
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (_scrollController.hasClients) {
+          final newPosition = _scrollController.offset;
+          if ((newPosition - targetPosition).abs() > 10) {
+            print("🔄 Scroll restoration not successful, retrying...");
+            _attemptScrollRestoration(targetPosition, attempt + 1);
+          } else {
+            print("✅ Scroll restoration successful");
+          }
+        }
+      });
+    } else {
+      print("❌ Scroll controller not available, retrying in ${delayMs}ms...");
+      Future.delayed(Duration(milliseconds: delayMs), () {
+        _attemptScrollRestoration(targetPosition, attempt + 1);
+      });
+    }
+  }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_saveScrollPosition);
     _progressController.dispose();
+    _scrollController.dispose();
+    routeObserver.unsubscribe(this);
     super.dispose();
   }
 
@@ -92,6 +219,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen>
     return PopScope(
       canPop: false,
       child: Scaffold(
+        key: _globalKey,
         backgroundColor: EvAppColors.white,
         appBar: _buildEnhancedAppBar(),
         body: Column(
@@ -302,6 +430,7 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen>
       thickness: 6.0,
       radius: Radius.circular(8),
       child: SingleChildScrollView(
+        controller: _scrollController,
         padding: EdgeInsets.symmetric(
           horizontal: AppDimensions.paddingSize15,
           vertical: AppDimensions.paddingSize10,
@@ -321,11 +450,13 @@ class _EvAnswerQuestionScreenState extends State<EvAnswerQuestionScreen>
                         .toList();
 
                 return Container(
+                  key: ValueKey('question_${currentQuestion.questionId}'),
                   margin: EdgeInsets.only(bottom: AppDimensions.paddingSize15),
                   child: BuildQuestionTile(
                     question: currentQuestion,
                     prefillModel: prefills.isNotEmpty ? prefills.first : null,
                     index: index,
+                    scrollController: _scrollController,
                   ),
                 );
               }).toList(),

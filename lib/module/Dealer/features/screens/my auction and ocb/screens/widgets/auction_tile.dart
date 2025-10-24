@@ -835,7 +835,7 @@ class _AuctionTileState extends State<AuctionTile>
   void _startInitialAnimations() {
     _slideController.forward();
 
-    if (isSoldToMe) {
+    if (isSoldToMe || isOwnedByMe) {
       _celebrationController.forward();
       _shimmerController.repeat();
     } else if (!_timeOut && !isSold) {
@@ -902,6 +902,8 @@ class _AuctionTileState extends State<AuctionTile>
   // Computed properties
   bool get isSold => widget.auction.bidStatus == "Sold";
   bool get isSoldToMe => isSold && widget.auction.soldTo == widget.myId;
+  bool get isOwnedByMe => widget.auction.bidStatus == "Closed" && 
+                          widget.auction.yourStatus == "HighestBidder";
   bool get isMeHighBidder =>
       !isSold
           ? widget.auction.bidAmount ==
@@ -914,7 +916,7 @@ class _AuctionTileState extends State<AuctionTile>
       widget.auction.bidClosingTime!.difference(DateTime.now()).inMinutes < 2;
 
   Color get _primaryColor {
-    if (isSoldToMe) return VColors.GREENHARD;
+    if (isSoldToMe || isOwnedByMe) return VColors.GREENHARD;
     if (isMeHighBidder) return VColors.SECONDARY;
     if (_urgentTime) return Colors.orange;
     if (isSold) return VColors.DARK_GREY;
@@ -1026,7 +1028,7 @@ class _AuctionTileState extends State<AuctionTile>
               Expanded(flex: 3, child: _buildDetailsSection()),
             ],
           ),
-          if (isSoldToMe) ...[
+          if (isSoldToMe || isOwnedByMe) ...[
             const SizedBox(height: 12), 
             _buildWinnerBadge(),
             if (widget.auction.paymentStatus != null && widget.auction.paymentStatus!.isNotEmpty) ...[
@@ -1062,7 +1064,7 @@ class _AuctionTileState extends State<AuctionTile>
             ),
           ),
           // Status overlay
-          if (isSoldToMe)
+          if (isSoldToMe || isOwnedByMe)
             Positioned(
               top: 8,
               right: 8,
@@ -1190,7 +1192,9 @@ class _AuctionTileState extends State<AuctionTile>
               const SizedBox(width: 6),
               Flexible(
                 child: Text(
-                  "Congratulations! You won this auction!",
+                  isOwnedByMe 
+                    ? "Congratulations! You won this auction!"
+                    : "Congratulations! You won this auction!",
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                   style: VStyle.poppins(
@@ -1392,7 +1396,7 @@ class _AuctionTileState extends State<AuctionTile>
           child: _buildBidColumn(
             "Your Last Bid",
             "₹${widget.auction.yourBids.first.amount}",
-            isMeHighBidder ? VColors.SECONDARY : VColors.ERROR,
+            isMeHighBidder ? VColors.SECONDARY : VColors.GREENHARD,
           ),
         ),
       ],

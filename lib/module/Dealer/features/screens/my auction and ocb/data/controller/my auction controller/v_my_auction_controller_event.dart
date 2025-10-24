@@ -20,3 +20,9 @@ class UpdatePrice extends VMyAuctionControllerEvent {
   final String myId;
   UpdatePrice({required this.newBid, required this.myId});
 }
+
+class OnGetMyOwnedAuctions extends VMyAuctionControllerEvent {
+  final BuildContext context;
+
+  OnGetMyOwnedAuctions({required this.context});
+}

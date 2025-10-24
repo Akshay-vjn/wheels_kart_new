@@ -9,6 +9,7 @@ import 'package:wheels_kart/module/Dealer/core/const/v_api_const.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/models/v_my_auction_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/repo/v_get_my_auctions_epo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/my%20auction%20and%20ocb/data/repo/v_get_my_owned_repo.dart';
 
 part 'v_my_auction_controller_event.dart';
 part 'v_my_auction_controller_state.dart';
@@ -19,6 +20,7 @@ class VMyAuctionControllerBloc
   StreamSubscription? _subscription;
   VMyAuctionControllerBloc() : super(VMyAuctionControllerInitial()) {
     on<OnGetMyAuctions>(_onGetMyAuction);
+    on<OnGetMyOwnedAuctions>(_onGetMyOwnedAuctions);
 
     // WEB SOCKET
 
@@ -85,6 +87,40 @@ class VMyAuctionControllerBloc
               data.map((e) => VMyAuctionModel.fromJson(e)).toList(),
         ),
       );
+    }
+  }
+
+  Future<void> _onGetMyOwnedAuctions(
+    OnGetMyOwnedAuctions event,
+    Emitter<VMyAuctionControllerState> emit,
+  ) async {
+    log("🔄 Starting to fetch owned auctions...");
+    emit(VMyAuctionControllerOwnedLoadingState());
+    
+    try {
+      final response = await VGetMyOwnedRepo.onGetMyOwned(event.context);
+      log("📊 Owned auctions API response: $response");
+      
+      if (response['error'] == true) {
+        log("❌ Error in owned auctions API: ${response['message']}");
+        emit(VMyAuctionControllerErrorState(response['message']));
+      } else {
+        final data = response['data'] as List;
+        log("✅ Owned auctions data received: ${data.length} items");
+
+        final ownedAuctions = data.map((e) => VMyAuctionModel.fromJson(e)).toList();
+        log("📋 Created owned auctions list with ${ownedAuctions.length} items");
+        
+        emit(
+          VMyAuctionControllerOwnedSuccessState(
+            listOfOwnedAuctions: ownedAuctions,
+          ),
+        );
+        log("✅ Owned auctions state emitted successfully");
+      }
+    } catch (e) {
+      log("❌ Exception in owned auctions: $e");
+      emit(VMyAuctionControllerErrorState("Failed to fetch owned auctions: $e"));
     }
   }
 

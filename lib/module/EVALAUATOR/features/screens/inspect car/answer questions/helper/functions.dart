@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
@@ -15,10 +16,10 @@ import 'package:wheels_kart/module/EVALAUATOR/data/model/upload_inspection_model
 class Functions {
   // Prefill Function
   static Future<void> onPrefillTheQuestion(
-    BuildContext context,
-    int questionIndex,
-    InspectionPrefillModel prefillData,
-  ) async {
+      BuildContext context,
+      int questionIndex,
+      InspectionPrefillModel prefillData,
+      ) async {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       String? subQuestionAnswer = prefillData.subQuestionAnswer;
@@ -42,7 +43,7 @@ class Functions {
 
       context.read<FetchQuestionsBloc>().add(
         OnAnswerTheQuestion(
-           
+
           listOfUploads: updatedIndexVariables,
           index: questionIndex,
         ),
@@ -53,16 +54,16 @@ class Functions {
           questionIndex,
         );
       }
-      
+
     }
   }
 
   //--------------------------------
   static void onSelectSubQuestion(
-    BuildContext context,
-    int questionIndex,
-    dynamic value,
-  ) {
+      BuildContext context,
+      int questionIndex,
+      dynamic value,
+      ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       List<UploadInspectionModel> updatedIndexVariables =
@@ -91,10 +92,10 @@ class Functions {
   }
 
   static void onSelectAnswertion(
-    BuildContext context,
-    int questionIndex,
-    dynamic value,
-  ) {
+      BuildContext context,
+      int questionIndex,
+      dynamic value,
+      ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
@@ -120,10 +121,10 @@ class Functions {
   }
 
   static void onSelectValidOption(
-    BuildContext context,
-    int questionIndex,
-    dynamic value,
-  ) {
+      BuildContext context,
+      int questionIndex,
+      dynamic value,
+      ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
@@ -184,10 +185,10 @@ class Functions {
   }
 
   static void onSelectInValidOption(
-    BuildContext context,
-    int questionIndex,
-    dynamic value,
-  ) {
+      BuildContext context,
+      int questionIndex,
+      dynamic value,
+      ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
@@ -247,10 +248,10 @@ class Functions {
   }
 
   static onFillDescriptiveAnswer(
-    BuildContext context,
-    int questionIndex,
-    String answer,
-  ) {
+      BuildContext context,
+      int questionIndex,
+      String answer,
+      ) {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
@@ -266,10 +267,10 @@ class Functions {
 
   //----------------SUBMISSION----------------
   static Future<void> onAddComment(
-    BuildContext context,
-    int questionIndex,
-    String comment,
-  ) async {
+      BuildContext context,
+      int questionIndex,
+      String comment,
+      ) async {
     log(comment);
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
@@ -285,10 +286,10 @@ class Functions {
   }
 
   static Future<void> onAddImages(
-    BuildContext context,
-    int questionIndex,
-    List<Uint8List?> images,
-  ) async {
+      BuildContext context,
+      int questionIndex,
+      List<Uint8List?> images,
+      ) async {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
     if (currentState is SuccessFetchQuestionsState) {
       final updatedIndexVariables = currentState.listOfUploads;
@@ -312,7 +313,7 @@ class Functions {
           index: questionIndex,
         ),
       );
-     
+
     }
   }
 
@@ -336,8 +337,8 @@ class Functions {
   //   }
   // }
   static Future<Uint8List?> _compressImageFromUint8List(
-    Uint8List imageData,
-  ) async {
+      Uint8List imageData,
+      ) async {
     try {
       var result = await FlutterImageCompress.compressWithList(
         imageData,
@@ -362,21 +363,21 @@ class Functions {
   //   return {'fileName': fileName, 'file': converted};
   // }
   static Future<Map<String, dynamic>> _convertImageUint8ToBase64(
-    Uint8List fileBytes, {
-    String? filePath,
-  }) async {
+      Uint8List fileBytes, {
+        String? filePath,
+      }) async {
     final converted = base64Encode(fileBytes);
     final fileName =
-        filePath != null
-            ? path.basename(filePath)
-            : '${DateTime.now().toIso8601String()}.jpg';
+    filePath != null
+        ? path.basename(filePath)
+        : '${DateTime.now().toIso8601String()}.jpg';
 
     return {'fileName': fileName, 'file': converted};
   }
 
   static Future<Uint8List?> convartNetworkImageToUni8ListFormate(
-    String imageUrl,
-  ) async {
+      String imageUrl,
+      ) async {
     try {
       final response = await http.get(Uri.parse(imageUrl));
       if (response.statusCode == 200) {
