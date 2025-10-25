@@ -1478,6 +1478,8 @@ class _AuctionTileState extends State<AuctionTile>
 
   Widget _buildActionRow() {
     if (!isSold && _timeOut && isMeHighBidder) {
+    // if (!isSold && isMeHighBidder && widget.auction.bidClosingTime != null &&
+    //     widget.auction.bidClosingTime!.isBefore(DateTime.now())) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(8),

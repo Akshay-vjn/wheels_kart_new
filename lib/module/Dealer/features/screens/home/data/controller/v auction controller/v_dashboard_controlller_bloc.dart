@@ -163,7 +163,13 @@ class VAuctionControlllerBloc
               car.bidClosingTime = bid.bidClosingTime;
               car.vendorIds = reversed.map((e) => e.vendorId).toList();
 
-              updatedList.add(car);
+              // Only add to list if auction is still live (not sold/closed)
+              if (car.bidStatus == "Open" && car.bidClosingTime?.isAfter(DateTime.now()) == true) {
+                updatedList.add(car);
+                debugPrint("✅ Auction ${car.evaluationId} remains live");
+              } else {
+                debugPrint("🗑️ Auction ${car.evaluationId} sold/closed - removing from list");
+              }
             } else {
               updatedList.add(car);
             }

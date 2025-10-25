@@ -80,19 +80,34 @@ class VOcbControllerBloc
               car.currentBid = bid.currentBid;
               car.bidClosingTime = bid.bidClosingTime;
               car.vendorIds = reversed.map((e) => e.vendorId).toList();
-              updatedList.add(car);
+              
+              // Only add to list if OCB is still available (not sold/confirmed)
+              if (car.bidStatus == "Open" && car.bidClosingTime?.isAfter(DateTime.now()) == true) {
+                updatedList.add(car);
+                debugPrint("✅ OCB ${car.evaluationId} remains available");
+              } else {
+                debugPrint("🗑️ OCB ${car.evaluationId} sold/expired - removing from list");
+              }
             } else {
               updatedList.add(car);
             }
           }
+          
+          // Filter out any sold/expired OCBs from the full server list as well
+          final filteredServerList = cuuremtSate.listOfAllOCBFromServer
+              .where((car) => car.evaluationId == event.newBid.evaluationId 
+                  ? (car.bidStatus == "Open" && car.bidClosingTime?.isAfter(DateTime.now()) == true)
+                  : true)
+              .toList();
+          
           emit(
             VOcbControllerSuccessState(
-              listOfAllOCBFromServer: updatedList,
+              listOfAllOCBFromServer: filteredServerList,
               sortedAndFilterdOCBList: updatedList,
               enableRefreshButton: cuuremtSate.enableRefreshButton,
             ),
           );
-          debugPrint("Stopped ----------------");
+          debugPrint("✅ OCB list updated - ${updatedList.length} available OCBs");
         }
       }
     });

@@ -65,7 +65,13 @@ class VMyAuctionControllerBloc
                     .toList();
             // car.toJson().toString();
 
-            updatedList.add(car);
+            // Only add to list if auction is still active (not sold/closed)
+            if (car.bidStatus == "Open" && car.bidClosingTime?.isAfter(DateTime.now()) == true) {
+              updatedList.add(car);
+              log("✅ My auction ${car.evaluationId} remains active");
+            } else {
+              log("🗑️ My auction ${car.evaluationId} sold/closed - removing from list");
+            }
           } else {
             updatedList.add(car);
           }

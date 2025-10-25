@@ -639,7 +639,7 @@ class _CameraScreenState extends State<CameraScreen>
                         child: OverflowBox(
                           alignment: Alignment.center,
                           child: FittedBox(
-                            fit: BoxFit.fitWidth,
+                            fit: BoxFit.cover,
                             child: SizedBox(
                               width: MediaQuery.of(context).size.width,
                               height:

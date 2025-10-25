@@ -872,7 +872,7 @@ class _VWhishlistCardState extends State<VWhishlistCard>
       statusIcon = Icons.trending_up;
     } else {
       statusColor = VColors.ERROR;
-      statusText = "LOSINg";
+      statusText = "LOSING";
       statusIcon = Icons.trending_down;
     }
 
