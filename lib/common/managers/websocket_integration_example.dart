@@ -111,3 +111,4 @@ class _VDetailsScreenState extends State<VDetailsScreen> {
 // 4. Easy integration with existing BLoCs
 // 5. No need to modify existing business logic
 // 6. Handles multiple websocket connections simultaneously
+

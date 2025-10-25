@@ -21,6 +21,9 @@ class AuctionHistoryTab extends StatefulWidget {
 class _AuctionHistoryTabState extends State<AuctionHistoryTab>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController auctionTabController;
+  
+  @override
+  bool get wantKeepAlive => true;
   late AnimationController _animationController;
   late AnimationController _pulseController;
   late Animation<double> _fadeAnimation;
@@ -30,9 +33,6 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
 
   int currentIndex = 0;
   bool _isConnected = false;
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -94,6 +94,11 @@ class _AuctionHistoryTabState extends State<AuctionHistoryTab>
       setState(() {
         currentIndex = auctionTabController.index;
       });
+      
+      // Restore data when switching back to winning/losing tabs
+      if (currentIndex == 0 || currentIndex == 1) {
+        _auctionControllerBloc.add(GetStoredMyAuctions());
+      }
     }
   }
 

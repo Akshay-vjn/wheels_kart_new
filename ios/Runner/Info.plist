@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow us to use your camera to take photos, record videos, or scan documents.</string>
+	<string>This app needs camera access to capture vehicle inspection photos.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>We need access to your documents folder to save and view PDF files.</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -39,9 +39,7 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
+	<array/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

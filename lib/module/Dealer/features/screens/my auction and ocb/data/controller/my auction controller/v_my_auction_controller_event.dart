@@ -26,3 +26,7 @@ class OnGetMyOwnedAuctions extends VMyAuctionControllerEvent {
 
   OnGetMyOwnedAuctions({required this.context});
 }
+
+class GetStoredMyAuctions extends VMyAuctionControllerEvent {
+  GetStoredMyAuctions();
+}

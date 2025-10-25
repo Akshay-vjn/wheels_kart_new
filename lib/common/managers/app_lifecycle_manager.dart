@@ -1,116 +1,107 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:wheels_kart/common/managers/websocket_manager.dart';
 
+/// Manages app lifecycle events and handles websocket auto-reconnection
 class AppLifecycleManager with WidgetsBindingObserver {
   static final AppLifecycleManager _instance = AppLifecycleManager._internal();
   factory AppLifecycleManager() => _instance;
   AppLifecycleManager._internal();
 
-  bool _isInitialized = false;
-  bool _isAppInBackground = false;
-  Timer? _reconnectionTimer;
+  final WebSocketManager _wsManager = WebSocketManager();
+  AppLifecycleState _currentState = AppLifecycleState.resumed;
 
-  /// Initialize the lifecycle manager
+  /// Initialize the app lifecycle manager
   void initialize() {
-    if (!_isInitialized) {
-      WidgetsBinding.instance.addObserver(this);
-      _isInitialized = true;
-      log("🔄 AppLifecycleManager initialized");
-    }
-  }
-
-  /// Dispose the lifecycle manager
-  void dispose() {
-    if (_isInitialized) {
-      WidgetsBinding.instance.removeObserver(this);
-      _reconnectionTimer?.cancel();
-      _isInitialized = false;
-      log("🔄 AppLifecycleManager disposed");
-    }
+    log("🚀 Initializing AppLifecycleManager...");
+    
+    WidgetsBinding.instance.addObserver(this);
+    
+    log("✅ AppLifecycleManager initialized");
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    log("🔄 App lifecycle state changed: $state");
+    log("📱 App lifecycle state changed: $_currentState -> $state");
     
+    final previousState = _currentState;
+    _currentState = state;
+
     switch (state) {
-      case AppLifecycleState.paused:
-        _handleAppPaused();
-        break;
       case AppLifecycleState.resumed:
-        _handleAppResumed();
+        _onAppResumed(previousState);
         break;
-      case AppLifecycleState.detached:
-        _handleAppDetached();
+      case AppLifecycleState.paused:
+        _onAppPaused();
         break;
       case AppLifecycleState.inactive:
-        // App is transitioning between foreground and background
+        _onAppInactive();
+        break;
+      case AppLifecycleState.detached:
+        _onAppDetached();
         break;
       case AppLifecycleState.hidden:
-        // App is hidden (iOS specific)
+        _onAppHidden();
         break;
     }
   }
 
-  /// Handle when app goes to background
-  void _handleAppPaused() {
-    _isAppInBackground = true;
-    log("📱 App paused - websockets will disconnect");
+  /// Handle app resumed event with instant reconnection
+  void _onAppResumed(AppLifecycleState previousState) {
+    log("🔄 App resumed from $previousState - Starting instant websocket reconnection...");
     
-    // Cancel any pending reconnection attempts
-    _reconnectionTimer?.cancel();
+    // Start reconnection immediately without delay for instant refresh
+    _wsManager.reconnectAllConnections().then((_) {
+      log("✅ Instant websocket reconnection completed");
+    }).catchError((error) {
+      log("❌ Error during instant reconnection: $error");
+    });
   }
 
-  /// Handle when app comes back to foreground
-  void _handleAppResumed() {
-    if (_isAppInBackground) {
-      log("📱 App resumed - checking websocket connections");
-      _isAppInBackground = false;
-      
-      // Delay reconnection to ensure app is fully resumed
-      _reconnectionTimer?.cancel();
-      _reconnectionTimer = Timer(const Duration(milliseconds: 500), () {
-        _reconnectWebSockets();
-      });
-    }
+  /// Handle app paused event
+  void _onAppPaused() {
+    log("⏸️ App paused - Websockets will auto-reconnect when resumed");
+    // Don't disconnect websockets immediately, let them handle reconnection
   }
 
-  /// Handle when app is completely closed
-  void _handleAppDetached() {
-    log("📱 App detached - cleaning up websockets");
-    _isAppInBackground = false;
-    _reconnectionTimer?.cancel();
+  /// Handle app inactive event
+  void _onAppInactive() {
+    log("😴 App inactive - Maintaining websocket connections");
+    // Keep websockets connected during brief inactive states
   }
 
-  /// Reconnect all websockets
-  Future<void> _reconnectWebSockets() async {
-    try {
-      log("🔄 Attempting to reconnect websockets...");
-      
-      // Get the WebSocketManager instance and reconnect all connections
-      final wsManager = WebSocketManager();
-      await wsManager.reconnectAllConnections();
-      
-      log("✅ Websocket reconnection completed");
-    } catch (e) {
-      log("❌ Failed to reconnect websockets: $e");
-      
-      // Retry after a delay
-      _reconnectionTimer?.cancel();
-      _reconnectionTimer = Timer(const Duration(seconds: 3), () {
-        _reconnectWebSockets();
-      });
-    }
+  /// Handle app detached event
+  void _onAppDetached() {
+    log("🔌 App detached - Disposing websocket connections");
+    _wsManager.dispose();
   }
 
-  /// Check if app is currently in background
-  bool get isAppInBackground => _isAppInBackground;
+  /// Handle app hidden event
+  void _onAppHidden() {
+    log("👻 App hidden - Maintaining websocket connections");
+    // Keep websockets connected when app is hidden
+  }
 
-  /// Force reconnect websockets (can be called manually)
-  Future<void> forceReconnect() async {
-    log("🔄 Force reconnecting websockets...");
-    await _reconnectWebSockets();
+  /// Get current app lifecycle state
+  AppLifecycleState get currentState => _currentState;
+
+  /// Check if app is in foreground
+  bool get isInForeground => _currentState == AppLifecycleState.resumed;
+
+  /// Check if app is in background
+  bool get isInBackground => 
+      _currentState == AppLifecycleState.paused || 
+      _currentState == AppLifecycleState.hidden;
+
+  /// Dispose the lifecycle manager
+  void dispose() {
+    log("🔄 Disposing AppLifecycleManager...");
+    
+    WidgetsBinding.instance.removeObserver(this);
+    
+    _wsManager.dispose();
+    
+    log("✅ AppLifecycleManager disposed");
   }
 }

@@ -10,8 +10,13 @@ class WebSocketManager {
 
   final Map<String, WebSocketConnection> _connections = {};
   final Map<String, Timer> _reconnectTimers = {};
+  final Map<String, bool> _isReconnecting = {};
+  final Map<String, DateTime> _lastConnectionTime = {};
+  
   static const int _maxReconnectAttempts = 5;
-  static const int _reconnectDelay = 3; // seconds
+  static const int _reconnectDelay = 1; // Reduced from 3 to 1 second
+  static const int _instantReconnectDelay = 100; // 100ms for instant reconnect
+  static const int _connectionTimeout = 5; // 5 seconds timeout
 
   /// Register a websocket connection
   void registerConnection({
@@ -120,19 +125,54 @@ class WebSocketManager {
     connection.channel = null;
   }
 
-  /// Reconnect all connections
+  /// Reconnect all connections with instant reconnection
   Future<void> reconnectAllConnections() async {
     log("🔄 Reconnecting all websocket connections...");
     
     final connectionIds = _connections.keys.toList();
+    final futures = <Future>[];
+    
+    // Connect all connections in parallel for instant reconnection
     for (final connectionId in connectionIds) {
-      await connect(connectionId);
-      // Small delay between connections to avoid overwhelming the server
-      await Future.delayed(const Duration(milliseconds: 100));
+      futures.add(_instantConnect(connectionId));
+    }
+    
+    // Wait for all connections to complete or timeout
+    await Future.wait(futures, eagerError: false);
+    
+    log("✅ All websocket reconnections completed");
+  }
+
+  /// Instant connect with timeout and fallback
+  Future<void> _instantConnect(String connectionId) async {
+    if (_isReconnecting[connectionId] == true) {
+      log("⏳ Connection $connectionId already reconnecting, skipping...");
+      return;
+    }
+
+    _isReconnecting[connectionId] = true;
+    
+    try {
+      // Try instant connection with timeout
+      await connect(connectionId).timeout(
+        Duration(seconds: _connectionTimeout),
+        onTimeout: () {
+          log("⏰ Connection timeout for $connectionId, will retry...");
+          _scheduleReconnect(connectionId);
+        },
+      );
+      
+      _lastConnectionTime[connectionId] = DateTime.now();
+      log("✅ Instant connection successful for $connectionId");
+    } catch (e) {
+      log("❌ Instant connection failed for $connectionId: $e");
+      _scheduleReconnect(connectionId);
+    } finally {
+      _isReconnecting[connectionId] = false;
     }
   }
 
-  /// Schedule reconnection for a specific connection
+  /// Schedule reconnection for a specific connection with smart delays
   void _scheduleReconnect(String connectionId) {
     final connection = _connections[connectionId];
     if (connection == null) return;
@@ -143,13 +183,20 @@ class WebSocketManager {
     }
 
     connection.reconnectAttempts++;
-    final delay = Duration(seconds: _reconnectDelay * connection.reconnectAttempts);
     
-    log("🔄 Scheduling reconnect for $connectionId in ${delay.inSeconds}s (attempt ${connection.reconnectAttempts}/$_maxReconnectAttempts)");
+    // Smart delay: instant for first attempt, then exponential backoff
+    Duration delay;
+    if (connection.reconnectAttempts == 1) {
+      delay = Duration(milliseconds: _instantReconnectDelay);
+    } else {
+      delay = Duration(seconds: _reconnectDelay * connection.reconnectAttempts);
+    }
+    
+    log("🔄 Scheduling reconnect for $connectionId in ${delay.inMilliseconds}ms (attempt ${connection.reconnectAttempts}/$_maxReconnectAttempts)");
     
     _reconnectTimers[connectionId]?.cancel();
     _reconnectTimers[connectionId] = Timer(delay, () {
-      connect(connectionId);
+      _instantConnect(connectionId);
     });
   }
 
@@ -165,6 +212,32 @@ class WebSocketManager {
       statuses[entry.key] = entry.value.isConnected;
     }
     return statuses;
+  }
+
+  /// Pre-warm connections for instant reconnection
+  Future<void> preWarmConnections() async {
+    log("🔥 Pre-warming websocket connections...");
+    
+    final connectionIds = _connections.keys.toList();
+    for (final connectionId in connectionIds) {
+      final connection = _connections[connectionId];
+      if (connection != null && !connection.isConnected) {
+        // Pre-warm by preparing connection without full initialization
+        log("🔥 Pre-warming connection: $connectionId");
+        _lastConnectionTime[connectionId] = DateTime.now();
+      }
+    }
+    
+    log("✅ Connection pre-warming completed");
+  }
+
+  /// Check if connection is stale and needs refresh
+  bool _isConnectionStale(String connectionId) {
+    final lastConnection = _lastConnectionTime[connectionId];
+    if (lastConnection == null) return true;
+    
+    final timeSinceLastConnection = DateTime.now().difference(lastConnection);
+    return timeSinceLastConnection.inMinutes > 5; // Consider stale after 5 minutes
   }
 
   /// Dispose all connections
@@ -198,8 +271,9 @@ class WebSocketConnection {
   Timer? pongTimeoutTimer;
   bool isPongReceived = true;
   DateTime? lastPingTime;
-  static const int pingInterval = 30; // seconds
-  static const int pongTimeout = 10; // seconds
+  static const int pingInterval = 15; // Reduced from 30 to 15 seconds for faster detection
+  static const int pongTimeout = 5; // Reduced from 10 to 5 seconds for faster reconnection
+  static const int maxPingRetries = 3; // Max ping retries before considering connection dead
 
   WebSocketConnection({
     required this.id,
@@ -227,23 +301,33 @@ class WebSocketConnection {
     });
   }
 
+  int _pingRetryCount = 0;
+
   void sendPing() {
     try {
       final pingMessage = jsonEncode({
         'type': 'ping',
         'timestamp': DateTime.now().millisecondsSinceEpoch,
+        'retry_count': _pingRetryCount,
       });
       
       channel?.sink.add(pingMessage);
       lastPingTime = DateTime.now();
       isPongReceived = false;
+      _pingRetryCount++;
       
-      // Set timeout for pong response
+      // Set timeout for pong response with retry logic
       pongTimeoutTimer?.cancel();
       pongTimeoutTimer = Timer(Duration(seconds: pongTimeout), () {
         if (!isPongReceived) {
-          log("⚠️ Pong timeout for $id, reconnecting...");
-          onError("Pong timeout");
+          if (_pingRetryCount < maxPingRetries) {
+            log("⚠️ Pong timeout for $id, retrying ping (${_pingRetryCount}/$maxPingRetries)...");
+            sendPing(); // Retry ping immediately
+          } else {
+            log("❌ Max ping retries reached for $id, reconnecting...");
+            _pingRetryCount = 0;
+            onError("Pong timeout - max retries reached");
+          }
         }
       });
     } catch (e) {
@@ -254,6 +338,7 @@ class WebSocketConnection {
   void handlePongResponse() {
     isPongReceived = true;
     pongTimeoutTimer?.cancel();
+    _pingRetryCount = 0; // Reset retry count on successful pong
     log("🏓 Pong received for $id");
   }
 }

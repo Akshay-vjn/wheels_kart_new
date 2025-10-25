@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:wheels_kart/common/block_providers.dart';
 import 'package:wheels_kart/common/managers/app_lifecycle_manager.dart';
 import 'package:wheels_kart/firebase_options.dart';
+import 'package:wheels_kart/module/Dealer/core/utils/idle_handler.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
 
@@ -20,7 +22,8 @@ void main() async {
   // if (kDebugMode) {
   //   await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(false);
   // }
-  runApp(const MyApp());
+  runApp(Phoenix(child: LifecycleWatcher(
+      child: const MyApp())));
 }
 
 class MyApp extends StatelessWidget {

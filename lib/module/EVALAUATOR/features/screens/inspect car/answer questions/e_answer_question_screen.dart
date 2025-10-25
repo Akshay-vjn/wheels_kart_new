@@ -427,6 +427,7 @@ with TickerProviderStateMixin, RouteAware {
     EvFetchPrefillDataOfInspectionSuccessState prefillState,
   ) {
     return Scrollbar(
+      controller: _scrollController, // Explicitly set the controller for the scrollbar
       thickness: 6.0,
       radius: Radius.circular(8),
       child: SingleChildScrollView(

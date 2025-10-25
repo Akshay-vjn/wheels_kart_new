@@ -60,3 +60,4 @@ mixin WebSocketAutoReconnectMixin<T extends BlocBase<S>, S> {
     disconnectWebSocket();
   }
 }
+

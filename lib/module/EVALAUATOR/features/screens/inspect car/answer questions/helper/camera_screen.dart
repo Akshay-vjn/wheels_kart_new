@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
+import 'package:wheels_kart/common/utils/camera_platform_utils.dart';
 
 class CameraScreen extends StatefulWidget {
   bool? isFromVhiclePhotoScreen;
@@ -58,11 +60,19 @@ class _CameraScreenState extends State<CameraScreen>
     _initCamera();
     _initAnimations();
 
-    // Force landscape orientation
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    // Platform-specific orientation handling
+    if (CameraPlatformUtils.isIOS) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
 
     // Hide status bar for immersive experience
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
@@ -120,25 +130,97 @@ class _CameraScreenState extends State<CameraScreen>
 
   Future<void> _initCamera() async {
     try {
+      // Check camera permission for iOS
+      if (CameraPlatformUtils.isIOS) {
+        print('Checking camera permission on iOS...');
+        final permissionStatus = await Permission.camera.status;
+        print('Current camera permission status: $permissionStatus');
+        
+        if (permissionStatus.isDenied) {
+          print('Camera permission denied, requesting permission...');
+          final result = await Permission.camera.request();
+          print('Permission request result: $result');
+          
+          if (result.isDenied) {
+            throw Exception('Camera permission denied by user');
+          } else if (result.isPermanentlyDenied) {
+            throw Exception('Camera permission permanently denied. Please enable in settings.');
+          }
+        } else if (permissionStatus.isPermanentlyDenied) {
+          throw Exception('Camera permission permanently denied. Please enable in settings.');
+        }
+        
+        print('Camera permission granted');
+      }
+
       _cameras = await availableCameras();
 
-      final rearCamera = _cameras!.firstWhere(
-        (camera) => camera.lensDirection == CameraLensDirection.back,
-      );
+      if (_cameras == null || _cameras!.isEmpty) {
+        throw Exception('No cameras available on this device');
+      }
 
-      _cameraController = CameraController(
-        rearCamera,
-        ResolutionPreset.high,
-        enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.jpeg,
-      );
+      // Try to find rear camera, fallback to first available camera
+      CameraDescription? selectedCamera;
+      try {
+        selectedCamera = _cameras!.firstWhere(
+          (camera) => camera.lensDirection == CameraLensDirection.back,
+        );
+        print('Using rear camera: ${selectedCamera.name}');
+      } catch (e) {
+        print('No rear camera found, using first available camera');
+        selectedCamera = _cameras!.first;
+        print('Using camera: ${selectedCamera.name} (${selectedCamera.lensDirection})');
+      }
+
+      // Use platform-specific camera settings with fallback
+      ResolutionPreset resolution = CameraPlatformUtils.getOptimalResolution();
+      bool audioEnabled = CameraPlatformUtils.shouldEnableAudio();
       
-      await _cameraController!.initialize();
+      try {
+        _cameraController = CameraController(
+          selectedCamera,
+          resolution,
+          enableAudio: audioEnabled,
+          imageFormatGroup: ImageFormatGroup.jpeg,
+        );
+        
+        await _cameraController!.initialize();
+        print('Camera initialized successfully with ${resolution.name} resolution');
+      } catch (e) {
+        print('Failed to initialize with ${resolution.name}, trying fallback resolution');
+        
+        // Fallback to lower resolution if max resolution fails
+        if (CameraPlatformUtils.isIOS && resolution == ResolutionPreset.max) {
+          _cameraController?.dispose();
+          _cameraController = CameraController(
+            selectedCamera,
+            ResolutionPreset.high,
+            enableAudio: audioEnabled,
+            imageFormatGroup: ImageFormatGroup.jpeg,
+          );
+          
+          await _cameraController!.initialize();
+          print('Camera initialized with fallback high resolution');
+        } else {
+          rethrow; // Re-throw if it's not a resolution issue
+        }
+      }
       
       // Test if focus and exposure features are supported
       try {
         await _cameraController!.setFocusMode(FocusMode.auto);
         await _cameraController!.setExposureMode(ExposureMode.auto);
+        
+        // iOS-specific camera features
+        if (CameraPlatformUtils.isIOS) {
+          try {
+            await _cameraController!.setFlashMode(FlashMode.auto);
+            // Note: setWhiteBalanceMode is not available in current camera package version
+          } catch (e) {
+            print('iOS camera features setup failed: $e');
+          }
+        }
+        
         _supportsFocusExposure = true;
         print('Camera supports focus/exposure features');
       } catch (e) {
@@ -161,10 +243,33 @@ class _CameraScreenState extends State<CameraScreen>
     } catch (e) {
       print('Error initializing camera: $e');
       if (mounted) {
+        String errorMessage = 'Camera initialization failed';
+        
+        // Provide more specific error messages
+        if (e.toString().contains('bad state no element')) {
+          errorMessage = 'No camera found on this device';
+        } else if (e.toString().contains('permission denied')) {
+          errorMessage = 'Camera permission denied. Please enable camera access in settings.';
+        } else if (e.toString().contains('No cameras available')) {
+          errorMessage = 'No cameras available on this device';
+        } else if (e.toString().contains('CameraController')) {
+          errorMessage = 'Camera controller initialization failed';
+        } else {
+          errorMessage = 'Camera initialization failed: ${e.toString()}';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Camera initialization failed: $e'),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.white,
+              onPressed: () {
+                _initCamera();
+              },
+            ),
           ),
         );
       }
@@ -704,6 +809,7 @@ class _CameraScreenState extends State<CameraScreen>
                 color: const Color.fromRGBO(0, 0, 0, 1),
                 child: SafeArea(
                   child: SingleChildScrollView(
+                    controller: ScrollController(), // Add explicit controller
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,

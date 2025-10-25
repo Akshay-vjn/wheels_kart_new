@@ -43,6 +43,9 @@ class AuctionLosingTab extends StatelessWidget {
                           .toList(),
                 ),
               );
+        } else if (state is VMyAuctionControllerOwnedSuccessState) {
+          // Handle case when coming from owned tab
+          return Center(child: AppEmptyText(text: "No Auctions found!"));
         } else {
           return SizedBox.shrink();
         }

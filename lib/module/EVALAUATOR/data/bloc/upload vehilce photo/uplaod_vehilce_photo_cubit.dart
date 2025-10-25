@@ -100,6 +100,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image/image.dart' as img;
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
+import 'package:wheels_kart/common/utils/camera_platform_utils.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/upload_vehicle_photo_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/camera_screen.dart';
@@ -284,13 +285,21 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     }
   }
 
-  // helper to convert & resize image
+  // helper to convert & resize image with platform-specific optimization
   Future<String> _convertFileToBase64(File file) async {
     final bytes = await file.readAsBytes();
     img.Image? image = img.decodeImage(bytes);
     if (image == null) throw Exception("Unable to decode image");
-    if (image.width > 800) image = img.copyResize(image, width: 800);
-    final compressed = img.encodeJpg(image, quality: 80);
+    
+    // Platform-specific resizing
+    final maxWidth = CameraPlatformUtils.getOptimalMaxWidth();
+    if (image.width > maxWidth) {
+      image = img.copyResize(image, width: maxWidth);
+    }
+    
+    // Platform-specific quality
+    final quality = CameraPlatformUtils.getOptimalQuality();
+    final compressed = img.encodeJpg(image, quality: quality);
     return base64Encode(compressed);
   }
 

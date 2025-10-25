@@ -57,6 +57,9 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
 
   // Remarks controller
   TextEditingController remarksController = TextEditingController();
+  
+  // Scroll controller to avoid PrimaryScrollController conflicts
+  late ScrollController _scrollController;
 
   late AnimationController _progressController;
   late AnimationController _fadeController;
@@ -66,6 +69,10 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
   void initState() {
     super.initState();
     log("inspectionId =>${widget.inspectionId}");
+    
+    // Initialize scroll controller
+    _scrollController = ScrollController();
+    
     _progressController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -99,6 +106,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _progressController.dispose();
     _fadeController.dispose();
     remarksController.dispose();
@@ -348,6 +356,7 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
               : FadeTransition(
                 opacity: _fadeAnimation,
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

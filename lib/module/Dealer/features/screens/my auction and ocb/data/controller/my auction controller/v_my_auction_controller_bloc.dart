@@ -18,9 +18,15 @@ class VMyAuctionControllerBloc
     extends Bloc<VMyAuctionControllerEvent, VMyAuctionControllerState> {
   late WebSocketChannel channel;
   StreamSubscription? _subscription;
+  
+  // Store data for different tabs
+  List<VMyAuctionModel>? _myAuctions;
+  List<VMyAuctionModel>? _ownedAuctions;
+  
   VMyAuctionControllerBloc() : super(VMyAuctionControllerInitial()) {
     on<OnGetMyAuctions>(_onGetMyAuction);
     on<OnGetMyOwnedAuctions>(_onGetMyOwnedAuctions);
+    on<GetStoredMyAuctions>(_onGetStoredMyAuctions);
 
     // WEB SOCKET
 
@@ -80,11 +86,11 @@ class VMyAuctionControllerBloc
       emit(VMyAuctionControllerErrorState(response['message']));
     } else {
       final data = response['data'] as List;
+      _myAuctions = data.map((e) => VMyAuctionModel.fromJson(e)).toList();
 
       emit(
         VMyAuctionControllerSuccessState(
-          listOfMyAuctions:
-              data.map((e) => VMyAuctionModel.fromJson(e)).toList(),
+          listOfMyAuctions: _myAuctions!,
         ),
       );
     }
@@ -108,12 +114,12 @@ class VMyAuctionControllerBloc
         final data = response['data'] as List;
         log("✅ Owned auctions data received: ${data.length} items");
 
-        final ownedAuctions = data.map((e) => VMyAuctionModel.fromJson(e)).toList();
-        log("📋 Created owned auctions list with ${ownedAuctions.length} items");
+        _ownedAuctions = data.map((e) => VMyAuctionModel.fromJson(e)).toList();
+        log("📋 Created owned auctions list with ${_ownedAuctions!.length} items");
         
         emit(
           VMyAuctionControllerOwnedSuccessState(
-            listOfOwnedAuctions: ownedAuctions,
+            listOfOwnedAuctions: _ownedAuctions!,
           ),
         );
         log("✅ Owned auctions state emitted successfully");
@@ -121,6 +127,17 @@ class VMyAuctionControllerBloc
     } catch (e) {
       log("❌ Exception in owned auctions: $e");
       emit(VMyAuctionControllerErrorState("Failed to fetch owned auctions: $e"));
+    }
+  }
+
+  Future<void> _onGetStoredMyAuctions(
+    GetStoredMyAuctions event,
+    Emitter<VMyAuctionControllerState> emit,
+  ) async {
+    if (_myAuctions != null) {
+      emit(VMyAuctionControllerSuccessState(listOfMyAuctions: _myAuctions!));
+    } else {
+      emit(VMyAuctionControllerInitial());
     }
   }
 
