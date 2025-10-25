@@ -130,28 +130,7 @@ class _CameraScreenState extends State<CameraScreen>
 
   Future<void> _initCamera() async {
     try {
-      // Check camera permission for iOS
-      if (CameraPlatformUtils.isIOS) {
-        print('Checking camera permission on iOS...');
-        final permissionStatus = await Permission.camera.status;
-        print('Current camera permission status: $permissionStatus');
-        
-        if (permissionStatus.isDenied) {
-          print('Camera permission denied, requesting permission...');
-          final result = await Permission.camera.request();
-          print('Permission request result: $result');
-          
-          if (result.isDenied) {
-            throw Exception('Camera permission denied by user');
-          } else if (result.isPermanentlyDenied) {
-            throw Exception('Camera permission permanently denied. Please enable in settings.');
-          }
-        } else if (permissionStatus.isPermanentlyDenied) {
-          throw Exception('Camera permission permanently denied. Please enable in settings.');
-        }
-        
-        print('Camera permission granted');
-      }
+      // Camera permission will be handled automatically by the camera plugin
 
       _cameras = await availableCameras();
 
