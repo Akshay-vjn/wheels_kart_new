@@ -209,11 +209,6 @@ class VOcbControllerBloc
   }
 
   Timer? _heartbeatTimer;
-  Timer? _pongTimeoutTimer;
-  bool _isPongReceived = true;
-  DateTime? _lastPingTime;
-  static const int _pingInterval = 30; // seconds
-  static const int _pongTimeout = 10; // seconds
 
   void _connectWebSocket(
     ConnectWebSocket event,
@@ -232,12 +227,6 @@ class VOcbControllerBloc
           final decoded = (data is String) ? data : utf8.decode(data);
           final jsonData = jsonDecode(decoded);
           debugPrint("Converted ----------------");
-
-          // Handle ping-pong responses
-          if (jsonData['type'] == 'pong') {
-            _handlePongResponse();
-            return; // Don't process as bid update
-          }
 
           add(
             UpdatePrice(
@@ -270,66 +259,25 @@ class VOcbControllerBloc
 
   void _startPingPong() {
     _heartbeatTimer?.cancel();
-    _pongTimeoutTimer?.cancel();
-    _isPongReceived = true;
     
-    _heartbeatTimer = Timer.periodic(Duration(seconds: _pingInterval), (_) {
+    _heartbeatTimer = Timer.periodic(Duration(seconds: 5), (_) {
       if (isClosed) {
-        debugPrint("⚠️ [WebSocket] Bloc closed, stopping ping-pong");
         _heartbeatTimer?.cancel();
-        _pongTimeoutTimer?.cancel();
         return;
       }
       
-      _sendPing();
-    });
-  }
-
-  void _sendPing() {
-    try {
-      final pingMessage = jsonEncode({
-        "type": "ping",
-        "timestamp": DateTime.now().millisecondsSinceEpoch,
-      });
-      
-      channel.sink.add(pingMessage);
-      _lastPingTime = DateTime.now();
-      _isPongReceived = false;
-      
-      debugPrint("💓 [WebSocket] Ping sent: $pingMessage");
-      
-      // Start pong timeout timer
-      _pongTimeoutTimer?.cancel();
-      _pongTimeoutTimer = Timer(Duration(seconds: _pongTimeout), () {
-        if (!_isPongReceived && !isClosed) {
-          debugPrint("⏰ [WebSocket] Pong timeout - reconnecting...");
-          // Note: We can't reconnect without context, so we'll just log the issue
-          debugPrint("⚠️ [WebSocket] Pong timeout detected but no context available for reconnection");
-        }
-      });
-      
-    } catch (e) {
-      debugPrint("❌ [WebSocket] Ping failed: $e");
-      if (!isClosed) {
-        // Note: We can't reconnect without context, so we'll just log the issue
-        debugPrint("⚠️ [WebSocket] Ping failed but no context available for reconnection");
+      try {
+        channel.sink.add(jsonEncode({"type": "ping"}));
+      } catch (e) {
+        debugPrint("Ping failed: $e");
       }
-    }
-  }
-
-  void _handlePongResponse() {
-    _isPongReceived = true;
-    _pongTimeoutTimer?.cancel();
-    
-    final responseTime = DateTime.now().difference(_lastPingTime ?? DateTime.now());
-    debugPrint("🏓 [WebSocket] Pong received - Response time: ${responseTime.inMilliseconds}ms");
+    });
   }
 
   @override
   Future<void> close() {
     debugPrint("------------Closing Bloc and WebSocket. ------------ OCB Bloc");
     _heartbeatTimer?.cancel();
-    _pongTimeoutTimer?.cancel();
     _subscription?.cancel();
     channel.sink.close();
     return super.close();

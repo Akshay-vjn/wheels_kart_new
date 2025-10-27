@@ -481,10 +481,49 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
 
   Future<void> onUpdate() async {
     HapticFeedback.mediumImpact();
+    
+    // Calculate total amount (current bid + bid increment)
+    int totalAmount = 0;
+    if (widget.from == "AUCTION") {
+      final state = context.read<VAuctionControlllerBloc>().state;
+      if (state is VAuctionControllerSuccessState) {
+        final currentBidStr = state.listOfAllLiveAuctionFromServer
+            .firstWhere((element) => element.inspectionId == widget.inspectionId)
+            .currentBid;
+        final currentBid = int.tryParse(currentBidStr ?? "0") ?? 0;
+        totalAmount = currentBid + int.parse(_formField.text);
+      }
+    } else if (widget.from == "DETAILS") {
+      final state = context.read<VDetailsControllerBloc>().state;
+      if (state is VDetailsControllerSuccessState) {
+        final currentBidStr = state.detail.carDetails.currentBid;
+        final currentBid = int.tryParse(currentBidStr ?? "0") ?? 0;
+        totalAmount = currentBid + int.parse(_formField.text);
+      }
+    } else if (widget.from == "HISTORY") {
+      final state = context.read<VMyAuctionControllerBloc>().state;
+      if (state is VMyAuctionControllerSuccessState) {
+        final currentBidStr = state.listOfMyAuctions
+            .firstWhere((element) => element.inspectionId == widget.inspectionId)
+            .bidAmount;
+        final currentBid = int.tryParse(currentBidStr ?? "0") ?? 0;
+        totalAmount = currentBid + int.parse(_formField.text);
+      }
+    } else if (widget.from == "WISHLIST") {
+      final state = context.read<VWishlistControllerCubit>().state;
+      if (state is VWishlistControllerSuccessState) {
+        final currentBidStr = state.myWishList
+            .firstWhere((element) => element.inspectionId == widget.inspectionId)
+            .currentBid;
+        final currentBid = int.tryParse(currentBidStr ?? "0") ?? 0;
+        totalAmount = currentBid + int.parse(_formField.text);
+      }
+    }
+    
     await context.read<VAuctionUpdateControllerCubit>().oUpdateAuction(
       context,
       widget.inspectionId,
-      _formField.text,
+      totalAmount.toString(),
     );
   }
 }

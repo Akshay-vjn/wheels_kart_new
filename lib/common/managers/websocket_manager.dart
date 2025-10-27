@@ -66,12 +66,6 @@ class WebSocketManager {
             final decoded = (data is String) ? data : utf8.decode(data);
             final jsonData = jsonDecode(decoded);
             
-            // Handle ping-pong responses
-            if (jsonData['type'] == 'pong') {
-              connection.handlePongResponse();
-              return;
-            }
-            
             connection.onData(jsonData);
             connection.reconnectAttempts = 0; // Reset on successful message
           } catch (e) {
@@ -118,7 +112,6 @@ class WebSocketManager {
     connection.subscription?.cancel();
     connection.channel?.sink.close();
     connection.heartbeatTimer?.cancel();
-    connection.pongTimeoutTimer?.cancel();
     
     connection.isConnected = false;
     connection.subscription = null;
@@ -268,12 +261,6 @@ class WebSocketConnection {
   
   // Ping-pong mechanism
   Timer? heartbeatTimer;
-  Timer? pongTimeoutTimer;
-  bool isPongReceived = true;
-  DateTime? lastPingTime;
-  static const int pingInterval = 15; // Reduced from 30 to 15 seconds for faster detection
-  static const int pongTimeout = 5; // Reduced from 10 to 5 seconds for faster reconnection
-  static const int maxPingRetries = 3; // Max ping retries before considering connection dead
 
   WebSocketConnection({
     required this.id,
@@ -287,58 +274,18 @@ class WebSocketConnection {
 
   void startPingPong() {
     heartbeatTimer?.cancel();
-    pongTimeoutTimer?.cancel();
-    isPongReceived = true;
     
-    heartbeatTimer = Timer.periodic(Duration(seconds: pingInterval), (_) {
+    heartbeatTimer = Timer.periodic(Duration(seconds: 5), (_) {
       if (!isConnected) {
         heartbeatTimer?.cancel();
-        pongTimeoutTimer?.cancel();
         return;
       }
       
-      sendPing();
+      try {
+        channel?.sink.add(jsonEncode({"type": "ping"}));
+      } catch (e) {
+        log("Ping failed for $id: $e");
+      }
     });
-  }
-
-  int _pingRetryCount = 0;
-
-  void sendPing() {
-    try {
-      final pingMessage = jsonEncode({
-        'type': 'ping',
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-        'retry_count': _pingRetryCount,
-      });
-      
-      channel?.sink.add(pingMessage);
-      lastPingTime = DateTime.now();
-      isPongReceived = false;
-      _pingRetryCount++;
-      
-      // Set timeout for pong response with retry logic
-      pongTimeoutTimer?.cancel();
-      pongTimeoutTimer = Timer(Duration(seconds: pongTimeout), () {
-        if (!isPongReceived) {
-          if (_pingRetryCount < maxPingRetries) {
-            log("⚠️ Pong timeout for $id, retrying ping (${_pingRetryCount}/$maxPingRetries)...");
-            sendPing(); // Retry ping immediately
-          } else {
-            log("❌ Max ping retries reached for $id, reconnecting...");
-            _pingRetryCount = 0;
-            onError("Pong timeout - max retries reached");
-          }
-        }
-      });
-    } catch (e) {
-      log("Error sending ping for $id: $e");
-    }
-  }
-
-  void handlePongResponse() {
-    isPongReceived = true;
-    pongTimeoutTimer?.cancel();
-    _pingRetryCount = 0; // Reset retry count on successful pong
-    log("🏓 Pong received for $id");
   }
 }

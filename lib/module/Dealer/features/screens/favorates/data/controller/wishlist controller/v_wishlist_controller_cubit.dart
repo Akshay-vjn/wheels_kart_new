@@ -73,11 +73,6 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
   //   });
   // }
   Timer? _heartbeatTimer;
-  Timer? _pongTimeoutTimer;
-  bool _isPongReceived = true;
-  DateTime? _lastPingTime;
-  static const int _pingInterval = 30; // seconds
-  static const int _pongTimeout = 10; // seconds
 
   void connectWebSocket() {
     channel = WebSocketChannel.connect(Uri.parse(VApiConst.socket));
@@ -93,12 +88,6 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
           final decoded = (data is String) ? data : utf8.decode(data);
           final jsonData = jsonDecode(decoded);
           log("Converted ----------------");
-
-          // Handle ping-pong responses
-          if (jsonData['type'] == 'pong') {
-            _handlePongResponse();
-            return; // Don't process as bid update
-          }
 
           _updatePrice(LiveBidModel.fromJson(jsonData));
         } catch (e) {
@@ -153,64 +142,25 @@ class VWishlistControllerCubit extends Cubit<VWishlistControllerState> {
 
   void _startPingPong() {
     _heartbeatTimer?.cancel();
-    _pongTimeoutTimer?.cancel();
-    _isPongReceived = true;
     
-    _heartbeatTimer = Timer.periodic(Duration(seconds: _pingInterval), (_) {
+    _heartbeatTimer = Timer.periodic(Duration(seconds: 5), (_) {
       if (isClosed) {
-        log("⚠️ [WebSocket] Bloc closed, stopping ping-pong");
         _heartbeatTimer?.cancel();
-        _pongTimeoutTimer?.cancel();
         return;
       }
       
-      _sendPing();
-    });
-  }
-
-  void _sendPing() {
-    try {
-      final pingMessage = jsonEncode({
-        "type": "ping",
-        "timestamp": DateTime.now().millisecondsSinceEpoch,
-      });
-      
-      channel.sink.add(pingMessage);
-      _lastPingTime = DateTime.now();
-      _isPongReceived = false;
-      
-      log("💓 [WebSocket] Ping sent: $pingMessage");
-      
-      // Start pong timeout timer
-      _pongTimeoutTimer?.cancel();
-      _pongTimeoutTimer = Timer(Duration(seconds: _pongTimeout), () {
-        if (!_isPongReceived && !isClosed) {
-          log("⏰ [WebSocket] Pong timeout - reconnecting...");
-          _reconnect();
-        }
-      });
-      
-    } catch (e) {
-      log("❌ [WebSocket] Ping failed: $e");
-      if (!isClosed) {
-        _reconnect();
+      try {
+        channel.sink.add(jsonEncode({"type": "ping"}));
+      } catch (e) {
+        log("Ping failed: $e");
       }
-    }
-  }
-
-  void _handlePongResponse() {
-    _isPongReceived = true;
-    _pongTimeoutTimer?.cancel();
-    
-    final responseTime = DateTime.now().difference(_lastPingTime ?? DateTime.now());
-    log("🏓 [WebSocket] Pong received - Response time: ${responseTime.inMilliseconds}ms");
+    });
   }
 
   @override
   Future<void> close() {
     log("------------Closing Bloc and WebSocket. ------------ Wishlist Bloc");
     _heartbeatTimer?.cancel();
-    _pongTimeoutTimer?.cancel();
     _subscription?.cancel();
     channel.sink.close();
     return super.close();
