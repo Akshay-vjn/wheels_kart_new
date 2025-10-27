@@ -497,39 +497,47 @@ class _VAuctionVehicleCardState extends State<VClosedAuctionCard>
   Widget _buildDetailsGrid() {
     return Row(
       children: [
-        _buildEnhancedDetailChip(
-          Icons.local_gas_station_rounded,
-          getFuelType(widget.vehicle.fuelType),
-          getFuelTypeColor(widget.vehicle.fuelType),
+        Flexible(
+          child: _buildEnhancedDetailChip(
+            Icons.local_gas_station_rounded,
+            getFuelType(widget.vehicle.fuelType),
+            getFuelTypeColor(widget.vehicle.fuelType),
+          ),
         ),
         AppSpacer(widthPortion: .01),
-        _buildEnhancedDetailChip(
-          Icons.speed_rounded,
-          '${widget.vehicle.kmsDriven}',
-          VColors.SECONDARY,
+        Flexible(
+          child: _buildEnhancedDetailChip(
+            Icons.speed_rounded,
+            '${widget.vehicle.kmsDriven}',
+            VColors.SECONDARY,
+          ),
         ),
         AppSpacer(widthPortion: .01),
         if (widget.vehicle.noOfOwners.isNotEmpty) ...[
-          _buildEnhancedDetailChip(
-            CupertinoIcons.person_3,
-            _getOwnerPrefix(widget.vehicle.noOfOwners),
-            VColors.ACCENT,
+          Flexible(
+            child: _buildEnhancedDetailChip(
+              CupertinoIcons.person_3,
+              _getOwnerPrefix(widget.vehicle.noOfOwners),
+              VColors.ACCENT,
+            ),
           ),
           AppSpacer(widthPortion: .01),
         ],
 
         widget.vehicle.regNo.isNotEmpty
-            ? _buildEnhancedDetailChip(
-              Icons.confirmation_number_rounded,
-              widget.vehicle.regNo.replaceRange(
-                6,
-                widget.vehicle.regNo.length,
-                // '●●●●●●',
-                "",
-              ),
-              const Color.fromARGB(255, 32, 138, 164),
-              isFullWidth: false,
-            )
+            ? Flexible(
+                child: _buildEnhancedDetailChip(
+                  Icons.confirmation_number_rounded,
+                  widget.vehicle.regNo.replaceRange(
+                    6,
+                    widget.vehicle.regNo.length,
+                    // '●●●●●●',
+                    "",
+                  ),
+                  const Color.fromARGB(255, 32, 138, 164),
+                  isFullWidth: false,
+                ),
+              )
             : SizedBox.shrink(),
       ],
     );

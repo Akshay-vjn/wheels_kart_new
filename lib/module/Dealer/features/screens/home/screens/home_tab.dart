@@ -24,7 +24,7 @@ class VHomeTab extends StatefulWidget {
   State<VHomeTab> createState() => _VHomeTabState();
 }
 
-class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
+class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin, WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   late TabController _tabController;
   late AnimationController _headerAnimationController;
@@ -41,6 +41,7 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 3, vsync: this);
 
     _headerAnimationController = AnimationController(
@@ -80,15 +81,31 @@ class _VHomeTabState extends State<VHomeTab> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _headerAnimationController.dispose();
     if (_auctionBloc.state is VAuctionControllerSuccessState) {
       _auctionBloc.close();
     }
 
     if (_ocbBloc.state is VOcbControllerSuccessState) {
-      _ocbBloc.close();
+_ocbBloc.close();
     }
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      log("🔄 App resumed - Refreshing auction prices...");
+      
+      // Refresh prices for live auctions
+      _auctionBloc.add(
+        RefreshAllPrices(context: context),
+      );
+      
+      // Reconnect WebSocket if needed  
+      // Note: WebSocket will auto-reconnect via ping-pong mechanism
+    }
   }
 
   @override

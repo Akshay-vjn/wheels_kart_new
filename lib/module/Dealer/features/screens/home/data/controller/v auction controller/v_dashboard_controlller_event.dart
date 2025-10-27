@@ -40,3 +40,9 @@ class RemoveExpiredAuction extends VAuctionControlllerEvent {
 
   RemoveExpiredAuction({required this.inspectionId});
 }
+
+class RefreshAllPrices extends VAuctionControlllerEvent {
+  final BuildContext context;
+
+  RefreshAllPrices({required this.context});
+}

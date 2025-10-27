@@ -10,6 +10,7 @@ import 'package:wheels_kart/module/Dealer/features/screens/home/data/controller/
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_car_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/model/v_live_bid_model.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_dashboard_repo.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/data/repo/v_refresh_price_repo.dart';
 
 part 'v_dashboard_controlller_event.dart';
 part 'v_dashboard_controlller_state.dart';
@@ -318,8 +319,78 @@ class VAuctionControlllerBloc
             enableRefreshButton: currentState.enableRefreshButton,
           ),
         );
-      } else {
-        debugPrint("⚠️ [Auction] Cannot remove - Bloc not in Success state");
+      }
+    });
+
+    // Refresh All Prices
+
+    on<RefreshAllPrices>((event, emit) async {
+      final currentState = state;
+
+      if (currentState is VAuctionControllerSuccessState) {
+        debugPrint("🔄 [Auction] Refreshing prices for all auctions...");
+        
+        try {
+          final updatedList = List<VCarModel>.from(currentState.filterdAutionList);
+          bool hasUpdates = false;
+
+          // Create list of parallel API calls for all auctions
+          final futures = updatedList.map((auction) async {
+            try {
+              final response = await VRefreshPriceRepo.getNewPrice(
+                event.context,
+                auction.inspectionId,
+              );
+
+              if (response.isNotEmpty && response['error'] == false) {
+                final data = response['data'];
+                if (data != null && data['currentBid'] != null) {
+                  final newPrice = data['currentBid'].toString();
+                  if (auction.currentBid != newPrice) {
+                    auction.currentBid = newPrice;
+                    hasUpdates = true;
+                    debugPrint("✅ Updated price for ${auction.inspectionId}: ${newPrice}");
+                  }
+                }
+              }
+              return null;
+            } catch (e) {
+              debugPrint("❌ Error refreshing price for ${auction.inspectionId}: $e");
+              return null;
+            }
+          }).toList();
+
+          // Wait for all API calls to complete in parallel
+          await Future.wait(futures);
+
+          if (hasUpdates) {
+            // Update both filtered and full lists
+            final updatedFullList = updatedList;
+            final filteredList = List<VCarModel>.from(currentState.filterdAutionList);
+            
+            // Update prices in filtered list as well
+            for (var auction in filteredList) {
+              final updated = updatedFullList.firstWhere(
+                (a) => a.inspectionId == auction.inspectionId,
+                orElse: () => auction,
+              );
+              auction.currentBid = updated.currentBid;
+            }
+
+            emit(
+              VAuctionControllerSuccessState(
+                filterdAutionList: filteredList,
+                listOfAllLiveAuctionFromServer: updatedFullList,
+                enableRefreshButton: currentState.enableRefreshButton,
+              ),
+            );
+            debugPrint("✅ All prices refreshed successfully");
+          } else {
+            debugPrint("ℹ️ No price changes detected");
+          }
+        } catch (e) {
+          debugPrint("❌ Error refreshing all prices: $e");
+        }
       }
     });
   }

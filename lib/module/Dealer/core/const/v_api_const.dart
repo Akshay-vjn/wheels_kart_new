@@ -23,6 +23,7 @@ class VApiConst {
 
   static const buyOCB = "vendorlogin/buynow";
   static const updateAuciton = "vendorlogin/bid";
+  static const newPrice = "vendorlogin/newprice";
 
   static const deleteAccount = "vendorlogin/deletevendor";
 

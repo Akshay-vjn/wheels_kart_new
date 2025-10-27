@@ -195,18 +195,21 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
                           AppSpacer(heightPortion: .02),
 
                           Row(
+                            mainAxisSize: MainAxisSize.max,
                             children: [
-                              TextButton(
-                                onPressed: () async {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  "Cancel",
-                                  style: VStyle.poppins(
-                                    context: context,
-                                    fontWeight: FontWeight.bold,
-                                    color: VColors.GREY,
-                                    size: 20,
+                              Flexible(
+                                child: TextButton(
+                                  onPressed: () async {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(
+                                    "Cancel",
+                                    style: VStyle.poppins(
+                                      context: context,
+                                      fontWeight: FontWeight.bold,
+                                      color: VColors.GREY,
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -295,11 +298,9 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Flexible(
+                              Expanded(
                                 flex: 2,
-                                child: SizedBox(
-                                  // height: 50,
-                                  child: TextFormField(
+                                child: TextFormField(
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {
@@ -357,13 +358,11 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
                                       ),
                                     ),
                                   ),
-                                ),
                               ),
-                              Flexible(
-                                flex: 1,
-                                child: SizedBox(
-                                  height: 50,
-                                  child: OutlinedButton(
+                              const SizedBox(width: 10),
+                              SizedBox(
+                                height: 50,
+                                child: OutlinedButton(
                                     style: OutlinedButton.styleFrom(
                                       side: BorderSide(
                                         color: Color.fromARGB(255, 255, 152, 7),
@@ -385,29 +384,34 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
                                     ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                           AppSpacer(heightPortion: .01),
                           Row(
                             children: [
-                              Text(
-                                "Your Price : ${price}",
-                                style: VStyle.style(
-                                  context: context,
-                                  size: 15,
-                                  color: VColors.DARK_GREY,
-                                  fontWeight: FontWeight.w700,
+                              Expanded(
+                                child: Text(
+                                  "Your Price : ${price}",
+                                  style: VStyle.style(
+                                    context: context,
+                                    size: 15,
+                                    color: VColors.DARK_GREY,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Text(
-                                " + ${_formField.text}",
-                                style: VStyle.style(
-                                  context: context,
+                              Expanded(
+                                child: Text(
+                                  " + ${_formField.text}",
+                                  style: VStyle.style(
+                                    context: context,
 
-                                  size: 15,
-                                  color: VColors.SECONDARY,
-                                  fontWeight: FontWeight.w700,
+                                    size: 15,
+                                    color: VColors.SECONDARY,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
