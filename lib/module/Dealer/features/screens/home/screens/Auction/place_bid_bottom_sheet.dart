@@ -525,5 +525,22 @@ class _PlaceBidBottomSheetState extends State<PlaceBidBottomSheet> {
       widget.inspectionId,
       totalAmount.toString(),
     );
+    
+    // Auto-refresh after successful bid
+    if (widget.from == "AUCTION") {
+      context.read<VAuctionControlllerBloc>().add(
+        OnFetchVendorAuctionApi(context: context, tab: "Auction"),
+      );
+    } else if (widget.from == "DETAILS") {
+      context.read<VDetailsControllerBloc>().add(
+        OnFetchDetails(inspectionId: widget.inspectionId, context: context),
+      );
+    } else if (widget.from == "HISTORY") {
+      context.read<VMyAuctionControllerBloc>().add(
+        OnGetMyAuctions(context: context),
+      );
+    } else if (widget.from == "WISHLIST") {
+      // Wishlist will auto-update via WebSocket or can be manually refreshed
+    }
   }
 }
