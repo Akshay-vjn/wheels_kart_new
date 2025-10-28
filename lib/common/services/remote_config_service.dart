@@ -66,7 +66,7 @@ class RemoteConfigService {
   /// Returns Android store URL
   String getAndroidStoreUrl() {
     return _remoteConfig?.getString('android_store_url') ??
-        'https://play.google.com/store/apps/details?id=com.yourapp.id';
+        'https://play.google.com/store/apps/details?id=com.crisant.wheelskart';
   }
 
   /// Returns iOS store URL
