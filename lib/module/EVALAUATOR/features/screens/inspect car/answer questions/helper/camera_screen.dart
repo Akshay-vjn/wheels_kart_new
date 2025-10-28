@@ -6,6 +6,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CameraScreen extends StatefulWidget {
   bool? isFromVhiclePhotoScreen;
@@ -46,17 +47,53 @@ class _CameraScreenState extends State<CameraScreen>
   @override
   void initState() {
     super.initState();
-    _initCamera();
-    _initAnimations();
 
-    // Force landscape orientation
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    // Use image_picker for iOS, camera plugin for Android
+    if (Platform.isIOS) {
+      _initIOSCamera();
+    } else {
+      _initCamera();
+      _initAnimations();
 
-    // Hide status bar for immersive experience
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      // Force landscape orientation for Android
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+
+      // Hide status bar for immersive experience
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    }
+  }
+
+  Future<void> _initIOSCamera() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.rear,
+        imageQuality: 85,
+      );
+
+      if (image != null && mounted) {
+        final File imageFile = File(image.path);
+        widget.onImageCaptured(imageFile);
+      }
+
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Camera error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   void _initAnimations() {
@@ -347,18 +384,19 @@ class _CameraScreenState extends State<CameraScreen>
 
   @override
   void dispose() {
-    _cameraController?.dispose();
-    _focusAnimationController.dispose();
-    _captureAnimationController.dispose();
+    if (!Platform.isIOS) {
+      _cameraController?.dispose();
+      _focusAnimationController.dispose();
+      _captureAnimationController.dispose();
 
-    // Reset system UI and orientation
-
-    if (widget.isFromVhiclePhotoScreen == null) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
+      // Reset system UI and orientation
+      if (widget.isFromVhiclePhotoScreen == null) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+      }
     }
 
     super.dispose();
@@ -366,6 +404,34 @@ class _CameraScreenState extends State<CameraScreen>
 
   @override
   Widget build(BuildContext context) {
+    // For iOS, show a loading screen while native camera launches
+    if (Platform.isIOS) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(color: Colors.white),
+                const SizedBox(height: 20),
+                const Text(
+                  'Opening Camera...',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Please keep device in landscape mode',
+                  style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Android - Use existing camera preview implementation
     return Scaffold(
       backgroundColor: Colors.black,
       body:
@@ -378,26 +444,18 @@ class _CameraScreenState extends State<CameraScreen>
           children: [
             // Full screen camera preview
             Positioned.fill(
-              // child: ClipRect(
-              //   child: OverflowBox(
-              //     alignment: Alignment.center,
-              //     child: FittedBox(
-              //       fit: BoxFit.fitWidth,
-              //       child: SizedBox(
-              //         width: MediaQuery.of(context).size.width,
-              //         height:
-              //         MediaQuery.of(context).size.width /
-              //             _cameraController!.value.aspectRatio,
-              //         child: CameraPreview(_cameraController!),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-             child:  Positioned.fill(
-                child: Center(
-                  child: AspectRatio(
-                    aspectRatio: _cameraController!.value.aspectRatio,
-                    child: CameraPreview(_cameraController!),
+              child: ClipRect(
+                child: OverflowBox(
+                  alignment: Alignment.center,
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height:
+                      MediaQuery.of(context).size.width /
+                          _cameraController!.value.aspectRatio,
+                      child: CameraPreview(_cameraController!),
+                    ),
                   ),
                 ),
               ),
