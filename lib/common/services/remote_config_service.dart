@@ -22,7 +22,7 @@ class RemoteConfigService {
         'force_update_required': false,           // Global fallback
         'minimum_version': '1.0.0',              // Global fallback
         'ios_minimum_version': '4.0.0',          // iOS-specific
-        'android_minimum_version': '3.8.0',      // Android-specific
+        'android_minimum_version': '3.5.7',      // Android-specific
         'ios_force_update_required': false,      // iOS-specific
         'android_force_update_required': false,  // Android-specific
         'update_message': 'Your app version is outdated. Please update to continue using the app.',

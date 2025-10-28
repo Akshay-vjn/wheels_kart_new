@@ -378,18 +378,26 @@ class _CameraScreenState extends State<CameraScreen>
           children: [
             // Full screen camera preview
             Positioned.fill(
-              child: ClipRect(
-                child: OverflowBox(
-                  alignment: Alignment.center,
-                  child: FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height:
-                      MediaQuery.of(context).size.width /
-                          _cameraController!.value.aspectRatio,
-                      child: CameraPreview(_cameraController!),
-                    ),
+              // child: ClipRect(
+              //   child: OverflowBox(
+              //     alignment: Alignment.center,
+              //     child: FittedBox(
+              //       fit: BoxFit.fitWidth,
+              //       child: SizedBox(
+              //         width: MediaQuery.of(context).size.width,
+              //         height:
+              //         MediaQuery.of(context).size.width /
+              //             _cameraController!.value.aspectRatio,
+              //         child: CameraPreview(_cameraController!),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+             child:  Positioned.fill(
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: _cameraController!.value.aspectRatio,
+                    child: CameraPreview(_cameraController!),
                   ),
                 ),
               ),
