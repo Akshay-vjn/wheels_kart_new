@@ -32,6 +32,8 @@ class VApiConst {
 
   static const receivedDocuments = "vendorlogin/collecteddocuments";
 
+  static const fetchPolicy = "vendorlogin/policy";
+
   static const fetchCity = "masters/city";
   static const fetchMakeModel = "masters/makemodel";
 }

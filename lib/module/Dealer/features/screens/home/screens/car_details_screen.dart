@@ -271,7 +271,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 ]),
                               ],
                             ),
-
+                            _buildRemarksCard(detail.carDetails.remarks),
                             _buildCard(
                               index: 1,
                               icon: CupertinoIcons.doc_fill,
@@ -464,7 +464,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                             
                             // Remarks Section - Show if remarks are available
                             // Debug: Always show remarks card for testing
-                            _buildRemarksCard(detail.carDetails.remarks),
+                            
                             
                             // Payment Details Section - Show ONLY in bought tab (OCB with isOwnedCar: true)
                             if (widget.auctionType == "OCB" && widget.isOwnedCar)
@@ -1571,7 +1571,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                             vertical: 16,
                           ),
                           decoration: BoxDecoration(
-                            color: VColors.GREENHARD.withAlpha(100),
+                            color: VColors.GREENHARD,
                           ),
                           alignment: Alignment.center,
                           child: Row(
@@ -1587,7 +1587,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                               AppSpacer(widthPortion: .02),
                               Text(
                                 e.value.type,
-
+  
                                 style: VStyle.style(
                                   context: context,
                                   size: 15,

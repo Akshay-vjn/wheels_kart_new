@@ -899,13 +899,10 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           right: 8,
           child: GestureDetector(
             onTap: () {
-              // Use a more stable state update to prevent scroll jumping
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                setState(() {
-                  listOfImages.removeAt(imageIndex);
-                });
-                Functions.resetButtonStatus(context, questionIndex);
+              setState(() {
+                listOfImages.removeAt(imageIndex);
               });
+              Functions.resetButtonStatus(context, questionIndex);
             },
             child: Container(
               padding: const EdgeInsets.all(4),

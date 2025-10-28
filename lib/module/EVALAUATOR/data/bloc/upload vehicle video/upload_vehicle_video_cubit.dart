@@ -17,7 +17,7 @@ part 'upload_vehicle_video_state.dart';
 
 class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
   UploadVehicleVideoCubit() : super(UploadVehicleVideoInitialState());
-  static const WLAKAROUND = "Walkaround";
+  static const WLAKAROUND = "Walkaround Video";
   static const ENGINESIDE = "Engine Side";
   Future<void> onFetcUploadVideos(
     BuildContext context,
