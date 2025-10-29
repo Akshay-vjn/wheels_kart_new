@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wheels_kart/common/block_providers.dart';
 import 'package:wheels_kart/common/managers/app_lifecycle_manager.dart';
+import 'package:wheels_kart/common/widgets/force_update_wrapper.dart';
 import 'package:wheels_kart/firebase_options.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/spash_screen.dart';
@@ -50,7 +51,9 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: SplashScreen(),
+        home: ForceUpdateWrapper(
+          child: SplashScreen(),
+        ),
       ),
     );
   }

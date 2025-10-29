@@ -166,6 +166,7 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
         builder:
             (_) => CameraScreen(
               isFromVhiclePhotoScreen: true,
+              angleName: angleName, // Pass angle name to camera screen
               onImageCaptured: (file) {
                 // immediate UI update
                 selectedImageFile = file;

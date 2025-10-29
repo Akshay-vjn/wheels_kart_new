@@ -451,9 +451,13 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
               : null, // avoid double-calls / loops
       itemBuilder: (context, index) {
         final angle = angleState.flattenedAngles![index];
-        return isLeftSide
-            ? _buildSamplePreviewCard(angle)
-            : _buildAngleCard(angle, uploaded);
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return isLeftSide
+                ? _buildSamplePreviewCard(angle)
+                : _buildAngleCard(angle, uploaded);
+          },
+        );
       },
     );
   }
@@ -474,11 +478,13 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(MediaQuery.of(context).size.height < 600 ? 16 : 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -567,129 +573,138 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
               ),
             ],
           ),
-          child: Column(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      _buildImageContent(
-                        angle,
-                        hasServerPhoto,
-                        serverPhoto,
-                        hasLocalPhoto,
-                        uiItem,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(20),
                       ),
-                      if (hasServerPhoto || isUploading)
-                        Positioned(
-                          top: 16,
-                          right: 16,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isUploading ? Colors.orange : Colors.green,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  isUploading
-                                      ? Icons.cloud_upload
-                                      : Icons.cloud_done,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  isUploading ? "Uploading..." : "Uploaded",
-                                  style: EvAppStyle.poppins(
-                                    context: context,
-                                    color: Colors.white,
-                                    size: AppDimensions.fontSize12(context),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          _buildImageContent(
+                            angle,
+                            hasServerPhoto,
+                            serverPhoto,
+                            hasLocalPhoto,
+                            uiItem,
                           ),
-                        ),
-                      if (isError)
-                        Positioned(
-                          top: 16,
-                          right: 16,
-                          child: GestureDetector(
-                            onTap: () {
-                              uploadCubit.retryUpload(
-                                context,
-                                widget.inspectionId,
-                                angle.angleId,
-                                (context
-                                        .read<UplaodVehilcePhotoCubit>()
-                                        .state
-                                        .currentPageIndex ??
-                                    0),
-                                angle.angleName,
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.error_outline,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    "Tap to retry",
-                                    style: EvAppStyle.poppins(
-                                      context: context,
+                          if (hasServerPhoto || isUploading)
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isUploading ? Colors.orange : Colors.green,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      isUploading
+                                          ? Icons.cloud_upload
+                                          : Icons.cloud_done,
                                       color: Colors.white,
-                                      size: AppDimensions.fontSize12(context),
-                                      fontWeight: FontWeight.w600,
+                                      size: 16,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      isUploading ? "Uploading..." : "Uploaded",
+                                      style: EvAppStyle.poppins(
+                                        context: context,
+                                        color: Colors.white,
+                                        size: AppDimensions.fontSize12(context),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                    ],
+                          if (isError)
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: GestureDetector(
+                                onTap: () {
+                                  uploadCubit.retryUpload(
+                                    context,
+                                    widget.inspectionId,
+                                    angle.angleId,
+                                    (context
+                                            .read<UplaodVehilcePhotoCubit>()
+                                            .state
+                                            .currentPageIndex ??
+                                        0),
+                                    angle.angleName,
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.error_outline,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        "Tap to retry",
+                                        style: EvAppStyle.poppins(
+                                          context: context,
+                                          color: Colors.white,
+                                          size: AppDimensions.fontSize12(context),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // if (hasServerPhoto)
-                    //   _buildDeleteButton(angle, serverPhoto)
-                    // else
-                    _buildUploadButton(angle, isUploading),
-                    const SizedBox(height: 16),
-                    _buildNavigationButtons(),
-                  ],
-                ),
-              ),
-            ],
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: MediaQuery.of(context).size.height < 600 ? 10 : 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // if (hasServerPhoto)
+                        //   _buildDeleteButton(angle, serverPhoto)
+                        // else
+                        _buildUploadButton(angle, isUploading),
+                        SizedBox(height: MediaQuery.of(context).size.height < 600 ? 10 : 14),
+                        _buildNavigationButtons(),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         );
       },
@@ -812,8 +827,9 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.add_a_photo_outlined, size: 80, color: Colors.grey[400]),
+            Icon(Icons.add_a_photo_outlined, size: 50, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               "No photo captured yet",
@@ -870,7 +886,9 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
               foregroundColor: Colors.black87,
               disabledBackgroundColor: Colors.grey[200],
               disabledForegroundColor: Colors.grey[400],
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(
+                vertical: MediaQuery.of(context).size.height < 600 ? 10 : 14,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
@@ -899,7 +917,9 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
               backgroundColor:
                   hasNext ? EvAppColors.DEFAULT_BLUE_DARK : Colors.grey[300],
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(
+                vertical: MediaQuery.of(context).size.height < 600 ? 10 : 14,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -944,7 +964,9 @@ class _UploadVehiclePhotosState extends State<UploadVehiclePhotos>
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: isUploading ? Colors.grey : EvAppColors.DEFAULT_ORANGE,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(
+          vertical: MediaQuery.of(context).size.height < 600 ? 12 : 16,
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );

@@ -8,13 +8,14 @@ import 'package:wheels_kart/common/utils/responsive_helper.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/Dealer/features/v_nav_screen.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/const/ev_const_images.dart';
+import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/ev_dashboard_screen.dart';
 import 'package:wheels_kart/module/decision_screen.dart';
 import 'package:wheels_kart/common/controllers/auth cubit/auth_cubit.dart';
 
-import 'package:wheels_kart/common/components/force_update_dialog.dart';
-import 'package:wheels_kart/common/services/force_update_service.dart';
+import 'package:new_version_plus/new_version_plus.dart';
+import 'package:wheels_kart/common/config/app_config.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -50,27 +51,14 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _handleStartupFlow() async {
     await Future.delayed(const Duration(milliseconds: 2500));
 
-    //  Force update check
-    final updateService = ForceUpdateService.create();
-    final updateInfo = await updateService.checkForUpdate();
+    // Force update check using new_version_plus (only if enabled)
+    if (AppConfig.forceUpdateEnabled) {
+      await _checkForForceUpdate();
+    }
 
     if (!mounted) return;
 
-    if (updateInfo.status == UpdateStatus.forceUpdateRequired) {
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => ForceUpdateDialog(
-          updateInfo: updateInfo,
-          onUpdate: () async {
-            await updateService.openStore(updateInfo.storeUrl);
-          },
-        ),
-      );
-      return; // block next steps
-    }
-
-    //  Continue existing login flow
+    // Continue existing login flow
     try {
       BlocProvider.of<AppAuthController>(context)
           .checkTheTokenValidity(context);
@@ -154,6 +142,125 @@ class _SplashScreenState extends State<SplashScreen>
       await Future.delayed(const Duration(milliseconds: 800));
       _loadingController.forward();
     } catch (_) {}
+  }
+
+  // Force update check using new_version_plus
+  Future<void> _checkForForceUpdate() async {
+    try {
+      final newVersion = NewVersionPlus(
+        androidId: "com.crisant.wheelskart", // Your Android package name
+        iOSId: "6749476545", //  actual iOS App Store ID
+      );
+
+      final status = await newVersion.getVersionStatus();
+
+      if (status?.canUpdate == true && mounted) {
+        // Show force update dialog
+        await showDialog(
+          context: context,
+          barrierDismissible: false, // Cannot dismiss
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: Row(
+              children: [
+                Icon(
+                  Icons.system_update,
+                  color: EvAppColors.DEFAULT_BLUE_DARK,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    "Update Required",
+                    style: EvAppStyle.style(
+                      context: context,
+                      size: 20,
+                      fontWeight: FontWeight.bold,
+                      color: EvAppColors.DEFAULT_BLUE_DARK,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Please update to the latest version to continue using Wheels Kart.",
+                  style: EvAppStyle.style(
+                    context: context,
+                    size: 16,
+                    color: EvAppColors.DEFAULT_BLUE_DARK,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: EvAppColors.DEFAULT_BLUE_DARK.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: EvAppColors.DEFAULT_BLUE_DARK,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "This update includes important improvements and bug fixes.",
+                          style: EvAppStyle.style(
+                            context: context,
+                            size: 14,
+                            color: EvAppColors.DEFAULT_BLUE_DARK,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    if (status?.appStoreLink != null) {
+                      newVersion.launchAppStore(status!.appStoreLink);
+                    }
+                  },
+                  icon: const Icon(Icons.download),
+                  label: const Text("Update Now"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: EvAppColors.DEFAULT_BLUE_DARK,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      print("Error checking for updates: $e");
+      // Continue with app flow even if update check fails
+    }
   }
 
   @override

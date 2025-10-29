@@ -1586,7 +1586,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                               ),
                               AppSpacer(widthPortion: .02),
                               Text(
-                                e.value.type,
+                                e.value.type == "Walkaround" ? "Walkaround video" : e.value.type,
   
                                 style: VStyle.style(
                                   context: context,

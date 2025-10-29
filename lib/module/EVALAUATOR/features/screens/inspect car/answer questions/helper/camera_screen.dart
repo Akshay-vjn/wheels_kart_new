@@ -682,15 +682,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
 
 class CameraScreen extends StatefulWidget {
   bool? isFromVhiclePhotoScreen;
   final Function(File) onImageCaptured;
+  final String? angleName; // Add angle name parameter
 
   CameraScreen({
     Key? key,
     required this.onImageCaptured,
     this.isFromVhiclePhotoScreen,
+    this.angleName,
   }) : super(key: key);
 
   @override
@@ -702,15 +705,34 @@ class _CameraScreenState extends State<CameraScreen> {
   bool _isChecking = false;
   bool _cameraOpened = false; // Track if camera has opened
 
+  // Check if this angle requires portrait orientation
+  bool get _requiresPortrait {
+    if (widget.angleName == null) return false;
+    final angleNameLower = widget.angleName!.toLowerCase();
+    // Check if angle name contains "center console gear infotainment" (case-insensitive)
+    return angleNameLower.contains('center console gear infotainment') ||
+           (angleNameLower.contains('center console') && 
+            (angleNameLower.contains('gear') || angleNameLower.contains('infotainment')));
+  }
+
   @override
   void initState() {
     super.initState();
     
-    // Try to set landscape orientation (works if auto-rotate is ON)
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    // Set orientation based on requirement
+    if (_requiresPortrait) {
+      // Portrait required - allow portrait orientations
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } else {
+      // Landscape required - allow landscape orientations (existing behavior)
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
 
     // Open camera immediately
     _openCamera();
@@ -760,25 +782,81 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       final File imageFile = File(image.path);
       
-      // Quick check using file decoding (faster than full image decode)
-      final decodedImage = await decodeImageFromList(await imageFile.readAsBytes());
+      // Quick check using file decoding
+      final bytes = await imageFile.readAsBytes();
+      final decodedImage = img.decodeImage(bytes);
+      
+      if (decodedImage == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: Unable to decode image'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+        return;
+      }
       
       final width = decodedImage.width;
       final height = decodedImage.height;
 
-      if (width <= height) {
-        // Portrait image - show error
-        if (mounted) {
-          setState(() {
-            _isChecking = false;
-          });
-          _showLandscapeError(width, height);
+      // Check if portrait is required for this angle
+      if (_requiresPortrait) {
+        // Require PORTRAIT: height must be > width
+        if (height <= width) {
+          // Landscape image - show error for portrait requirement
+          if (mounted) {
+            setState(() {
+              _isChecking = false;
+            });
+            _showPortraitError(width, height);
+          }
+        } else {
+          // Portrait image - success!
+          if (mounted) {
+            widget.onImageCaptured(imageFile);
+            
+            // Reset to landscape orientation immediately
+            if (widget.isFromVhiclePhotoScreen == true) {
+              SystemChrome.setPreferredOrientations([
+                DeviceOrientation.landscapeLeft,
+                DeviceOrientation.landscapeRight,
+              ]);
+              
+              // Give a short delay to ensure orientation change is applied before navigation
+              await Future.delayed(const Duration(milliseconds: 300));
+            }
+            
+            if (mounted) {
+              Navigator.of(context).pop();
+            }
+          }
         }
       } else {
-        // Landscape image - success!
-        if (mounted) {
-          widget.onImageCaptured(imageFile);
-          Navigator.of(context).pop();
+        // Require LANDSCAPE: width must be > height (existing behavior)
+        if (width <= height) {
+          // Portrait image - show error
+          if (mounted) {
+            setState(() {
+              _isChecking = false;
+            });
+            _showLandscapeError(width, height);
+          }
+        } else {
+          // Landscape image - success!
+          if (mounted) {
+            // Ensure landscape orientation is set before going back
+            if (widget.isFromVhiclePhotoScreen == true) {
+              SystemChrome.setPreferredOrientations([
+                DeviceOrientation.landscapeLeft,
+                DeviceOrientation.landscapeRight,
+              ]);
+            }
+            widget.onImageCaptured(imageFile);
+            Navigator.of(context).pop();
+          }
         }
       }
     } catch (e) {
@@ -866,10 +944,98 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
+  void _showPortraitError(int width, int height) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.screen_rotation, color: Colors.orange, size: 28),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Portrait Required',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Please take the photo in portrait mode.',
+              style: TextStyle(fontSize: 15),
+            ),
+            SizedBox(height: 16),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.info_outline, color: Colors.orange, size: 18),
+                  SizedBox(width: 8),
+                  Text(
+                    'Image: ${width}x${height}',
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(context).pop(); // Close camera screen
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              _openCamera(); // Retry
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text('Retry', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
-    // Reset to portrait when leaving
-    if (widget.isFromVhiclePhotoScreen == null) {
+    // Reset orientation when leaving
+    if (widget.isFromVhiclePhotoScreen == true) {
+      // Reset to landscape for vehicle photo screen (expects landscape)
+      // Use post-frame callback to ensure this happens after navigation completes
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      });
+      
+      // Also set immediately as backup
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    } else if (widget.isFromVhiclePhotoScreen == null) {
+      // Reset to portrait for other screens
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
@@ -930,7 +1096,9 @@ class _CameraScreenState extends State<CameraScreen> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 40),
                   child: Text(
-                    'Rotate your device to landscape mode\nfor better photos',
+                    _requiresPortrait
+                        ? 'Keep your device in portrait mode\nfor this photo'
+                        : 'Rotate your device to landscape mode\nfor better photos',
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 16,
