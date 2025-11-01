@@ -9,8 +9,12 @@ class AppConfig {
   /// 
   /// true = Force update is ENABLED (checks will run)
   /// false = Force update is DISABLED (checks will be skipped)
-  static const bool forceUpdateEnabled = false;
+  static const bool forceUpdateEnabled = true;
 }
+
+
+
+
 
 
 

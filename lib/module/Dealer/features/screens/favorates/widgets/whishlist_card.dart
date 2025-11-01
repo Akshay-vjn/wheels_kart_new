@@ -19,6 +19,7 @@ import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/Dealer/core/v_style.dart';
 import 'package:wheels_kart/module/Dealer/features/screens/home/screens/OCB/place_ocbbotton_sheet.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
+import 'package:wheels_kart/module/Dealer/features/screens/home/screens/Auction/auction_vehicle_card.dart';
 
 class VWhishlistCard extends StatefulWidget {
   final VCarModel model;
@@ -133,107 +134,10 @@ class _VWhishlistCardState extends State<VWhishlistCard>
   bool get _enableViewButton => true;
   @override
   Widget build(BuildContext context) {
-    // log("Have the bidders -> $_haveTheBidders");
-    // log("last Id -> ${widget.model.vendorIds.last}");
-    //    log("first Id -> ${widget.model.vendorIds.first}");
-    // log("My Id : ${widget.myId}");
-
-    // log(widget.model.vendorIds.map((e) => e.toString()).toList().toString());
-
-    return AnimatedBuilder(
-      animation: _scaleAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          child: GestureDetector(
-            onTap: () async {
-              if (_enableViewButton) {
-                final isLiked = await Navigator.of(context).push(
-                  AppRoutes.createRoute(
-                    VCarDetailsScreen(
-                      paymentStatus: widget.model.paymentStatus,
-                      auctionType: widget.model.auctionType,
-                      hideBidPrice: widget.model.bidStatus != "Open",
-                      frontImage: widget.model.frontImage,
-                      inspectionId: widget.model.inspectionId,
-                      isLiked: widget.model.wishlisted == 1 ? true : false,
-                    ),
-                  ),
-                );
-                if (isLiked == false) {
-                  context.read<VWishlistControllerCubit>().onFetchWishList(
-                    context,
-                  );
-                }
-              }
-            },
-            onTapDown: _onTapDown,
-            onTapUp: _onTapUp,
-            onTapCancel: _onTapCancel,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              child: Stack(
-                children: [
-                  // Main card with gradient background
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.white, Colors.grey.shade50],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: VColors.GREENHARD.withOpacity(0.08),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: _buildCardContent(),
-                    ),
-                  ),
-
-                  if (_isColsed)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 0,
-                      bottom: 0,
-                      child: Material(
-                        color: VColors.WHITE.withAlpha(120),
-                        borderRadius: BorderRadius.circular(15),
-
-                        child: SizedBox(height: 200, width: 200),
-                      ),
-                    ),
-
-                  if (_isColsed)
-                    Positioned(
-                      top: 15,
-                      left: w(context) * 0.28 + 25,
-                      child: _buildStatusBadge(widget.model.bidStatus ?? ''),
-                    ),
-
-                  // Favorite button with improved positioning
-                  // Status indicator
-                  _buildEnhancedFavoriteButton(widget.model.inspectionId),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+    return VAuctionVehicleCard(
+      myId: widget.myId,
+      vehicle: widget.model,
+      onTimerExpired: null, // Or provide callback if needed for expiry
     );
   }
 

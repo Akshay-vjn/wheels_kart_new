@@ -203,6 +203,12 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                             // _buildCarSpecification(detail.carDetails),
                             AppSpacer(heightPortion: .01),
 
+                            // Payment deadline message for bought history
+                            if (widget.isOwnedCar) ...[
+                              _buildPaymentDeadlineMessage(),
+                              AppSpacer(heightPortion: .01),
+                            ],
+
                             _buildCard(
                               index: 0,
                               icon: CupertinoIcons.doc_fill,
@@ -265,8 +271,9 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   },
                                   {
                                     "title": "Reg number",
-                                    "content":
-                                        "${detail.carDetails.registrationNumber.substring(0, 4)}******",
+                                    "content": detail.carDetails.registrationNumber.length >= 4
+                                        ? "${detail.carDetails.registrationNumber.substring(0, 4)}******"
+                                        : "${detail.carDetails.registrationNumber}******",
                                   },
                                 ]),
                               ],
@@ -490,6 +497,13 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                 : BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
                   builder: (context, state) {
                     if (state is VDetailsControllerSuccessState) {
+                      // Compute 24h gating based on bid closing time
+                      final bidTime = state.detail.carDetails.bidClosingTime;
+                      final remaining = bidTime != null
+                          ? bidTime.difference(DateTime.now())
+                          : Duration.zero;
+                      final bool isBeyond24h = remaining > const Duration(hours: 24);
+
                       return state.endTime == "00:00:00"
                           ? SizedBox.shrink()
                           : SlideInUp(
@@ -550,7 +564,9 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                     children: [
                                       if (!isOCB)
                                         InkWell(
-                                          onTap: () async {
+                                          onTap: isBeyond24h
+                                              ? null
+                                              : () async {
                                             final currentState =
                                                 context
                                                     .read<
@@ -573,7 +589,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                     widget.inspectionId,
                                               );
                                             }
-                                          },
+                                              },
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
                                               horizontal: 20,
@@ -586,17 +602,22 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
                                                 colors: [
-                                                  VColors.WARNING.withAlpha(
-                                                    150,
-                                                  ),
-                                                  VColors.WARNING,
+                                                  (isBeyond24h
+                                                          ? VColors.GREY
+                                                          : VColors.WARNING)
+                                                      .withAlpha(150),
+                                                  isBeyond24h
+                                                      ? VColors.GREY
+                                                      : VColors.WARNING,
                                                 ],
                                               ),
                                               borderRadius:
                                                   BorderRadius.circular(25),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: VColors.WARNING
+                                                  color: (isBeyond24h
+                                                          ? VColors.GREY
+                                                          : VColors.WARNING)
                                                       .withAlpha(60),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 2),
@@ -1585,14 +1606,17 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 color: VColors.WHITE,
                               ),
                               AppSpacer(widthPortion: .02),
-                              Text(
-                                e.value.type == "Walkaround" ? "Walkaround video" : e.value.type,
-  
-                                style: VStyle.style(
-                                  context: context,
-                                  size: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: VColors.WHITE,
+                              Flexible(
+                                child: Text(
+                                  e.value.type == "Walkaround" ? "Walkaround video" : e.value.type,
+                                  style: VStyle.style(
+                                    context: context,
+                                    size: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: VColors.WHITE,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                 ),
                               ),
                             ],
@@ -1687,6 +1711,43 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentDeadlineMessage() {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.orange.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: Colors.orange,
+            size: 20,
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "The payment deadline is 3 days. If payment is delayed beyond 3 days, an additional parking charge of ₹1,000 per day will apply.",
+              style: VStyle.style(
+                context: context,
+                color: VColors.BLACK,
+                size: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
