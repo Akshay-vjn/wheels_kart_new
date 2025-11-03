@@ -57,26 +57,32 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
 
   Future<void> _uploadVideo(
     BuildContext context,
-    File file,
+    XFile videoFile,
     String inspectionId,
     String videoType,
   ) async {
     final currentState = state;
     if (currentState is UploadVehicleVideoSuccessState) {
-      final bytes = await file.readAsBytes();
-      final base64File = base64Encode(bytes);
-      final response = await UploadVehicleVideoRepo.uploadVehicleVideo(
-        context,
-        inspectionId,
-        base64File,
-        videoType,
-      );
-      if (response['error'] == true) {
-        log("Error while uploading video ${response['message']}");
-        showSnakBar(context, "Uploading $videoType is failed!", isError: true);
-      } else {
-        log("Success : ${response['message']}");
-        showSnakBar(context, "$videoType video uploaded success");
+      try {
+        // Read bytes directly from XFile - works on both iOS and Android
+        final bytes = await videoFile.readAsBytes();
+        final base64File = base64Encode(bytes);
+        final response = await UploadVehicleVideoRepo.uploadVehicleVideo(
+          context,
+          inspectionId,
+          base64File,
+          videoType,
+        );
+        if (response['error'] == true) {
+          log("Error while uploading video ${response['message']}");
+          showSnakBar(context, "Uploading $videoType is failed!", isError: true);
+        } else {
+          log("Success : ${response['message']}");
+          showSnakBar(context, "$videoType video uploaded success");
+        }
+      } catch (e) {
+        log("Error reading/uploading video: ${e.toString()}");
+        showSnakBar(context, "Failed to read video file. Please try again.", isError: true);
       }
 
       emit(
@@ -117,7 +123,7 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
         }
         await _uploadVideo(
           context,
-          File(pickedFIle.path),
+          pickedFIle,
           insepctionId,
           WLAKAROUND,
         );
@@ -148,7 +154,7 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
         }
         await _uploadVideo(
           context,
-          File(pickedFIle.path),
+          pickedFIle,
           insepctionId,
           ENGINESIDE,
         );

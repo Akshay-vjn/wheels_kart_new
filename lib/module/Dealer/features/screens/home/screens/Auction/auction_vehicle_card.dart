@@ -1128,7 +1128,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     // Priority: bidStatus from server determines the badge
     if (status == "Not Started" || _isNotStarted) {
       title = "NOT STARTED";
-      color = Colors.orange;
+      color = Colors.red;
     } else if (status == "Open" || _isOpened) {
       title = "OPEN";
       color = VColors.SUCCESS;
