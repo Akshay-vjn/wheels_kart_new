@@ -189,6 +189,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   bool get _isCancelled => widget.vehicle.bidStatus == "Cancelled";
   // Trust the server's bidStatus - if server says "Open", show it as open with timer
   bool get _isOpened => widget.vehicle.bidStatus == "Open";
+  bool get _isNotStarted => widget.vehicle.bidStatus == "Not Started";
 
   // Trust the server's bidStatus instead of client-side timer
   // If bidStatus is "Open", it's still live even if bidClosingTime has passed
@@ -340,28 +341,14 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                       child: _buildFavoriteButton(),
                     ),
 
-                    // Status Badge (if needed)
-                    // Positioned(
-                    //   left: 12,
-                    //   top: 12,
-                    //   child: Row(
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     mainAxisSize: MainAxisSize.min,
-                    //     children: [
-                    //       _buildStatusBadge(widget.vehicle.bidStatus ?? ""),
-                    //       AppSpacer(widthPortion: .02),
-                    //       _buildAuctionStatus(),
-                    //     ],
-                    //   ),
-                    // ),
-                    if (_isColsed)
-                      Positioned(
-                        top: 10,
-                        left: w(context) / 2 - 15,
-                        child: _buildStatusBadge(
-                          widget.vehicle.bidStatus ?? "",
-                        ),
+                    // Status Badge - Always show Open/Closed/Not Started badge
+                    Positioned(
+                      top: 10,
+                      left: w(context) / 2 - 15,
+                      child: _buildStatusBadge(
+                        widget.vehicle.bidStatus ?? "",
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -903,7 +890,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
     if (isBeyond24h) {
       // Show countdown boxes instead of text
-      buttonColor = const Color.fromARGB(255, 245, 86, 30);
+      buttonColor = const Color.fromARGB(255, 255, 255, 255);
       buttonIcon = Icons.lock;
     } else {
       if (!_isIamInThisBid) {
@@ -1137,23 +1124,33 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     Color color;
     String title;
 
-    // For live auction tab, check timer and status
-    if (status == "Cancelled") {
-      title = "CANCELLED";
-      color = VColors.REDHARD;
+    // Check bid status and show appropriate badge
+    // Priority: bidStatus from server determines the badge
+    if (status == "Not Started" || _isNotStarted) {
+      title = "NOT STARTED";
+      color = Colors.orange;
+    } else if (status == "Open" || _isOpened) {
+      title = "OPEN";
+      color = VColors.SUCCESS;
+    } else if (status == "Closed") {
+      title = "CLOSED";
+      color = EvAppColors.DARK_SECONDARY;
     } else if (status == "Sold" || _isSold) {
       title = "SOLD";
       color = VColors.ERROR;
+    } else if (status == "Cancelled" || _isCancelled) {
+      title = "CANCELLED";
+      color = VColors.REDHARD;
     } else if (_endTime == "00:00:00") {
-      // Timer reached zero, show CLOSED
+      // Fallback: if timer expired but status not set, show closed
       title = "CLOSED";
       color = EvAppColors.DARK_SECONDARY;
     } else {
-      // Default to OPEN for items in live auction tab
+      // Default fallback
       title = "OPEN";
       color = VColors.SUCCESS;
     }
-    // You can customize this based on vehicle status
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(

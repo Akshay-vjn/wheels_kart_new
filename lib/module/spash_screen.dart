@@ -148,8 +148,8 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _checkForForceUpdate() async {
     try {
       final newVersion = NewVersionPlus(
-        androidId: "com.crisant.wheelskart", // Your Android package name
-        iOSId: "6749476545", //  actual iOS App Store ID
+        androidId: "com.crisant.wheelskart", 
+        iOSId: "6749476545", 
       );
 
       final status = await newVersion.getVersionStatus();
