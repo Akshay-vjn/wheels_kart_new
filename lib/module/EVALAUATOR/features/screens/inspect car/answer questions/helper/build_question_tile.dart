@@ -1,7 +1,9 @@
 import 'dart:developer';
 import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
@@ -1265,49 +1267,50 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
               final listOfImages = helperVariable["listOfImages"];
 
               try {
-                final bytes = await file.readAsBytes();
-                print("📷 Image bytes read: ${bytes.length} bytes");
-
-                img.Image? image = img.decodeImage(bytes);
-                if (image == null) {
-                  print("❌ Failed to decode image");
-                  throw Exception("Unable to decode image");
-                }
-                print("📷 Image decoded: ${image.width}x${image.height}");
-
-                if (image.width > 800) {
-                  image = img.copyResize(image, width: 800);
-                  print("📷 Image resized to 800px width");
-                }
-                final compressed = img.encodeJpg(image, quality: 80);
-                print("📷 Image compressed: ${compressed.length} bytes");
-
-                // Add image to list first
-                setState(() {
-                  listOfImages.add(compressed);
-                });
-                print("📷 Image added to list, total images: ${listOfImages.length}");
-
-                // Reset button status (this triggers BLoC state change)
-                Functions.resetButtonStatus(context, questionIndex);
-                print("📷 Button status reset");
-
-                // Clear image capture flag
+                // Show immediate feedback - UI is responsive
                 setState(() {
                   _isCapturingImage = false;
                 });
 
-                // Restore scroll position and focus on add picture button AFTER BLoC state change completes
-                Future.delayed(const Duration(milliseconds: 400), () {
-                  _restoreScrollPosition(scrollController, savedPosition);
-                  
-                  // Focus on add picture button after scroll restoration
-                  Future.delayed(const Duration(milliseconds: 200), () {
-                    _focusOnAddPictureButton();
+                // Process image in background isolate using compute()
+                // This moves heavy operations (decode, resize, compress) off main thread
+                // Significantly improves performance and UI responsiveness
+                print("📷 Starting background image processing...");
+                final compressed = await compute(_processImageInBackground, file.path);
+                print("📷 Image processed in background: ${compressed.length} bytes");
+
+                // Add image to list (quick operation on main thread)
+                if (mounted) {
+                  setState(() {
+                    listOfImages.add(compressed);
                   });
-                });
+                  print("📷 Image added to list, total images: ${listOfImages.length}");
+
+                  // Reset button status (this triggers BLoC state change)
+                  Functions.resetButtonStatus(context, questionIndex);
+                  print("📷 Button status reset");
+
+                  // Restore scroll position and focus on add picture button AFTER BLoC state change completes
+                  Future.delayed(const Duration(milliseconds: 400), () {
+                    if (mounted) {
+                      _restoreScrollPosition(scrollController, savedPosition);
+                      
+                      // Focus on add picture button after scroll restoration
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        if (mounted) {
+                          _focusOnAddPictureButton();
+                        }
+                      });
+                    }
+                  });
+                }
               } catch (e) {
                 print("❌ Error in image processing: $e");
+                if (mounted) {
+                  setState(() {
+                    _isCapturingImage = false;
+                  });
+                }
               }
             },
           ),
@@ -1483,5 +1486,34 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           return TextInputType.name;
         }
     }
+  }
+}
+
+// Top-level function for compute() - processes images in background isolate
+// This significantly speeds up image validation by moving heavy operations off main thread
+// Note: compute() requires synchronous function, so we read file synchronously
+Uint8List _processImageInBackground(String imagePath) {
+  try {
+    final imageFile = File(imagePath);
+    // Read file bytes synchronously (compute() handles this in isolate)
+    final bytes = imageFile.readAsBytesSync();
+    
+    // Decode image
+    img.Image? image = img.decodeImage(bytes);
+    if (image == null) {
+      throw Exception("Unable to decode image");
+    }
+    
+    // Resize if needed (only if width > 800)
+    if (image.width > 800) {
+      image = img.copyResize(image, width: 800);
+    }
+    
+    // Compress and return
+    final compressed = img.encodeJpg(image, quality: 80);
+    return Uint8List.fromList(compressed);
+  } catch (e) {
+    log("Error processing image in background: $e");
+    rethrow;
   }
 }

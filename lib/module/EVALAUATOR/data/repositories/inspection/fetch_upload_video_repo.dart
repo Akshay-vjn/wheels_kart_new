@@ -29,23 +29,30 @@ class FetchUploadVideoRepo {
           body: jsonEncode({"inspectionId": inspectionID}),
         );
 
+        log('Fetch videos response status: ${response.statusCode}');
+        log('Fetch videos response body: ${response.body}');
+        
         final decodedata = jsonDecode(response.body);
 
-        if (decodedata['status'] == 200) {
+        if (decodedata['status'] == 200 || response.statusCode == 200) {
           return {
-            'error': decodedata['error'],
-            'message': decodedata['message'],
-            'data': decodedata['data'],
+            'error': decodedata['error'] ?? false,
+            'message': decodedata['message'] ?? 'Videos fetched successfully',
+            'data': decodedata['data'] ?? [],
           };
         } else {
           return {
-            'error': decodedata['error'],
-            'message': decodedata['message'],
+            'error': decodedata['error'] ?? true,
+            'message': decodedata['message'] ?? 'Failed to fetch videos',
+            'data': [],
           };
         }
       } catch (e) {
-        log('repo - catch error - fetch car inspections => ${e.toString()}   ');
-        return {};
+        log('repo - catch error - fetch vehicle videos => ${e.toString()}');
+        return {
+          'error': true,
+          'message': 'Failed to fetch videos: ${e.toString()}',
+        };
       }
     } else {
       return {};

@@ -295,15 +295,31 @@ class Functions {
       final updatedIndexVariables = currentState.listOfUploads;
       List<Attachment> attachments = [];
       if (images.isNotEmpty) {
-        for (var file in images) {
-          if (file != null) {
-            final compressedFile = await _compressImageFromUint8List(file);
-            if (compressedFile != null) {
-              final mapData = await _convertImageUint8ToBase64(compressedFile);
-              attachments.add(Attachment.fromJson(mapData));
-            }
+        // Process images in parallel instead of sequentially for better performance
+        // This significantly speeds up processing when multiple images are present
+        final attachmentFutures = images.where((file) => file != null).map((file) async {
+          // Images are already compressed in build_question_tile.dart (quality 80, max width 800)
+          // Skip re-compression if image is already small enough (< 500KB)
+          // This avoids double compression which was causing significant slowdown
+          Uint8List? processedFile;
+          if (file!.lengthInBytes < 500 * 1024) {
+            // Image is already small enough, use directly
+            processedFile = file;
+          } else {
+            // Only compress if image is still large
+            processedFile = await _compressImageFromUint8List(file);
           }
-        }
+          
+          if (processedFile != null) {
+            final mapData = await _convertImageUint8ToBase64(processedFile);
+            return Attachment.fromJson(mapData);
+          }
+          return null;
+        }).toList();
+        
+        // Wait for all images to be processed in parallel
+        final results = await Future.wait(attachmentFutures);
+        attachments = results.where((attachment) => attachment != null).cast<Attachment>().toList();
       }
       log("Total attachements : ${attachments.length}");
       updatedIndexVariables[questionIndex].attachments = attachments;

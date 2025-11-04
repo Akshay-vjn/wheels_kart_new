@@ -36,23 +36,29 @@ class UploadVehicleVideoRepo {
           }),
         );
 
+        log('Upload video response status: ${response.statusCode}');
+        log('Upload video response body: ${response.body}');
+        
         final decodedata = jsonDecode(response.body);
 
-        if (decodedata['status'] == 200) {
+        if (decodedata['status'] == 200 || response.statusCode == 200) {
           return {
-            'error': decodedata['error'],
-            'message': decodedata['message'],
+            'error': decodedata['error'] ?? false,
+            'message': decodedata['message'] ?? 'Video uploaded successfully',
             'data': decodedata['data'],
           };
         } else {
           return {
-            'error': decodedata['error'],
-            'message': decodedata['message'],
+            'error': decodedata['error'] ?? true,
+            'message': decodedata['message'] ?? 'Upload failed',
           };
         }
       } catch (e) {
-        log('repo - catch error - fetch car inspections => ${e.toString()}   ');
-        return {};
+        log('repo - catch error - upload vehicle video => ${e.toString()}');
+        return {
+          'error': true,
+          'message': 'Upload failed: ${e.toString()}',
+        };
       }
     } else {
       return {};

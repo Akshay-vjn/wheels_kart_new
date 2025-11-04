@@ -154,6 +154,17 @@ class _SplashScreenState extends State<SplashScreen>
 
       final status = await newVersion.getVersionStatus();
 
+      // Debug logging for iOS version check
+      if (status != null) {
+        print("Force Update Check - Status received:");
+        print("  Local Version: ${status.localVersion}");
+        print("  Store Version: ${status.storeVersion}");
+        print("  Can Update: ${status.canUpdate}");
+        print("  App Store Link: ${status.appStoreLink}");
+      } else {
+        print("Force Update Check - Status is null (API call may have failed or app not found in store)");
+      }
+
       if (status?.canUpdate == true && mounted) {
         // Show force update dialog
         await showDialog(
@@ -257,8 +268,9 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       print("Error checking for updates: $e");
+      print("Stack trace: $stackTrace");
       // Continue with app flow even if update check fails
     }
   }

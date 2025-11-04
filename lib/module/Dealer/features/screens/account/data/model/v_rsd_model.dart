@@ -8,6 +8,8 @@ class RsdModel {
   final String paymentDate;
   final DateTime createdAt;
   final DateTime? modifiedAt;
+  final String? balanceAmount;
+  final String? totalAmount;
 
   RsdModel({
     required this.rsdId,
@@ -17,6 +19,8 @@ class RsdModel {
     required this.paymentDate,
     required this.createdAt,
     this.modifiedAt,
+    this.balanceAmount,
+    this.totalAmount,
   });
 
   /// Create RsdModel from JSON response
@@ -29,6 +33,8 @@ class RsdModel {
       paymentDate: json['paymentDate']?.toString() ?? '',
       createdAt: _parseDate(json['created_at']) ?? DateTime.now(),
       modifiedAt: _parseDate(json['modified_at']),
+      balanceAmount: json['balanceAmount']?.toString(),
+      totalAmount: json['totalAmount']?.toString(),
     );
   }
 
@@ -78,6 +84,8 @@ class RsdModel {
       'paymentDate': paymentDate,
       'created_at': createdAt.toIso8601String(),
       'modified_at': modifiedAt?.toIso8601String(),
+      'balanceAmount': balanceAmount,
+      'totalAmount': totalAmount,
     };
   }
 
@@ -89,5 +97,39 @@ class RsdModel {
   
   /// Check if payment is online
   bool get isOnline => paymentType.toLowerCase() == 'online';
+  
+  /// Check if payment is fully paid (won status)
+  /// Returns true if balanceAmount is 0, null, empty, or not provided
+  /// If balanceAmount is not provided, checks if transactionId exists (indicates payment was made)
+  bool get isFullyPaid {
+    // If balanceAmount is provided, use it to determine status
+    if (balanceAmount != null && balanceAmount!.isNotEmpty) {
+      try {
+        final balance = double.tryParse(balanceAmount!.trim()) ?? -1;
+        // If parsing succeeds, balance of 0 means fully paid
+        if (balance >= 0) {
+          return balance == 0;
+        }
+        // If parsing fails, check if it's "0" as string
+        return balanceAmount!.trim() == '0';
+      } catch (e) {
+        // If parsing fails, check if balanceAmount is "0" as string
+        return balanceAmount!.trim() == '0' || balanceAmount!.trim().isEmpty;
+      }
+    }
+    
+    // If balanceAmount is not provided:
+    // - If transactionId exists, assume payment was processed (likely fully paid)
+    // - If no transactionId, assume not fully paid (active)
+    if (transactionId.isNotEmpty) {
+      return true; // Payment transaction exists, likely fully paid
+    }
+    
+    // Default to active if no balance info and no transaction
+    return false;
+  }
+  
+  /// Get payment status: "won" if fully paid, "active" if not fully paid
+  String get paymentStatus => isFullyPaid ? 'won' : 'active';
 }
 

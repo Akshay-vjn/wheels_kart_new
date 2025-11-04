@@ -88,14 +88,20 @@ class RsdTab extends StatelessWidget {
           collapsedShape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          title: Text(
-            'RSD Payment',
-            style: VStyle.style(
-              context: context,
-              size: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[800],
-            ),
+          title: Row(
+            children: [
+              Text(
+                'RSD Payment',
+                style: VStyle.style(
+                  context: context,
+                  size: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[800],
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildStatusBadge(context, rsd),
+            ],
           ),
           subtitle: Container(
             margin: const EdgeInsets.only(top: 4),
@@ -164,6 +170,37 @@ class RsdTab extends StatelessWidget {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Build status badge for RSD payment
+  Widget _buildStatusBadge(BuildContext context, dynamic rsd) {
+    final status = rsd.paymentStatus;
+    final isWon = status == 'won';
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isWon 
+            ? VColors.GREENHARD.withOpacity(0.15)
+            : Colors.orange.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isWon 
+              ? VColors.GREENHARD.withOpacity(0.5)
+              : Colors.orange.withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        isWon ? 'Won' : 'Active',
+        style: VStyle.style(
+          context: context,
+          size: 11,
+          fontWeight: FontWeight.w600,
+          color: isWon ? VColors.GREENHARD : Colors.orange,
         ),
       ),
     );

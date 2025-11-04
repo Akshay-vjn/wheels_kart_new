@@ -23,26 +23,50 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
     BuildContext context,
     String inspectionId,
   ) async {
-    log("Inspectipn Id : ${inspectionId}");
+    log("Fetching videos for Inspection Id: ${inspectionId}");
     emit(UploadVehicleVideoLoadingState());
     final response = await FetchUploadVideoRepo.fetchVihicleVideo(
       context,
       inspectionId,
     );
 
+    if (response.isEmpty) {
+      log("Empty response received from fetch videos API");
+      emit(UploadVehicleVideoErrorState(error: "Failed to fetch videos. Please try again."));
+      return;
+    }
+
     if (response['error'] == true) {
-      emit(UploadVehicleVideoErrorState(error: response['message']));
+      log("Error fetching videos: ${response['message']}");
+      emit(UploadVehicleVideoErrorState(error: response['message'] ?? "Failed to fetch videos"));
     } else {
-      log(response['message']);
-      log(response['data'].toString());
-      final data = response['data'] as List;
-      final listItems = data.map((e) => VideoModel.fromJson(e)).toList();
+      log("Videos fetched successfully: ${response['message'] ?? 'Success'}");
+      final data = response['data'];
+      
+      if (data == null) {
+        log("No data in response, treating as empty list");
+        emit(
+          UploadVehicleVideoSuccessState(
+            videos: [],
+            isAvailabeWalkaroundVideo: false,
+            isAvailableEngineVideo: false,
+          ),
+        );
+        return;
+      }
+      
+      final dataList = data is List ? data : [];
+      log("Videos data: ${dataList.toString()}");
+      
+      final listItems = dataList.map((e) => VideoModel.fromJson(e)).toList();
       bool isValilabeEnigineSideVideo = listItems.any(
         (element) => element.videoType == ENGINESIDE,
       );
       bool isAvailabeWalkaroundVideo = listItems.any(
         (element) => element.videoType == WLAKAROUND,
       );
+
+      log("Found ${listItems.length} videos - Walkaround: $isAvailabeWalkaroundVideo, Engine: $isValilabeEnigineSideVideo");
 
       emit(
         UploadVehicleVideoSuccessState(
@@ -52,48 +76,63 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
         ),
       );
     }
-    // emit(UploadVehicleVideoSuccessState());
   }
 
   Future<void> _uploadVideo(
     BuildContext context,
-    XFile videoFile,
+    File file,
     String inspectionId,
     String videoType,
   ) async {
     final currentState = state;
     if (currentState is UploadVehicleVideoSuccessState) {
-      try {
-        // Read bytes directly from XFile - works on both iOS and Android
-        final bytes = await videoFile.readAsBytes();
-        final base64File = base64Encode(bytes);
-        final response = await UploadVehicleVideoRepo.uploadVehicleVideo(
-          context,
-          inspectionId,
-          base64File,
-          videoType,
+      final bytes = await file.readAsBytes();
+      final base64File = base64Encode(bytes);
+      final response = await UploadVehicleVideoRepo.uploadVehicleVideo(
+        context,
+        inspectionId,
+        base64File,
+        videoType,
+      );
+      
+      // Check if response is empty or has error
+      if (response.isEmpty || response['error'] == true) {
+        log("Error while uploading video: ${response['message'] ?? 'Unknown error'}");
+        log("Response: ${response.toString()}");
+        showSnakBar(context, "Uploading $videoType failed!", isError: true);
+        emit(
+          currentState.copyWith(
+            isEngineUploading: videoType == ENGINESIDE ? false : null,
+            isWalkAroundUploading: videoType == WLAKAROUND ? false : null,
+          ),
         );
-        if (response['error'] == true) {
-          log("Error while uploading video ${response['message']}");
-          showSnakBar(context, "Uploading $videoType is failed!", isError: true);
-        } else {
-          log("Success : ${response['message']}");
-          showSnakBar(context, "$videoType video uploaded success");
-        }
-      } catch (e) {
-        log("Error reading/uploading video: ${e.toString()}");
-        showSnakBar(context, "Failed to read video file. Please try again.", isError: true);
+        return;
       }
-
+      
+      // Success case
+      log("Video upload successful: ${response['message'] ?? 'Video uploaded'}");
+      log("Response data: ${response['data']?.toString() ?? 'No data'}");
+      showSnakBar(context, "$videoType video uploaded successfully");
+      
       emit(
         currentState.copyWith(
           isEngineUploading: videoType == ENGINESIDE ? false : null,
           isWalkAroundUploading: videoType == WLAKAROUND ? false : null,
         ),
       );
-      final newState = state;
-      if (newState is UploadVehicleVideoSuccessState) {
-        if (!newState.isEngineUploading && !newState.isWalkAroundUploading) {
+      
+      // Wait a bit for backend to process the video before fetching
+      await Future.delayed(Duration(seconds: 2));
+      
+      // Refresh video list after upload completes
+      await onFetcUploadVideos(context, inspectionId);
+      
+      // If video list is still empty, retry after a longer delay (backend might be processing)
+      final currentStateAfterFetch = state;
+      if (currentStateAfterFetch is UploadVehicleVideoSuccessState) {
+        if (currentStateAfterFetch.videos.isEmpty) {
+          log("Video list is empty after upload, retrying fetch after 3 seconds...");
+          await Future.delayed(Duration(seconds: 3));
           await onFetcUploadVideos(context, inspectionId);
         }
       }
@@ -123,7 +162,7 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
         }
         await _uploadVideo(
           context,
-          pickedFIle,
+          File(pickedFIle.path),
           insepctionId,
           WLAKAROUND,
         );
@@ -154,7 +193,7 @@ class UploadVehicleVideoCubit extends Cubit<UploadVehicleVideoState> {
         }
         await _uploadVideo(
           context,
-          pickedFIle,
+          File(pickedFIle.path),
           insepctionId,
           ENGINESIDE,
         );
