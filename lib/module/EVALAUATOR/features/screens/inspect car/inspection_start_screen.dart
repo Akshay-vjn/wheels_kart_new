@@ -380,15 +380,9 @@ class _InspectionStartScreenState extends State<InspectionStartScreen>
                       const SizedBox(height: 15),
                       _buildInspectionSteps(),
                       const SizedBox(height: 20),
-                      widget.hideCompleteButon
-                          ? SizedBox.shrink()
-                          : _buildRemarksField(),
-                      widget.hideCompleteButon
-                          ? SizedBox.shrink()
-                          : const SizedBox(height: 20),
-                      widget.hideCompleteButon
-                          ? SizedBox.shrink()
-                          : _buildSubmitButton(),
+                      _buildRemarksField(),
+                      const SizedBox(height: 20),
+                      _buildSubmitButton(),
 
                       const SizedBox(height: 20),
                     ],
