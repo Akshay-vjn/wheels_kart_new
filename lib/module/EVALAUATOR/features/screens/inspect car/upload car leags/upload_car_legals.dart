@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:wheels_kart/common/components/app_spacer.dart';
 import 'package:wheels_kart/common/dimensions.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
@@ -12,12 +13,14 @@ import 'package:wheels_kart/module/Dealer/core/const/v_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_colors.dart';
 import 'package:wheels_kart/module/EVALAUATOR/core/ev_style.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20document/submit_document_cubit.dart';
+import 'package:wheels_kart/module/EVALAUATOR/data/model/document_data_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_custom_widgets.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/widgets/ev_app_loading_indicator.dart';
 
 class UploadCarLegals extends StatefulWidget {
   final String inspectionId;
-  const UploadCarLegals({super.key, required this.inspectionId});
+  final VehicleLgalModel? existingData;
+  const UploadCarLegals({super.key, required this.inspectionId, this.existingData});
 
   @override
   State<UploadCarLegals> createState() => _UploadCarLegalsState();
@@ -58,6 +61,12 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
   @override
   void initState() {
     super.initState();
+    // Populate form with existing data if available
+    if (widget.existingData != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _populateExistingData(widget.existingData!);
+      });
+    }
   }
 
   @override
@@ -266,6 +275,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
             "2",
           );
           rcDocument.add(doc);
+          print('➕ [LEGALS ADD] Added NEW RC document: ${doc['fileName']}');
           setState(() {});
         }
       } else if (documentType == 'Insurance') {
@@ -276,6 +286,7 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
             "1",
           );
           insuranceDocument.add(doc);
+          print('➕ [LEGALS ADD] Added NEW Insurance document: ${doc['fileName']}');
           setState(() {});
           // insuranceImages.add(File(image.path));
         }
@@ -454,14 +465,103 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      if (insuranceDocument.isEmpty || rcDocument.isEmpty) {
+      // LOG: Document status before filtering
+      print('🔍 [LEGALS SUBMIT] Total Insurance Docs: ${insuranceDocument.length}');
+      print('🔍 [LEGALS SUBMIT] Total RC Docs: ${rcDocument.length}');
+
+      // FRONTEND-ONLY SOLUTION: Filter out existing documents
+      // Only submit newly added documents to prevent duplicates
+      final newInsuranceDocs = insuranceDocument
+          .where((doc) => doc['isExisting'] != true)
+          .toList();
+      final newRcDocs = rcDocument
+          .where((doc) => doc['isExisting'] != true)
+          .toList();
+
+      // LOG: Filtered documents
+      print('🔍 [LEGALS SUBMIT] New Insurance Docs: ${newInsuranceDocs.length}');
+      print('🔍 [LEGALS SUBMIT] New RC Docs: ${newRcDocs.length}');
+      print('🔍 [LEGALS SUBMIT] Existing Insurance Docs: ${insuranceDocument.length - newInsuranceDocs.length}');
+      print('🔍 [LEGALS SUBMIT] Existing RC Docs: ${rcDocument.length - newRcDocs.length}');
+
+      // Check if we have at least one document of each type (existing or new)
+      // This ensures the form validation passes even if only existing docs are shown
+      final hasInsuranceDocs = insuranceDocument.isNotEmpty;
+      final hasRcDocs = rcDocument.isNotEmpty;
+
+      if (!hasInsuranceDocs || !hasRcDocs) {
+        print('❌ [LEGALS SUBMIT] Validation failed - Missing documents');
         showSnakBar(context, "Upload the Documents", isError: true);
         _scrollController.jumpTo(0);
       } else {
+        List<Map<String, dynamic>> documentsToSubmit = [];
+        String submissionCase = '';
+
+        // Case 1: User added new documents - submit only new ones (prevents duplicates)
+        if (newInsuranceDocs.isNotEmpty && newRcDocs.isNotEmpty) {
+          submissionCase = 'Case 1: All new documents (NO DUPLICATES)';
+          documentsToSubmit = [...newInsuranceDocs, ...newRcDocs];
+        }
+        // Case 2: User added new documents of one type, has existing of other
+        else if (newInsuranceDocs.isNotEmpty || newRcDocs.isNotEmpty) {
+          submissionCase = 'Case 2: Partial new documents (MINIMAL DUPLICATES)';
+          documentsToSubmit.addAll(newInsuranceDocs);
+          documentsToSubmit.addAll(newRcDocs);
+
+          // Backend requires both types, so include first existing of missing type
+          // Remove flags so backend accepts it (unfortunately creates duplicate)
+          if (newInsuranceDocs.isEmpty && insuranceDocument.isNotEmpty) {
+            final firstExisting = Map<String, dynamic>.from(insuranceDocument.first);
+            print('⚠️ [LEGALS SUBMIT] Including existing Insurance doc (will create duplicate): ${firstExisting['fileName']}');
+            firstExisting.remove('isExisting');
+            firstExisting.remove('inspectionDocumentId');
+            documentsToSubmit.add(firstExisting);
+          }
+          if (newRcDocs.isEmpty && rcDocument.isNotEmpty) {
+            final firstExisting = Map<String, dynamic>.from(rcDocument.first);
+            print('⚠️ [LEGALS SUBMIT] Including existing RC doc (will create duplicate): ${firstExisting['fileName']}');
+            firstExisting.remove('isExisting');
+            firstExisting.remove('inspectionDocumentId');
+            documentsToSubmit.add(firstExisting);
+          }
+        }
+        // Case 3: User only edited form fields (no new documents added)
+        // Backend requires documents, so we must include existing ones
+        // This will create duplicates, but allows form submission
+        // Proper fix requires backend to accept empty documents array or support updates
+        else {
+          submissionCase = 'Case 3: Only form edits (WILL CREATE DUPLICATES)';
+          // Include first existing document of each type to satisfy backend validation
+          if (insuranceDocument.isNotEmpty) {
+            final firstInsurance = Map<String, dynamic>.from(insuranceDocument.first);
+            print('⚠️ [LEGALS SUBMIT] Including existing Insurance doc (will create duplicate): ${firstInsurance['fileName']}');
+            firstInsurance.remove('isExisting');
+            firstInsurance.remove('inspectionDocumentId');
+            documentsToSubmit.add(firstInsurance);
+          }
+          if (rcDocument.isNotEmpty) {
+            final firstRc = Map<String, dynamic>.from(rcDocument.first);
+            print('⚠️ [LEGALS SUBMIT] Including existing RC doc (will create duplicate): ${firstRc['fileName']}');
+            firstRc.remove('isExisting');
+            firstRc.remove('inspectionDocumentId');
+            documentsToSubmit.add(firstRc);
+          }
+        }
+
+        // LOG: Final submission details
+        print('📤 [LEGALS SUBMIT] Submission Case: $submissionCase');
+        print('📤 [LEGALS SUBMIT] Documents to submit: ${documentsToSubmit.length}');
+        for (var i = 0; i < documentsToSubmit.length; i++) {
+          final doc = documentsToSubmit[i];
+          print('📤 [LEGALS SUBMIT] Doc ${i + 1}: documentId=${doc['documentId']}, fileName=${doc['fileName']}');
+        }
+        print('📤 [LEGALS SUBMIT] Inspection ID: ${widget.inspectionId}');
+
+        // Submit form with documents
         context.read<SubmitDocumentCubit>().onSubmitDocument(
           context,
           widget.inspectionId,
-          [...insuranceDocument, ...rcDocument],
+          documentsToSubmit,
           numberOfOwners.toString(),
           roadTaxPaid.toString(),
           roadTaxValidityController.text,
@@ -936,6 +1036,96 @@ class _UploadCarLegalsState extends State<UploadCarLegals> {
     final base64 = base64Encode(bytes);
     final fileName = "$docName-${widget.inspectionId}.png";
 
+    // New documents don't have 'isExisting' flag, so they will be submitted
     return {'documentId': docId, 'fileName': fileName, 'file': base64};
+  }
+
+  /// Populate form fields with existing data
+  void _populateExistingData(VehicleLgalModel existingData) {
+    final inspection = existingData.inspection;
+
+    // Populate dropdown values
+    if (inspection.noOfOwners.isNotEmpty) {
+      numberOfOwners = int.tryParse(inspection.noOfOwners);
+    }
+    if (inspection.roadTaxPaid.isNotEmpty) {
+      roadTaxPaid = inspection.roadTaxPaid;
+    }
+    if (inspection.insuranceType.isNotEmpty) {
+      insuranceType = inspection.insuranceType;
+    }
+    if (inspection.carLength.isNotEmpty) {
+      carLength = inspection.carLength;
+    }
+    if (inspection.noOfKeys.isNotEmpty) {
+      numberOfKeys = int.tryParse(inspection.noOfKeys);
+    }
+
+    // Populate text controllers
+    if (inspection.roadTaxValidity.isNotEmpty) {
+      roadTaxValidityController.text = inspection.roadTaxValidity;
+    }
+    if (inspection.insuranceValidity.isNotEmpty) {
+      insuranceValidityController.text = inspection.insuranceValidity;
+    }
+    if (inspection.manufactureDate.isNotEmpty) {
+      manufactureDateController.text = inspection.manufactureDate;
+    }
+    if (inspection.regDate.isNotEmpty) {
+      registrationDateController.text = inspection.regDate;
+    }
+    if (inspection.currentRto.isNotEmpty) {
+      currentRTOController.text = inspection.currentRto;
+    }
+    if (inspection.cubicCapacity.isNotEmpty) {
+      cubicCapacityController.text = inspection.cubicCapacity;
+    }
+
+    // Load existing documents asynchronously
+    _loadExistingDocuments(existingData.documents);
+
+    setState(() {});
+  }
+
+  /// Load existing documents from URLs and convert to base64 format
+  Future<void> _loadExistingDocuments(List<Document> documents) async {
+    print('📥 [LEGALS LOAD] Loading ${documents.length} existing documents');
+    rcDocument.clear();
+    insuranceDocument.clear();
+
+    for (var doc in documents) {
+      try {
+        print('📥 [LEGALS LOAD] Loading: ${doc.documentName} (Type: ${doc.documentType}, ID: ${doc.inspectionDocumentId})');
+        // Fetch image from URL
+        final response = await http.get(Uri.parse(doc.document));
+        if (response.statusCode == 200) {
+          final bytes = response.bodyBytes;
+          final base64 = base64Encode(bytes);
+
+          final docMap = {
+            'documentId': doc.documentId,
+            'fileName': doc.documentName,
+            'file': base64,
+            'isExisting': true, // Mark as existing document - won't be submitted
+            'inspectionDocumentId': doc.inspectionDocumentId, // Store ID for potential deletion
+          };
+
+          if (doc.documentType == DocumentType.RC_CARD) {
+            rcDocument.add(docMap);
+            print('✅ [LEGALS LOAD] Added RC doc: ${doc.documentName}');
+          } else if (doc.documentType == DocumentType.INSURANCE) {
+            insuranceDocument.add(docMap);
+            print('✅ [LEGALS LOAD] Added Insurance doc: ${doc.documentName}');
+          }
+        } else {
+          print('❌ [LEGALS LOAD] Failed to load ${doc.documentName}: Status ${response.statusCode}');
+        }
+      } catch (e) {
+        print('❌ [LEGALS LOAD] Error loading document ${doc.documentName}: $e');
+      }
+    }
+
+    print('📥 [LEGALS LOAD] Loaded ${insuranceDocument.length} Insurance docs, ${rcDocument.length} RC docs');
+    setState(() {});
   }
 }

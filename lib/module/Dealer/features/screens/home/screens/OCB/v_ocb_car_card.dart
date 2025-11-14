@@ -681,7 +681,7 @@ class _VAuctionVehicleCardState extends State<VOcbCarCard>
       case "Not Started":
         {
           title = "NOT STARTED";
-          color = VColors.DARK_GREY;
+          color = Colors.red;
           break;
         }
       case "Cancelled":

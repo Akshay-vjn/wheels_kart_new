@@ -77,33 +77,110 @@ class _PhotoGallaryViewState extends State<PhotoGallaryView> {
             ),
           ),
 
+          // Positioned(
+          //   bottom: 20,
+          //   right: 5,
+          //   left: 5,
+          //   child: Container(
+          //     width: w(context),
+          //     color: VColors.DARK_GREY.withAlpha(130),
+          //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+          //     margin: EdgeInsets.all(20),
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children:
+          //           widget.images[currentIndex]['title']!
+          //               .split(",")
+          //               .map(
+          //                 (e) => Text(
+          //                   "∙ $e",
+          //                   style: EvAppStyle.style(
+          //                     context: context,
+          //                     color: EvAppColors.white,
+          //                   ),
+          //                 ),
+          //               )
+          //               .toList(),
+          //     ),
+          //   ),
+          // ),
+
+
           Positioned(
-            bottom: 20,
-            right: 5,
-            left: 5,
+            bottom: 0,
+            left: 0,
+            right: 0,
             child: Container(
-              width: w(context),
-              color: VColors.DARK_GREY.withAlpha(130),
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-              margin: EdgeInsets.all(20),
+              padding: EdgeInsets.all(12),
+              color: Colors.black.withOpacity(0.4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    widget.images[currentIndex]['title']!
-                        .split(",")
-                        .map(
-                          (e) => Text(
-                            "∙ $e",
-                            style: EvAppStyle.style(
-                              context: context,
-                              color: EvAppColors.white,
+                children: [
+                  // -------------------------------
+                  // IMAGE TITLE (same as top card)
+                  // -------------------------------
+                  Text(
+                    widget.images[currentIndex]['title'] ?? "",
+                    style: EvAppStyle.style(
+                      context: context,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      size: 14,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+
+                  // -------------------------------
+                  // THUMBNAIL ROW
+                  // -------------------------------
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(
+                        widget.images.length,
+                            (index) {
+                          final imgUrl = widget.images[index]["image"] ?? "";
+                          final bool isSelected = index == currentIndex;
+
+                          return GestureDetector(
+                            onTap: () {
+                              _pageController.animateToPage(
+                                index,
+                                duration: Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            child: Container(
+                              margin: EdgeInsets.symmetric(horizontal: 4),
+                              padding: EdgeInsets.all(isSelected ? 2 : 1),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                  isSelected ? VColors.GREENHARD : Colors.white30,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: CachedNetworkImage(
+                                  imageUrl: imgUrl,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                          ),
-                        )
-                        .toList(),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
+
         ],
       ),
     );

@@ -674,23 +674,17 @@
 //   @override
 //   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 // }
-
-
-
-
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
-import 'package:image/image.dart' as img;
-import 'package:exif/exif.dart';
+import 'package:camera/camera.dart';
 
 class CameraScreen extends StatefulWidget {
-  bool? isFromVhiclePhotoScreen;
+  final bool? isFromVhiclePhotoScreen;
   final Function(File) onImageCaptured;
-  final String? angleName; // Add angle name parameter
+  final String? angleName;
 
-  CameraScreen({
+  const CameraScreen({
     Key? key,
     required this.onImageCaptured,
     this.isFromVhiclePhotoScreen,
@@ -701,160 +695,72 @@ class CameraScreen extends StatefulWidget {
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> {
-  final ImagePicker _picker = ImagePicker();
-  bool _isChecking = false;
-  bool _cameraOpened = false; // Track if camera has opened
+class _CameraScreenState extends State<CameraScreen>
+    with WidgetsBindingObserver {
+  CameraController? _controller;
+  bool _isCameraReady = false;
+  bool _isCapturing = false;
 
-  // Check if this angle requires portrait orientation
+  double _currentZoom = 1.0;
+  double _maxZoom = 6.0;
+  FlashMode _currentFlashMode = FlashMode.off;
+
   bool get _requiresPortrait {
     if (widget.angleName == null) return false;
     final angleNameLower = widget.angleName!.toLowerCase();
-    // Check if angle name contains "center console gear infotainment" (case-insensitive)
     return angleNameLower.contains('center console gear infotainment') ||
-           (angleNameLower.contains('center console') && 
-            (angleNameLower.contains('gear') || angleNameLower.contains('infotainment')));
-  }
-
-  /// Fast image dimension reading using EXIF with fallback to full decode
-  /// Returns null if image cannot be read, otherwise returns (width, height)
-  /// EXIF reading is 10-20x faster than full decode for validation
-  Future<({int width, int height})?> _getImageDimensions(File imageFile) async {
-    try {
-      // Try EXIF first (FAST - reads only metadata, 10-50ms)
-      final bytes = await imageFile.readAsBytes();
-      final exifData = await readExifFromBytes(bytes);
-      
-      if (exifData != null && exifData.isNotEmpty) {
-        // Try to get dimensions from EXIF tags
-        final pixelXDimension = exifData['EXIF PixelXDimension'] ?? exifData['Image ImageWidth'];
-        final pixelYDimension = exifData['EXIF PixelYDimension'] ?? exifData['Image ImageLength'];
-        
-        if (pixelXDimension != null && pixelYDimension != null) {
-          // Extract integer values from IfdTag
-          int? width;
-          int? height;
-          
-          try {
-            // Access values from IfdTag - use the values property
-            final widthValues = pixelXDimension.values;
-            final heightValues = pixelYDimension.values;
-            
-            // Get first value if available - convert to list if needed
-            final widthValuesList = widthValues.toList();
-            final heightValuesList = heightValues.toList();
-            
-            if (widthValuesList.isNotEmpty) {
-              final widthValue = widthValuesList[0];
-              width = widthValue is int ? widthValue : widthValue.toInt();
-            }
-            
-            if (heightValuesList.isNotEmpty) {
-              final heightValue = heightValuesList[0];
-              height = heightValue is int ? heightValue : heightValue.toInt();
-            }
-          } catch (_) {
-            // If EXIF extraction fails, will fallback to decode below
-          }
-          
-          if (width != null && height != null && width > 0 && height > 0) {
-            // Check if image is rotated (EXIF orientation)
-            final orientation = exifData['Image Orientation'];
-            bool isRotated = false;
-            if (orientation != null) {
-              try {
-                final orientationValues = orientation.values.toList();
-                if (orientationValues.isNotEmpty) {
-                  final orientationValue = orientationValues[0];
-                  final orientationInt = orientationValue is int ? orientationValue : orientationValue.toInt();
-                  // Orientation values 5, 6, 7, 8 indicate 90/270 degree rotations
-                  isRotated = orientationInt >= 5 && orientationInt <= 8;
-                }
-              } catch (_) {
-                // Ignore orientation parsing errors
-              }
-            }
-            
-            // Return dimensions (swap if rotated)
-            return isRotated ? (width: height, height: width) : (width: width, height: height);
-          }
-        }
-      }
-      
-      // Fallback: Full decode (slower but reliable - 500-2000ms)
-      // This ensures compatibility with images that don't have EXIF data
-      final decodedImage = img.decodeImage(bytes);
-      if (decodedImage != null) {
-        return (width: decodedImage.width, height: decodedImage.height);
-      }
-      
-      return null;
-    } catch (e) {
-      // If EXIF reading fails, fallback to decode
-      try {
-        final bytes = await imageFile.readAsBytes();
-        final decodedImage = img.decodeImage(bytes);
-        if (decodedImage != null) {
-          return (width: decodedImage.width, height: decodedImage.height);
-        }
-      } catch (_) {
-        // Ignore fallback errors
-      }
-      return null;
-    }
+        (angleNameLower.contains('center console') &&
+            (angleNameLower.contains('gear') ||
+                angleNameLower.contains('infotainment')));
   }
 
   @override
   void initState() {
     super.initState();
-    
-    // Set orientation based on requirement
+    WidgetsBinding.instance.addObserver(this);
+
+    // Lock orientation
     if (_requiresPortrait) {
-      // Portrait required - allow portrait orientations
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
       ]);
     } else {
-      // Landscape required - allow landscape orientations (existing behavior)
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
     }
 
-    // Open camera immediately
-    _openCamera();
+    _initializeCamera();
   }
 
-  Future<void> _openCamera() async {
+  Future<void> _initializeCamera() async {
     try {
-      setState(() {
-        _cameraOpened = true;
-      });
-
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.rear,
-        imageQuality: 85,
+      final cameras = await availableCameras();
+      final backCamera = cameras.firstWhere(
+            (cam) => cam.lensDirection == CameraLensDirection.back,
+        orElse: () => cameras.first,
       );
 
-      if (image == null) {
-        // User cancelled
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-        return;
-      }
+      _controller = CameraController(
+        backCamera,
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
 
-      // Quick validation - check image dimensions
-      await _validateAndSubmit(image);
-      
+      await _controller!.initialize();
+
+      await _controller!.setFlashMode(_currentFlashMode);
+      await _controller!.setZoomLevel(_currentZoom);
+
+      if (mounted) setState(() => _isCameraReady = true);
     } catch (e) {
+      debugPrint('Camera initialization failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Camera error: $e'),
+            content: Text('Camera not available: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -863,356 +769,178 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
-  Future<void> _validateAndSubmit(XFile image) async {
-    setState(() {
-      _isChecking = true;
-    });
+  Future<void> _capturePhoto() async {
+    if (_controller == null || !_controller!.value.isInitialized) return;
+    if (_isCapturing) return;
+
+    setState(() => _isCapturing = true);
 
     try {
-      final File imageFile = File(image.path);
-      
-      // Fast dimension reading using EXIF with fallback to full decode
-      // EXIF is 10-20x faster than full decode for validation
-      final dimensions = await _getImageDimensions(imageFile);
-      
-      if (dimensions == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: Unable to read image dimensions'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          Navigator.of(context).pop();
-        }
-        return;
-      }
-      
-      final width = dimensions.width;
-      final height = dimensions.height;
+      final XFile file = await _controller!.takePicture();
+      final imageFile = File(file.path);
 
-      // Check if portrait is required for this angle
-      if (_requiresPortrait) {
-        // Require PORTRAIT: height must be > width
-        if (height <= width) {
-          // Landscape image - show error for portrait requirement
-          if (mounted) {
-            setState(() {
-              _isChecking = false;
-            });
-            _showPortraitError(width, height);
-          }
-        } else {
-          // Portrait image - success!
-          if (mounted) {
-            widget.onImageCaptured(imageFile);
-            
-            // Reset to landscape orientation immediately
-            if (widget.isFromVhiclePhotoScreen == true) {
-              SystemChrome.setPreferredOrientations([
-                DeviceOrientation.landscapeLeft,
-                DeviceOrientation.landscapeRight,
-              ]);
-              
-              // Give a short delay to ensure orientation change is applied before navigation
-              await Future.delayed(const Duration(milliseconds: 300));
-            }
-            
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          }
-        }
-      } else {
-        // Require LANDSCAPE: width must be > height (existing behavior)
-        if (width <= height) {
-          // Portrait image - show error
-          if (mounted) {
-            setState(() {
-              _isChecking = false;
-            });
-            _showLandscapeError(width, height);
-          }
-        } else {
-          // Landscape image - success!
-          if (mounted) {
-            // Ensure landscape orientation is set before going back
-            if (widget.isFromVhiclePhotoScreen == true) {
-              SystemChrome.setPreferredOrientations([
-                DeviceOrientation.landscapeLeft,
-                DeviceOrientation.landscapeRight,
-              ]);
-            }
-            widget.onImageCaptured(imageFile);
-            Navigator.of(context).pop();
-          }
-        }
+      widget.onImageCaptured(imageFile);
+
+      // Reset orientation for vehicle screen
+      if (widget.isFromVhiclePhotoScreen == true) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+        await Future.delayed(const Duration(milliseconds: 300));
       }
+
+      if (mounted) Navigator.of(context).pop();
     } catch (e) {
+      debugPrint("Capture error: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error validating image: $e'),
+            content: Text('Failed to capture photo: $e'),
             backgroundColor: Colors.red,
           ),
         );
-        Navigator.of(context).pop();
       }
+    } finally {
+      if (mounted) setState(() => _isCapturing = false);
     }
   }
 
-  void _showLandscapeError(int width, int height) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(Icons.screen_rotation, color: Colors.orange, size: 28),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Landscape Required',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Please take the photo in landscape mode.',
-              style: TextStyle(fontSize: 15),
-            ),
-            SizedBox(height: 16),
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.info_outline, color: Colors.orange, size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Image: ${width}x${height}',
-                    style: TextStyle(fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Close camera screen
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              _openCamera(); // Retry
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Text('Retry', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
+  Future<void> _toggleFlash() async {
+    if (_controller == null) return;
+
+    FlashMode nextMode;
+    if (_currentFlashMode == FlashMode.off) {
+      nextMode = FlashMode.auto;
+    } else if (_currentFlashMode == FlashMode.auto) {
+      nextMode = FlashMode.always;
+    } else {
+      nextMode = FlashMode.off;
+    }
+
+    await _controller!.setFlashMode(nextMode);
+    if (mounted) setState(() => _currentFlashMode = nextMode);
   }
 
-  void _showPortraitError(int width, int height) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(Icons.screen_rotation, color: Colors.orange, size: 28),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Portrait Required',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Please take the photo in portrait mode.',
-              style: TextStyle(fontSize: 15),
-            ),
-            SizedBox(height: 16),
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.info_outline, color: Colors.orange, size: 18),
-                  SizedBox(width: 8),
-                  Text(
-                    'Image: ${width}x${height}',
-                    style: TextStyle(fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Close camera screen
-            },
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              _openCamera(); // Retry
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Text('Retry', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
+  IconData get _flashIcon {
+    switch (_currentFlashMode) {
+      case FlashMode.off:
+        return Icons.flash_off;
+      case FlashMode.always:
+        return Icons.flash_on;
+      case FlashMode.auto:
+        return Icons.flash_auto;
+      default:
+        return Icons.flash_off;
+    }
   }
 
   @override
   void dispose() {
-    // Reset orientation when leaving
+    WidgetsBinding.instance.removeObserver(this);
+    _controller?.dispose();
+
+    // Reset orientation after exit
     if (widget.isFromVhiclePhotoScreen == true) {
-      // Reset to landscape for vehicle photo screen (expects landscape)
-      // Use post-frame callback to ensure this happens after navigation completes
       WidgetsBinding.instance.addPostFrameCallback((_) {
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.landscapeLeft,
           DeviceOrientation.landscapeRight,
         ]);
       });
-      
-      // Also set immediately as backup
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
     } else if (widget.isFromVhiclePhotoScreen == null) {
-      // Reset to portrait for other screens
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
       ]);
     }
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Only show the initial "tilt phone" message before camera opens
-    // Once camera opens and we're checking, show a minimal or transparent UI
-    if (_isChecking) {
-      return Scaffold(
+    if (!_isCameraReady) {
+      return const Scaffold(
         backgroundColor: Colors.black,
-        body: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(color: Colors.orange),
-                SizedBox(height: 16),
-                Text(
-                  'Validating image...',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              ],
-            ),
-          ),
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.orange),
         ),
       );
     }
 
-    // Show initial "tilt phone" message only before camera opens
-    if (!_cameraOpened) {
-      return Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.screen_rotation,
-                  color: Colors.orange,
-                  size: 80,
-                ),
-                SizedBox(height: 30),
-                Text(
-                  'Please Tilt Your Phone',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 40),
-                  child: Text(
-                    _requiresPortrait
-                        ? 'Keep your device in portrait mode\nfor this photo'
-                        : 'Rotate your device to landscape mode\nfor better photos',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: 40),
-                CircularProgressIndicator(color: Colors.orange),
-                SizedBox(height: 16),
-                Text(
-                  'Opening camera...',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    // After camera opens, show minimal UI (or could be completely transparent)
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Container(),
+      body: Stack(
+        children: [
+          CameraPreview(_controller!),
+
+          // Flash Toggle Button (top-right)
+          Positioned(
+            top: 40,
+            right: 20,
+            child: IconButton(
+              onPressed: _toggleFlash,
+              icon: Icon(_flashIcon, color: Colors.white, size: 28),
+            ),
+          ),
+
+          // Zoom Slider (bottom, above capture button)
+          Positioned(
+            bottom: 100,
+            left: 20,
+            right: 20,
+            child: Column(
+              children: [
+                Slider(
+                  value: _currentZoom,
+                  min: 1.0,
+                  max: _maxZoom,
+                  divisions: 10,
+                  activeColor: Colors.orange,
+                  inactiveColor: Colors.white24,
+                  label: '${_currentZoom.toStringAsFixed(1)}x',
+                  onChanged: (value) async {
+                    setState(() => _currentZoom = value);
+                    await _controller!.setZoomLevel(value);
+                  },
+                ),
+                Text(
+                  '${_currentZoom.toStringAsFixed(1)}x',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+
+          // Capture Button
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: FloatingActionButton(
+                backgroundColor:
+                _isCapturing ? Colors.grey : Colors.orange,
+                onPressed: _isCapturing ? null : _capturePhoto,
+                child: const Icon(Icons.camera_alt, color: Colors.white),
+              ),
+            ),
+          ),
+
+          // Capture Overlay
+          if (_isCapturing)
+            Container(
+              color: Colors.black26,
+              child: const Center(
+                child: CircularProgressIndicator(color: Colors.orange),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

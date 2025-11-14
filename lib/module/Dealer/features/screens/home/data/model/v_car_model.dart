@@ -13,6 +13,7 @@ class VCarModel {
   String? currentBid;
   String? bidStatus;
   DateTime? bidClosingTime;
+  DateTime? bidStartTime;
   int wishlisted;
   String status;
   String brandName;
@@ -39,6 +40,7 @@ class VCarModel {
     required this.currentBid,
     required this.bidStatus,
     required this.bidClosingTime,
+    required this.bidStartTime,
     required this.wishlisted,
     required this.status,
     required this.vendorIds,
@@ -73,6 +75,15 @@ class VCarModel {
       json["bidClosingTime"] == null
           ? null
           : DateTime.parse(json["bidClosingTime"]),
+      bidStartTime: (() {
+        final dynamic v = json["bidStartTime"] ?? json["startTime"];
+        if (v == null) return null;
+        try {
+          return DateTime.parse(v.toString());
+        } catch (_) {
+          return null;
+        }
+      })(),
       wishlisted: json["wishlisted"] ?? 0,
       status: json["status"] ?? '',
       vendorIds: list == null ? [] : list.map((e) => e.toString()).toList(),
@@ -96,6 +107,7 @@ class VCarModel {
     "currentBid": currentBid,
     "bidStatus": bidStatus,
     "bidClosingTime": bidClosingTime,
+    "bidStartTime": bidStartTime?.toIso8601String(),
     "wishlisted": wishlisted,
     "status": status,
     "vendorIds": vendorIds.map((e) => e).toList(),

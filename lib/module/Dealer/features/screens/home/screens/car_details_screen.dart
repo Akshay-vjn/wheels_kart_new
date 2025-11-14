@@ -103,7 +103,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     _detailControllerBloc = context.read<VDetailsControllerBloc>();
     _detailControllerBloc.add(
       OnFetchDetails(
-        context: context, 
+        context: context,
         inspectionId: widget.inspectionId,
         isOwnedCar: widget.isOwnedCar,
       ),
@@ -126,13 +126,13 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     if (numberOfOwners.isEmpty || numberOfOwners == 'N/A' || numberOfOwners == 'null') {
       return '';
     }
-    
+
     // Try to parse, return empty if not a valid number
     final numberOfOwner = int.tryParse(numberOfOwners);
     if (numberOfOwner == null) {
       return '';
     }
-    
+
     if (numberOfOwner == 1) {
       return "${numberOfOwners}st";
     }
@@ -220,18 +220,18 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   {
                                     "title": "Reg year",
                                     "content":
-                                        detail.carDetails.registrationDate
-                                            .toString(),
+                                    detail.carDetails.registrationDate
+                                        .toString(),
                                   },
                                   {
                                     "title": "Fuel",
                                     "content":
-                                        detail.carDetails.fuelType.toString(),
+                                    detail.carDetails.fuelType.toString(),
                                   },
                                   {
                                     "title": "KM driven",
                                     "content":
-                                        detail.carDetails.kmsDriven.toString(),
+                                    detail.carDetails.kmsDriven.toString(),
                                   },
                                 ]),
                                 _buildDevider(),
@@ -239,13 +239,13 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   {
                                     "title": "Transmission",
                                     "content":
-                                        detail.carDetails.transmission
-                                            .toString(),
+                                    detail.carDetails.transmission
+                                        .toString(),
                                   },
                                   {
                                     "title": "Engine capacity",
                                     "content":
-                                        "${detail.carDetails.cubicCapacity}cc",
+                                    "${detail.carDetails.cubicCapacity}cc",
                                   },
                                   {
                                     "title": "Ownership",
@@ -259,15 +259,15 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   {
                                     "title": "Make year",
                                     "content":
-                                        detail.carDetails.yearOfManufacture
-                                            .toString(),
+                                    detail.carDetails.yearOfManufacture
+                                        .toString(),
                                   },
                                   {
                                     "title": "Spare key",
                                     "content":
-                                        detail.carDetails.noOfKeys.isEmpty
-                                            ? "NO"
-                                            : "YES",
+                                    detail.carDetails.noOfKeys.isEmpty
+                                        ? "NO"
+                                        : "YES",
                                   },
                                   {
                                     "title": "Reg number",
@@ -294,7 +294,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   detail.carDetails.insuranceType,
 
                                   otherInfo:
-                                      detail.carDetails.insuranceValidity,
+                                  detail.carDetails.insuranceValidity,
                                   subtitle: "Expire on",
                                 ),
 
@@ -361,122 +361,122 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 ),
                               ],
                             ),
-                            
+
                             Column(
                               children:
-                                  detail.sections.asMap().entries.map((map) {
-                                    final index = map.key;
-                                    final section = map.value;
-                                    final defectsCount =
-                                        section.entries
-                                            .where(
-                                              (element) =>
-                                                  (element.answer
-                                                          .toUpperCase() ==
-                                                      "NOT OK") ||
-                                                  (element.answer
-                                                          .toUpperCase() ==
-                                                      "NO"),
-                                            )
-                                            .toList()
-                                            .length;
-                                    return _buildCard(
-                                      defectCount:
-                                          defectsCount == 0
-                                              ? null
-                                              : defectsCount,
-                                      index: index + 2,
-                                      hideIcon: true,
-                                      icon: Icons.abc,
-                                      cardTitle: section.portionName,
-                                      childres:
-                                          section.entries.map((entry) {
-                                            return _buildQuestionAndAnswerTile(
-                                              entry.question,
-                                              entry.answer.toUpperCase(),
-                                              showIcon: true,
-                                              subtitle: entry.options,
-                                              child:
-                                                  entry
-                                                          .responseImages
-                                                          .isNotEmpty
-                                                      ? InkWell(
-                                                        onTap: () async {
-                                                          context
-                                                              .read<
-                                                                VDetailsControllerBloc
-                                                              >()
-                                                              .add(
-                                                                OnChangeImageTab(
-                                                                  imageTabIndex:
-                                                                      index + 1,
-                                                                ),
-                                                              );
-                                                          Navigator.of(
-                                                            context,
-                                                          ).push(
-                                                            AppRoutes.createRoute(
-                                                              BlocProvider.value(
-                                                                value:
-                                                                    context
-                                                                        .read<
-                                                                          VDetailsControllerBloc
-                                                                        >(),
-                                                                child:
-                                                                    VCarPhotoScreen(
-                                                                      carDetail:
-                                                                          detail,
-                                                                    ),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                            border: Border.all(
-                                                              width: .5,
-                                                              color:
-                                                                  VColors
-                                                                      .SECONDARY,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  5,
-                                                                ),
-                                                          ),
+                              detail.sections.asMap().entries.map((map) {
+                                final index = map.key;
+                                final section = map.value;
+                                final defectsCount =
+                                    section.entries
+                                        .where(
+                                          (element) =>
+                                      (element.answer
+                                          .toUpperCase() ==
+                                          "NOT OK") ||
+                                          (element.answer
+                                              .toUpperCase() ==
+                                              "NO"),
+                                    )
+                                        .toList()
+                                        .length;
+                                return _buildCard(
+                                  defectCount:
+                                  defectsCount == 0
+                                      ? null
+                                      : defectsCount,
+                                  index: index + 2,
+                                  hideIcon: true,
+                                  icon: Icons.abc,
+                                  cardTitle: section.portionName,
+                                  childres:
+                                  section.entries.map((entry) {
+                                    return _buildQuestionAndAnswerTile(
+                                      entry.question,
+                                      entry.answer.toUpperCase(),
+                                      showIcon: true,
+                                      subtitle: entry.options,
+                                      child:
+                                      entry
+                                          .responseImages
+                                          .isNotEmpty
+                                          ? InkWell(
+                                        onTap: () async {
+                                          context
+                                              .read<
+                                              VDetailsControllerBloc
+                                          >()
+                                              .add(
+                                            OnChangeImageTab(
+                                              imageTabIndex:
+                                              index + 1,
+                                            ),
+                                          );
+                                          Navigator.of(
+                                            context,
+                                          ).push(
+                                            AppRoutes.createRoute(
+                                              BlocProvider.value(
+                                                value:
+                                                context
+                                                    .read<
+                                                    VDetailsControllerBloc
+                                                >(),
+                                                child:
+                                                VCarPhotoScreen(
+                                                  carDetail:
+                                                  detail,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              width: .5,
+                                              color:
+                                              VColors
+                                                  .SECONDARY,
+                                            ),
+                                            borderRadius:
+                                            BorderRadius.circular(
+                                              5,
+                                            ),
+                                          ),
 
-                                                          width: 50,
-                                                          height: 50,
-                                                          child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  5,
-                                                                ),
-                                                            child: CachedNetworkImage(
-                                                              fit: BoxFit.cover,
-                                                              imageUrl:
-                                                                  entry
-                                                                      .responseImages
-                                                                      .first,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                      : SizedBox.shrink(),
-                                            );
-                                          }).toList(),
+                                          width: 50,
+                                          height: 50,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                            BorderRadius.circular(
+                                              5,
+                                            ),
+                                            child: CachedNetworkImage(
+                                              fit: BoxFit.cover,
+                                              imageUrl:
+                                              entry
+                                                  .responseImages
+                                                  .first,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                          : SizedBox.shrink(),
                                     );
                                   }).toList(),
+                                );
+                              }).toList(),
                             ),
-                            
+
                             // Remarks Section - Show if remarks are available
                             // Debug: Always show remarks card for testing
-                            
-                            
+
+
                             // Payment Details Section - Show ONLY in bought tab (OCB with isOwnedCar: true)
                             if (widget.auctionType == "OCB" && widget.isOwnedCar)
                               _buildPaymentDetailsCard(detail),
-                            
+
                             AppSpacer(heightPortion: .03),
                           ]),
                         ),
@@ -492,247 +492,253 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
           },
         ),
         bottomNavigationBar:
-            widget.hideBidPrice == true
-                ? null
-                : BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
-                  builder: (context, state) {
-                    if (state is VDetailsControllerSuccessState) {
-                      // Compute 24h gating based on bid closing time
-                      final bidTime = state.detail.carDetails.bidClosingTime;
-                      final remaining = bidTime != null
-                          ? bidTime.difference(DateTime.now())
-                          : Duration.zero;
-                      final bool isBeyond24h = remaining > const Duration(hours: 24);
+        widget.hideBidPrice == true
+            ? null
+            : BlocBuilder<VDetailsControllerBloc, VDetailsControllerState>(
+          builder: (context, state) {
+            if (state is VDetailsControllerSuccessState) {
+              // Compute start gating
+              final DateTime? startTime = state.detail.carDetails.bidStartTime;
+              final DateTime now = DateTime.now();
+              final bool hasStarted = startTime == null || now.isAfter(startTime) || now.isAtSameMomentAs(startTime);
+              Duration remainingToStart = Duration.zero;
+              if (!hasStarted && startTime != null) {
+                final diff = startTime.difference(now);
+                remainingToStart = diff.isNegative ? Duration.zero : diff;
+              }
+              String _formatDdHhMmSs(Duration d) {
+                final days = d.inDays;
+                final hours = d.inHours % 24;
+                final minutes = d.inMinutes % 60;
+                final seconds = d.inSeconds % 60;
+                String two(int n) => n.toString().padLeft(2, '0');
+                final dd = days.toString().padLeft(2, '0');
+                return "${dd}d ${two(hours)}h ${two(minutes)}m ${two(seconds)}s";
+              }
+              return state.endTime == "00:00:00"
+                  ? SizedBox.shrink()
+                  : SlideInUp(
+                // duration: Duration(milliseconds: 800),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15,
+                  ),
+                  height:
+                  Platform.isIOS
+                      ? h(context) * .13
+                      : h(context) * .12,
+                  decoration: BoxDecoration(
+                    color: VColors.WHITE,
+                    boxShadow: [
+                      BoxShadow(
+                        color: VColors.DARK_GREY.withAlpha(50),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isOCB ? "OCB Price" : "Current Bid",
+                            style: VStyle.style(
+                              context: context,
+                              color: VColors.GREY,
+                              fontWeight: FontWeight.w600,
+                              size: 15,
+                            ),
+                          ),
+                          Text(
+                            "₹${state.detail.carDetails.currentBid}",
+                            style: VStyle.style(
+                              context: context,
+                              color: Color.fromARGB(
+                                255,
+                                255,
+                                152,
+                                7,
+                              ),
+                              fontWeight: FontWeight.w900,
+                              size: 27,
+                            ),
+                          ),
+                        ],
+                      ),
 
-                      return state.endTime == "00:00:00"
-                          ? SizedBox.shrink()
-                          : SlideInUp(
-                            // duration: Duration(milliseconds: 800),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 30,
-                                vertical: 15,
-                              ),
-                              height:
-                                  Platform.isIOS
-                                      ? h(context) * .13
-                                      : h(context) * .12,
-                              decoration: BoxDecoration(
-                                color: VColors.WHITE,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: VColors.DARK_GREY.withAlpha(50),
-                                    blurRadius: 10,
+                      Column(
+                        children: [
+                          if (!isOCB)
+                            IgnorePointer(
+                              ignoring: !hasStarted,
+                              child: InkWell(
+                                onTap: hasStarted ? () async {
+                                  final currentState =
+                                      context
+                                          .read<
+                                          VDetailsControllerBloc
+                                      >()
+                                          .state;
+                                  if (currentState
+                                  is VDetailsControllerSuccessState) {
+                                    final details =
+                                        currentState
+                                            .detail
+                                            .carDetails;
+                                    await VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
+                                      paymentStatus:
+                                      widget.paymentStatus,
+                                      from: "DETAILS",
+                                      context: context,
+
+                                      inspectionId:
+                                      widget.inspectionId,
+                                    );
+                                  }
+                                } : null,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        isOCB ? "OCB Price" : "Current Bid",
-                                        style: VStyle.style(
-                                          context: context,
-                                          color: VColors.GREY,
-                                          fontWeight: FontWeight.w600,
-                                          size: 15,
-                                        ),
-                                      ),
-                                      Text(
-                                        "₹${state.detail.carDetails.currentBid}",
-                                        style: VStyle.style(
-                                          context: context,
-                                          color: Color.fromARGB(
-                                            255,
-                                            255,
-                                            152,
-                                            7,
-                                          ),
-                                          fontWeight: FontWeight.w900,
-                                          size: 27,
-                                        ),
+                                  height: 50,
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        (hasStarted ? VColors.WARNING : VColors.GREY).withAlpha(150),
+                                        hasStarted ? VColors.WARNING : VColors.GREY,
+                                      ],
+                                    ),
+                                    borderRadius:
+                                    BorderRadius.circular(25),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: (hasStarted ? VColors.WARNING : VColors.GREY).withAlpha(60),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
                                       ),
                                     ],
                                   ),
-
-                                  Column(
-                                    children: [
-                                      if (!isOCB)
-                                        InkWell(
-                                          onTap: isBeyond24h
-                                              ? null
-                                              : () async {
-                                            final currentState =
-                                                context
-                                                    .read<
-                                                      VDetailsControllerBloc
-                                                    >()
-                                                    .state;
-                                            if (currentState
-                                                is VDetailsControllerSuccessState) {
-                                              final details =
-                                                  currentState
-                                                      .detail
-                                                      .carDetails;
-                                              await VAuctionUpdateControllerCubit.showDiologueForBidWhatsapp(
-                                                paymentStatus:
-                                                    widget.paymentStatus,
-                                                from: "DETAILS",
-                                                context: context,
-
-                                                inspectionId:
-                                                    widget.inspectionId,
-                                              );
-                                            }
-                                              },
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 20,
-                                            ),
-                                            height: 50,
-                                            margin: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                            ),
-
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  (isBeyond24h
-                                                          ? VColors.GREY
-                                                          : VColors.WARNING)
-                                                      .withAlpha(150),
-                                                  isBeyond24h
-                                                      ? VColors.GREY
-                                                      : VColors.WARNING,
-                                                ],
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: (isBeyond24h
-                                                          ? VColors.GREY
-                                                          : VColors.WARNING)
-                                                      .withAlpha(60),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                "UPDATE BID",
-                                                style: VStyle.style(
-                                                  context: context,
-                                                  color: VColors.WHITE,
-                                                  size: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                      if (isOCB)
-                                        InkWell(
-                                          onTap: () {
-                                            final currentState =
-                                                context
-                                                    .read<
-                                                      VDetailsControllerBloc
-                                                    >()
-                                                    .state;
-                                            if (currentState
-                                                is VDetailsControllerSuccessState) {
-                                              final details =
-                                                  currentState
-                                                      .detail
-                                                      .carDetails;
-                                              OcbPurchaceControlleCubit.showDiologueForOcbPurchase(
-                                                paymentStatus: widget.paymentStatus,
-                                                from: "DETAILS",
-                                                context: context,
-                                                inspectionId: widget.inspectionId,
-                                                currentBid: details.currentBid ?? '0',
-                                              );
-                                            }
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 20,
-                                            ),
-                                            height: 50,
-                                            margin: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                            ),
-
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  VColors.WARNING.withAlpha(
-                                                    150,
-                                                  ),
-                                                  VColors.WARNING,
-                                                ],
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: VColors.WARNING
-                                                      .withAlpha(60),
-                                                  blurRadius: 8,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                "Buy Now",
-                                                style: VStyle.style(
-                                                  context: context,
-                                                  color: VColors.WHITE,
-                                                  size: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.timer,
-                                            color: VColors.DARK_GREY,
-                                            size: 13,
-                                          ),
-                                          AppSpacer(widthPortion: .01),
-                                          Text(
-                                            state.endTime,
-                                            style: VStyle.style(
-                                              context: context,
-                                              fontWeight: FontWeight.bold,
-                                              color: VColors.DARK_GREY,
-                                            ),
-                                          ),
-                                        ],
+                                  child: Center(
+                                    child: Text(
+                                      hasStarted
+                                          ? "UPDATE BID"
+                                          : "AVAILABLE IN ${_formatDdHhMmSs(remainingToStart)}",
+                                      style: VStyle.style(
+                                        context: context,
+                                        color: VColors.WHITE,
+                                        size: 13,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          );
-                    } else {
-                      return SizedBox.shrink();
-                    }
-                  },
+
+                          if (isOCB)
+                            InkWell(
+                              onTap: () {
+                                final currentState =
+                                    context
+                                        .read<
+                                        VDetailsControllerBloc
+                                    >()
+                                        .state;
+                                if (currentState
+                                is VDetailsControllerSuccessState) {
+                                  final details =
+                                      currentState
+                                          .detail
+                                          .carDetails;
+                                  OcbPurchaceControlleCubit.showDiologueForOcbPurchase(
+                                    paymentStatus: widget.paymentStatus,
+                                    from: "DETAILS",
+                                    context: context,
+                                    inspectionId: widget.inspectionId,
+                                    currentBid: details.currentBid ?? '0',
+                                  );
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                height: 50,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      VColors.WARNING.withAlpha(
+                                        150,
+                                      ),
+                                      VColors.WARNING,
+                                    ],
+                                  ),
+                                  borderRadius:
+                                  BorderRadius.circular(25),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: VColors.WARNING
+                                          .withAlpha(60),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Buy Now",
+                                    style: VStyle.style(
+                                      context: context,
+                                      color: VColors.WHITE,
+                                      size: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.timer,
+                                color: VColors.DARK_GREY,
+                                size: 13,
+                              ),
+                              AppSpacer(widthPortion: .01),
+                              Text(
+                                state.endTime,
+                                style: VStyle.style(
+                                  context: context,
+                                  fontWeight: FontWeight.bold,
+                                  color: VColors.DARK_GREY,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
+              );
+            } else {
+              return SizedBox.shrink();
+            }
+          },
+        ),
       ),
     );
   }
@@ -746,62 +752,62 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
               state.detail.images.isEmpty
                   ? SizedBox.shrink()
                   : InkWell(
-                    onTap: () {
-                      context.read<VDetailsControllerBloc>().add(
-                        OnChangeImageTab(imageTabIndex: 0),
-                      );
-                      Navigator.of(context).push(
-                        AppRoutes.createRoute(
-                          BlocProvider.value(
-                            value: context.read<VDetailsControllerBloc>(),
-                            child: VCarPhotoScreen(carDetail: state.detail),
-                          ),
-                        ),
-                      );
-                    },
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Container(
-                        // width: w(context),
-                        // height: h(context) * .,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              VColors.LIGHT_GREY.withOpacity(0.3),
-                              VColors.LIGHT_GREY,
-                            ],
-                          ),
-                        ),
-                        child: FadeIn(
-                          // key: GlobalObjectKey(
-                          //   images[state.currentImageIndex].toString(),
-                          // ),
-                          child: Hero(
-                            tag: state.detail.carDetails.evaluationId,
-                            child: CachedNetworkImage(
-                              errorWidget:
-                                  (context, url, error) => Center(
-                                    child: Text(
-                                      "Image not found",
-                                      style: VStyle.style(
-                                        context: context,
-                                        color: VColors.DARK_GREY,
-                                      ),
-                                    ),
-                                  ),
-                              placeholder:
-                                  (context, url) =>
-                                      Center(child: VLoadingIndicator()),
-                              imageUrl: images[state.currentImageIndex].url,
-                              errorListener: (value) {},
+                onTap: () {
+                  context.read<VDetailsControllerBloc>().add(
+                    OnChangeImageTab(imageTabIndex: 0),
+                  );
+                  Navigator.of(context).push(
+                    AppRoutes.createRoute(
+                      BlocProvider.value(
+                        value: context.read<VDetailsControllerBloc>(),
+                        child: VCarPhotoScreen(carDetail: state.detail),
+                      ),
+                    ),
+                  );
+                },
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Container(
+                    // width: w(context),
+                    // height: h(context) * .,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          VColors.LIGHT_GREY.withOpacity(0.3),
+                          VColors.LIGHT_GREY,
+                        ],
+                      ),
+                    ),
+                    child: FadeIn(
+                      // key: GlobalObjectKey(
+                      //   images[state.currentImageIndex].toString(),
+                      // ),
+                      child: Hero(
+                        tag: state.detail.carDetails.evaluationId,
+                        child: CachedNetworkImage(
+                          errorWidget:
+                              (context, url, error) => Center(
+                            child: Text(
+                              "Image not found",
+                              style: VStyle.style(
+                                context: context,
+                                color: VColors.DARK_GREY,
+                              ),
                             ),
                           ),
+                          placeholder:
+                              (context, url) =>
+                              Center(child: VLoadingIndicator()),
+                          imageUrl: images[state.currentImageIndex].url,
+                          errorListener: (value) {},
                         ),
                       ),
                     ),
                   ),
+                ),
+              ),
               AppSpacer(heightPortion: .01),
               if (state.detail.images.isEmpty)
                 SizedBox.shrink()
@@ -814,7 +820,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                     child: Row(
                       children: List.generate(
                         images.length,
-                        (index) => GestureDetector(
+                            (index) => GestureDetector(
                           onTap: () {
                             context.read<VDetailsControllerBloc>().add(
                               OnChangeImageIndex(newIndex: index),
@@ -830,11 +836,11 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 width:
-                                    state.currentImageIndex == index ? 1 : .5,
+                                state.currentImageIndex == index ? 1 : .5,
                                 color:
-                                    state.currentImageIndex == index
-                                        ? VColors.GREENHARD
-                                        : VColors.DARK_GREY,
+                                state.currentImageIndex == index
+                                    ? VColors.GREENHARD
+                                    : VColors.DARK_GREY,
                               ),
                             ),
                             // height: 60,
@@ -844,17 +850,17 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                               child: CachedNetworkImage(
                                 errorWidget:
                                     (context, url, error) => Center(
-                                      child: Text(
-                                        "Image not found",
-                                        style: VStyle.style(
-                                          context: context,
-                                          color: VColors.DARK_GREY,
-                                        ),
-                                      ),
+                                  child: Text(
+                                    "Image not found",
+                                    style: VStyle.style(
+                                      context: context,
+                                      color: VColors.DARK_GREY,
                                     ),
+                                  ),
+                                ),
                                 placeholder:
                                     (context, url) =>
-                                        Center(child: VLoadingIndicator()),
+                                    Center(child: VLoadingIndicator()),
                                 fit: BoxFit.cover,
                                 imageUrl: images[index].url,
                               ),
@@ -875,11 +881,11 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
   }
 
   Widget _buildCarHead(
-    String brandName,
-    String location,
-    String evaId,
-    String varient,
-  ) {
+      String brandName,
+      String location,
+      String evaId,
+      String varient,
+      ) {
     return AppMargin(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -931,7 +937,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 : Icons.favorite_border_rounded,
                             // key: ValueKey(widget.isFavorite),
                             color:
-                                _isLiked ? VColors.ACCENT : VColors.DARK_GREY,
+                            _isLiked ? VColors.ACCENT : VColors.DARK_GREY,
                             size: 20,
                           ),
                         ),
@@ -1120,9 +1126,9 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                     : SizedBox.shrink(),
                 state.enables[index]
                     ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: childres,
-                    )
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: childres,
+                )
                     : SizedBox.shrink(),
               ],
             );
@@ -1186,39 +1192,39 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
               : SizedBox.shrink(),
           _isPaymentDetailsExpanded
               ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: detail.paymentDetails.isNotEmpty
-                      ? detail.paymentDetails.map((payment) => _buildPaymentDetailCard(payment)).toList()
-                      : [
-                          Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: VColors.LIGHT_GREY.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: VColors.DARK_GREY.withOpacity(0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.info_outline, color: VColors.DARK_GREY, size: 20),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    "No payment details available for this vehicle",
-                                    style: VStyle.style(
-                                      context: context,
-                                      color: VColors.DARK_GREY,
-                                      size: 14,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                )
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: detail.paymentDetails.isNotEmpty
+                ? detail.paymentDetails.map((payment) => _buildPaymentDetailCard(payment)).toList()
+                : [
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: VColors.LIGHT_GREY.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: VColors.DARK_GREY.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: VColors.DARK_GREY, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "No payment details available for this vehicle",
+                        style: VStyle.style(
+                          context: context,
+                          color: VColors.DARK_GREY,
+                          size: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )
               : SizedBox.shrink(),
         ],
       ),
@@ -1227,7 +1233,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
 
   Widget _buildPaymentDetailCard(PaymentDetail payment) {
     final Color statusColor = _getPaymentStatusColor(payment.paymentType);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -1325,12 +1331,12 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
 
   /// Build payment detail item
   Widget _buildPaymentDetailItem(
-    BuildContext context,
-    String title,
-    String data,
-    IconData icon, {
-    Color? dataColor,
-  }) {
+      BuildContext context,
+      String title,
+      String data,
+      IconData icon, {
+        Color? dataColor,
+      }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
@@ -1408,13 +1414,13 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
   }
 
   Widget _buildQuestionAndAnswerTile(
-    String qestion,
-    String answer, {
-    String? otherInfo,
-    bool showIcon = false,
-    Widget? child,
-    String? subtitle,
-  }) {
+      String qestion,
+      String answer, {
+        String? otherInfo,
+        bool showIcon = false,
+        Widget? child,
+        String? subtitle,
+      }) {
     Widget icon;
     Color color;
 
@@ -1461,61 +1467,61 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                       ),
                       subtitle != null && subtitle.isNotEmpty
                           ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children:
-                                subtitle
-                                    .split(",")
-                                    .map(
-                                      (e) => Container(
-                                        margin: EdgeInsets.only(top: 4),
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              color.withAlpha(50),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                        subtitle
+                            .split(",")
+                            .map(
+                              (e) => Container(
+                            margin: EdgeInsets.only(top: 4),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                              gradient: LinearGradient(
+                                colors: [
+                                  color.withAlpha(50),
 
-                                              VColors.WHITE.withAlpha(40),
-                                              VColors.WHITE,
-                                            ],
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "∙ ",
-                                              style: VStyle.style(
-                                                context: context,
-                                                color: color.withAlpha(100),
-                                                fontWeight: FontWeight.w500,
-                                                size: 12,
-                                              ),
-                                            ),
-                                            Flexible(
-                                              child: Text(
-                                                e,
-                                                style: VStyle.style(
-                                                  context: context,
-                                                  color: color,
-                                                  fontWeight: FontWeight.w300,
-                                                  size: 10,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                          )
+                                  VColors.WHITE.withAlpha(40),
+                                  VColors.WHITE,
+                                ],
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.start,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "∙ ",
+                                  style: VStyle.style(
+                                    context: context,
+                                    color: color.withAlpha(100),
+                                    fontWeight: FontWeight.w500,
+                                    size: 12,
+                                  ),
+                                ),
+                                Flexible(
+                                  child: Text(
+                                    e,
+                                    style: VStyle.style(
+                                      context: context,
+                                      color: color,
+                                      fontWeight: FontWeight.w300,
+                                      size: 10,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                            .toList(),
+                      )
                           : SizedBox.shrink(),
                     ],
                   ),
@@ -1523,7 +1529,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                 Flexible(
                   flex: 2,
                   child:
-                      child ??
+                  child ??
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -1539,14 +1545,14 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
 
                           otherInfo != null
                               ? Text(
-                                otherInfo,
-                                style: VStyle.style(
-                                  context: context,
-                                  color: VColors.SECONDARY,
-                                  fontWeight: FontWeight.w400,
-                                  size: 12,
-                                ),
-                              )
+                            otherInfo,
+                            style: VStyle.style(
+                              context: context,
+                              color: VColors.SECONDARY,
+                              fontWeight: FontWeight.w400,
+                              size: 12,
+                            ),
+                          )
                               : SizedBox.shrink(),
                         ],
                       ),
@@ -1567,66 +1573,66 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     return carVideos.isEmpty
         ? SizedBox.shrink()
         : Row(
-          // runAlignment: WrapAlignment.spaceBetween,
-          children:
-              carVideos
-                  .asMap()
-                  .entries
-                  .map(
-                    (e) => Flexible(
-                      child: InkWell(
-                        onTap: () async {
-                          await context
-                              .read<VCarvideoControllerCubit>()
-                              .initializePlayer(e.value, e.key);
-                          Navigator.of(context).push(
-                            AppRoutes.createRoute(
-                              CarVideoScreen(carVideos: carVideos),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          margin: EdgeInsets.only(top: 5, right: 2, left: 2),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: VColors.GREENHARD,
-                          ),
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                e.value.type == "Engine Side"
-                                    ? CupertinoIcons.wrench
-                                    : CupertinoIcons.car,
-                                color: VColors.WHITE,
-                              ),
-                              AppSpacer(widthPortion: .02),
-                              Flexible(
-                                child: Text(
-                                  e.value.type == "Walkaround" ? "Walkaround video" : e.value.type,
-                                  style: VStyle.style(
-                                    context: context,
-                                    size: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: VColors.WHITE,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+      // runAlignment: WrapAlignment.spaceBetween,
+      children:
+      carVideos
+          .asMap()
+          .entries
+          .map(
+            (e) => Flexible(
+          child: InkWell(
+            onTap: () async {
+              await context
+                  .read<VCarvideoControllerCubit>()
+                  .initializePlayer(e.value, e.key);
+              Navigator.of(context).push(
+                AppRoutes.createRoute(
+                  CarVideoScreen(carVideos: carVideos),
+                ),
+              );
+            },
+            child: Container(
+              margin: EdgeInsets.only(top: 5, right: 2, left: 2),
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
+              decoration: BoxDecoration(
+                color: VColors.GREENHARD,
+              ),
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    e.value.type == "Engine Side"
+                        ? CupertinoIcons.wrench
+                        : CupertinoIcons.car,
+                    color: VColors.WHITE,
+                  ),
+                  AppSpacer(widthPortion: .02),
+                  Flexible(
+                    child: Text(
+                      e.value.type == "Walkaround" ? "Walkaround video" : e.value.type,
+                      style: VStyle.style(
+                        context: context,
+                        size: 15,
+                        fontWeight: FontWeight.bold,
+                        color: VColors.WHITE,
                       ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                  )
-                  .toList(),
-        );
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      )
+          .toList(),
+    );
   }
 
   _buildCarOverViewTile(List<Map<String, dynamic>> data) {
@@ -1759,7 +1765,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     // Debug: Log the remarks value
     log('Remarks value: "$remarks"');
     log('Remarks isEmpty: ${remarks.isEmpty}');
-    
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
       decoration: BoxDecoration(
@@ -1831,3 +1837,4 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     );
   }
 }
+

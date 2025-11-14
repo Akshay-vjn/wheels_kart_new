@@ -101,11 +101,13 @@ class CarDetails {
   final String city;
   final String remarks;
   DateTime? bidClosingTime;
+  DateTime? bidStartTime;
   String? currentBid;
   final String evaluationId;
 
   CarDetails({
     required this.bidClosingTime,
+    required this.bidStartTime,
     required this.evaluationId,
     required this.brand,
     required this.yearOfManufacture,
@@ -137,6 +139,15 @@ class CarDetails {
         json['bidClosingTime'] == null
             ? null
             : DateTime.parse(json['bidClosingTime']),
+    bidStartTime: (() {
+      final dynamic v = json['bidStartTime'] ?? json['startTime'];
+      if (v == null) return null;
+      try {
+        return DateTime.parse(v.toString());
+      } catch (_) {
+        return null;
+      }
+    })(),
     evaluationId: json['evaluationId'] ?? 'N/A',
     brand: json["Brand"] ?? 'N/A',
     yearOfManufacture: json["Year of Manufacture"] ?? 'N/A',
@@ -188,6 +199,7 @@ class CarDetails {
     "City": city,
     "inspection_remarks": remarks,
     "Current Bid": currentBid,
+    "bidStartTime": bidStartTime?.toIso8601String(),
   };
 }
 

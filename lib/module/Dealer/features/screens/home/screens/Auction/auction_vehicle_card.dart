@@ -195,14 +195,145 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   // If bidStatus is "Open", it's still live even if bidClosingTime has passed
   bool get _isColsed => _isSold || _isCancelled;
 
-  // Check if remaining time is greater than 24 hours
-  bool get _isBeyond24h {
-    if (widget.vehicle.bidClosingTime == null) return false;
-    final remaining = widget.vehicle.bidClosingTime!.difference(DateTime.now());
-    return remaining > const Duration(hours: 24);
+  bool get _soldToMe => widget.myId == widget.vehicle.soldTo;
+
+  bool get _hasBiddingStarted {
+    final start = widget.vehicle.bidStartTime;
+    if (start == null) return true;
+    final now = DateTime.now();
+    return now.isAfter(start) || now.isAtSameMomentAs(start);
   }
 
-  bool get _soldToMe => widget.myId == widget.vehicle.soldTo;
+  Duration _timeUntilStart() {
+    final start = widget.vehicle.bidStartTime;
+    if (start == null) return Duration.zero;
+    final now = DateTime.now();
+    final diff = start.difference(now);
+    return diff.isNegative ? Duration.zero : diff;
+  }
+
+  String _formatDdHhMmSs(Duration d) {
+    final days = d.inDays;
+    final hours = d.inHours % 24;
+    final minutes = d.inMinutes % 60;
+    final seconds = d.inSeconds % 60;
+    String two(int n) => n.toString().padLeft(2, '0');
+    final dd = days.toString().padLeft(2, '0');
+    return "${dd}d ${two(hours)}h ${two(minutes)}m ${two(seconds)}s";
+  }
+
+  String _formatDdHhMmSsWithoutZeros(Duration d) {
+    final days = d.inDays;
+    final hours = d.inHours % 24;
+    final minutes = d.inMinutes % 60;
+    final seconds = d.inSeconds % 60;
+    
+    List<String> parts = [];
+    if (days > 0) parts.add("${days}d");
+    if (hours > 0 || days > 0) parts.add("${hours.toString().padLeft(2, '0')}h");
+    if (minutes > 0 || hours > 0 || days > 0) parts.add("${minutes.toString().padLeft(2, '0')}m");
+    parts.add("${seconds.toString().padLeft(2, '0')}s");
+    
+    return parts.join(" ");
+  }
+
+  Widget _buildCountdownBox(String value, String label) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: VColors.WHITE.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: VColors.BLACK.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              value,
+              style: VStyle.style(
+                context: context,
+                color: VColors.BLACK,
+                size: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: VStyle.style(
+              context: context,
+              color: VColors.BLACK,
+              size: 10,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _buildCountdownBoxes(Duration d) {
+  //   final days = d.inDays;
+  //   final hours = d.inHours % 24;
+  //   final minutes = d.inMinutes % 60;
+  //   final seconds = d.inSeconds % 60;
+  //
+  //   String two(int n) => n.toString().padLeft(2, '0');
+  //
+  //   List<Widget> boxes = [];
+  //
+  //   if (days > 0) {
+  //     boxes.add(_buildCountdownBox(two(days), "Days"));
+  //   }
+  //   boxes.add(_buildCountdownBox(two(hours), "Hours"));
+  //   boxes.add(_buildCountdownBox(two(minutes), "Mins"));
+  //   boxes.add(_buildCountdownBox(two(seconds), "Secs"));
+  //
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: boxes,
+  //   );
+  // }
+  Widget _buildCountdownBoxes(Duration d) {
+    if (d.inSeconds <= 0) return SizedBox.shrink();
+
+    final days = d.inDays;
+    final hours = d.inHours % 24;
+    final minutes = d.inMinutes % 60;
+    final seconds = d.inSeconds % 60;
+
+    String two(int n) => n.toString().padLeft(2, '0');
+
+    // Build list dynamically (remove leading zeros)
+    List<Widget> boxes = [];
+
+    if (days > 0) {
+      boxes.add(_buildCountdownBox(two(days), "Days"));
+    }
+
+    if (!(days == 0 && hours == 0)) {
+      boxes.add(_buildCountdownBox(two(hours), "Hours"));
+    }
+
+    if (!(days == 0 && hours == 0 && minutes == 0)) {
+      boxes.add(_buildCountdownBox(two(minutes), "Mins"));
+    }
+
+    // Always show seconds if > 0
+    boxes.add(_buildCountdownBox(two(seconds), "Secs"));
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: boxes,
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -263,7 +394,7 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
 
                               if (_isOpened || _isSold) ...[
                                 AppSpacer(heightPortion: .01),
-                                if (!_isBeyond24h)
+                                if (_hasBiddingStarted)
                                   Row(
                                     mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -859,39 +990,21 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
   Widget _buildBidButton() {
     // Check if timer is zero or auction is closed
     bool isTimerZero = _endTime == "00:00:00";
-
-    // 24h gating: disable bidding if more than 24 hours remain until closing
-    Duration remaining = Duration.zero;
-    if (widget.vehicle.bidClosingTime != null) {
-      remaining = widget.vehicle.bidClosingTime!.difference(DateTime.now());
-    }
-    final bool isBeyond24h = remaining > const Duration(hours: 24);
-
-    // Time until entering the 24h bid window
-    final Duration untilWindow = isBeyond24h
-        ? remaining - const Duration(hours: 24)
-        : Duration.zero;
-
-    String formatDuration(Duration d) {
-      final days = d.inDays;
-      final hours = d.inHours % 24;
-      final minutes = d.inMinutes % 60;
-      final seconds = d.inSeconds % 60;
-      String two(int n) => n.toString().padLeft(2, '0');
-      final time = "${two(hours)}h ${two(minutes)}m ${two(seconds)}s";
-      return days > 0 ? "${days}d ${time}" : time;
-    }
-
-    bool isButtonDisabled = isTimerZero || _isColsed || isBeyond24h;
+    // final bool notStarted = !_hasBiddingStarted;
+    final bool notStarted = !_hasBiddingStarted || _isNotStarted;
+    bool isButtonDisabled = isTimerZero || _isColsed || notStarted;
 
     String buttonText = "";
     Color buttonColor;
-    IconData buttonIcon;
+    IconData? buttonIcon;
+    Widget? countdownWidget;
 
-    if (isBeyond24h) {
-      // Show countdown boxes instead of text
-      buttonColor = const Color.fromARGB(255, 255, 255, 255);
-      buttonIcon = Icons.lock;
+    if (notStarted) {
+      final remaining = _timeUntilStart();
+      buttonText = "Available in";
+      buttonColor = Colors.white;
+      buttonIcon = null; // No lock icon
+      countdownWidget = _buildCountdownBoxes(remaining);
     } else {
       if (!_isIamInThisBid) {
         buttonText = isButtonDisabled ? "Closed" : "Place Your Bid";
@@ -916,11 +1029,11 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
         );
       },
       child: Container(
-        height: 50,
+        height: notStarted ? null : 50,
+        padding: notStarted ? const EdgeInsets.symmetric(vertical: 12) : null,
         margin: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
-          color: isBeyond24h ? buttonColor : null,
-          gradient: isBeyond24h ? null : LinearGradient(
+          gradient: LinearGradient(
             colors: [buttonColor.withAlpha(150), buttonColor],
           ),
           borderRadius: BorderRadius.circular(25),
@@ -932,17 +1045,50 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
             ),
           ],
         ),
-        child: isBeyond24h
-            ? Center(child: buildCountdownBoxes(untilWindow))
+        child: notStarted
+            ? Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              flex: 0,
+              child: Text(
+                buttonText, // "Available in"
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: VStyle.style(
+                  context: context,
+                  color: VColors.BLACK,
+                  size: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+
+            SizedBox(width: 6),
+
+            // COUNTDOWN (RIGHT)
+            Flexible(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: NeverScrollableScrollPhysics(),
+                child: countdownWidget!,
+              ),
+            ),
+          ],
+        )
+
+
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    buttonIcon,
-                    color: (isButtonDisabled ? VColors.DARK_GREY : VColors.WHITE),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
+                  if (buttonIcon != null) ...[
+                    Icon(
+                      buttonIcon,
+                      color: (isButtonDisabled ? VColors.DARK_GREY : VColors.WHITE),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   Text(
                     buttonText,
                     style: VStyle.style(
@@ -954,86 +1100,6 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
                   ),
                 ],
               ),
-      ),
-    );
-  }
-
-  // Build countdown boxes widget for better UI
-  Widget buildCountdownBoxes(Duration duration) {
-    // Ensure duration is non-negative
-    final safeDuration = duration.isNegative ? Duration.zero : duration;
-    
-    final days = safeDuration.inDays;
-    final hours = safeDuration.inHours % 24;
-    final minutes = safeDuration.inMinutes % 60;
-    final seconds = safeDuration.inSeconds % 60;
-    
-    String two(int n) => n.toString().padLeft(2, '0');
-    
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            "Available in ",
-            style: VStyle.style(
-              context: context,
-              color: VColors.BLACK,
-              size: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(width: 10),
-          if (days > 0) ...[
-            _buildCountdownBox(days.toString(), "d"),
-            const SizedBox(width: 6,),
-          ],
-          _buildCountdownBox(two(hours), "h"),
-          const SizedBox(width: 6),
-          _buildCountdownBox(two(minutes), "m"),
-          const SizedBox(width: 6),
-          _buildCountdownBox(two(seconds), "s"),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildCountdownBox(String value, String label) {
-    return Container(
-      width: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-      decoration: BoxDecoration(
-        color: VColors.BLACK.withAlpha(25),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: VColors.BLACK.withAlpha(60),
-          width: 1.5,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            value,
-            style: VStyle.style(
-              context: context,
-              color: VColors.BLACK,
-              size: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label.toUpperCase(),
-            style: VStyle.style(
-              context: context,
-              color: VColors.BLACK.withAlpha(220),
-              size: 10,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1129,7 +1195,12 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
     if (status == "Not Started" || _isNotStarted) {
       title = "NOT STARTED";
       color = Colors.red;
+    } else if ((status == "Open" || _isOpened) && !_hasBiddingStarted) {
+      // If status is Open but bidding hasn't started yet, show NOT STARTED
+      title = "NOT STARTED";
+      color = Colors.red;
     } else if (status == "Open" || _isOpened) {
+      // Only show OPEN when bidding has actually started
       title = "OPEN";
       color = VColors.SUCCESS;
     } else if (status == "Closed") {
@@ -1146,9 +1217,14 @@ class _VAuctionVehicleCardState extends State<VAuctionVehicleCard>
       title = "CLOSED";
       color = EvAppColors.DARK_SECONDARY;
     } else {
-      // Default fallback
-      title = "OPEN";
-      color = VColors.SUCCESS;
+      // Default fallback - check if bidding has started
+      if (_hasBiddingStarted) {
+        title = "OPEN";
+        color = VColors.SUCCESS;
+      } else {
+        title = "NOT STARTED";
+        color = Colors.red;
+      }
     }
     
     return Container(

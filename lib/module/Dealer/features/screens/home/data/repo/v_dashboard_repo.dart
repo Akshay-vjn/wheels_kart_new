@@ -24,31 +24,69 @@ class VAuctionData {
             'Authorization': state.userModel.token!,
           },
         );
+        // log('body: ${response.body}');
+
 
         final decodedata = jsonDecode(response.body);
 
         if (decodedata['status'] == 200) {
           // Handle both old and new API response formats
           final data = decodedata['data'];
-          
+
+          // Log to check bidStartTime field
+          log('📊 [API Response] Checking bidStartTime field...');
+
           // New format: data contains 'live' and 'closed' arrays
           if (data is Map && data.containsKey('live') && data.containsKey('closed')) {
+            final liveData = data['live'] as List?;
+            final closedData = data['closed'] as List?;
+
+            // Check first vehicle in live array
+            if (liveData != null && liveData.isNotEmpty) {
+              final firstVehicle = liveData[0] as Map<String, dynamic>;
+              log('🔍 [API Response] First live vehicle keys: ${firstVehicle.keys.toList()}');
+              if (firstVehicle.containsKey('bidStartTime')) {
+                log('✅ [API Response] bidStartTime FOUND: ${firstVehicle['bidStartTime']}');
+              } else {
+                log('❌ [API Response] bidStartTime NOT FOUND in live vehicles');
+              }
+            }
+
+            // Check first vehicle in closed array
+            if (closedData != null && closedData.isNotEmpty) {
+              final firstClosed = closedData[0] as Map<String, dynamic>;
+              if (firstClosed.containsKey('bidStartTime')) {
+                log('✅ [API Response] bidStartTime FOUND in closed: ${firstClosed['bidStartTime']}');
+              }
+            }
+
             return {
               'error': decodedata['error'],
               'message': decodedata['message'],
               'live': data['live'] ?? [],
               'closed': data['closed'] ?? [],
             };
-          } 
+          }
           // Old format: data is a direct list
           else if (data is List) {
+            // Check first vehicle in list
+            if (data.isNotEmpty) {
+              final firstVehicle = data[0] as Map<String, dynamic>;
+              log('🔍 [API Response] First vehicle keys: ${firstVehicle.keys.toList()}');
+              if (firstVehicle.containsKey('bidStartTime')) {
+                log('✅ [API Response] bidStartTime FOUND: ${firstVehicle['bidStartTime']}');
+              } else {
+                log('❌ [API Response] bidStartTime NOT FOUND');
+              }
+            }
+
             return {
               'error': decodedata['error'],
               'message': decodedata['message'],
               'data': data,
             };
           }
-          
+
           // Default case
           return {
             'error': decodedata['error'],

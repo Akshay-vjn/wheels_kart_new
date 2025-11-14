@@ -458,15 +458,30 @@ class _ViewCarLegalsState extends State<ViewCarLegals> {
 
   void _handleUpdateLegals(BuildContext context, String inspectionId) {
     // Handle update legals functionality
-    // You can navigate to an update screen or show a dialog
-    Navigator.of(context).pushReplacement(
-      AppRoutes.createRoute(
-        BlocProvider(
-          create: (context) => UpdateRemarksCubit(),
-          child: UploadCarLegals(inspectionId: inspectionId),
+    // Pass existing data to the upload screen for editing
+    final state = context.read<FetchDocumentsCubit>().state;
+    if (state is FetchDocumentsSuccessState) {
+      Navigator.of(context).pushReplacement(
+        AppRoutes.createRoute(
+          BlocProvider(
+            create: (context) => UpdateRemarksCubit(),
+            child: UploadCarLegals(
+              inspectionId: inspectionId,
+              existingData: state.vehicleLgalModel,
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        AppRoutes.createRoute(
+          BlocProvider(
+            create: (context) => UpdateRemarksCubit(),
+            child: UploadCarLegals(inspectionId: inspectionId),
+          ),
+        ),
+      );
+    }
   }
 }
 

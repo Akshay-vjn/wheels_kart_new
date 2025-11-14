@@ -9,7 +9,7 @@
 // import 'package:wheels_kart/common/utils/routes.dart';
 // import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 // import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/upload_vehicle_photo_repo.dart';
-// import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/camera_screen.dart';
+// import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/.dart';
 
 // part 'uplaod_vehilce_photo_state.dart';
 
