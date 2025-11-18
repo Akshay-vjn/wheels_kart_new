@@ -99,8 +99,10 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/camera_platform_utils.dart';
+import 'package:wheels_kart/common/controllers/auth%20cubit/auth_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/repositories/inspection/upload_vehicle_photo_repo.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/bloc/get%20data/fetch_vehilce_photo/fetch_uploaded_vehilce_photos_cubit.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/camera_screen.dart';
@@ -160,39 +162,234 @@ class UplaodVehilcePhotoCubit extends Cubit<UplaodVehilcePhotoState> {
     int index,
     String angleName,
   ) async {
-    // open camera screen which returns a File via callback
+    // Check if user is ADMIN
+    final userData = await AppAuthController().getUserData;
+    final isAdmin = userData.userType == "ADMIN";
+
+    if (isAdmin) {
+      // Show image source selection for ADMIN only
+      _showImageSourceSheet(context, inspectionId, index, angleName);
+    } else {
+      // EVALUATOR - open camera directly
+      _openCamera(context, inspectionId, index, angleName);
+    }
+  }
+
+  void _showImageSourceSheet(
+    BuildContext context,
+    String inspectionId,
+    int index,
+    String angleName,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(dialogContext).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Select Image Source",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "Choose how you want to upload photo",
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                SizedBox(height: 24),
+                Row(
+                  children: [
+                    // Camera Option
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(dialogContext);
+                          _openCamera(context, inspectionId, index, angleName);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.camera_alt_rounded,
+                                  size: 28,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                "Camera",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    // Gallery Option
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(dialogContext);
+                          _openGallery(context, inspectionId, index, angleName);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.grey[300]!,
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.05),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.photo_library_rounded,
+                                  size: 28,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                "Gallery",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openCamera(
+    BuildContext context,
+    String inspectionId,
+    int index,
+    String angleName,
+  ) async {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder:
-            (_) => CameraScreen(
-              isFromVhiclePhotoScreen: true,
-              angleName: angleName, // Pass angle name to camera screen
-              onImageCaptured: (file) {
-                // immediate UI update
-                selectedImageFile = file;
-                if (selectedAngleId != null) {
-                  _uploadItems[selectedAngleId!] = UploadItem(
-                    angleName: angleName,
-                    angleId: selectedAngleId!,
-                    file: file,
-                    status: UploadStatus.queued,
-                  );
-                }
-                emit(
-                  UplaodVehilcePhotoSuccessState(selectedAngleId, file, index),
-                );
-                // schedule background upload (non-blocking)
-                _queueBackgroundUpload(
-                  context,
-                  selectedAngleId!,
-                  file,
-                  inspectionId,
-                  index,
-                  angleName,
-                );
-              },
-            ),
+        builder: (_) => CameraScreen(
+          isFromVhiclePhotoScreen: true,
+          angleName: angleName,
+          onImageCaptured: (file) {
+            _handleImageSelected(context, file, inspectionId, index, angleName);
+          },
+        ),
       ),
+    );
+  }
+
+  Future<void> _openGallery(
+    BuildContext context,
+    String inspectionId,
+    int index,
+    String angleName,
+  ) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      final file = File(image.path);
+      if (context.mounted) {
+        _handleImageSelected(context, file, inspectionId, index, angleName);
+      }
+    }
+  }
+
+  Future<void> _handleImageSelected(
+    BuildContext context,
+    File file,
+    String inspectionId,
+    int index,
+    String angleName,
+  ) async {
+    selectedImageFile = file;
+    if (selectedAngleId != null) {
+      _uploadItems[selectedAngleId!] = UploadItem(
+        angleName: angleName,
+        angleId: selectedAngleId!,
+        file: file,
+        status: UploadStatus.queued,
+      );
+    }
+    emit(UplaodVehilcePhotoSuccessState(selectedAngleId, file, index));
+    _queueBackgroundUpload(
+      context,
+      selectedAngleId!,
+      file,
+      inspectionId,
+      index,
+      angleName,
     );
   }
 

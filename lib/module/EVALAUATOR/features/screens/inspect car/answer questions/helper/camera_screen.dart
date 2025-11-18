@@ -678,6 +678,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
+import 'package:lottie/lottie.dart';
+import 'package:native_device_orientation/native_device_orientation.dart';
 
 class CameraScreen extends StatefulWidget {
   final bool? isFromVhiclePhotoScreen;
@@ -703,15 +705,22 @@ class _CameraScreenState extends State<CameraScreen>
 
   double _currentZoom = 1.0;
   double _maxZoom = 6.0;
-  FlashMode _currentFlashMode = FlashMode.off;
 
+  // FLASH MODE
+  FlashMode _flashMode = FlashMode.off;
+
+  // Orientation detection
+  NativeDeviceOrientation _deviceOrientation =
+      NativeDeviceOrientation.portraitUp;
+  bool _showRotateHint = false;
+
+  // ANGLE THAT ALLOWS PORTRAIT → e.g. Center console
   bool get _requiresPortrait {
     if (widget.angleName == null) return false;
     final angleNameLower = widget.angleName!.toLowerCase();
-    return angleNameLower.contains('center console gear infotainment') ||
-        (angleNameLower.contains('center console') &&
-            (angleNameLower.contains('gear') ||
-                angleNameLower.contains('infotainment')));
+    return angleNameLower.contains('center console') ||
+        angleNameLower.contains('gear') ||
+        angleNameLower.contains('infotainment');
   }
 
   @override
@@ -719,7 +728,7 @@ class _CameraScreenState extends State<CameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Lock orientation
+    // Lock orientation based on angleName
     if (_requiresPortrait) {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
@@ -731,6 +740,23 @@ class _CameraScreenState extends State<CameraScreen>
         DeviceOrientation.landscapeRight,
       ]);
     }
+
+    // LISTEN TO DEVICE ORIENTATION (IOS ONLY)
+    NativeDeviceOrientationCommunicator()
+        .onOrientationChanged(useSensor: true)
+        .listen((orientation) {
+      _deviceOrientation = orientation;
+
+      if (Platform.isIOS && !_requiresPortrait) {
+        bool isPortrait =
+            orientation == NativeDeviceOrientation.portraitUp ||
+                orientation == NativeDeviceOrientation.portraitDown;
+
+        setState(() {
+          _showRotateHint = isPortrait;
+        });
+      }
+    });
 
     _initializeCamera();
   }
@@ -750,28 +776,65 @@ class _CameraScreenState extends State<CameraScreen>
       );
 
       await _controller!.initialize();
-
-      await _controller!.setFlashMode(_currentFlashMode);
       await _controller!.setZoomLevel(_currentZoom);
+
+      // apply flash after init
+      await _controller!.setFlashMode(_flashMode);
 
       if (mounted) setState(() => _isCameraReady = true);
     } catch (e) {
-      debugPrint('Camera initialization failed: $e');
+      debugPrint('Camera init failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Camera not available: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Camera not available: $e')),
         );
         Navigator.of(context).pop();
       }
     }
   }
 
+  Future<void> _toggleFlash() async {
+    if (_controller == null) return;
+
+    FlashMode next;
+
+    if (_flashMode == FlashMode.off) {
+      next = FlashMode.auto;
+    } else if (_flashMode == FlashMode.auto) {
+      next = FlashMode.always;
+    } else if (_flashMode == FlashMode.always) {
+      next = FlashMode.torch;
+    } else {
+      next = FlashMode.off;
+    }
+
+    await _controller!.setFlashMode(next);
+
+    if (mounted) {
+      setState(() {
+        _flashMode = next;
+      });
+    }
+  }
+
+  IconData get _flashIcon {
+    switch (_flashMode) {
+      case FlashMode.off:
+        return Icons.flash_off;
+      case FlashMode.auto:
+        return Icons.flash_auto;
+      case FlashMode.always:
+        return Icons.flash_on;
+      case FlashMode.torch:
+        return Icons.highlight;
+      default:
+        return Icons.flash_off;
+    }
+  }
+
   Future<void> _capturePhoto() async {
     if (_controller == null || !_controller!.value.isInitialized) return;
-    if (_isCapturing) return;
+    if (_isCapturing || _showRotateHint) return;
 
     setState(() => _isCapturing = true);
 
@@ -781,57 +844,16 @@ class _CameraScreenState extends State<CameraScreen>
 
       widget.onImageCaptured(imageFile);
 
-      // Reset orientation for vehicle screen
-      if (widget.isFromVhiclePhotoScreen == true) {
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ]);
-        await Future.delayed(const Duration(milliseconds: 300));
-      }
-
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       debugPrint("Capture error: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to capture photo: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Failed to capture photo: $e')),
         );
       }
     } finally {
       if (mounted) setState(() => _isCapturing = false);
-    }
-  }
-
-  Future<void> _toggleFlash() async {
-    if (_controller == null) return;
-
-    FlashMode nextMode;
-    if (_currentFlashMode == FlashMode.off) {
-      nextMode = FlashMode.auto;
-    } else if (_currentFlashMode == FlashMode.auto) {
-      nextMode = FlashMode.always;
-    } else {
-      nextMode = FlashMode.off;
-    }
-
-    await _controller!.setFlashMode(nextMode);
-    if (mounted) setState(() => _currentFlashMode = nextMode);
-  }
-
-  IconData get _flashIcon {
-    switch (_currentFlashMode) {
-      case FlashMode.off:
-        return Icons.flash_off;
-      case FlashMode.always:
-        return Icons.flash_on;
-      case FlashMode.auto:
-        return Icons.flash_auto;
-      default:
-        return Icons.flash_off;
     }
   }
 
@@ -840,19 +862,12 @@ class _CameraScreenState extends State<CameraScreen>
     WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
 
-    // Reset orientation after exit
     if (widget.isFromVhiclePhotoScreen == true) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ]);
-      });
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
-    } else if (widget.isFromVhiclePhotoScreen == null) {
+    } else {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
@@ -879,17 +894,32 @@ class _CameraScreenState extends State<CameraScreen>
         children: [
           CameraPreview(_controller!),
 
-          // Flash Toggle Button (top-right)
-          Positioned(
-            top: 40,
-            right: 20,
-            child: IconButton(
-              onPressed: _toggleFlash,
-              icon: Icon(_flashIcon, color: Colors.white, size: 28),
+          // FLASH BUTTON (disabled when rotate hint visible)
+          if (!_showRotateHint)
+            Positioned(
+              top: 40,
+              right: 20,
+              child: IconButton(
+                onPressed: _toggleFlash,
+                icon: Icon(_flashIcon, color: Colors.white, size: 30),
+              ),
             ),
-          ),
 
-          // Zoom Slider (bottom, above capture button)
+          // ROTATE HINT OVERLAY
+          if (_showRotateHint)
+            Container(
+              color: Colors.black54,
+              alignment: Alignment.center,
+              child: SizedBox(
+                height: 160,
+                child: Lottie.asset(
+                  "assets/lottie/rotate_phone.json",
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+
+          // ZOOM SLIDER
           Positioned(
             bottom: 100,
             left: 20,
@@ -903,35 +933,36 @@ class _CameraScreenState extends State<CameraScreen>
                   divisions: 10,
                   activeColor: Colors.orange,
                   inactiveColor: Colors.white24,
-                  label: '${_currentZoom.toStringAsFixed(1)}x',
                   onChanged: (value) async {
                     setState(() => _currentZoom = value);
                     await _controller!.setZoomLevel(value);
                   },
                 ),
                 Text(
-                  '${_currentZoom.toStringAsFixed(1)}x',
-                  style: const TextStyle(color: Colors.white70),
+                  "${_currentZoom.toStringAsFixed(1)}x",
+                  style: const TextStyle(color: Colors.white),
                 ),
               ],
             ),
           ),
 
-          // Capture Button
+          // CAPTURE BUTTON
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: FloatingActionButton(
-                backgroundColor:
-                _isCapturing ? Colors.grey : Colors.orange,
-                onPressed: _isCapturing ? null : _capturePhoto,
+                backgroundColor: (_isCapturing || _showRotateHint)
+                    ? Colors.grey
+                    : Colors.orange,
+                onPressed: (_isCapturing || _showRotateHint)
+                    ? null
+                    : _capturePhoto,
                 child: const Icon(Icons.camera_alt, color: Colors.white),
               ),
             ),
           ),
 
-          // Capture Overlay
           if (_isCapturing)
             Container(
               color: Colors.black26,

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wheels_kart/common/utils/custome_show_messages.dart';
 import 'package:wheels_kart/common/utils/routes.dart';
 import 'package:wheels_kart/module/EVALAUATOR/features/screens/inspect%20car/answer%20questions/helper/camera_screen.dart';
@@ -23,6 +24,8 @@ import 'package:wheels_kart/module/EVALAUATOR/data/bloc/submit%20answer%20contro
 import 'package:wheels_kart/module/EVALAUATOR/data/model/inspection_prefill_model.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/question_model_data.dart';
 import 'package:wheels_kart/module/EVALAUATOR/data/model/upload_inspection_model.dart';
+
+import '../../../../../../../common/controllers/auth cubit/auth_cubit.dart';
 
 class BuildQuestionTile extends StatefulWidget {
   final QuestionModelData question;
@@ -1240,6 +1243,170 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
   }
 
   void _openCamera(int questionIndex) async {
+    // Check if user is ADMIN
+    final userData = await AppAuthController().getUserData;
+    final isAdmin = userData.userType == "ADMIN";
+
+    if (isAdmin) {
+      // Show image source selection for ADMIN only
+      _showImageSourceDialog(questionIndex);
+    } else {
+      // EVALUATOR - open camera directly
+      _openCameraScreen(questionIndex);
+    }
+  }
+
+  void _showImageSourceDialog(int questionIndex) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(dialogContext).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Select Image Source",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "Choose how you want to upload photo",
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                SizedBox(height: 24),
+                Row(
+                  children: [
+                    // Camera Option
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(dialogContext);
+                          _openCameraScreen(questionIndex);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.camera_alt_rounded,
+                                  size: 28,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                "Camera",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    // Gallery Option
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pop(dialogContext);
+                          _openGallery(questionIndex);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.grey[300]!,
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.05),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.photo_library_rounded,
+                                  size: 28,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                "Gallery",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openCameraScreen(int questionIndex) async {
     final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
 
     if (currentState is SuccessFetchQuestionsState) {
@@ -1316,29 +1483,84 @@ class _BuildQuestionTileState extends State<BuildQuestionTile>
           ),
         ),
       );
-      //  final listOfImages = helperVariable["listOfImages"];
-      // final imagepicker = ImagePicker();
-      // final pickedXfile = await imagepicker.pickImage(
-      //   source: ImageSource.camera,
-      //   preferredCameraDevice: CameraDevice.rear,
-      // );
-      // if (pickedXfile != null) {
-      //   final bytes = await pickedXfile.readAsBytes();
-      //   //--
-      //   img.Image? image = img.decodeImage(bytes);
-      //   if (image == null) {
-      //     throw Exception("Unable to decode image");
-      //   }
-      //   if (image.width > 800) {
-      //     image = img.copyResize(image, width: 800);
-      //   }
-      //   final compressed = img.encodeJpg(image, quality: 80);
-      //   //---------------
-      //   setState(() {
-      //     listOfImages.add(compressed);
-      //   });
-      // Functions.resetButtonStatus(context, questionIndex);
-      // }
+    }
+  }
+
+  Future<void> _openGallery(int questionIndex) async {
+    final currentState = BlocProvider.of<FetchQuestionsBloc>(context).state;
+
+    if (currentState is SuccessFetchQuestionsState) {
+      // Set flags to track image capture operation
+      setState(() {
+        _isCapturingImage = true;
+      });
+      
+      // Save current scroll position
+      final scrollController = _getScrollController();
+      double? savedPosition;
+      if (scrollController != null) {
+        savedPosition = scrollController.offset;
+        _pendingScrollPosition = savedPosition;
+        print("🖼️ Saved scroll position: $savedPosition");
+        ScrollPositionManager.setScrollPosition(savedPosition);
+      }
+
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        final file = File(image.path);
+        final listOfImages = helperVariable["listOfImages"];
+
+        try {
+          // Show immediate feedback - UI is responsive
+          setState(() {
+            _isCapturingImage = false;
+          });
+
+          // Process image in background isolate using compute()
+          print("🖼️ Starting background image processing...");
+          final compressed = await compute(_processImageInBackground, file.path);
+          print("🖼️ Image processed in background: ${compressed.length} bytes");
+
+          // Add image to list (quick operation on main thread)
+          if (mounted) {
+            setState(() {
+              listOfImages.add(compressed);
+            });
+            print("🖼️ Image added to list, total images: ${listOfImages.length}");
+
+            // Reset button status (this triggers BLoC state change)
+            Functions.resetButtonStatus(context, questionIndex);
+            print("🖼️ Button status reset");
+
+            // Restore scroll position and focus on add picture button AFTER BLoC state change completes
+            Future.delayed(const Duration(milliseconds: 400), () {
+              if (mounted) {
+                _restoreScrollPosition(scrollController, savedPosition);
+                
+                // Focus on add picture button after scroll restoration
+                Future.delayed(const Duration(milliseconds: 200), () {
+                  if (mounted) {
+                    _focusOnAddPictureButton();
+                  }
+                });
+              }
+            });
+          }
+        } catch (e) {
+          print("❌ Error in image processing: $e");
+          if (mounted) {
+            setState(() {
+              _isCapturingImage = false;
+            });
+          }
+        }
+      } else {
+        setState(() {
+          _isCapturingImage = false;
+        });
+      }
     }
   }
 
