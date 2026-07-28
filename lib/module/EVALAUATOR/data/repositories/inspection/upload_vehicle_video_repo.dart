@@ -38,19 +38,40 @@ class UploadVehicleVideoRepo {
 
         log('Upload video response status: ${response.statusCode}');
         log('Upload video response body: ${response.body}');
-        
-        final decodedata = jsonDecode(response.body);
 
-        if (decodedata['status'] == 200 || response.statusCode == 200) {
+        // Handle HTML error responses (e.g. 413 Payload Too Large, 502 Bad Gateway, 504 Gateway Timeout)
+        if (response.statusCode == 413) {
           return {
-            'error': decodedata['error'] ?? false,
-            'message': decodedata['message'] ?? 'Video uploaded successfully',
-            'data': decodedata['data'],
+            'error': true,
+            'message': 'Video payload is too large for the server (HTTP 413). Please try a shorter video.',
           };
-        } else {
+        } else if (response.statusCode >= 500) {
           return {
-            'error': decodedata['error'] ?? true,
-            'message': decodedata['message'] ?? 'Upload failed',
+            'error': true,
+            'message': 'Server error (HTTP ${response.statusCode}). Please try again later.',
+          };
+        }
+
+        try {
+          final decodedata = jsonDecode(response.body);
+
+          if (decodedata['status'] == 200 || response.statusCode == 200) {
+            return {
+              'error': decodedata['error'] ?? false,
+              'message': decodedata['message'] ?? 'Video uploaded successfully',
+              'data': decodedata['data'],
+            };
+          } else {
+            return {
+              'error': decodedata['error'] ?? true,
+              'message': decodedata['message'] ?? 'Upload failed',
+            };
+          }
+        } on FormatException catch (_) {
+          log('Response is not valid JSON. Response body: ${response.body}');
+          return {
+            'error': true,
+            'message': 'Server returned an invalid response (HTTP ${response.statusCode}).',
           };
         }
       } catch (e) {
